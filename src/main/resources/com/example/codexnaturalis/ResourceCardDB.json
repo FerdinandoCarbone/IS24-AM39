@@ -1,0 +1,29 @@
+[
+  { "idCarta": 10,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "seed": "Blue",
+    "Corners": [
+      {"UL":"Ink","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
+      {"UL":"Wolf","UR":"Empty","BL":"Papyrus","BR":"Leaf"}
+    ]
+  },
+  { "idCarta": 100,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "seed": "Red",
+    "Corners": [
+      {"UL":"Ink","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
+      {"UL":"Wolf","UR":"Empty","BL":"Papyrus","BR":"Leaf"}
+    ]
+  },
+  { "idCarta": 12,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "seed": "Starter",
+    "Corners": [
+      {"UL":"Leaf","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
+      {"UL":"Mushroom","UR":"Empty","BL":"Empty","BR":"Wolf"}
+    ]
+  }
+]
