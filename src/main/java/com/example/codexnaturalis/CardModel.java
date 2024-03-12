@@ -38,7 +38,7 @@ abstract class GameCard extends Card{
     private CardFace activeFace;
     private Seed seed;
     private Corner[] corners;
-    public enum Materials {
+    public enum CornerElement {
         Ink,
         Papyrus,
         Feather,
@@ -67,13 +67,18 @@ abstract class GameCard extends Card{
     }
 }
 class ResourceCard extends GameCard{
-    public enum Resources{
+    private ResourceCorner[] corners;
+    public enum CornerElement{
         Mushroom,
         Leaf,
         Wolf,
         Butterfly,
+        Ink,
+        Papyrus,
+        Feather,
+        Empty
     }
-    ResourceCard(@JsonProperty("idCarta")int idCarta,@JsonProperty("artRef") String[] artReference,@JsonProperty("positionedPoints") int positionedPoint,@JsonProperty("seed") Seed seed, @JsonProperty("Corners")Corner[] corners) {
+    ResourceCard(@JsonProperty("idCarta")int idCarta,@JsonProperty("artRef") String[] artReference,@JsonProperty("positionedPoints") int positionedPoint,@JsonProperty("seed") Seed seed, @JsonProperty("Corners")ResourceCorner[] corners) {
     super(idCarta, artReference, positionedPoint, seed, corners);
 
 }
@@ -87,28 +92,42 @@ class StartingCard extends GameCard{
 class GoldCard extends GameCard{
 
 
-    public GoldCard(@JsonProperty("idCarta")int idCarta,@JsonProperty("artRef") String[] artReference,@JsonProperty("positionedPoints") int positionedPoint,@JsonProperty("seed") Seed seed, @JsonProperty("Corners")Corner[] corners) {
+    public GoldCard(@JsonProperty("idCarta")int idCarta,@JsonProperty("artRef") String[] artReference,@JsonProperty("positionedPoints") int positionedPoint,@JsonProperty("seed") Seed seed, @JsonProperty("Corners")GoldCorner[] corners) {
         super(idCarta, artReference, positionedPoint, seed, corners);
     }
-    public void correctCornerCheck(){
+    /*public void correctCornerCheck(){
         String[] x = new String[]{"Ink","Mushroom","Wolf","Feather"};
         if(this.getCorner(0).getCorners().equals(x)) System.out.println("YES");
-    }
+    }*/
 }
-class Corner {
-    private String[] corners;
+class Corner{
+    private GameCard.CornerElement[] corners;
 
-    public Corner(@JsonProperty("UL")String ul,@JsonProperty("UR")String ur,@JsonProperty("BL")String bl,@JsonProperty("BR")String br){
-        this.corners = new String[]{ul,ur,bl,br};
-    }
-    public String[] getCorners(){
+    public GameCard.CornerElement[] getCorners(){
         return this.corners.clone();
     }
     public void printAllCorners(){
-        for (String i: this.corners
-             ) {
+        for (GameCard.CornerElement i: this.corners
+        ) {
             System.out.println(i);
         }
+    }
+}
+class GoldCorner extends Corner{
+    private GoldCard.CornerElement[] corners;
+    public GoldCorner(@JsonProperty("UL") GoldCard.CornerElement ul, @JsonProperty("UR")GoldCard.CornerElement ur, @JsonProperty("BL")GoldCard.CornerElement bl, @JsonProperty("BR")GoldCard.CornerElement br){
+
+        this.corners = new GoldCard.CornerElement[]{ul,ur,bl,br};
+    }
+
+
+}
+class ResourceCorner extends Corner{
+
+    private ResourceCard.CornerElement[] corners;
+    public ResourceCorner(@JsonProperty("UL") ResourceCard.CornerElement ul, @JsonProperty("UR")ResourceCard.CornerElement ur, @JsonProperty("BL")ResourceCard.CornerElement bl, @JsonProperty("BR")ResourceCard.CornerElement br){
+
+        this.corners = new ResourceCard.CornerElement[]{ul,ur,bl,br};
     }
 
 }

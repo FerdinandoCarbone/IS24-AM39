@@ -4,8 +4,8 @@
     "positionedPoints": 0,
     "seed": "Blue",
     "Corners": [
-      {"UL":"Ink","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
-      {"UL":"Wolf","UR":"Empty","BL":"Papyrus","BR":"Leaf"}
+      {"UL":"Ink","UR":"Empty","BL":"Empty","BR":"Feather"},
+      {"UL":"Ink","UR":"Empty","BL":"Papyrus","BR":"Empty"}
     ]
   },
   { "idCarta": 201,
@@ -13,8 +13,8 @@
     "positionedPoints": 0,
     "seed": "Red",
     "Corners": [
-      {"UL":"Ink","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
-      {"UL":"Wolf","UR":"Empty","BL":"Papyrus","BR":"Leaf"}
+      {"UL":"Ink","UR":"Feather","BL":"Empty","BR":"Feather"},
+      {"UL":"Empty","UR":"Empty","BL":"Papyrus","BR":"Empty"}
     ]
   },
   { "idCarta": 203,
@@ -22,8 +22,8 @@
     "positionedPoints": 0,
     "seed": "Starter",
     "Corners": [
-      {"UL":"Leaf","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
-      {"UL":"Mushroom","UR":"Empty","BL":"Empty","BR":"Wolf"}
+      {"UL":"Empty","UR":"Empty","BL":"Papyrus","BR":"Feather"},
+      {"UL":"Ink","UR":"Empty","BL":"Feather","BR":"Empty"}
     ]
   }
 ]
