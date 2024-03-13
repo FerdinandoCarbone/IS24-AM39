@@ -4,12 +4,12 @@ public class Player {
 
     private String playerName;
     private Token token;
-    private PlayerDeck playerDeck;
+    private Decks.PlayerDeck playerDeck;
     private boolean firstPlayer;
     private Field playerField;
     private int punteggio;
 
-    public Player(String playerName, Token token, PlayerDeck playerDeck, Field playerField) {
+    public Player(String playerName, Token token, Decks.PlayerDeck playerDeck, Field playerField) {
         this.playerName = playerName;
         this.token = token;
         this.playerDeck = playerDeck;
@@ -20,14 +20,14 @@ public class Player {
 
     /**
      * Piazza la carta Iniziale al centro del tavolo del Player
-     * @param fronte
+     * @param fronte true se la carta è piazzata di fronte o di retro
      */
-    public void placeStarterCard(int fronte) {
+    public void placeStarterCard(boolean fronte) {
         int r, c;
         r = c = playerField.getSlots().length / 2;
-        StarterCard carta = playerDeck.getStarterCard();
+        Card.NonObjectiveCard.StarterCard carta = playerDeck.getStarterCard();
         carta.setIsPlacedFront(fronte);
-        playerField.getSlots()[r][c].setBusySlot(1);
+        playerField.getSlots()[r][c].setBusySlot(true);
         playerField.getSlots()[r][c].setCardSlot(carta);
         playerDeck.setStarterCard(null);
         System.out.println("Carta " + carta.getClass() + " piazzata nello slot [" + r + "][" + c + "]." );
@@ -38,11 +38,11 @@ public class Player {
      * @param rCartaPiazzata riga della carta A
      * @param cCartaPiazzata colonna della carta B
      * @param cartaDaPiazzare carta B
-     * @param fronte indica come sarà piazzata B, 1 è fronte 0 retro
+     * @param fronte indica come sarà piazzata B, true è fronte false retro
      * @param angoloCartaPiazzata indica l'angolo della carta A dove verrà piazzata B
      */
-    public void placeCard(int rCartaPiazzata, int cCartaPiazzata, NonObjectiveCard cartaDaPiazzare, int fronte, int angoloCartaPiazzata) {
-        NonObjectiveCard cartaPiazzata = playerField.getSlots()[rCartaPiazzata][cCartaPiazzata].getCardSlot();
+    public void placeCard(int rCartaPiazzata, int cCartaPiazzata, Card.NonObjectiveCard cartaDaPiazzare, boolean fronte, int angoloCartaPiazzata) {
+        Card.NonObjectiveCard cartaPiazzata = playerField.getSlots()[rCartaPiazzata][cCartaPiazzata].getCardSlot();
         if (!checkCardInDeck(cartaDaPiazzare)) return;
         if (checkAvailableCorner(cartaPiazzata, cartaPiazzata.getPiazzataInFronte(), angoloCartaPiazzata)) {
             int offSetR = calculateOffSetR(angoloCartaPiazzata);
@@ -52,7 +52,7 @@ public class Player {
             int angoloOccupatoCartaDaPiazzare = findCornerToPlace(angoloCartaPiazzata);
 
             playerField.getSlots()[rCartaDaPiazzare][cCartaDaPiazzare].setCardSlot(cartaDaPiazzare);
-            playerField.getSlots()[rCartaDaPiazzare][cCartaDaPiazzare].setBusySlot(1);
+            playerField.getSlots()[rCartaDaPiazzare][cCartaDaPiazzare].setBusySlot(true);
             cartaDaPiazzare.setIsPlacedFront(fronte);
 
             updateCorner(cartaPiazzata, angoloCartaPiazzata);
@@ -101,7 +101,7 @@ public class Player {
      */
     private boolean checkBusySlot(int r, int c) {
         boolean flag;
-        if (playerField.getSlots()[r][c].getBusySlot() == 1) {
+        if (playerField.getSlots()[r][c].getBusySlot()) {
             System.out.println("ERRORE: SLOT GIA' OCCUPATO");
             flag = true;
         } else {
@@ -115,7 +115,7 @@ public class Player {
      * @param carta
      * @return
      */
-    private boolean checkCardInDeck(NonObjectiveCard carta) {
+    private boolean checkCardInDeck(Card.NonObjectiveCard carta) {
         boolean flag;
         if (!playerDeck.getCards().contains(carta)) {
             System.out.println("ERRORE: CARTA NON DISPONIBILE NEL MAZZO");
@@ -133,12 +133,12 @@ public class Player {
      * @param angolo
      * @return
      */
-    private boolean checkAvailableCorner(NonObjectiveCard carta, int fronte, int angolo) {
+    private boolean checkAvailableCorner(Card.NonObjectiveCard carta, boolean fronte, int angolo) {
         boolean flag;
-        if (fronte == 1) {
-            flag = carta.getFrontCorners().get(angolo).getAvailableCorner() == 1;
+        if (fronte) {
+            flag = carta.getFrontCorners().get(angolo).getAvailableCorner();
         } else {
-            flag = carta.getBackCorners().get(angolo).getAvailableCorner() == 1;
+            flag = carta.getBackCorners().get(angolo).getAvailableCorner();
         }
         return flag;
     }
@@ -149,11 +149,11 @@ public class Player {
      * @param carta
      * @param angolo
      */
-    private void updateCorner(NonObjectiveCard carta, int angolo) {
-        if (carta.getPiazzataInFronte() == 1) {
-            carta.getFrontCorners().get(angolo).setAvailableCorner(0);
+    private void updateCorner(Card.NonObjectiveCard carta, int angolo) {
+        if (carta.getPiazzataInFronte()) {
+            carta.getFrontCorners().get(angolo).setAvailableCorner(false);
         } else {
-            carta.getBackCorners().get(angolo).setAvailableCorner(0);
+            carta.getBackCorners().get(angolo).setAvailableCorner(false);
         }
     }
 
@@ -230,7 +230,7 @@ public class Player {
         return playerName;
     }
 
-    public PlayerDeck getPlayerDeck() {
+    public Decks.PlayerDeck getPlayerDeck() {
         return playerDeck;
     }
 

@@ -23,14 +23,14 @@ public class Field {
      * @param c colonna dello slot
      */
     public void cardAnalysis(int r, int c) {
-        if (slots[r][c].getBusySlot() == 0) {
+        if (slots[r][c].getBusySlot() == false) {
             System.out.println("ERORRE: SLOT NON OCCUPATO DA NESSUNA CARTA.");
             return;
         }
-        NonObjectiveCard carta = slots[r][c].getCardSlot();
+        Card.NonObjectiveCard carta = slots[r][c].getCardSlot();
         System.out.println("Analisi della carta nello slot [" + r + "][" + c + "].");
         System.out.println(carta.getClass());
-        if (carta.getPiazzataInFronte() == 1) {
+        if (carta.getPiazzataInFronte()) {
             carta.printFrontCorners();
         } else {
             carta.printBackCorners();
@@ -47,5 +47,41 @@ public class Field {
 
     public int getC() {
         return c;
+    }
+
+    public static class Slot {
+
+        private boolean busySlot;
+        private Card.NonObjectiveCard cardSlot;
+
+        public Slot() {
+            this.busySlot = false;
+        }
+
+        public void analisiSlot() {
+            if (busySlot) {
+                System.out.println("Lo slot è occupato da una carta");
+                cardSlot.toString();
+            } else {
+                System.out.println("Lo slot è libero");
+            }
+        }
+
+        //GETTER
+        public boolean getBusySlot() {
+            return busySlot;
+        }
+        public Card.NonObjectiveCard getCardSlot() {
+            return cardSlot;
+        }
+
+        //SETTER
+        public void setBusySlot(boolean busySlot) {
+            this.busySlot = busySlot;
+        }
+
+        public void setCardSlot(Card.NonObjectiveCard cardSlot) {
+            this.cardSlot = cardSlot;
+        }
     }
 }

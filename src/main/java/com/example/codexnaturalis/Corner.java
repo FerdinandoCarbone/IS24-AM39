@@ -2,23 +2,23 @@ package com.example.codexnaturalis;
 
 public class Corner {
 
-    private int availableCorner;
-    private RisorsaOggetto resourceObject;
+    private boolean availableCorner;
+    private ResourceElement resourceObject;
 
-    public Corner(int availableCorner, RisorsaOggetto risorsa) {
+    public Corner(boolean availableCorner, ResourceElement risorsa) {
         this.availableCorner = availableCorner;
         this.resourceObject = risorsa;
     }
 
-    public void setAvailableCorner(int availableCorner) {
+    public void setAvailableCorner(boolean availableCorner) {
         this.availableCorner = availableCorner;
     }
 
-    public int getAvailableCorner() {
+    public boolean getAvailableCorner() {
         return availableCorner;
     }
 
-    public RisorsaOggetto getRisorsa() {
+    public ResourceElement getRisorsa() {
         return resourceObject;
     }
 }

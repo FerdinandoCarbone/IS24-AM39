@@ -6,13 +6,13 @@ import java.util.Scanner;
 
 public class Match {
     private ArrayList<Player> players;
-    private ResourceDeck resourceDeck;
-    private ObjectiveDeck objectiveDeck;
-    private GoldDeck goldDeck;
-    private StarterDeck starterDeck;
+    private Decks.ResourceDeck resourceDeck;
+    private Decks.ObjectiveDeck objectiveDeck;
+    private Decks.GoldDeck goldDeck;
+    private Decks.StarterDeck starterDeck;
     private ScoreTracker scoreTracker;
 
-    public Match(ArrayList<Player> players, ResourceDeck resourceDeck, ObjectiveDeck objectiveDeck, GoldDeck goldDeck, StarterDeck starterDeck, ScoreTracker scoreTracker) {
+    public Match(ArrayList<Player> players, Decks.ResourceDeck resourceDeck, Decks.ObjectiveDeck objectiveDeck, Decks.GoldDeck goldDeck, Decks.StarterDeck starterDeck, ScoreTracker scoreTracker) {
         this.players = players;
         this.resourceDeck = resourceDeck;
         this.objectiveDeck = objectiveDeck;
@@ -46,7 +46,7 @@ public class Match {
         playingPlayer.printStarterCard();
         System.out.println("Seleziona se vuoi piazzare la carta iniziale di fronte o retro: 1) -> Fronte | 0) -> Retro");
         sceltaFronte = scanner.nextInt();
-        playingPlayer.placeStarterCard(sceltaFronte);
+        playingPlayer.placeStarterCard(sceltaFronte == 1);
         playingPlayer.printField();
     }
 
@@ -89,7 +89,7 @@ public class Match {
         }
         /*Il giocatore vede la carta sul tavolo che ha scelto come base*/
         System.out.println("Carta selezionata sul tavolo:");
-        if (playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().getPiazzataInFronte() == 1) {
+        if (playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().getPiazzataInFronte()) {
             playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().printFrontCorners();
         } else {
             playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().printBackCorners();
@@ -99,7 +99,7 @@ public class Match {
         System.out.println("Seleziona l'angolo della carta sul tavolo a cui vuoi attaccarti (a partire da in alto a dx in senso orario 0->3): ");
         sceltaAngolo = scanner.nextInt();
         /*La carta scelta dal giocatore viene piazzata in modo opportuna sul tavolo attaccata alla carta selezionata come base*/
-        playingPlayer.placeCard(riga, colonna, playingPlayer.getPlayerDeck().getCards().get(cartaSelezionata-1), sceltaFronte, sceltaAngolo);
+        playingPlayer.placeCard(riga, colonna, playingPlayer.getPlayerDeck().getCards().get(cartaSelezionata-1), (sceltaFronte == 1), sceltaAngolo);
         /*Display del tavolo per controllare*/
         playingPlayer.printField();
     }
@@ -140,7 +140,7 @@ public class Match {
         }
     }
 
-    private void chooseSecretCard(Player playingPlayer, ObjectiveCard carta1, ObjectiveCard carta2) {
+    private void chooseSecretCard(Player playingPlayer, Card.ObjectiveCard carta1, Card.ObjectiveCard carta2) {
         Scanner scanner = new Scanner(System.in);
         int sceltaGiocatore;
         System.out.println("Scegli una Carta Obiettivo Segreto:");
