@@ -2,6 +2,7 @@ package com.example.codexnaturalis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Card {
@@ -13,9 +14,9 @@ public class Card {
         this.idCard = idCard;
         this.artRef = artRef;
     }
-    //TODO: DA CANCELLARE PROVVISORIO
-    public Card() {
 
+    public int getIdCard() {
+        return idCard;
     }
 }
 abstract class NonObjectiveCard extends Card {
@@ -24,36 +25,36 @@ abstract class NonObjectiveCard extends Card {
         private ArrayList<Corner> backCorners;
         private boolean isPlacedFront = true;
 
-        public NonObjectiveCard(int idCarta, String[] artRef, ArrayList<Corner> frontCorners, ArrayList<Corner> backCorners) {
-            super(idCarta, artRef);
+        public NonObjectiveCard(int idCard, String[] artRef, ArrayList<Corner> frontCorners, ArrayList<Corner> backCorners) {
+            super(idCard, artRef);
             this.frontCorners = frontCorners;
             this.backCorners = backCorners;
         }
-    //TODO: DA CANCELLARE PROVVISORIO
-    public NonObjectiveCard(ArrayList<Corner> frontCorners) {
-        super();
-        this.frontCorners = frontCorners;
-    }
 
-    /**
-         * Printa a console gli angoli frontali della carta con [0] se non è disponibile e [1] se disponibile
+        /**
+         * Printa a console gli angoli frontali della carta
          */
         public void printFrontCorners() {
-            System.out.println("[" + frontCorners.get(3).isAvailableCorner() + "][" + frontCorners.get(0).isAvailableCorner() + "]");
-            System.out.println("[" + frontCorners.get(2).isAvailableCorner() + "][" + frontCorners.get(1).isAvailableCorner() + "]");
+            System.out.println("Front Corners");
+            System.out.print("[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]");
+            System.out.println("[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]");
+            System.out.print("[" + (frontCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(2).getResourceElement()) + "]");
+            System.out.println("[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]");
         }
 
         /**
          * Printa a console gli angoli posteriori della carta con [0] se non è disponibile e [1] se disponibile
          */
         public void printBackCorners() {
-            System.out.println("[" + backCorners.get(3).isAvailableCorner() + "][" + backCorners.get(0).isAvailableCorner() + "]");
-            System.out.println("[" + backCorners.get(2).isAvailableCorner() + "][" + backCorners.get(1).isAvailableCorner() + "]");
+            System.out.println("Back Corners");
+            System.out.print("[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]");
+            System.out.println("[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]");
+            System.out.print("[" + (backCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(2).getResourceElement()) + "]");
+            System.out.println("[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]");
         }
 
         /**
          * Ritorna 1 se la carta è piazzata frontalmente sul tavolo, 0 altrimenti
-         *
          * @return
          */
         public boolean isPlacedFront() {
@@ -82,24 +83,15 @@ class StarterCard extends NonObjectiveCard {
             /**
              * Constructor of StarterCard
              *
-             * @param idCarta:             ID of the card
+             * @param idCard:             ID of the card
              * @param artRef:              Art Reference of the Card
              * @param frontCorners:        An ArrayList of the 4 front corners
              * @param backCorners:         Defines the corners in the back of the card
              * @param backCentreResources: ArrayList of the possible Resources on the back of the card
              */
-            public StarterCard(int idCarta, String[] artRef, ArrayList<Corner> frontCorners, ArrayList<Corner> backCorners, ArrayList<ResourceGoldCard.ResourceElement> backCentreResources) {
-                super(idCarta, artRef, frontCorners, backCorners);
+            public StarterCard(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("frontCorners") ArrayList<Corner> frontCorners, @JsonProperty("backCorners") ArrayList<Corner> backCorners, @JsonProperty("backCenter") ArrayList<ResourceGoldCard.ResourceElement> backCentreResources) {
+                super(idCard, artRef, frontCorners, backCorners);
                 this.backCentreResources = backCentreResources;
-            }
-            //TODO: DA CANCELLARE PROVVISORIO
-            public StarterCard() {
-                super(new ArrayList<Corner>(Arrays.asList(
-                        new Corner(ResourceGoldCard.ResourceElement.Ink),
-                        new Corner(ResourceGoldCard.ResourceElement.Ink),
-                        new Corner(ResourceGoldCard.ResourceElement.Ink),
-                        new Corner(ResourceGoldCard.ResourceElement.Ink)
-                )));
             }
         }
 abstract class ResourceGoldCard extends NonObjectiveCard {
@@ -117,11 +109,23 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         Feather,
         empty
     }
-public ResourceGoldCard(int idCard, String[] artRef, int points, ArrayList<Corner> frontCorners, Seed seed) {
-    super(idCard, artRef, frontCorners, frontCorners);
-    this.seed = seed;
-            }
-        }
+    //TODO: DA ELIMINARE, COSTRUTTORE DIFETTOSO
+    /*public ResourceGoldCard(int idCard, String[] artRef, int points, ArrayList<Corner> frontCorners, Seed seed) {
+        super(idCard, artRef, frontCorners, frontCorners);
+        this.seed = seed;
+    }*/
+
+    public ResourceGoldCard(int idCard, String[] artRef, ArrayList<Corner> frontCorners, int points, Seed seed) {
+        super(idCard, artRef, frontCorners, new ArrayList<>(Arrays.asList(
+                new Corner(true, ResourceElement.empty),
+                new Corner(true, ResourceElement.empty),
+                new Corner(true, ResourceElement.empty),
+                new Corner(true, ResourceElement.empty)
+        )));
+        this.points = points;
+        this.seed = seed;
+    }
+}
             /**
              * ResourceCard: subClass of ResourceGoldCard. No extra fields
              */
@@ -133,13 +137,9 @@ class ResourceCard extends ResourceGoldCard {
                  * @param artRef:             Art Reference of the Card
                  * @param frontCorners:       An ArrayList of the 4 front corners
                  */
-                public ResourceCard(@JsonProperty("idCarta")int idCard,@JsonProperty("artRef") String[] artRef, @JsonProperty("positionedPoints") int points , @JsonProperty("Corners") ArrayList<Corner> frontCorners,@JsonProperty("seed") Seed seed) {
-                    super(idCard, artRef, points, frontCorners, seed);
+                public ResourceCard(@JsonProperty("idCard")int idCard,@JsonProperty("artRef") String[] artRef, @JsonProperty("frontCorners") ArrayList<Corner> frontCorners, @JsonProperty("points") int points ,@JsonProperty("seed") Seed seed) {
+                    super(idCard, artRef, frontCorners, points, seed);
                 }
-                /*ResourceCard(@JsonProperty("idCarta")int idCarta,@JsonProperty("artRef") String[] artReference,@JsonProperty("positionedPoints") int positionedPoint,@JsonProperty("seed") Seed seed, @JsonProperty("Corners")ResourceCorner[] corners) {
-                    super(idCarta, artReference, positionedPoint, seed, corners);
-
-                }*/
             }
 
             /**
@@ -165,8 +165,8 @@ class GoldCard extends ResourceGoldCard {
                     this.requiredResources = requiredResources;
                 }
                 */
-                public GoldCard(@JsonProperty("idCarta")int idCard,@JsonProperty("artRef") String[] artRef, @JsonProperty("positionedPoints")int points, @JsonProperty("Corners") ArrayList<Corner> frontCorners,@JsonProperty("seed") Seed seed, @JsonProperty("requiredResources") ArrayList<ResourceGoldCard.ResourceElement> requiredResources) {
-                    super(idCard, artRef, points, frontCorners, seed);
+                public GoldCard(@JsonProperty("idCard")int idCard,@JsonProperty("artRef") String[] artRef, @JsonProperty("frontCorners") ArrayList<Corner> frontCorners, @JsonProperty("points")int points, @JsonProperty("seed") Seed seed, @JsonProperty("requiredResources") ArrayList<ResourceGoldCard.ResourceElement> requiredResources) {
+                    super(idCard, artRef, frontCorners, points, seed);
                     this.requiredResources = requiredResources;
                 }
 
@@ -191,10 +191,6 @@ class GoldCard extends ResourceGoldCard {
         public ObjectiveCard(int idCarta, String[] artRef, int points) {
             super(idCarta, artRef);
             this.points = points;
-        }
-        //TODO: DA CANCELLARE
-        public ObjectiveCard() {
-
         }
 
         /**

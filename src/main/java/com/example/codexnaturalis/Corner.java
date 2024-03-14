@@ -14,8 +14,8 @@ public class Corner {
      * Constructor of Corner
      * @param resourceElement: defines what is contained in the corner if available
      */
-    public Corner(@JsonProperty("Element") ResourceGoldCard.ResourceElement resourceElement) {
-        this.availableCorner = true;
+    public Corner(@JsonProperty("available") boolean availableCorner, @JsonProperty("Element") ResourceGoldCard.ResourceElement resourceElement) {
+        this.availableCorner = availableCorner;
         this.resourceElement = resourceElement;
     }
 
@@ -39,7 +39,7 @@ public class Corner {
      * Getter of resourceElement
      * @return ResourceElement that is contained in an available corner
      */
-    public ResourceGoldCard.ResourceElement getresourceElement() {
+    public ResourceGoldCard.ResourceElement getResourceElement() {
         return resourceElement;
     }
 }

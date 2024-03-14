@@ -21,14 +21,19 @@ public abstract class Decks {
     }
 }
 class DrawingDeck extends Decks{
-    private static ArrayList<ResourceCard> totalResourceCard= new ArrayList<ResourceCard>();
-    private static ArrayList<GoldCard> totalGoldCard = new ArrayList<GoldCard>();
-    private ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<ObjectiveCard>();
-    private ArrayList<StarterCard> totalStartingCards = new ArrayList<StarterCard>();
+    private static ArrayList<ResourceCard> totalResourceCard= new ArrayList<>();
+    private static ArrayList<GoldCard> totalGoldCard = new ArrayList<>();
+    private ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<>();
+    private static ArrayList<StarterCard> totalStartingCards = new ArrayList<>();
+
+    public static ArrayList<StarterCard> getTotalStartingCards() {
+        return totalStartingCards;
+    }
 
     public static void shuffle() throws IOException {
         DrawingDeck.totalGoldCard = (ArrayList<GoldCard>)GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/GoldCardDB.json");
         DrawingDeck.totalResourceCard = (ArrayList<ResourceCard>)ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ResourceCardDB.json");
+        DrawingDeck.totalStartingCards = (ArrayList<StarterCard>)StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/StarterCardDB.json");
         //this.totalObjectiveCards = ;
         //this.totalStartingCards = ;
     }
@@ -56,10 +61,9 @@ class DrawingDeck extends Decks{
     }
 
     /**
-     * The method generates the player deck by randomically choosing 2 cards
+     * The method generates the player deck by randomly choosing 2 cards
      * @return PlayerDeck
      */
-
     public static PlayerDeck generatePlayerDeck() {
         try {
             shuffle();
@@ -69,6 +73,7 @@ class DrawingDeck extends Decks{
         Random rand = new Random();
         int z;
         ArrayList<ResourceGoldCard> deckGen = new ArrayList<>();
+        StarterCard starterGen;
         for(int i=0;i<2;i++){
             z = rand.nextInt(totalResourceCard.size());
             deckGen.add(totalResourceCard.get(z));
@@ -77,7 +82,9 @@ class DrawingDeck extends Decks{
         z = rand.nextInt(totalGoldCard.size());
         deckGen.add(totalGoldCard.get(z));
         totalGoldCard.remove(z);
-        return new PlayerDeck(deckGen);
+        z = rand.nextInt(totalStartingCards.size());
+        starterGen = totalStartingCards.get(z);
+        return new PlayerDeck(deckGen, starterGen);
     }
 
 }
@@ -89,15 +96,15 @@ class DrawingDeck extends Decks{
         /**
          *  starterCard: starter Card of the player
          */
-        private StarterCard starterCard = new StarterCard();
+        private StarterCard starterCard;
         /**
          * secretObjectiveCard: secret Objective Card of the player
          */
-        private ObjectiveCard secretObjectiveCard = new ObjectiveCard();
+        private ObjectiveCard secretObjectiveCard;
 
-        public PlayerDeck(ArrayList<ResourceGoldCard> playerCards)
-        {
+        public PlayerDeck(ArrayList<ResourceGoldCard> playerCards, StarterCard starterCard) {
             this.playerCards = playerCards;
+            this.starterCard = starterCard;
         }
         /**
          * Setter of starterCard

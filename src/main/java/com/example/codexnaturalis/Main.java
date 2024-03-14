@@ -1,17 +1,11 @@
 package com.example.codexnaturalis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         Player p1 = new Player("Giorgio", new Token("Rosso"), new Field(5, 5));
-        Match match = new Match(new ArrayList<>(Arrays.asList(
-                p1
-        )), new ScoreTracker());
-
-        match.startMatch();
-
+        p1.getPlayerDeck().getStarterCard().printFrontCorners();
     }
 }

@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class CardDatabaseLoader{
@@ -37,7 +35,7 @@ class ObjectiveCardDatabaseLoader extends CardDatabaseLoader {
         return cards;
     }
 }
-class StartingCardDatabaseLoader extends CardDatabaseLoader {
+class StarterCardDatabaseLoader extends CardDatabaseLoader {
     public static List<StarterCard> loadCardsFromFile(String filename) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         List<StarterCard> cards = objectMapper.readValue(new File(filename), new TypeReference<List<StarterCard>>() {
