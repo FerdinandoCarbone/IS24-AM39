@@ -6,9 +6,16 @@ import java.util.Random;
 
 public abstract class Decks {
     public static class StarterDeck {
+        /**
+         * starterCards: ArrayList of ALL starter Cards
+         */
         private ArrayList<Card.NonObjectiveCard.StarterCard> starterCards = new ArrayList<>(Arrays.asList(
         ));
 
+        /**
+         * Getter of starterCards
+         * @return ArrayList of starterCards
+         */
         public ArrayList<Card.NonObjectiveCard.StarterCard> getStarterCards() {
             return starterCards;
         }
@@ -20,28 +27,55 @@ public abstract class Decks {
         private Card.NonObjectiveCard.StarterCard starterCard;
         private Card.ObjectiveCard secretObjectiveCard;
 
-        public PlayerDeck(ArrayList<Card.NonObjectiveCard> cards, Card.NonObjectiveCard.StarterCard starterCard) {
+        /**
+         * Constructor of PlayerDeck
+         * @param cards: ArrayList of the cards the player has except the Secret Card and the Starter Card
+         * @param starterCard: starter Card of the player
+         * @param secretObjectiveCard: secret Objective Card of the player
+         */
+        public PlayerDeck(ArrayList<Card.NonObjectiveCard> cards, Card.NonObjectiveCard.StarterCard starterCard, Card.ObjectiveCard secretObjectiveCard) {
             this.cards = cards;
             this.starterCard = starterCard;
+            this.secretObjectiveCard = secretObjectiveCard;
         }
 
+        /**
+         * Setter of starterCard
+         * @param starterCard: starter Card of the player
+         */
         public void setStarterCard(Card.NonObjectiveCard.StarterCard starterCard) {
             this.starterCard = starterCard;
         }
 
-        public void setCartaObiettivoSegreto(Card.ObjectiveCard objectiveCardSegreto) {
-            this.secretObjectiveCard = objectiveCardSegreto;
+        /**
+         * Setter of secretObjectiveCard
+         * @param secretObjectiveCard: secret Objective Card of the player
+         */
+        public void setSecretObjectiveCard(Card.ObjectiveCard secretObjectiveCard) {
+            this.secretObjectiveCard = secretObjectiveCard;
         }
 
+        /**
+         * Getter of cards
+         * @return ArrayList of the cards the player has except the Secret Card and the Starter Card
+         */
         public ArrayList<Card.NonObjectiveCard> getCards() {
             return cards;
         }
 
+        /**
+         * Getter of the starter Card
+         * @return starter Card of the player
+         */
         public Card.NonObjectiveCard.StarterCard getStarterCard() {
             return starterCard;
         }
 
-        public Card.ObjectiveCard getCartaObiettivoSegreto() {
+        /**
+         * Getter of
+         * @return secret Objective Card of the player
+         */
+        public Card.ObjectiveCard getSecretObjectiveCard() {
             return secretObjectiveCard;
         }
     }
@@ -50,15 +84,21 @@ public abstract class Decks {
 
         private ArrayList<Card.ObjectiveCard> objectiveCards = new ArrayList<>();
 
+        /**
+         * Getter of ObjectiveDeck
+         * @return
+         */
         public ArrayList<Card.ObjectiveCard> getObjectiveCards() {
             return objectiveCards;
         }
     }
 
     public static class GoldDeck implements canShuffle{
-        private ArrayList<Card.NonObjectiveCard.ResourceGoldCard.GoldCard> goldCards = new ArrayList<>(Arrays.asList(
-        ));
+        private ArrayList<Card.NonObjectiveCard.ResourceGoldCard.GoldCard> goldCards = new ArrayList<>();
 
+        /**
+         * Shuffles the deck
+         */
         public void shuffleDeck() {
             Random rand = new Random();
             for (int i = 0; i < goldCards.size(); i++) {
@@ -70,6 +110,9 @@ public abstract class Decks {
             System.out.println("Mazzo Mischiato");
         }
 
+        /**
+         * Prints the deck
+         */
         public void printDeck() {
             System.out.println("Gold deck:");
             for (int i = 0; i < goldCards.size(); i++) {
@@ -77,6 +120,10 @@ public abstract class Decks {
             }
         }
 
+        /**
+         * Getter of gold cards
+         * @return ArrayList of all gold cards
+         */
         public ArrayList<Card.NonObjectiveCard.ResourceGoldCard.GoldCard> getGoldCards() {
             return goldCards;
         }
@@ -89,6 +136,9 @@ public abstract class Decks {
         public ArrayList<Card.NonObjectiveCard.ResourceGoldCard.ResourceCard> resourceCards = new ArrayList<>(Arrays.asList(
         ));
 
+        /**
+         * Shuffles the deck
+         */
         public void shuffleDeck() {
             Random rand = new Random();
             for (int i = 0; i < resourceCards.size(); i++) {
@@ -100,13 +150,19 @@ public abstract class Decks {
             System.out.println("Deck Shuffled");
         }
 
-        public void printMazzo() {
+        /**
+         * Prints the deck
+         */
+        public void printDeck() {
             System.out.println("Resource Cards:");
             for (int i = 0; i < resourceCards.size(); i++) {
                 System.out.println(i + ") [" + resourceCards.get(i).getClass() + "]");
             }
         }
-
+        /**
+         * Getter of resource cards
+         * @return ArrayList of all resource cards
+         */
         public ArrayList<Card.NonObjectiveCard.ResourceGoldCard.ResourceCard> getResourceCards() {
             return resourceCards;
         }

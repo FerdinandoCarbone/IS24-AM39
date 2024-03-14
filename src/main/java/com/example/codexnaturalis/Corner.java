@@ -5,20 +5,37 @@ public class Corner {
     private boolean availableCorner;
     private ResourceElement resourceObject;
 
-    public Corner(boolean availableCorner, ResourceElement risorsa) {
+    /**
+     * Constructor of Corner
+     * @param availableCorner: boolean value, defines whether a corner is available or not
+     * @param resourceElement: defines what is contained in the corner if available
+     */
+    public Corner(boolean availableCorner, ResourceElement resourceElement) {
         this.availableCorner = availableCorner;
-        this.resourceObject = risorsa;
+        this.resourceObject = resourceElement;
     }
 
+    /**
+     * Setter of availableCorner
+     * @param availableCorner: boolean value, defines whether a corner is available or not
+     */
     public void setAvailableCorner(boolean availableCorner) {
         this.availableCorner = availableCorner;
     }
 
-    public boolean getAvailableCorner() {
+    /**
+     * Getter of availableCorner
+     * @return boolean that defines the availability of the corner
+     */
+    public boolean isAvailableCorner() {
         return availableCorner;
     }
 
-    public ResourceElement getRisorsa() {
+    /**
+     * Getter of resourceObject
+     * @return ResourceElement that is contained in an available corner
+     */
+    public ResourceElement getResourceObject() {
         return resourceObject;
     }
 }

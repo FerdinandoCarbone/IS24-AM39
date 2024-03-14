@@ -12,6 +12,15 @@ public class Match {
     private Decks.StarterDeck starterDeck;
     private ScoreTracker scoreTracker;
 
+    /**
+     * Constructor of Match
+     * @param players: ArrayList of all players in the match
+     * @param resourceDeck: resource Deck
+     * @param objectiveDeck: Objective deck
+     * @param goldDeck: gold deck
+     * @param starterDeck: starter deck
+     * @param scoreTracker: score tracker
+     */
     public Match(ArrayList<Player> players, Decks.ResourceDeck resourceDeck, Decks.ObjectiveDeck objectiveDeck, Decks.GoldDeck goldDeck, Decks.StarterDeck starterDeck, ScoreTracker scoreTracker) {
         this.players = players;
         this.resourceDeck = resourceDeck;
@@ -22,8 +31,8 @@ public class Match {
     }
 
     /**
-     * Sceglie casualmente l'indice (0-index) del giocatore che inizia la partita e che quindi avrà il "Token Nero"
-     * @return
+     * Casually chooses the index of the first player of the match
+     * @return int, index of the first player
      */
     private int randomIndex() {
         Random random = new Random();
@@ -31,6 +40,11 @@ public class Match {
         return giocatoreIniziale;
     }
 
+    /**
+     * Chooses who will be the first player and updates its firstPlayer attribute
+     * @param playingPlayerIndex: index of the randomly chosen first player
+     * @return Player, first player of the match
+     */
     private Player chooseFirstPlayer(int playingPlayerIndex) {
         Player playingPlayer = players.get(playingPlayerIndex);
         playingPlayer.setFirstPlayer(true);
@@ -38,6 +52,10 @@ public class Match {
         return playingPlayer;
     }
 
+    /**
+     * places the player's starter card on its field
+     * @param playingPlayer: player that is playing at the moment
+     */
     private void placeStarterCard(Player playingPlayer) {
         Scanner scanner = new Scanner(System.in);
         int sceltaFronte;
@@ -50,6 +68,11 @@ public class Match {
         playingPlayer.printField();
     }
 
+    /**
+     * Lets the player select a card from its deck to place on its field
+     * @param playingPlayer: player that is playing at the moment
+     * @return int, defines the number of the card in the player's deck
+     */
     private int selectCard(Player playingPlayer) {
         Scanner scanner = new Scanner(System.in);
         int sceltaCarta;
@@ -61,6 +84,10 @@ public class Match {
         return sceltaCarta;
     }
 
+    /**
+     * By using auxiliary private methods, allows the player the place a card on its field
+     * @param playingPlayer: player that is playing at the moment
+     */
     private void placeCard(Player playingPlayer) {
         Scanner scanner = new Scanner(System.in);
         int cartaSelezionata;
@@ -104,6 +131,10 @@ public class Match {
         playingPlayer.printField();
     }
 
+    /**
+     * Prints a menu giving choices to the player that playing
+     * @return int, player's choice
+     */
     private int chooseFromMenu() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Cosa vuoi fare ?");
@@ -112,6 +143,11 @@ public class Match {
         return scanner.nextInt();
     }
 
+    /**
+     * Allows the player to draw a card from either the resource deck or gold deck
+     * TODO: NOT COMPLETE
+     * @param playingPlayer: player that is playing at the moment
+     */
     private void drawCard(Player playingPlayer) {
         //TODO: finire la funzione della pesca
         int sceltaMazzo;
@@ -140,18 +176,29 @@ public class Match {
         }
     }
 
-    private void chooseSecretCard(Player playingPlayer, Card.ObjectiveCard carta1, Card.ObjectiveCard carta2) {
+    /**
+     * Allows the player to choose its secret objective card, by giving it two randomly chosen
+     * TODO: NON COMPLETE
+     * @param playingPlayer: player that is playing at the moment
+     * @param card1: first card to choose from
+     * @param card2: second card to choose from
+     */
+    private void chooseSecretCard(Player playingPlayer, Card.ObjectiveCard card1, Card.ObjectiveCard card2) {
         Scanner scanner = new Scanner(System.in);
         int sceltaGiocatore;
         System.out.println("Scegli una Carta Obiettivo Segreto:");
-        System.out.println("1) " + carta1.getClass());
-        System.out.println("2) " + carta2.getClass());
+        System.out.println("1) " + card1.getClass());
+        System.out.println("2) " + card2.getClass());
 
         sceltaGiocatore = scanner.nextInt();
-        playingPlayer.getPlayerDeck().setCartaObiettivoSegreto( (sceltaGiocatore == 1? carta1 : carta2) );
+        playingPlayer.getPlayerDeck().setSecretObjectiveCard( (sceltaGiocatore == 1? carta1 : carta2) );
 
     }
 
+    /**
+     * Allows the playing player to analise its field
+     * @param playingPlayer: player that is playing at the moment
+     */
     private void FieldAnalysis(Player playingPlayer) {
         int riga, colonna;
         Scanner scanner = new Scanner(System.in);
@@ -164,17 +211,27 @@ public class Match {
         playingPlayer.getPlayerField().cardAnalysis(riga, colonna);
     }
 
-    private int selectIndexNextPlayer(int indiceCorrente) {
-        int indiceProssimo = indiceCorrente + 1;
+    /**
+     * Selects the index of the next player to play
+     * @param currentIndex: defines the current index of the current player
+     * @return int, defines the index of the next player in line
+     */
+    private int selectIndexNextPlayer(int currentIndex) {
+        int indiceProssimo = currentIndex + 1;
         if (indiceProssimo >= players.size()) {
             indiceProssimo = 0;
         }
         return indiceProssimo;
     }
 
-    private Player selectNextPlayer(int indice) {
+    /**
+     * Given an index, selects the next player that will be playing after the current player
+     * @param index: index of the next player that will play, calculated from another private method
+     * @return Player, next player in line
+     */
+    private Player selectNextPlayer(int index) {
         Player nextPlayer;
-        nextPlayer = players.get(indice);
+        nextPlayer = players.get(index);
         System.out.println("Prossimo turno... \n Tocca a " + nextPlayer.getPlayerName());
         return nextPlayer;
     }

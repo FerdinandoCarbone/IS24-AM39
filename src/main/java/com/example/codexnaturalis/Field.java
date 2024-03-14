@@ -1,11 +1,18 @@
 package com.example.codexnaturalis;
 
 public class Field {
-
+    /**
+     * Matrix containing slots
+     */
     private final Slot[][] slots;
     private final int r;
     private final int c;
 
+    /**
+     * Constructor of Field
+     * @param r number of Rows
+     * @param c number of Columns
+     */
     public Field(int r, int c) {
         this.r = r;
         this.c = c;
@@ -23,7 +30,7 @@ public class Field {
      * @param c colonna dello slot
      */
     public void cardAnalysis(int r, int c) {
-        if (slots[r][c].getBusySlot() == false) {
+        if (slots[r][c].isBusySlot() == false) {
             System.out.println("ERORRE: SLOT NON OCCUPATO DA NESSUNA CARTA.");
             return;
         }
@@ -50,15 +57,19 @@ public class Field {
     }
 
     public static class Slot {
-
-        private boolean busySlot;
+        /**
+         * Boolean that defines whether the slot is busy or not
+         */
+        private boolean busySlot = false;
+        /**
+         * Defines the card contained in the slot if busy
+         */
         private Card.NonObjectiveCard cardSlot;
 
-        public Slot() {
-            this.busySlot = false;
-        }
-
-        public void analisiSlot() {
+        /**
+         * Analysis of the slot
+         */
+        public void analysisSlot() {
             if (busySlot) {
                 System.out.println("Lo slot è occupato da una carta");
                 cardSlot.toString();
@@ -67,19 +78,34 @@ public class Field {
             }
         }
 
-        //GETTER
-        public boolean getBusySlot() {
+        /**
+         * Getter of busySlot
+         * @return boolean, true if slot is busy, otherwise false
+         */
+        public boolean isBusySlot() {
             return busySlot;
         }
+
+        /**
+         * Getter of CardSlot
+         * @return NonObjectiveCard contained in the busySlot
+         */
         public Card.NonObjectiveCard getCardSlot() {
             return cardSlot;
         }
 
-        //SETTER
+        /**
+         * Setter of busySlot
+         * @param busySlot: defines whether the slot is busy or not
+         */
         public void setBusySlot(boolean busySlot) {
             this.busySlot = busySlot;
         }
 
+        /**
+         * Setter oo cardSlot
+         * @param cardSlot: defines the card contained in the slot if busy
+         */
         public void setCardSlot(Card.NonObjectiveCard cardSlot) {
             this.cardSlot = cardSlot;
         }
