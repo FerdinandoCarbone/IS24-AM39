@@ -1,29 +1,50 @@
 [
-  { "idCarta": 10,
+  { "idCard": 10,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "seed": "Blue",
-    "Corners": [
-      {"UL":"Ink","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
-      {"UL":"Wolf","UR":"Empty","BL":"Papyrus","BR":"Leaf"}
-    ]
+    "frontCorners": [
+      {"Element":"Leaf", "available": true},
+      {"Element":"Wolf", "available": true},
+      {"Element":"Butterfly", "available": true},
+      {"Element":"Mushroom", "available": true}
+    ],
+    "backCorners": [
+      {"Element":"Leaf", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"Butterfly", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "backCenter": ["Butterfly"]
   },
-  { "idCarta": 100,
+  { "idCard": 100,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "seed": "Red",
-    "Corners": [
-      {"UL":"Ink","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
-      {"UL":"Wolf","UR":"Empty","BL":"Papyrus","BR":"Leaf"}
-    ]
+    "frontCorners": [
+      {"Element":"Wolf", "available": true},
+      {"Element":"Butterfly", "available": true},
+      {"Element":"Mushroom", "available": true},
+      {"Element":"Leaf", "available": true}
+    ],
+    "backCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Mushroom", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"Wolf", "available": true}
+    ],
+    "backCenter": ["Mushroom"]
   },
-  { "idCarta": 12,
+  { "idCard": 12,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "seed": "Starter",
-    "Corners": [
-      {"UL":"Leaf","UR":"Mushroom","BL":"Wolf","BR":"Feather"},
-      {"UL":"Mushroom","UR":"Empty","BL":"Empty","BR":"Wolf"}
-    ]
+    "frontCorners": [
+      {"Element":"Wolf", "available": true},
+      {"Element":"Leaf", "available": true},
+      {"Element":"Mushroom", "available": true},
+      {"Element":"Butterfly", "available": true}
+    ],
+    "backCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "backCenter": ["Leaf", "Mushroom"]
   }
 ]

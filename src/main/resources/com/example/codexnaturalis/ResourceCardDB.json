@@ -1,20 +1,35 @@
 [
-  { "idCarta": 10,
+  { "idCard": 10,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "Corners": [{"Element":"Ink"},{"Element":"Mushroom"},{"Element":"Wolf"},{"Element":"Feather"}],
+    "points": 0,
+    "frontCorners": [
+      {"Element":"empty", "available":  true},
+      {"Element":"Mushroom", "available":  true},
+      {"Element":"Wolf", "available":  true},
+      {"Element":"Feather", "available":  true}
+    ],
     "seed": "Blue"
   },
-  { "idCarta": 100,
+  { "idCard": 100,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "Corners": [{"Element":"Ink"},{"Element":"Mushroom"},{"Element":"Wolf"},{"Element":"Feather"}],
+    "points": 0,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
     "seed": "Red"
   },
-  { "idCarta": 12,
+  { "idCard": 12,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "Corners": [{"Element":"Ink"},{"Element":"Mushroom"},{"Element":"Wolf"},{"Element":"Feather"}],
+    "points": 0,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"Mushroom", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
     "seed": "Green"
   }
 ]
