@@ -34,10 +34,10 @@ public class Field {
             System.out.println("ERORRE: SLOT NON OCCUPATO DA NESSUNA CARTA.");
             return;
         }
-        Card.NonObjectiveCard carta = slots[r][c].getCardSlot();
+        NonObjectiveCard carta = slots[r][c].getCardSlot();
         System.out.println("Analisi della carta nello slot [" + r + "][" + c + "].");
         System.out.println(carta.getClass());
-        if (carta.getPiazzataInFronte()) {
+        if (carta.isPlacedFront()) {
             carta.printFrontCorners();
         } else {
             carta.printBackCorners();
@@ -64,7 +64,7 @@ public class Field {
         /**
          * Defines the card contained in the slot if busy
          */
-        private Card.NonObjectiveCard cardSlot;
+        private NonObjectiveCard cardSlot;
 
         /**
          * Analysis of the slot
@@ -90,7 +90,7 @@ public class Field {
          * Getter of CardSlot
          * @return NonObjectiveCard contained in the busySlot
          */
-        public Card.NonObjectiveCard getCardSlot() {
+        public NonObjectiveCard getCardSlot() {
             return cardSlot;
         }
 
@@ -106,7 +106,7 @@ public class Field {
          * Setter oo cardSlot
          * @param cardSlot: defines the card contained in the slot if busy
          */
-        public void setCardSlot(Card.NonObjectiveCard cardSlot) {
+        public void setCardSlot(NonObjectiveCard cardSlot) {
             this.cardSlot = cardSlot;
         }
     }

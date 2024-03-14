@@ -1,0 +1,20 @@
+[
+  { "idCarta": 10,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "Corners": [{"Element":"Ink"},{"Element":"Mushroom"},{"Element":"Wolf"},{"Element":"Feather"}],
+    "seed": "Blue"
+  },
+  { "idCarta": 100,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "Corners": [{"Element":"Ink"},{"Element":"Mushroom"},{"Element":"Wolf"},{"Element":"Feather"}],
+    "seed": "Red"
+  },
+  { "idCarta": 12,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "Corners": [{"Element":"Ink"},{"Element":"Mushroom"},{"Element":"Wolf"},{"Element":"Feather"}],
+    "seed": "Green"
+  }
+]

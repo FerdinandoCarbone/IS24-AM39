@@ -1,18 +1,22 @@
 package com.example.codexnaturalis;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Corner {
 
+    /**
+     * availableCorner: boolean value, defines whether a corner is available or not
+     */
     private boolean availableCorner;
-    private ResourceElement resourceObject;
+    private ResourceGoldCard.ResourceElement resourceElement;
 
     /**
      * Constructor of Corner
-     * @param availableCorner: boolean value, defines whether a corner is available or not
      * @param resourceElement: defines what is contained in the corner if available
      */
-    public Corner(boolean availableCorner, ResourceElement resourceElement) {
-        this.availableCorner = availableCorner;
-        this.resourceObject = resourceElement;
+    public Corner(@JsonProperty("Element") ResourceGoldCard.ResourceElement resourceElement) {
+        this.availableCorner = true;
+        this.resourceElement = resourceElement;
     }
 
     /**
@@ -32,10 +36,10 @@ public class Corner {
     }
 
     /**
-     * Getter of resourceObject
+     * Getter of resourceElement
      * @return ResourceElement that is contained in an available corner
      */
-    public ResourceElement getResourceObject() {
-        return resourceObject;
+    public ResourceGoldCard.ResourceElement getresourceElement() {
+        return resourceElement;
     }
 }

@@ -1,49 +1,109 @@
 package com.example.codexnaturalis;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
 public abstract class Decks {
-    public static class StarterDeck {
-        /**
-         * starterCards: ArrayList of ALL starter Cards
-         */
-        private ArrayList<Card.NonObjectiveCard.StarterCard> starterCards = new ArrayList<>(Arrays.asList(
-        ));
 
+    //private CardDatabaseLoader cardLoader;
+    private ArrayList<Card> cards = new ArrayList<>();
+
+    public void printDeck() {
         /**
-         * Getter of starterCards
-         * @return ArrayList of starterCards
+         * Print the deck
          */
-        public ArrayList<Card.NonObjectiveCard.StarterCard> getStarterCards() {
-            return starterCards;
-        }
+    }
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
+}
+class DrawingDeck extends Decks{
+    private static ArrayList<ResourceCard> totalResourceCard= new ArrayList<ResourceCard>();
+    private static ArrayList<GoldCard> totalGoldCard = new ArrayList<GoldCard>();
+    private ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<ObjectiveCard>();
+    private ArrayList<StarterCard> totalStartingCards = new ArrayList<StarterCard>();
+
+    public static void shuffle() throws IOException {
+        DrawingDeck.totalGoldCard = (ArrayList<GoldCard>)GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/GoldCardDB.json");
+        DrawingDeck.totalResourceCard = (ArrayList<ResourceCard>)ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ResourceCardDB.json");
+        //this.totalObjectiveCards = ;
+        //this.totalStartingCards = ;
     }
 
-    public static class PlayerDeck {
-
-        private ArrayList<Card.NonObjectiveCard> cards;
-        private Card.NonObjectiveCard.StarterCard starterCard;
-        private Card.ObjectiveCard secretObjectiveCard;
-
-        /**
-         * Constructor of PlayerDeck
-         * @param cards: ArrayList of the cards the player has except the Secret Card and the Starter Card
-         * @param starterCard: starter Card of the player
-         * @param secretObjectiveCard: secret Objective Card of the player
-         */
-        public PlayerDeck(ArrayList<Card.NonObjectiveCard> cards, Card.NonObjectiveCard.StarterCard starterCard, Card.ObjectiveCard secretObjectiveCard) {
-            this.cards = cards;
-            this.starterCard = starterCard;
-            this.secretObjectiveCard = secretObjectiveCard;
+    /**
+     * Method called from the player who draws a card
+     * @param cardType: defines the card that will be drawn, true for resource, false for gold
+     * @return ResourceGoldCard, card that will be added to the playerDeck and removed from its deck
+     */
+    public static ResourceGoldCard drawCard(boolean cardType){
+        Random rand = new Random();
+        int z;
+        ResourceGoldCard drewCard;
+        if(cardType){
+            z=rand.nextInt(totalResourceCard.size());
+            drewCard= totalResourceCard.get(z);
+            totalResourceCard.remove(z);
         }
+        else {
+            z=rand.nextInt(totalGoldCard.size());
+            drewCard= totalGoldCard.get(z);
+            totalGoldCard.remove(z);
+        }
+        return drewCard;
+    }
 
+    /**
+     * The method generates the player deck by randomically choosing 2 cards
+     * @return PlayerDeck
+     */
+
+    public static PlayerDeck generatePlayerDeck() {
+        try {
+            shuffle();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Random rand = new Random();
+        int z;
+        ArrayList<ResourceGoldCard> deckGen = new ArrayList<>();
+        for(int i=0;i<2;i++){
+            z = rand.nextInt(totalResourceCard.size());
+            deckGen.add(totalResourceCard.get(z));
+            totalResourceCard.remove(z);
+        }
+        z = rand.nextInt(totalGoldCard.size());
+        deckGen.add(totalGoldCard.get(z));
+        totalGoldCard.remove(z);
+        return new PlayerDeck(deckGen);
+    }
+
+}
+    class PlayerDeck {
+        /**
+         *  cards: ArrayList of the cards the player has except the Secret Card and the Starter Card
+         */
+        private ArrayList<ResourceGoldCard> playerCards;
+        /**
+         *  starterCard: starter Card of the player
+         */
+        private StarterCard starterCard = new StarterCard();
+        /**
+         * secretObjectiveCard: secret Objective Card of the player
+         */
+        private ObjectiveCard secretObjectiveCard = new ObjectiveCard();
+
+        public PlayerDeck(ArrayList<ResourceGoldCard> playerCards)
+        {
+            this.playerCards = playerCards;
+        }
         /**
          * Setter of starterCard
          * @param starterCard: starter Card of the player
          */
-        public void setStarterCard(Card.NonObjectiveCard.StarterCard starterCard) {
+        public void setStarterCard(StarterCard starterCard) {
             this.starterCard = starterCard;
         }
 
@@ -51,7 +111,7 @@ public abstract class Decks {
          * Setter of secretObjectiveCard
          * @param secretObjectiveCard: secret Objective Card of the player
          */
-        public void setSecretObjectiveCard(Card.ObjectiveCard secretObjectiveCard) {
+        public void setSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
             this.secretObjectiveCard = secretObjectiveCard;
         }
 
@@ -59,15 +119,15 @@ public abstract class Decks {
          * Getter of cards
          * @return ArrayList of the cards the player has except the Secret Card and the Starter Card
          */
-        public ArrayList<Card.NonObjectiveCard> getCards() {
-            return cards;
+        public ArrayList<ResourceGoldCard> getPlayerCards() {
+            return playerCards;
         }
 
         /**
          * Getter of the starter Card
          * @return starter Card of the player
          */
-        public Card.NonObjectiveCard.StarterCard getStarterCard() {
+        public StarterCard getStarterCard() {
             return starterCard;
         }
 
@@ -75,96 +135,7 @@ public abstract class Decks {
          * Getter of
          * @return secret Objective Card of the player
          */
-        public Card.ObjectiveCard getSecretObjectiveCard() {
+        public ObjectiveCard getSecretObjectiveCard() {
             return secretObjectiveCard;
         }
     }
-
-    public static class ObjectiveDeck {
-
-        private ArrayList<Card.ObjectiveCard> objectiveCards = new ArrayList<>();
-
-        /**
-         * Getter of ObjectiveDeck
-         * @return
-         */
-        public ArrayList<Card.ObjectiveCard> getObjectiveCards() {
-            return objectiveCards;
-        }
-    }
-
-    public static class GoldDeck implements canShuffle{
-        private ArrayList<Card.NonObjectiveCard.ResourceGoldCard.GoldCard> goldCards = new ArrayList<>();
-
-        /**
-         * Shuffles the deck
-         */
-        public void shuffleDeck() {
-            Random rand = new Random();
-            for (int i = 0; i < goldCards.size(); i++) {
-                int randomIndex = rand.nextInt(goldCards.size());
-                Card.NonObjectiveCard.ResourceGoldCard.GoldCard tmpCarta = goldCards.get(randomIndex);
-                goldCards.set(randomIndex, goldCards.get(i));
-                goldCards.set(i, tmpCarta);
-            }
-            System.out.println("Mazzo Mischiato");
-        }
-
-        /**
-         * Prints the deck
-         */
-        public void printDeck() {
-            System.out.println("Gold deck:");
-            for (int i = 0; i < goldCards.size(); i++) {
-                System.out.println(i + ") [" + goldCards.get(i).getClass() + "]");
-            }
-        }
-
-        /**
-         * Getter of gold cards
-         * @return ArrayList of all gold cards
-         */
-        public ArrayList<Card.NonObjectiveCard.ResourceGoldCard.GoldCard> getGoldCards() {
-            return goldCards;
-        }
-
-
-    }
-
-    public static class ResourceDeck implements canShuffle{
-
-        public ArrayList<Card.NonObjectiveCard.ResourceGoldCard.ResourceCard> resourceCards = new ArrayList<>(Arrays.asList(
-        ));
-
-        /**
-         * Shuffles the deck
-         */
-        public void shuffleDeck() {
-            Random rand = new Random();
-            for (int i = 0; i < resourceCards.size(); i++) {
-                int randomIndex = rand.nextInt(resourceCards.size());
-                Card.NonObjectiveCard.ResourceGoldCard.ResourceCard tmpCarta = resourceCards.get(randomIndex);
-                resourceCards.set(randomIndex, resourceCards.get(i));
-                resourceCards.set(i, tmpCarta);
-            }
-            System.out.println("Deck Shuffled");
-        }
-
-        /**
-         * Prints the deck
-         */
-        public void printDeck() {
-            System.out.println("Resource Cards:");
-            for (int i = 0; i < resourceCards.size(); i++) {
-                System.out.println(i + ") [" + resourceCards.get(i).getClass() + "]");
-            }
-        }
-        /**
-         * Getter of resource cards
-         * @return ArrayList of all resource cards
-         */
-        public ArrayList<Card.NonObjectiveCard.ResourceGoldCard.ResourceCard> getResourceCards() {
-            return resourceCards;
-        }
-    }
-}

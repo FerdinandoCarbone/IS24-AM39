@@ -6,27 +6,23 @@ import java.util.Scanner;
 
 public class Match {
     private ArrayList<Player> players;
-    private Decks.ResourceDeck resourceDeck;
-    private Decks.ObjectiveDeck objectiveDeck;
-    private Decks.GoldDeck goldDeck;
-    private Decks.StarterDeck starterDeck;
+    //private Decks.ResourceDeck resourceDeck;
+    //private Decks.ObjectiveDeck objectiveDeck;
+    //private Decks.GoldDeck goldDeck;
+    //private Decks.StarterDeck starterDeck;
     private ScoreTracker scoreTracker;
 
     /**
      * Constructor of Match
      * @param players: ArrayList of all players in the match
-     * @param resourceDeck: resource Deck
-     * @param objectiveDeck: Objective deck
-     * @param goldDeck: gold deck
-     * @param starterDeck: starter deck
      * @param scoreTracker: score tracker
      */
-    public Match(ArrayList<Player> players, Decks.ResourceDeck resourceDeck, Decks.ObjectiveDeck objectiveDeck, Decks.GoldDeck goldDeck, Decks.StarterDeck starterDeck, ScoreTracker scoreTracker) {
+    public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
         this.players = players;
-        this.resourceDeck = resourceDeck;
-        this.objectiveDeck = objectiveDeck;
-        this.goldDeck = goldDeck;
-        this.starterDeck = starterDeck;
+       // this.resourceDeck = resourceDeck;
+       // this.objectiveDeck = objectiveDeck;
+        //this.goldDeck = goldDeck;
+       // this.starterDeck = starterDeck;
         this.scoreTracker = scoreTracker;
     }
 
@@ -110,13 +106,13 @@ public class Match {
         /*Il giocatore vede gli angoli della carta che vuole piazzare*/
         System.out.println("Carta da piazzare: ");
         if (sceltaFronte == 1) {
-            playingPlayer.getPlayerDeck().getCards().get(cartaSelezionata-1).printFrontCorners();
+            playingPlayer.getPlayerDeck().getPlayerCards().get(cartaSelezionata-1).printFrontCorners();
         } else {
-            playingPlayer.getPlayerDeck().getCards().get(cartaSelezionata-1).printBackCorners();
+            playingPlayer.getPlayerDeck().getPlayerCards().get(cartaSelezionata-1).printBackCorners();
         }
         /*Il giocatore vede la carta sul tavolo che ha scelto come base*/
         System.out.println("Carta selezionata sul tavolo:");
-        if (playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().getPiazzataInFronte()) {
+        if (playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().isPlacedFront()) {
             playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().printFrontCorners();
         } else {
             playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot().printBackCorners();
@@ -126,7 +122,7 @@ public class Match {
         System.out.println("Seleziona l'angolo della carta sul tavolo a cui vuoi attaccarti (a partire da in alto a dx in senso orario 0->3): ");
         sceltaAngolo = scanner.nextInt();
         /*La carta scelta dal giocatore viene piazzata in modo opportuna sul tavolo attaccata alla carta selezionata come base*/
-        playingPlayer.placeCard(riga, colonna, playingPlayer.getPlayerDeck().getCards().get(cartaSelezionata-1), (sceltaFronte == 1), sceltaAngolo);
+        playingPlayer.placeCard(riga, colonna, playingPlayer.getPlayerDeck().getPlayerCards().get(cartaSelezionata-1), (sceltaFronte == 1), sceltaAngolo);
         /*Display del tavolo per controllare*/
         playingPlayer.printField();
     }
@@ -161,18 +157,14 @@ public class Match {
         //TODO: controllare che i mazzi abbiano ancora carte da pescare
         if (sceltaMazzo == 1) {
             /*Il giocatore aggiunge la carta in cima al mazzo risorsa al suo mazzo*/
-            playingPlayer.getPlayerDeck().getCards().add(
-                    resourceDeck.getResourceCards().getFirst()
+            playingPlayer.getPlayerDeck().getPlayerCards().add(
+                    DrawingDeck.drawCard(true)
             );
-            /*Tolgo dal mazzo risorsa la prima carta pescata*/
-            resourceDeck.getResourceCards().removeFirst();
         } else if (sceltaMazzo == 2) {
             /*Il giocatore aggiunge la carta in cima al mazzo risorsa al suo mazzo*/
-            playingPlayer.getPlayerDeck().getCards().add(
-                    goldDeck.getGoldCards().getFirst()
+            playingPlayer.getPlayerDeck().getPlayerCards().add(
+                    DrawingDeck.drawCard(false)
             );
-            /*Tolgo dal mazzo risorsa la prima carta pescata*/
-            goldDeck.getGoldCards().removeFirst();
         }
     }
 
@@ -183,7 +175,7 @@ public class Match {
      * @param card1: first card to choose from
      * @param card2: second card to choose from
      */
-    private void chooseSecretCard(Player playingPlayer, Card.ObjectiveCard card1, Card.ObjectiveCard card2) {
+    private void chooseSecretCard(Player playingPlayer, ObjectiveCard card1, ObjectiveCard card2) {
         Scanner scanner = new Scanner(System.in);
         int sceltaGiocatore;
         System.out.println("Scegli una Carta Obiettivo Segreto:");

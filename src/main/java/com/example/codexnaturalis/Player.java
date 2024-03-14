@@ -15,7 +15,7 @@ public class Player {
     /**
      * Defines the player's deck
      */
-    private Decks.PlayerDeck playerDeck;
+    private PlayerDeck playerDeck;
     /**
      * Defines whether the player is the first to start the game
      */
@@ -28,20 +28,30 @@ public class Player {
      * Defines the score of the player
      */
     private int score;
+    /**
+     * resourceMana: Defines the amount of resources the player has
+     */
+    private int[] resourceMana;
+    /**
+     * elementsMana: Defines the amount of elements the player has
+     */
+    private int[] elementsMana;
 
     /**
      * Constructor of the Player class
      * @param playerName: Defines the player's name
      * @param token: Defines the player's token
-     * @param playerDeck: Defines the player's deck
      * @param playerField: Defines the player's own field
      */
-    public Player(String playerName, Token token, Decks.PlayerDeck playerDeck, Field playerField) {
+    public Player(String playerName, Token token, Field playerField) {
         this.playerName = playerName;
         this.token = token;
-        this.playerDeck = playerDeck;
+        this.playerDeck = DrawingDeck.generatePlayerDeck();
         this.firstPlayer = false;
         this.playerField = playerField;
+        this.resourceMana = new int[]{0,0,0,0};
+        this.elementsMana = new int[]{0,0,0};
+
     }
 
 
@@ -52,7 +62,7 @@ public class Player {
     public void placeStarterCard(boolean fronte) {
         int r, c;
         r = c = playerField.getSlots().length / 2;
-        Card.NonObjectiveCard.StarterCard carta = playerDeck.getStarterCard();
+        StarterCard carta = playerDeck.getStarterCard();
         carta.setIsPlacedFront(fronte);
         playerField.getSlots()[r][c].setBusySlot(true);
         playerField.getSlots()[r][c].setCardSlot(carta);
@@ -68,10 +78,10 @@ public class Player {
      * @param fronte: defines how B will be placed, true for front facing up, false otherwise
      * @param angoloCartaPiazzata: Defines the angle of card A where B will be placed
      */
-    public void placeCard(int rCartaPiazzata, int cCartaPiazzata, Card.NonObjectiveCard cartaDaPiazzare, boolean fronte, int angoloCartaPiazzata) {
-        Card.NonObjectiveCard cartaPiazzata = playerField.getSlots()[rCartaPiazzata][cCartaPiazzata].getCardSlot();
+    public void placeCard(int rCartaPiazzata, int cCartaPiazzata, NonObjectiveCard cartaDaPiazzare, boolean fronte, int angoloCartaPiazzata) {
+        NonObjectiveCard cartaPiazzata = playerField.getSlots()[rCartaPiazzata][cCartaPiazzata].getCardSlot();
         if (!checkCardInDeck(cartaDaPiazzare)) return;
-        if (checkAvailableCorner(cartaPiazzata, cartaPiazzata.getPiazzataInFronte(), angoloCartaPiazzata)) {
+        if (checkAvailableCorner(cartaPiazzata, cartaPiazzata.isPlacedFront(), angoloCartaPiazzata)) {
             int offSetR = calculateOffSetR(angoloCartaPiazzata);
             int offSetC = calculateOffSetC(angoloCartaPiazzata);
             int rCartaDaPiazzare = rCartaPiazzata + offSetR;
@@ -85,7 +95,7 @@ public class Player {
             updateCorner(cartaPiazzata, angoloCartaPiazzata);
             updateCorner(cartaDaPiazzare, angoloOccupatoCartaDaPiazzare);
 
-            playerDeck.getCards().remove(cartaDaPiazzare);
+            playerDeck.getPlayerCards().remove(cartaDaPiazzare);
             System.out.println("Carta " + cartaDaPiazzare.getClass() + " piazzata nello slot [" + rCartaDaPiazzare + "][" + cCartaDaPiazzare + "]." );
         }
     }
@@ -109,8 +119,8 @@ public class Player {
      */
     public void printDeck() {
         System.out.println(":::Mazzo di " + playerName + ":::");
-        for (int i = 1; i <= playerDeck.getCards().size(); i++) {
-            System.out.println(i + ") " + playerDeck.getCards().get(i-1).getClass());
+        for (int i = 1; i <= playerDeck.getPlayerCards().size(); i++) {
+            System.out.println(i + ") " + playerDeck.getPlayerCards().get(i-1).getClass());
         }
     }
 
@@ -119,7 +129,8 @@ public class Player {
      */
     public void printStarterCard() {
         System.out.println("Carta iniziale di " + playerName);
-        System.out.println(playerDeck.getStarterCard().toString());
+        //System.out.println(playerDeck.getStarterCard().toString());
+        System.out.println("pippo");
     }
 
 
@@ -145,9 +156,9 @@ public class Player {
      * @param card: card that will be checked
      * @return boolean, true if the card is in the player's deck, otherwise false
      */
-    private boolean checkCardInDeck(Card.NonObjectiveCard card) {
+    private boolean checkCardInDeck(NonObjectiveCard card) {
         boolean flag;
-        if (!playerDeck.getCards().contains(card)) {
+        if (!playerDeck.getPlayerCards().contains(card)) {
             System.out.println("ERRORE: CARTA NON DISPONIBILE NEL MAZZO");
             flag = false;
         } else {
@@ -163,7 +174,7 @@ public class Player {
      * @param corner: integer defining the corner that will be checked in order (UR[0], BR[1], BL[2], UL[3])
      * @return boolean, true if the corner is available, otherwise false
      */
-    private boolean checkAvailableCorner(Card.NonObjectiveCard card, boolean inFront, int corner) {
+    private boolean checkAvailableCorner(NonObjectiveCard card, boolean inFront, int corner) {
         boolean flag;
         if (inFront) {
             flag = card.getFrontCorners().get(corner).isAvailableCorner();
@@ -179,8 +190,8 @@ public class Player {
      * @param card: card that will be updated
      * @param corner: integer defining the corner that will be updated (UR[0], BR[1], BL[2], UL[3])
      */
-    private void updateCorner(Card.NonObjectiveCard card, int corner) {
-        if (card.getPiazzataInFronte()) {
+    private void updateCorner(NonObjectiveCard card, int corner) {
+        if (card.isPlacedFront()) {
             card.getFrontCorners().get(corner).setAvailableCorner(false);
         } else {
             card.getBackCorners().get(corner).setAvailableCorner(false);
@@ -271,7 +282,7 @@ public class Player {
      * Getter of playerDeck
      * @return PlayerDeck
      */
-    public Decks.PlayerDeck getPlayerDeck() {
+    public PlayerDeck getPlayerDeck() {
         return playerDeck;
     }
 
@@ -281,5 +292,6 @@ public class Player {
      */
     public Field getPlayerField() {
         return playerField;
+
     }
 }

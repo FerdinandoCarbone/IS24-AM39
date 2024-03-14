@@ -1,0 +1,23 @@
+[
+  { "idCarta": 200,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "Corners": [{"Element":"Ink"},{"Element":"Papyrus"},{"Element":"empty"}, {"Element":"Feather"}],
+    "seed": "Blue",
+    "requiredResources": ["Leaf","Leaf","Leaf","Wolf","Mushroom"]
+  },
+  { "idCarta": 201,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "Corners": [{"Element":"Ink"},{"Element":"Papyrus"},{"Element":"empty"}, {"Element":"Feather"}],
+    "seed": "Blue",
+    "requiredResources": ["Leaf","Leaf","Leaf","Wolf","Mushroom"]
+  },
+  { "idCarta": 203,
+    "artRef": ["test"],
+    "positionedPoints": 0,
+    "Corners": [{"Element":"Ink"},{"Element":"Papyrus"},{"Element":"empty"}, {"Element":"Feather"}],
+    "seed": "Blue",
+    "requiredResources": ["Leaf","Leaf","Leaf","Wolf","Mushroom"]
+  }
+]
