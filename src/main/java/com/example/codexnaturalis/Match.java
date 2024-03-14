@@ -191,7 +191,7 @@ public class Match {
         System.out.println("2) " + card2.getClass());
 
         sceltaGiocatore = scanner.nextInt();
-        playingPlayer.getPlayerDeck().setSecretObjectiveCard( (sceltaGiocatore == 1? carta1 : carta2) );
+        playingPlayer.getPlayerDeck().setSecretObjectiveCard( (sceltaGiocatore == 1? card1 : card2) );
 
     }
 
