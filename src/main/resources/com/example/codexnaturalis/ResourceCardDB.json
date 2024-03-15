@@ -31,5 +31,16 @@
       {"Element":"empty", "available": true}
     ],
     "seed": "Green"
+  },
+  { "idCard": 45,
+    "artRef": ["test"],
+    "points": 0,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green"
   }
 ]

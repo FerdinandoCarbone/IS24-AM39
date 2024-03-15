@@ -54,7 +54,6 @@ public class Player {
 
     }
 
-
     /**
      * Places the starter card at the center of the player's field
      * @param fronte: true if the card is faced with if front facing up, otherwise false
@@ -100,7 +99,6 @@ public class Player {
         }
     }
 
-
     /**
      * Prints the state of the player's field, [1] is a busy slot, [0] otherwise
      */
@@ -118,10 +116,7 @@ public class Player {
      * Prints the state of the player's deck
      */
     public void printDeck() {
-        System.out.println(":::Mazzo di " + playerName + ":::");
-        for (int i = 1; i <= playerDeck.getPlayerCards().size(); i++) {
-            System.out.println(i + ") " + playerDeck.getPlayerCards().get(i-1).getClass());
-        }
+        playerDeck.printDeck();
     }
 
     /**
@@ -129,10 +124,8 @@ public class Player {
      */
     public void printStarterCard() {
         System.out.println("Carta iniziale di " + playerName);
-        //System.out.println(playerDeck.getStarterCard().toString());
-        System.out.println("pippo");
+        playerDeck.getStarterCard().printCard();
     }
-
 
     /**
      * Checks if a slot is busy

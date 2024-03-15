@@ -53,6 +53,17 @@ abstract class NonObjectiveCard extends Card {
             System.out.println("[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]");
         }
 
+        public void printCard() {
+            System.out.println("-----------------------------");
+            if (this instanceof ResourceGoldCard) {
+                System.out.println("Analisi carta " + (this instanceof GoldCard? "Oro " : "Risorsa ") + "#" + getIdCard());
+            } else if (this instanceof StarterCard) {
+                System.out.println("Analisi carta Starter " + "#" + getIdCard());
+            }
+            printFrontCorners();
+            printBackCorners();
+        }
+
         /**
          * Ritorna 1 se la carta è piazzata frontalmente sul tavolo, 0 altrimenti
          * @return
@@ -184,18 +195,23 @@ class GoldCard extends ResourceGoldCard {
         /**
          * Constructor of ObjectiveCard
          *
-         * @param idCarta: ID of the card
+         * @param idCard: ID of the card
          * @param artRef:  Art Reference of the Card
          * @param points:  points given to the player when placing the card
          */
-        public ObjectiveCard(int idCarta, String[] artRef, int points) {
-            super(idCarta, artRef);
+        public ObjectiveCard(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points) {
+            super(idCard, artRef);
             this.points = points;
+        }
+
+        public void printObjectiveCard() {
+            System.out.println("-----------------------------");
+            System.out.println("Objective Card #" + getIdCard());
+            System.out.println("Points: " + getPoints());
         }
 
         /**
          * Setter of points
-         *
          * @param points: points given to the player when placing the card
          */
         public void setPoints(int points) {
@@ -204,7 +220,6 @@ class GoldCard extends ResourceGoldCard {
 
         /**
          * Getter of points
-         *
          * @return value of points
          */
         public int getPoints() {

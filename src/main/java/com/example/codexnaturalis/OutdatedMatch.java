@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Match {
+public class OutdatedMatch {
     private ArrayList<Player> players;
     //private Decks.ResourceDeck resourceDeck;
     //private Decks.ObjectiveDeck objectiveDeck;
@@ -17,7 +17,7 @@ public class Match {
      * @param players: ArrayList of all players in the match
      * @param scoreTracker: score tracker
      */
-    public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
+    public OutdatedMatch(ArrayList<Player> players, ScoreTracker scoreTracker) {
         this.players = players;
        // this.resourceDeck = resourceDeck;
        // this.objectiveDeck = objectiveDeck;

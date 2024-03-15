@@ -1,9 +1,7 @@
 package com.example.codexnaturalis;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class Decks {
@@ -11,11 +9,7 @@ public abstract class Decks {
     //private CardDatabaseLoader cardLoader;
     private ArrayList<Card> cards = new ArrayList<>();
 
-    public void printDeck() {
-        /**
-         * Print the deck
-         */
-    }
+
     public ArrayList<Card> getCards() {
         return cards;
     }
@@ -23,19 +17,15 @@ public abstract class Decks {
 class DrawingDeck extends Decks{
     private static ArrayList<ResourceCard> totalResourceCard= new ArrayList<>();
     private static ArrayList<GoldCard> totalGoldCard = new ArrayList<>();
-    private ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<>();
+    private static ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<>();
     private static ArrayList<StarterCard> totalStartingCards = new ArrayList<>();
-
-    public static ArrayList<StarterCard> getTotalStartingCards() {
-        return totalStartingCards;
-    }
+    private static boolean shuffleFlag = false;
 
     public static void shuffle() throws IOException {
         DrawingDeck.totalGoldCard = (ArrayList<GoldCard>)GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/GoldCardDB.json");
         DrawingDeck.totalResourceCard = (ArrayList<ResourceCard>)ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ResourceCardDB.json");
         DrawingDeck.totalStartingCards = (ArrayList<StarterCard>)StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/StarterCardDB.json");
-        //this.totalObjectiveCards = ;
-        //this.totalStartingCards = ;
+        DrawingDeck.totalObjectiveCards = (ArrayList<ObjectiveCard>)ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardDB.json");
     }
 
     /**
@@ -65,15 +55,19 @@ class DrawingDeck extends Decks{
      * @return PlayerDeck
      */
     public static PlayerDeck generatePlayerDeck() {
-        try {
-            shuffle();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (shuffleFlag == false) {
+            try {
+                shuffle();
+                shuffleFlag = true;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         Random rand = new Random();
         int z;
         ArrayList<ResourceGoldCard> deckGen = new ArrayList<>();
         StarterCard starterGen;
+        ObjectiveCard secretObjectiveGen;
         for(int i=0;i<2;i++){
             z = rand.nextInt(totalResourceCard.size());
             deckGen.add(totalResourceCard.get(z));
@@ -84,9 +78,28 @@ class DrawingDeck extends Decks{
         totalGoldCard.remove(z);
         z = rand.nextInt(totalStartingCards.size());
         starterGen = totalStartingCards.get(z);
-        return new PlayerDeck(deckGen, starterGen);
+        totalStartingCards.remove(z);
+        z = rand.nextInt(totalObjectiveCards.size());
+        secretObjectiveGen = totalObjectiveCards.get(z);
+        totalObjectiveCards.remove(z);
+        return new PlayerDeck(deckGen, starterGen, secretObjectiveGen);
     }
 
+    public static ArrayList<ResourceCard> getTotalResourceCard() {
+        return totalResourceCard;
+    }
+
+    public static ArrayList<GoldCard> getTotalGoldCard() {
+        return totalGoldCard;
+    }
+
+    public static ArrayList<ObjectiveCard> getTotalObjectiveCards() {
+        return totalObjectiveCards;
+    }
+
+    public static ArrayList<StarterCard> getTotalStartingCards() {
+        return totalStartingCards;
+    }
 }
     class PlayerDeck {
         /**
@@ -102,9 +115,10 @@ class DrawingDeck extends Decks{
          */
         private ObjectiveCard secretObjectiveCard;
 
-        public PlayerDeck(ArrayList<ResourceGoldCard> playerCards, StarterCard starterCard) {
+        public PlayerDeck(ArrayList<ResourceGoldCard> playerCards, StarterCard starterCard, ObjectiveCard secretObjectiveCard) {
             this.playerCards = playerCards;
             this.starterCard = starterCard;
+            this.secretObjectiveCard = secretObjectiveCard;
         }
         /**
          * Setter of starterCard
@@ -145,4 +159,21 @@ class DrawingDeck extends Decks{
         public ObjectiveCard getSecretObjectiveCard() {
             return secretObjectiveCard;
         }
+
+        /**
+         * Print the player's cards
+         */
+        public void printDeck() {
+            for (ResourceGoldCard resourceGoldCard : playerCards) {
+                resourceGoldCard.printCard();
+            }
+            if (starterCard == null) {
+                System.out.println("NO STARTER CARD");
+            } else {
+                starterCard.printCard();
+            }
+            secretObjectiveCard.printObjectiveCard();
+        }
+
+
     }

@@ -1,29 +1,14 @@
 [
-  { "idCarta": 200,
+  { "idCard": 200,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "seed": "Blue",
-    "Corners": [
-      {"UL":"Ink","UR":"Empty","BL":"Empty","BR":"Feather"},
-      {"UL":"Ink","UR":"Empty","BL":"Papyrus","BR":"Empty"}
-    ]
+    "points": 0
   },
-  { "idCarta": 201,
+  { "idCard": 201,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "seed": "Red",
-    "Corners": [
-      {"UL":"Ink","UR":"Feather","BL":"Empty","BR":"Feather"},
-      {"UL":"Empty","UR":"Empty","BL":"Papyrus","BR":"Empty"}
-    ]
+    "points": 0
   },
-  { "idCarta": 203,
+  { "idCard": 203,
     "artRef": ["test"],
-    "positionedPoints": 0,
-    "seed": "Starter",
-    "Corners": [
-      {"UL":"Empty","UR":"Empty","BL":"Papyrus","BR":"Feather"},
-      {"UL":"Ink","UR":"Empty","BL":"Feather","BR":"Empty"}
-    ]
+    "points": 0
   }
 ]
