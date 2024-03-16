@@ -7,7 +7,7 @@ public class Client {
     public static void main(String[] args) throws IOException {
         String serverHostname = "localhost";
         int serverPort = 8098;
-
+        //boolean hasSetNickname;
         try (
                 Socket socket = new Socket(serverHostname, serverPort);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -15,6 +15,7 @@ public class Client {
         ) {
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
             String userInputLine;
+            System.out.println("Server response: " + in.readLine());
 
             while ((userInputLine = userInput.readLine()) != null) {
                 out.println(userInputLine);
