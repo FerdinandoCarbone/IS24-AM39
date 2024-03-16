@@ -66,8 +66,8 @@ public class Server {
             }
             else{
                 Random rand = new Random();
-                int z = rand.nextInt(3);
-                switch(rand){
+                int z = rand.nextInt(4);
+                switch(z){
                     case 1: {
                         setElem = totalAvailableColors.get(z);
                         setElem--;
@@ -75,15 +75,17 @@ public class Server {
                         break;
                     }
                     case 2: {
-                        totalAvailableColors[2]--;
+                        //totalAvailableColors[2]--;
                         break;
                     }
                     case 3: {
-                        totalAvailableColors[2]--;
+                        System.out.println("x");
+                        //totalAvailableColors[2]--;
                         break;
                     }
                     default:
                 }
+                tokenColor = Token.Color.Black;
                 setElem = totalAvailableColors.get(4);
                 setElem--;
                 totalAvailableColors.set(4,setElem);
