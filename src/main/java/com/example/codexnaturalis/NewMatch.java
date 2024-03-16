@@ -18,6 +18,15 @@ public class NewMatch {
         this.scoreTracker = scoreTracker;
     }
 
+    public NewMatch(ScoreTracker scoreTracker) {
+        this.players = new ArrayList<>();
+        this.scoreTracker = scoreTracker;
+    }
+
+    public void addPlayer(Player p) {
+        players.add(p);
+    }
+
     /**
      * Main function that starts the match. Also, only public method
      */
