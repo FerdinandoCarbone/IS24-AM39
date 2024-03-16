@@ -14,16 +14,17 @@ public class Server {
         ServerSocket serverSocket = new ServerSocket(8098);
         System.out.println("Server started");
         while (true) {
+
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client connected: " + clientSocket);
             // Gestisci la connessione in un thread separato
             new Thread(new ClientHandler(clientSocket)).start();
-            if(Server.clients.size()%2==0){
+            /*if(Server.clients.size()%2==0){
                 System.out.println("Server has now "+ Server.clients.size()+ " clients");
-                for (Socket s: clients) {
+                /*for (Socket s: clients) {
                     s.getPort();
                 }
-            }
+            }*/
 
         }
     }
@@ -33,7 +34,6 @@ public class Server {
         private String inputLine;
         public ClientHandler(Socket clientSocket) {
             this.clientSocket = clientSocket;
-            Server.clients.add(clientSocket);
         }
 
         @Override

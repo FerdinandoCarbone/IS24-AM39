@@ -7,7 +7,7 @@ public class Client {
     public static void main(String[] args) throws IOException {
         String serverHostname = "localhost";
         int serverPort = 8098;
-
+        //boolean hasSetNickname;
         try (
                 Socket socket = new Socket(serverHostname, serverPort);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
