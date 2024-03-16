@@ -54,7 +54,9 @@ public class Player {
 
     }
 
-
+    public Token getToken(){
+        return this.token;
+    }
     /**
      * Places the starter card at the center of the player's field
      * @param fronte: true if the card is faced with if front facing up, otherwise false
