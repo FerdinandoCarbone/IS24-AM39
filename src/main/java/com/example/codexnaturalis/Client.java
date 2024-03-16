@@ -15,6 +15,7 @@ public class Client {
         ) {
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
             String userInputLine;
+            System.out.println("Server response: " + in.readLine());
 
             while ((userInputLine = userInput.readLine()) != null) {
                 out.println(userInputLine);
