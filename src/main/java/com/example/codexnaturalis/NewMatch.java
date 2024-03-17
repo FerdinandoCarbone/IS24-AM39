@@ -1,5 +1,8 @@
 package com.example.codexnaturalis;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -30,7 +33,7 @@ public class NewMatch {
     /**
      * Main function that starts the match. Also, only public method
      */
-    public void startMatch() {
+    public void startMatch(BufferedReader in, PrintWriter out) throws IOException {
         Scanner scanner = new Scanner(System.in);
         int sceltaGiocatore;
         int flagCartaGiocata = 0;
@@ -38,9 +41,11 @@ public class NewMatch {
         /*Si inizia scegliendo in modo casuale il giocatore iniziale*/
         int indiceGiocatoreInGioco = randomIndex();
         Player playingPlayer = chooseFirstPlayer(indiceGiocatoreInGioco);
+        playingPlayer.setFirstTurn(false);
         /*Inizia la partita con la carta iniziale piazzata dal primo giocatore*/
-        placeStarterCard(playingPlayer);
-        sceltaGiocatore = chooseFromMenu();
+        placeStarterCard(playingPlayer, in, out);
+
+        sceltaGiocatore = chooseFromMenu(in, out);
 
         while (true) {
             while (sceltaGiocatore != -1) {
@@ -50,29 +55,29 @@ public class NewMatch {
                     /*Cambio il flag della carta giocata per evitare che il giocatore ne piazzi un'altra nello stesso turno di gioco*/
                     flagCartaGiocata = 1;
                     /*Piazza una carta dal mazzo*/
-                    placeCard(playingPlayer);
+                    placeCard(playingPlayer, in, out);
                     /*Il giocatore ora deve pescare una carta dai due mazzi risorsa od oro*/
-                    drawCard(playingPlayer);
+                    drawCard(playingPlayer, in, out);
                 } else if (sceltaGiocatore == 2) {
                     /*Il giocatore sceglie una carta dando come input la sua riga e colonna*/
-                    fieldAnalysis(playingPlayer);
+                    fieldAnalysis(playingPlayer, in, out);
                 }
 
-                System.out.println("Cosa vuoi fare ?");
+                out.println("Cosa vuoi fare ?");
                 if (flagCartaGiocata == 0) {
-                    System.out.println("1) Piazza una Carta");
-                    System.out.println("2) Analizza il tavolo");
+                    out.println("1) Piazza una Carta");
+                    out.println("2) Analizza il tavolo");
                 } else {
-                    System.out.println("-1) Finisci il turno");
-                    System.out.println("2) Analizza il tavolo");
+                    out.println("-1) Finisci il turno");
+                    out.println("2) Analizza il tavolo");
                 }
-                sceltaGiocatore = scanner.nextInt();
+                sceltaGiocatore = Integer.parseInt(in.readLine());
 
             }
 
             indiceGiocatoreInGioco = selectIndexNextPlayer(indiceGiocatoreInGioco);
-            playingPlayer = selectNextPlayer(indiceGiocatoreInGioco);
-            sceltaGiocatore = chooseFromMenu();
+            playingPlayer = selectNextPlayer(indiceGiocatoreInGioco, in, out);
+            sceltaGiocatore = chooseFromMenu(in, out);
 
         }
 
@@ -104,27 +109,30 @@ public class NewMatch {
      * places the player's starter card on its field
      * @param playingPlayer: player that is playing at the moment
      */
-    private void placeStarterCard(Player playingPlayer) {
+    private void placeStarterCard(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
         Scanner scanner = new Scanner(System.in);
         int sceltaFronte;
 
-        System.out.println("Place starter Card...");
-        playingPlayer.printStarterCard();
-        System.out.println("Seleziona se vuoi piazzare la carta iniziale di fronte o retro: 1) -> Fronte | 0) -> Retro");
-        sceltaFronte = scanner.nextInt();
-        playingPlayer.placeStarterCard(sceltaFronte == 1);
-        playingPlayer.printField();
+        out.println("Place starter Card...");
+        playingPlayer.printStarterCard(out);
+        out.println("Seleziona se vuoi piazzare la carta iniziale di fronte o retro: 1) -> Fronte | 0) -> Retro");
+        //Questa avverrà nel client
+        //sceltaFronte = scanner.nextInt();
+        sceltaFronte = Integer.parseInt(in.readLine());
+        playingPlayer.placeStarterCard(sceltaFronte == 1, out);
+        playingPlayer.printField(out);
     }
     /**
      * Prints a menu giving choices to the player that playing
      * @return int, player's choice
      */
-    private int chooseFromMenu() {
+    private int chooseFromMenu(BufferedReader in, PrintWriter out) throws IOException {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Cosa vuoi fare ?");
-        System.out.println("1) Piazza una Carta");
-        System.out.println("2) Analizza il tavolo");
-        return scanner.nextInt();
+        out.println("Cosa vuoi fare ?");
+        out.println("1) Piazza una Carta");
+        out.println("2) Analizza il tavolo");
+        return Integer.parseInt(in.readLine());
+        //return scanner.nextInt();
     }
 
     /**
@@ -132,13 +140,13 @@ public class NewMatch {
      * @param playingPlayer: player that is playing at the moment
      * @return int, defines the number of the card in the player's deck
      */
-    private int selectCard(Player playingPlayer) {
+    private int selectCard(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
         Scanner scanner = new Scanner(System.in);
         int sceltaCarta;
 
-        playingPlayer.printDeck();
-        System.out.println("Seleziona il numero della carta che vuoi piazzare: ");
-        sceltaCarta = scanner.nextInt();
+        playingPlayer.printDeck(out);
+        out.println("Seleziona il numero della carta che vuoi piazzare: ");
+        sceltaCarta = Integer.parseInt(in.readLine());
 
         return sceltaCarta;
     }
@@ -147,7 +155,7 @@ public class NewMatch {
      * By using auxiliary private methods, allows the player the place a card on its field
      * @param playingPlayer: player that is playing at the moment
      */
-    private void placeCard(Player playingPlayer) {
+    private void placeCard(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
         Scanner scanner = new Scanner(System.in);
         int sceltaCarta;
         int sceltaFronte;
@@ -161,50 +169,50 @@ public class NewMatch {
 
 
         /*Il giocatore sceglie quale carta piazzare e come piazzarla*/
-        sceltaCarta = selectCard(playingPlayer);
+        sceltaCarta = selectCard(playingPlayer, in, out);
         cartaNelMazzo = playingPlayer.getPlayerDeck().getPlayerCards().get(sceltaCarta - 1);
-        System.out.println("Seleziona se vuoi piazzarla di fronte o retro: 1) -> Fronte | 0) -> Retro");
-        sceltaFronte = scanner.nextInt();
+        out.println("Seleziona se vuoi piazzarla di fronte o retro: 1) -> Fronte | 0) -> Retro");
+        sceltaFronte = Integer.parseInt(in.readLine());
 
         /*Checks se esiste una carta in questo slot*/
         while (!cardFlag) {
-            playingPlayer.printField();
-            System.out.println("Seleziona la riga della carta a cui vuoi attaccarti:");
-            riga = scanner.nextInt();
-            System.out.println("Seleziona la colonna della carta a cui vuoi attaccarti:");
-            colonna = scanner.nextInt();
+            playingPlayer.printField(out);
+            out.println("Seleziona la riga della carta a cui vuoi attaccarti:");
+            riga = Integer.parseInt(in.readLine());
+            out.println("Seleziona la colonna della carta a cui vuoi attaccarti:");
+            colonna = Integer.parseInt(in.readLine());
 
-            cardFlag = checkSlotHasCard(playingPlayer, riga, colonna);
+            cardFlag = checkSlotHasCard(playingPlayer, riga, colonna, out);
         }
 
         cartaNelTavolo = playingPlayer.getPlayerField().getSlots()[riga][colonna].getCardSlot();
 
         /*Il giocatore vede gli angoli della carta che vuole piazzare*/
-        System.out.println("Carta da piazzare: ");
+        out.println("Carta da piazzare: ");
         if (sceltaFronte == 1) {
-            cartaNelMazzo.printFrontCorners();
+            cartaNelMazzo.printFrontCorners(out);
         } else {
-            cartaNelMazzo.printBackCorners();
+            cartaNelMazzo.printBackCorners(out);
         }
         /*Il giocatore vede la carta sul tavolo che ha scelto come base*/
-        System.out.println("Carta selezionata sul tavolo:");
+        out.println("Carta selezionata sul tavolo:");
         if (cartaNelTavolo.isPlacedFront()) {
-            cartaNelTavolo.printFrontCorners();
+            cartaNelTavolo.printFrontCorners(out);
         } else {
-            cartaNelTavolo.printBackCorners();
+            cartaNelTavolo.printBackCorners(out);
         }
 
         //Check della disponibilità dell'angolo
         while (!cornerFlag) {
-            System.out.println("Seleziona l'angolo della carta sul tavolo a cui vuoi attaccarti (a partire da in alto a dx in senso orario 0->3): ");
-            sceltaAngolo = scanner.nextInt();
-            cornerFlag = checkCornerLegitness(cartaNelTavolo, sceltaAngolo);
+            out.println("Seleziona l'angolo della carta sul tavolo a cui vuoi attaccarti (a partire da in alto a dx in senso orario 0->3): ");
+            sceltaAngolo = Integer.parseInt(in.readLine());
+            cornerFlag = checkCornerLegitness(cartaNelTavolo, sceltaAngolo, out);
         }
 
         /*La carta scelta dal giocatore viene piazzata in modo opportuna sul tavolo attaccata alla carta selezionata come base*/
         playingPlayer.placeCard(riga, colonna, cartaNelMazzo, (sceltaFronte == 1), sceltaAngolo);
         /*Display del tavolo per controllare*/
-        playingPlayer.printField();
+        playingPlayer.printField(out);
     }
 
     /**
@@ -214,10 +222,10 @@ public class NewMatch {
      * @param c
      * @return boolean, true if there is a card in the slot, otherwise false
      */
-    public boolean checkSlotHasCard(Player playingPlayer, int r, int c) {
+    public boolean checkSlotHasCard(Player playingPlayer, int r, int c, PrintWriter out) {
         boolean flag = true;
         if (!playingPlayer.getPlayerField().getSlots()[r][c].isBusySlot()) {
-            System.out.println("ERRORE: SCELTO UNO SLOT VUOTO");
+            out.println("ERRORE: SCELTO UNO SLOT VUOTO");
             flag = false;
         }
         return flag;
@@ -229,17 +237,17 @@ public class NewMatch {
      * @param corner: corner to check
      * @return boolean, true if corner is available, otherwise false
      */
-    private boolean checkCornerLegitness(NonObjectiveCard card, int corner) {
+    private boolean checkCornerLegitness(NonObjectiveCard card, int corner, PrintWriter out) {
         boolean flag = true;
         if (card.isPlacedFront()) {
             if (!card.getFrontCorners().get(corner).isAvailableCorner()) {
                 flag = false;
-                System.out.println("ERRORE: ANGOLO NON DISPONIBILE");
+                out.println("ERRORE: ANGOLO NON DISPONIBILE");
             }
         } else {
             if (!card.getBackCorners().get(corner).isAvailableCorner()) {
                 flag = false;
-                System.out.println("ERRORE: ANGOLO NON DISPONIBILE");
+                out.println("ERRORE: ANGOLO NON DISPONIBILE");
             }
         }
         return flag;
@@ -250,24 +258,24 @@ public class NewMatch {
      * Allows the player to draw a card from either the resource deck or gold deck
      * @param playingPlayer: player that is playing at the moment
      */
-    private void drawCard(Player playingPlayer) {
+    private void drawCard(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
         //TODO: finire la funzione della pesca
         int sceltaMazzo = -1;
         boolean flagMazzo = false;
         Scanner scanner = new Scanner(System.in);
 
         while (flagMazzo == false) {
-            System.out.println("Pesca una carta dai mazzi:");
-            System.out.println("1) Mazzo Resource");
-            System.out.println("2) Mazzo Oro");
-            sceltaMazzo = scanner.nextInt();
+            out.println("Pesca una carta dai mazzi:");
+            out.println("1) Mazzo Resource");
+            out.println("2) Mazzo Oro");
+            sceltaMazzo = Integer.parseInt(in.readLine());
             flagMazzo = true;
 
             if (sceltaMazzo == 1 && DrawingDeck.getTotalResourceCard().isEmpty()) {
-                System.out.println("ERRORE: MAZZO RISORSA VUOTO");
+                out.println("ERRORE: MAZZO RISORSA VUOTO");
                 flagMazzo = false;
             } else if (sceltaMazzo == 2 && DrawingDeck.getTotalGoldCard().isEmpty()) {
-                System.out.println("ERRORE: MAZZO ORO VUOTO");
+                out.println("ERRORE: MAZZO ORO VUOTO");
                 flagMazzo = false;
             }
 
@@ -290,16 +298,16 @@ public class NewMatch {
      * Allows the playing player to analise its field
      * @param playingPlayer: player that is playing at the moment
      */
-    private void fieldAnalysis(Player playingPlayer) {
+    private void fieldAnalysis(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
         int riga, colonna;
         Scanner scanner = new Scanner(System.in);
 
-        playingPlayer.printField();
-        System.out.println("Scegli la riga della carta che vuoi analizzare: ");
-        riga = scanner.nextInt();
-        System.out.println("Scegli la colonna della carta che vuoi analizzare: ");
-        colonna = scanner.nextInt();
-        playingPlayer.getPlayerField().cardAnalysis(riga, colonna);
+        playingPlayer.printField(out);
+        out.println("Scegli la riga della carta che vuoi analizzare: ");
+        riga = Integer.parseInt(in.readLine());
+        out.println("Scegli la colonna della carta che vuoi analizzare: ");
+        colonna = Integer.parseInt(in.readLine());
+        playingPlayer.getPlayerField().cardAnalysis(riga, colonna, out);
     }
 
     /**
@@ -320,12 +328,12 @@ public class NewMatch {
      * @param index: index of the next player that will play, calculated from another private method
      * @return Player, next player in line
      */
-    private Player selectNextPlayer(int index) {
+    private Player selectNextPlayer(int index, BufferedReader in, PrintWriter out) throws IOException {
         Player nextPlayer;
         nextPlayer = players.get(index);
         System.out.println("Prossimo turno... \n Tocca a " + nextPlayer.getPlayerName());
         if (nextPlayer.isFirstTurn()) {
-            placeStarterCard(nextPlayer);
+            placeStarterCard(nextPlayer, in, out);
             nextPlayer.setFirstTurn(false);
         }
         return nextPlayer;

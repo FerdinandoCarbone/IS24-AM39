@@ -107,6 +107,6 @@ public class Server {
         for (Player p: clients.values()) {
             matches.getLast().addPlayer(p);
         }
-        matches.getLast().startMatch();
+        //matches.getLast().startMatch();
     }
 }

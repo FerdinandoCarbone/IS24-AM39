@@ -1,6 +1,7 @@
 package com.example.codexnaturalis;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -163,14 +164,14 @@ class DrawingDeck extends Decks{
         /**
          * Print the player's cards
          */
-        public void printDeck() {
+        public void printDeck(PrintWriter out) {
             for (ResourceGoldCard resourceGoldCard : playerCards) {
-                resourceGoldCard.printCard();
+                resourceGoldCard.printCard(out);
             }
             if (starterCard == null) {
                 System.out.println("NO STARTER CARD");
             } else {
-                starterCard.printCard();
+                starterCard.printCard(out);
             }
             secretObjectiveCard.printObjectiveCard();
         }

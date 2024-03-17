@@ -71,7 +71,7 @@ class ClientHandler extends Thread {
                     System.out.println("Tutti i giocatori sono pronti");
                     System.out.println("La partita sta per cominciare...");
                     ZakServer.match = new NewMatch(ZakServer.players, new ScoreTracker());
-                    ZakServer.match.startMatch();
+                    ZakServer.match.startMatch(inputFromClient, outputToClient);
                 }
 
 

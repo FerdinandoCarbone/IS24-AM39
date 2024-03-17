@@ -1,5 +1,7 @@
 package com.example.codexnaturalis;
 
+import java.io.PrintWriter;
+
 public class Field {
     /**
      * Matrix containing slots
@@ -29,18 +31,18 @@ public class Field {
      * @param r riga dello slot
      * @param c colonna dello slot
      */
-    public void cardAnalysis(int r, int c) {
+    public void cardAnalysis(int r, int c, PrintWriter out) {
         if (slots[r][c].isBusySlot() == false) {
-            System.out.println("ERORRE: SLOT NON OCCUPATO DA NESSUNA CARTA.");
+            out.println("ERORRE: SLOT NON OCCUPATO DA NESSUNA CARTA.");
             return;
         }
         NonObjectiveCard carta = slots[r][c].getCardSlot();
-        System.out.println("Analisi della carta nello slot [" + r + "][" + c + "].");
-        System.out.println("idCard: " + carta.getIdCard());
+        out.println("Analisi della carta nello slot [" + r + "][" + c + "].");
+        out.println("idCard: " + carta.getIdCard());
         if (carta.isPlacedFront()) {
-            carta.printFrontCorners();
+            carta.printFrontCorners(out);
         } else {
-            carta.printBackCorners();
+            carta.printBackCorners(out);
         }
     }
 
