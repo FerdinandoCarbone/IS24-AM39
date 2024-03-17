@@ -36,7 +36,7 @@ public class Field {
         }
         NonObjectiveCard carta = slots[r][c].getCardSlot();
         System.out.println("Analisi della carta nello slot [" + r + "][" + c + "].");
-        System.out.println(carta.getIdCard());
+        System.out.println("idCard: " + carta.getIdCard());
         if (carta.isPlacedFront()) {
             carta.printFrontCorners();
         } else {

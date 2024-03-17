@@ -37,6 +37,16 @@ public class Player {
      */
     private int[] elementsMana;
 
+    public void setFirstTurn(boolean firstTurn) {
+        this.firstTurn = firstTurn;
+    }
+
+    private boolean firstTurn = true;
+
+    public boolean isFirstTurn() {
+        return firstTurn;
+    }
+
     /**
      * Constructor of the Player class
      * @param playerName: Defines the player's name
@@ -131,8 +141,7 @@ public class Player {
      */
     public void printStarterCard() {
         System.out.println("Carta iniziale di " + playerName);
-        //System.out.println(playerDeck.getStarterCard().toString());
-        System.out.println("pippo");
+        playerDeck.getStarterCard().printCard();
     }
 
 

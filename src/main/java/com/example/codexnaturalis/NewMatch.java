@@ -324,6 +324,10 @@ public class NewMatch {
         Player nextPlayer;
         nextPlayer = players.get(index);
         System.out.println("Prossimo turno... \n Tocca a " + nextPlayer.getPlayerName());
+        if (nextPlayer.isFirstTurn()) {
+            placeStarterCard(nextPlayer);
+            nextPlayer.setFirstTurn(false);
+        }
         return nextPlayer;
     }
 
