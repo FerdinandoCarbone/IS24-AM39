@@ -2,52 +2,52 @@ package com.example.codexnaturalis;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
-public class NewMatch {
+public class Match {
 
     private ArrayList<Player> players;
     private ScoreTracker scoreTracker;
+    BufferedReader in;
+    PrintWriter out;
+    private boolean lastRound = false;
+
     /**
      * Constructor of Match
      * @param players: ArrayList of all players in the match
      * @param scoreTracker: score tracker
      */
-    public NewMatch(ArrayList<Player> players, ScoreTracker scoreTracker) {
+    public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
         this.players = players;
         this.scoreTracker = scoreTracker;
     }
 
-    public NewMatch(ScoreTracker scoreTracker) {
+    public Match(ScoreTracker scoreTracker) {
         this.players = new ArrayList<>();
         this.scoreTracker = scoreTracker;
-    }
-
-    public void addPlayer(Player p) {
-        players.add(p);
     }
 
     /**
      * Main function that starts the match. Also, only public method
      */
-    public void startMatch(BufferedReader in, PrintWriter out) throws IOException {
-        Scanner scanner = new Scanner(System.in);
+    public void startMatch() throws IOException {
         int sceltaGiocatore;
         int flagCartaGiocata = 0;
-
         /*Si inizia scegliendo in modo casuale il giocatore iniziale*/
         int indiceGiocatoreInGioco = randomIndex();
         Player playingPlayer = chooseFirstPlayer(indiceGiocatoreInGioco);
         playingPlayer.setFirstTurn(false);
         /*Inizia la partita con la carta iniziale piazzata dal primo giocatore*/
+
+        in = new BufferedReader(new InputStreamReader(playingPlayer.getPlayerSocket().getInputStream()));
+        out = new PrintWriter(playingPlayer.getPlayerSocket().getOutputStream(), true);
         placeStarterCard(playingPlayer, in, out);
 
         sceltaGiocatore = chooseFromMenu(in, out);
 
-        while (true) {
+        while (!lastRound) {
             while (sceltaGiocatore != -1) {
 
                 if (sceltaGiocatore == 1) {
@@ -75,11 +75,19 @@ public class NewMatch {
 
             }
 
-            indiceGiocatoreInGioco = selectIndexNextPlayer(indiceGiocatoreInGioco);
-            playingPlayer = selectNextPlayer(indiceGiocatoreInGioco, in, out);
-            sceltaGiocatore = chooseFromMenu(in, out);
+            if (checkWinner(playingPlayer)) {
+                lastRound = true;
+            } else {
+                indiceGiocatoreInGioco = selectIndexNextPlayer(indiceGiocatoreInGioco);
+
+                playingPlayer = selectNextPlayer(indiceGiocatoreInGioco);
+                sceltaGiocatore = chooseFromMenu(in, out);
+            }
 
         }
+        //TODO
+
+        lastRoundRoutine();
 
     }
 
@@ -89,8 +97,7 @@ public class NewMatch {
      */
     private int randomIndex() {
         Random random = new Random();
-        int giocatoreIniziale = random.nextInt(players.size());
-        return giocatoreIniziale;
+        return random.nextInt(players.size());
     }
 
     /**
@@ -99,6 +106,7 @@ public class NewMatch {
      * @return Player, first player of the match
      */
     private Player chooseFirstPlayer(int playingPlayerIndex) {
+
         Player playingPlayer = players.get(playingPlayerIndex);
         playingPlayer.setFirstPlayer(true);
         System.out.println(playingPlayer.getPlayerName() + " is the first to play!");
@@ -110,7 +118,6 @@ public class NewMatch {
      * @param playingPlayer: player that is playing at the moment
      */
     private void placeStarterCard(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
-        Scanner scanner = new Scanner(System.in);
         int sceltaFronte;
 
         out.println("Place starter Card...");
@@ -127,7 +134,6 @@ public class NewMatch {
      * @return int, player's choice
      */
     private int chooseFromMenu(BufferedReader in, PrintWriter out) throws IOException {
-        Scanner scanner = new Scanner(System.in);
         out.println("Cosa vuoi fare ?");
         out.println("1) Piazza una Carta");
         out.println("2) Analizza il tavolo");
@@ -141,7 +147,6 @@ public class NewMatch {
      * @return int, defines the number of the card in the player's deck
      */
     private int selectCard(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
-        Scanner scanner = new Scanner(System.in);
         int sceltaCarta;
 
         playingPlayer.printDeck(out);
@@ -156,7 +161,6 @@ public class NewMatch {
      * @param playingPlayer: player that is playing at the moment
      */
     private void placeCard(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
-        Scanner scanner = new Scanner(System.in);
         int sceltaCarta;
         int sceltaFronte;
         int riga = -1;
@@ -262,7 +266,6 @@ public class NewMatch {
         //TODO: finire la funzione della pesca
         int sceltaMazzo = -1;
         boolean flagMazzo = false;
-        Scanner scanner = new Scanner(System.in);
 
         while (flagMazzo == false) {
             out.println("Pesca una carta dai mazzi:");
@@ -300,7 +303,6 @@ public class NewMatch {
      */
     private void fieldAnalysis(Player playingPlayer, BufferedReader in, PrintWriter out) throws IOException {
         int riga, colonna;
-        Scanner scanner = new Scanner(System.in);
 
         playingPlayer.printField(out);
         out.println("Scegli la riga della carta che vuoi analizzare: ");
@@ -328,10 +330,12 @@ public class NewMatch {
      * @param index: index of the next player that will play, calculated from another private method
      * @return Player, next player in line
      */
-    private Player selectNextPlayer(int index, BufferedReader in, PrintWriter out) throws IOException {
+    private Player selectNextPlayer(int index) throws IOException {
         Player nextPlayer;
         nextPlayer = players.get(index);
         System.out.println("Prossimo turno... \n Tocca a " + nextPlayer.getPlayerName());
+        in = new BufferedReader(new InputStreamReader(nextPlayer.getPlayerSocket().getInputStream()));
+        out = new PrintWriter(nextPlayer.getPlayerSocket().getOutputStream(), true);
         if (nextPlayer.isFirstTurn()) {
             placeStarterCard(nextPlayer, in, out);
             nextPlayer.setFirstTurn(false);
@@ -339,4 +343,48 @@ public class NewMatch {
         return nextPlayer;
     }
 
+    /**
+     * Adds a player to the Arraylist
+     * @param player: player to be added
+     */
+    public void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    /**
+     * Checks if a player has reached at least 20 points
+     */
+    private boolean checkWinner(Player playingPlayer) {
+        boolean winnerFlag = false;
+        if (playingPlayer.getScore() >= 20) {
+            winnerFlag = true;
+            System.out.println(playingPlayer.getPlayerName() + " ha raggiunto " + playingPlayer.getScore() + " punti!");
+        }
+        return  winnerFlag;
+    }
+
+    /**
+     * Last Round Routine
+     */
+    private void lastRoundRoutine() {
+        //TODO
+        //Si fa il giro dei giocatori rimanenti
+        checkTotalPoints();
+        declareWinner();
+        //Dichiara il vincitore
+    }
+
+    private void checkTotalPoints() {
+        //TODO
+
+    }
+
+    private Player declareWinner() {
+        //TODO
+        Player player = null;
+
+        return player;
+    }
 }
+
+

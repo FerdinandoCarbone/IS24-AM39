@@ -3,13 +3,11 @@ package com.example.codexnaturalis;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Server {
     static HashMap<Socket, Player> clients = new HashMap<>();
-    private static ArrayList<NewMatch> matches = new ArrayList<>();
+    private static ArrayList<Match> matches = new ArrayList<>();
     private static int playerAcks;
 
     //private static boolean situationChanged;
@@ -103,7 +101,7 @@ public class Server {
         return reply == 1;
     }
     private static void startMatch(){
-        matches.add(new NewMatch(new ScoreTracker()));
+        matches.add(new Match(new ScoreTracker()));
         for (Player p: clients.values()) {
             matches.getLast().addPlayer(p);
         }

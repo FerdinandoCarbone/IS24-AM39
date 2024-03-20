@@ -1,11 +1,13 @@
 package com.example.codexnaturalis;
 
 import java.io.PrintWriter;
+import java.net.Socket;
 
 /**
  * Player of the game
  */
 public class Player {
+    Socket playerSocket;
     /**
      * Defines the player's name
      */
@@ -38,16 +40,10 @@ public class Player {
      * elementsMana: Defines the amount of elements the player has
      */
     private int[] elementsMana;
-
-    public void setFirstTurn(boolean firstTurn) {
-        this.firstTurn = firstTurn;
-    }
-
+    /**
+     * Defines if the player has played its first turn in the game
+     */
     private boolean firstTurn = true;
-
-    public boolean isFirstTurn() {
-        return firstTurn;
-    }
 
     /**
      * Constructor of the Player class
@@ -63,12 +59,20 @@ public class Player {
         this.playerField = playerField;
         this.resourceMana = new int[]{0,0,0,0};
         this.elementsMana = new int[]{0,0,0};
-
     }
 
-    public Token getToken(){
-        return this.token;
+    public Player(Socket socket, Token token, Field playerField) {
+        this.playerSocket = socket;
+        this.playerName = null;
+        this.token = token;
+        this.playerDeck = DrawingDeck.generatePlayerDeck();
+        this.firstPlayer = false;
+        this.playerField = playerField;
+        this.resourceMana = new int[]{0,0,0,0};
+        this.elementsMana = new int[]{0,0,0};
     }
+
+
     /**
      * Places the starter card at the center of the player's field
      * @param fronte: true if the card is faced with if front facing up, otherwise false
@@ -111,9 +115,12 @@ public class Player {
 
             playerDeck.getPlayerCards().remove(cartaDaPiazzare);
             System.out.println("Carta " + cartaDaPiazzare.getClass() + " piazzata nello slot [" + rCartaDaPiazzare + "][" + cCartaDaPiazzare + "]." );
+
+            //TODO: AGGIUNGERE PUNTI/ELEMENTS/RESOURCES QUANDO SI PIAZZA LA CARTA
+
+
         }
     }
-
 
     /**
      * Prints the state of the player's field, [1] is a busy slot, [0] otherwise
@@ -145,7 +152,6 @@ public class Player {
         out.println("Carta iniziale di " + playerName);
         playerDeck.getStarterCard().printCard(out);
     }
-
 
     /**
      * Checks if a slot is busy
@@ -276,6 +282,32 @@ public class Player {
     }
 
     /**
+     * Adds points to the player score
+     * @param points: points to be added
+     */
+    private void addScore(int points) {
+        score += points;
+    }
+
+    /**
+     * Adds number of resources available to the player
+     * @param mana: number of resources to be added
+     * @param index: type of Resource
+     */
+    private void addResourceMana(int mana, int index) {
+        resourceMana[index] += mana;
+    }
+
+    /**
+     * Adds number of elements available to the player
+     * @param mana: number of elements to be added
+     * @param index: type of Element
+     */
+    private void addElementsMana(int mana, int index) {
+        elementsMana[index] += mana;
+    }
+
+    /**
      * Setter of firstPlayer
      * @param firstPlayer: boolean, true if the Player is the first to play, false otherwise
      */
@@ -283,6 +315,21 @@ public class Player {
         this.firstPlayer = firstPlayer;
     }
 
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
+    }
+
+    public void setPlayerField(Field playerField) {
+        this.playerField = playerField;
+    }
+
+    public void setFirstTurn(boolean firstTurn) {
+        this.firstTurn = firstTurn;
+    }
     /**
      * Getter of player's name
      * @return String, defines the player's name
@@ -305,6 +352,21 @@ public class Player {
      */
     public Field getPlayerField() {
         return playerField;
+    }
 
+    public Socket getPlayerSocket() {
+        return playerSocket;
+    }
+
+    public Token getToken(){
+        return this.token;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public boolean isFirstTurn() {
+        return firstTurn;
     }
 }

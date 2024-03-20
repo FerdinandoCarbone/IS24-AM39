@@ -18,7 +18,6 @@ public class ZakClient {
 
             Scanner scanner = new Scanner(System.in);
             String inputClient;
-            int inputClientInt;
             String serverResponse;
 
             do {
@@ -33,6 +32,7 @@ public class ZakClient {
 
         } catch (IOException e) {
             System.out.println("PROBLEMA CLIENT");
+
         }
 
     }

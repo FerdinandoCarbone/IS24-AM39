@@ -15,15 +15,34 @@ public class ZakServer {
     static int counterAcks = 0;
     static boolean firstPlayer = false;
     static boolean matchReady = false;
-    static NewMatch match;
+    static Match match;
 
     public static void main(String[] args) {
 
         try(ServerSocket serverSocket = new ServerSocket(8081)) {
 
             while (true) {
-                new ClientHandler(serverSocket.accept()).start();
-                System.out.println("Connessione accettata");
+
+
+                if (!firstPlayer) {
+                    System.out.println("Aspettando la prima connessione");
+                    firstPlayer = true;
+                    Socket firstClientSocket = serverSocket.accept();
+                    System.out.println("Connessione accettata");
+                    BufferedReader in = new BufferedReader(new InputStreamReader(firstClientSocket.getInputStream()));
+                    PrintWriter out = new PrintWriter(firstClientSocket.getOutputStream(), true);
+
+                    out.println("Quanti giocatori ci saranno ?");
+                    numPlayers = Integer.parseInt(in.readLine());
+                    new Thread(new ClientHandler(firstClientSocket)).start();
+                }
+
+                while (players.size() != numPlayers) {
+                    Socket clientSocket = serverSocket.accept();
+                    System.out.println("Connessione accettata");
+                    new Thread(new ClientHandler(clientSocket)).start();
+                }
+
             }
 
         } catch (IOException e) {
@@ -32,16 +51,35 @@ public class ZakServer {
 
     }
 
+    public static void checkStart() throws IOException {
+        if (counterAcks == numPlayers) {
+            System.out.println("CHECK ACKS");
+            matchReady = true;
+        }
+
+        if (matchReady) {
+            System.out.println("Tutti i giocatori sono pronti");
+            System.out.println("La partita sta per cominciare...");
+
+            match = new Match(players, new ScoreTracker());
+            match.startMatch();
+        }
+
+    }
+
 }
 
-class ClientHandler extends Thread {
+class ClientHandler implements Runnable {
     private Socket socket;
     private boolean welcomeFlag = false;
     private boolean ackFlag = false;
     String clientName;
+    Player player;
 
     public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
+        this.player = new Player(socket, new Token(), new Field(5, 5));
+        ZakServer.players.add(player);
     }
 
     @Override
@@ -50,29 +88,14 @@ class ClientHandler extends Thread {
             BufferedReader inputFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter outputToClient = new PrintWriter(socket.getOutputStream(), true);
 
-            String clientResponse;
-            int clientReady;
-
             do {
-
-                if (!ZakServer.firstPlayer) {
-                    ZakServer.firstPlayer = true;
-                    outputToClient.println("Quanti giocatori ci saranno ?");
-                    ZakServer.numPlayers = Integer.parseInt(inputFromClient.readLine());
-                }
                 if (!welcomeFlag) {
                     welcomePlayer(inputFromClient, outputToClient);
                 }
                 if (!ackFlag) {
                     readyToPlay(inputFromClient, outputToClient);
                 }
-                if (ZakServer.counterAcks == ZakServer.numPlayers && !ZakServer.matchReady) {
-                    ZakServer.matchReady = true;
-                    System.out.println("Tutti i giocatori sono pronti");
-                    System.out.println("La partita sta per cominciare...");
-                    ZakServer.match = new NewMatch(ZakServer.players, new ScoreTracker());
-                    ZakServer.match.startMatch(inputFromClient, outputToClient);
-                }
+
 
 
             } while (true);
@@ -88,8 +111,7 @@ class ClientHandler extends Thread {
         out.println("Inserisci il nome utente che userai per la partita: ");
         clientResponse = in.readLine();
         clientName = clientResponse;
-        clientName = clientResponse;
-        ZakServer.players.add(new Player(clientResponse, new Token(), new Field(5, 5)));
+        player.setPlayerName(clientName);
         System.out.println(clientResponse + " aggiunto ai giocatori");
         out.println("Sei stato aggiunto ai giocatori");
         welcomeFlag = true;
@@ -103,6 +125,7 @@ class ClientHandler extends Thread {
             System.out.println(clientName + " è pronto a giocare");
             ZakServer.counterAcks++;
             ackFlag = true;
+            ZakServer.checkStart();
         }
     }
 
