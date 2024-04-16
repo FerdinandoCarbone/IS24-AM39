@@ -28,9 +28,17 @@ class GoldCardDatabaseLoader extends CardDatabaseLoader {
     }
 }
 class ObjectiveCardDatabaseLoader extends CardDatabaseLoader {
-    public static List<ObjectiveCard> loadCardsFromFile(String filename) throws IOException {
+    public static List<ObjectiveCardCombo> loadCardsFromFile(String filename) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        List<ObjectiveCard> cards = objectMapper.readValue(new File(filename), new TypeReference<List<ObjectiveCard>>() {
+        List<ObjectiveCardCombo> cards = objectMapper.readValue(new File(filename), new TypeReference<List<ObjectiveCardCombo>>() {
+        });
+        return cards;
+    }
+}
+class ObjectiveCardResourceSetDatabaseLoader extends CardDatabaseLoader {
+    public static List<ObjectiveCardResourceSet> loadCardsFromFile(String filename) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<ObjectiveCardResourceSet> cards = objectMapper.readValue(new File(filename), new TypeReference<List<ObjectiveCardResourceSet>>() {
         });
         return cards;
     }

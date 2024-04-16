@@ -1,0 +1,42 @@
+[
+  { "idCard":95,
+    "artRef": [],
+    "points":2,
+    "requiredMaterials": ["Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":96,
+    "artRef": [],
+    "points":2,
+    "requiredMaterials": ["Leaf","Leaf","Leaf"]
+  },
+  { "idCard":97,
+    "artRef": [],
+    "points":2,
+    "requiredMaterials": ["Wolf","Wolf","Wolf"]
+  },
+  { "idCard":98,
+    "artRef": [],
+    "points":2,
+    "requiredMaterials": ["Butterfly","Butterfly","Butterfly"]
+  },
+  { "idCard":99,
+    "artRef": [],
+    "points":3,
+    "requiredMaterials": ["Feather","Ink","Papyrus"]
+  },
+  { "idCard":100,
+    "artRef": [],
+    "points":2,
+    "requiredMaterials": ["Papyrus","Papyrus"]
+  },
+  { "idCard":101,
+    "artRef": [],
+    "points":2,
+    "requiredMaterials": ["Ink","Ink"]
+  },
+  { "idCard":102,
+    "artRef": [],
+    "points":2,
+    "requiredMaterials": ["Feather","Feather"]
+  }
+]

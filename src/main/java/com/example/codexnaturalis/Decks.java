@@ -19,6 +19,8 @@ class DrawingDeck extends Decks{
     private static ArrayList<ResourceCard> totalResourceCard= new ArrayList<>();
     private static ArrayList<GoldCard> totalGoldCard = new ArrayList<>();
     private static ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<>();
+    private static ArrayList<ObjectiveCardCombo> totalObjectiveComboCards = new ArrayList<>();
+    private static ArrayList<ObjectiveCardResourceSet> totalObjectiveResourceSetCards = new ArrayList<>();
     private static ArrayList<StarterCard> totalStartingCards = new ArrayList<>();
     private static boolean shuffleFlag = false;
 
@@ -26,7 +28,11 @@ class DrawingDeck extends Decks{
         DrawingDeck.totalGoldCard = (ArrayList<GoldCard>)GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/GoldCardDB.json");
         DrawingDeck.totalResourceCard = (ArrayList<ResourceCard>)ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ResourceCardDB.json");
         DrawingDeck.totalStartingCards = (ArrayList<StarterCard>)StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/StarterCardDB.json");
-        DrawingDeck.totalObjectiveCards = (ArrayList<ObjectiveCard>)ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardDB.json");
+        DrawingDeck.totalObjectiveComboCards = (ArrayList<ObjectiveCardCombo>)ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardDB.json");
+        DrawingDeck.totalObjectiveResourceSetCards = (ArrayList<ObjectiveCardResourceSet>)ObjectiveCardResourceSetDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardResourceSetDB.json");
+
+        DrawingDeck.totalObjectiveCards.addAll(totalObjectiveComboCards);
+        DrawingDeck.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
     }
 
     /**

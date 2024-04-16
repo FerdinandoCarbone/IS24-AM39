@@ -37,6 +37,7 @@ public class ZakClient {
 
     }
 
+
     static boolean validStrings(String s) {
         boolean flag = false;
         if (s.equals("Inserisci il nome utente che userai per la partita: ") ||

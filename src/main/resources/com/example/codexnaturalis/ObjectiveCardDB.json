@@ -46,45 +46,5 @@
     "points":3,
     "seed": "Purple",
     "type": false
-  },
-  { "idCard":95,
-    "artRef": [],
-    "points":2,
-    "seed": "Red"
-  },
-  { "idCard":96,
-    "artRef": [],
-    "points":2,
-    "seed": "Green"
-  },
-  { "idCard":97,
-    "artRef": [],
-    "points":2,
-    "seed": "Blue"
-  },
-  { "idCard":98,
-    "artRef": [],
-    "points":2,
-    "seed": "Purple"
-  },
-  { "idCard":99,
-    "artRef": [],
-    "points":3,
-    "requiredMaterials": ["Feather","Ink","Papyrus"]
-  },
-  { "idCard":100,
-    "artRef": [],
-    "points":2,
-    "requiredMaterials": ["Papyrus","Papyrus"]
-  },
-  { "idCard":101,
-    "artRef": [],
-    "points":2,
-    "requiredMaterials": ["Ink","Ink"]
-  },
-  { "idCard":102,
-    "artRef": [],
-    "points":2,
-    "requiredMaterials": ["Feather","Feather"]
   }
 ]

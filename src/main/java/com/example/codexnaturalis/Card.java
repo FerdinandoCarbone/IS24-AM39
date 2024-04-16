@@ -192,7 +192,8 @@ class GoldCard extends ResourceGoldCard {
 //TODO: DA METTERE ASTRATTA
  class ObjectiveCard extends Card {
         private int points;
-
+        private Seed seed;
+        private boolean type;
         /**
          * Constructor of ObjectiveCard
          *
@@ -231,20 +232,21 @@ class GoldCard extends ResourceGoldCard {
          * ObjectiveCardObjectSet: SubClass of ObjectiveCard
          * Extra Fields: elementSet
          */
-class ObjectiveCardObjectSet extends ObjectiveCard {
+class ObjectiveCardCombo extends ObjectiveCard {
 
-            private ArrayList<ResourceGoldCard.ResourceElement> elementSet;
+            private Seed seed;
+            private boolean type;
 
             /**
              * Constructor of ObjectiveCardObjectSet
-             * @param idCarta: ID of the card
+             * @param idCard: ID of the card
              * @param artRef: Art Reference of the Card
              * @param points: points given to the player when placing the card
-             * @param elementSet: ArrayList of the elements required
              */
-            public ObjectiveCardObjectSet(int idCarta, String[] artRef, int points, ArrayList<ResourceGoldCard.ResourceElement> elementSet) {
-                super(idCarta, artRef, points);
-                this.elementSet = elementSet;
+            public ObjectiveCardCombo(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points, @JsonProperty("seed") Seed seed,@JsonProperty("type") boolean type) {
+                super(idCard, artRef, points);
+                this.seed = seed;
+                this.type = type;
             }
         }
 
@@ -258,13 +260,13 @@ class ObjectiveCardResourceSet extends ObjectiveCard {
 
             /**
              * Constructor of ObjectiveCardResourceSet
-             * @param idCarta: ID of the card
+             * @param idCard: ID of the card
              * @param artRef: Art Reference of the Card
              * @param points: points given to the player when placing the card
              * @param resourceSet: ArrayList of the resources required
              */
-            public ObjectiveCardResourceSet(int idCarta, String[] artRef, int points, ArrayList<ResourceGoldCard.ResourceElement> resourceSet) {
-                super(idCarta, artRef, points);
+            public ObjectiveCardResourceSet(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("requiredMaterials")  ArrayList<ResourceGoldCard.ResourceElement> resourceSet) {
+                super(idCard, artRef, points);
                 this.resourceSet = resourceSet;
             }
         }
