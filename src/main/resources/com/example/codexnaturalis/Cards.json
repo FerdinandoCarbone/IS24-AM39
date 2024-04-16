@@ -1024,62 +1024,84 @@
   },
   { "idCard":88,
     "artRef": [],
-    "points":2
+    "points":2,
+    "seed": "Green",
+    "type": true
   },
   { "idCard":89,
     "artRef": [],
-    "points":2
+    "points":2,
+    "seed": "Blue",
+    "type": true
   },
   { "idCard":90,
     "artRef": [],
-    "points":2
+    "points":2,
+    "seed": "Purple",
+    "type": true
   },
   { "idCard":91,
     "artRef": [],
-    "points":3
+    "points":3,
+    "seed": "Red",
+    "type": false
   },
   { "idCard":92,
     "artRef": [],
-    "points":3
+    "points":3,
+    "seed": "Green",
+    "type": false
   },
   { "idCard":93,
     "artRef": [],
-    "points":3
+    "points":3,
+    "seed": "Blue",
+    "type": false
   },
   { "idCard":94,
     "artRef": [],
-    "points":3
+    "points":3,
+    "seed": "Purple",
+    "type": false
   },
   { "idCard":95,
     "artRef": [],
-    "points":2
+    "points":2,
+    "seed": "Red"
   },
   { "idCard":96,
     "artRef": [],
-    "points":2
+    "points":2,
+    "seed": "Green"
   },
   { "idCard":97,
     "artRef": [],
-    "points":2
+    "points":2,
+    "seed": "Blue"
   },
   { "idCard":98,
     "artRef": [],
-    "points":2
+    "points":2,
+    "seed": "Purple"
   },
   { "idCard":99,
     "artRef": [],
-    "points":3
+    "points":3,
+    "requiredMaterials": ["Feather","Ink","Papyrus"]
   },
   { "idCard":100,
     "artRef": [],
-    "points":2
+    "points":2,
+    "requiredMaterials": ["Papyrus","Papyrus"]
   },
   { "idCard":101,
     "artRef": [],
-    "points":2
+    "points":2,
+    "requiredMaterials": ["Ink","Ink"]
   },
   { "idCard":102,
     "artRef": [],
-    "points":2
+    "points":2,
+    "requiredMaterials": ["Feather","Feather"]
   }
 ]

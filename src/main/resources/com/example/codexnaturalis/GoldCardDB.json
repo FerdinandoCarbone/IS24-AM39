@@ -1,38 +1,482 @@
 [
-  { "idCard": 200,
-    "artRef": ["test"],
-    "points": 0,
+  { "idCard":41,
+    "artRef": [],
+    "points":1,
     "frontCorners": [
-      {"Element":"Ink", "available": true},
-      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
       {"Element":"Feather", "available": true}
     ],
-    "seed": "Blue",
-    "requiredResources": ["Leaf","Leaf","Leaf","Wolf","Mushroom"]
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Wolf"]
   },
-  { "idCard": 201,
-    "artRef": ["test"],
-    "points": 0,
+  { "idCard":42,
+    "artRef": [],
+    "points": 1,
     "frontCorners": [
-      {"Element":"Ink", "available": true},
-      {"Element":"Papyrus", "available": true},
       {"Element":"empty", "available": true},
-      {"Element":"Feather", "available": true}
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
     ],
-    "seed": "Blue",
-    "requiredResources": ["Leaf","Leaf","Leaf","Wolf","Mushroom"]
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Leaf"]
   },
-  { "idCard": 203,
-    "artRef": ["test"],
-    "points": 0,
+  { "idCard":43,
+    "artRef": [],
+    "points": 1,
     "frontCorners": [
-      {"Element":"Ink", "available": true},
       {"Element":"Papyrus", "available": true},
       {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Butterfly"]
+  },
+  { "idCard":44,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Wolf"]
+  },
+  { "idCard":45,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Leaf"]
+  },
+  { "idCard":46,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Butterfly"]
+  },
+  { "idCard":47,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":48,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":49,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":50,
+    "artRef": [],
+    "points": 5,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":51,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Butterfly"]
+  },
+  { "idCard":52,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Mushroom"]
+  },
+  { "idCard":53,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Wolf"]
+  },
+  { "idCard":54,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Butterfly"]
+  },
+  { "idCard":55,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Wolf"]
+  },
+  { "idCard":56,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Mushroom"]
+  },
+  { "idCard":57,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf"]
+  },
+  { "idCard":58,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"Papyrus", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf"]
+  },
+  { "idCard":59,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf"]
+  },
+  { "idCard":60,
+    "artRef": [],
+    "points": 5,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Leaf","Leaf"]
+  },
+  { "idCard":61,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Butterfly"]
+  },
+  { "idCard":62,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"Papyrus", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Leaf"]
+  },
+  { "idCard":63,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Mushroom"]
+  },
+  { "idCard":64,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Butterfly"]
+  },
+  { "idCard":65,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Mushroom"]
+  },
+  { "idCard":66,
+    "artRef": [],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Leaf"]
+  },
+  { "idCard":67,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf"]
+  },
+  { "idCard":68,
+    "artRef": [],
+    "points":3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf"]
+  },
+  { "idCard":69,
+    "artRef": [],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"Feather", "available": true}
     ],
     "seed": "Blue",
-    "requiredResources": ["Leaf","Leaf","Leaf","Wolf","Mushroom"]
+    "requiredResources": ["Wolf","Wolf","Wolf"]
+  },
+  { "idCard":70,
+    "artRef": [],
+    "points": 5,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Wolf","Wolf"]
+  },
+  { "idCard":71,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Leaf"]
+  },
+  { "idCard":72,
+    "artRef": [],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Wolf"]
+  },
+  { "idCard":73,
+    "artRef": [],
+    "points":1,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"Ink", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Mushroom"]
+  },
+  { "idCard":74,
+    "artRef": [],
+    "points":2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Wolf"]
+  },
+  { "idCard":75,
+    "artRef": [],
+    "points":2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Leaf"]
+  },
+  { "idCard":76,
+    "artRef": [],
+    "points":2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Mushroom"]
+  },
+  { "idCard":77,
+    "artRef": [],
+    "points":3,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly"]
+  },
+  { "idCard":78,
+    "artRef": [],
+    "points":3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly"]
+  },
+  { "idCard":79,
+    "artRef": [],
+    "points":3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly"]
+  },
+  { "idCard":80,
+    "artRef": [],
+    "points":5,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Butterfly","Butterfly"]
   }
 ]
