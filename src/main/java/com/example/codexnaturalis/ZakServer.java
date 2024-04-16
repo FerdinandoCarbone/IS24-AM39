@@ -33,6 +33,7 @@ public class ZakServer {
                     PrintWriter out = new PrintWriter(firstClientSocket.getOutputStream(), true);
 
                     out.println("Quanti giocatori ci saranno ?");
+                    out.println("INPUT");
                     numPlayers = Integer.parseInt(in.readLine());
                     new Thread(new ClientHandler(firstClientSocket)).start();
                 }
@@ -109,6 +110,7 @@ class ClientHandler implements Runnable {
         String clientResponse;
         out.println("Benvenuto in CodexNaturalis");
         out.println("Inserisci il nome utente che userai per la partita: ");
+        out.println("INPUT");
         clientResponse = in.readLine();
         clientName = clientResponse;
         player.setPlayerName(clientName);
@@ -120,6 +122,7 @@ class ClientHandler implements Runnable {
     public void readyToPlay(BufferedReader in, PrintWriter out) throws IOException {
         int clientReady;
         out.println("Sei pronto a giocare ? 1) -> si | 0) -> no");
+        out.println("INPUT");
         clientReady = Integer.parseInt(in.readLine());
         if (clientReady == 1) {
             System.out.println(clientName + " è pronto a giocare");

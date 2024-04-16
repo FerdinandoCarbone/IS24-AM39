@@ -71,6 +71,7 @@ public class Match {
                     out.println("-1) Finisci il turno");
                     out.println("2) Analizza il tavolo");
                 }
+                waitForInput();
                 sceltaGiocatore = Integer.parseInt(in.readLine());
 
             }
@@ -125,6 +126,7 @@ public class Match {
         out.println("Seleziona se vuoi piazzare la carta iniziale di fronte o retro: 1) -> Fronte | 0) -> Retro");
         //Questa avverrà nel client
         //sceltaFronte = scanner.nextInt();
+        waitForInput();
         sceltaFronte = Integer.parseInt(in.readLine());
         playingPlayer.placeStarterCard(sceltaFronte == 1, out);
         playingPlayer.printField(out);
@@ -137,6 +139,7 @@ public class Match {
         out.println("Cosa vuoi fare ?");
         out.println("1) Piazza una Carta");
         out.println("2) Analizza il tavolo");
+        waitForInput();
         return Integer.parseInt(in.readLine());
         //return scanner.nextInt();
     }
@@ -151,6 +154,7 @@ public class Match {
 
         playingPlayer.printDeck(out);
         out.println("Seleziona il numero della carta che vuoi piazzare: ");
+        waitForInput();
         sceltaCarta = Integer.parseInt(in.readLine());
 
         return sceltaCarta;
@@ -176,14 +180,17 @@ public class Match {
         sceltaCarta = selectCard(playingPlayer, in, out);
         cartaNelMazzo = playingPlayer.getPlayerDeck().getPlayerCards().get(sceltaCarta - 1);
         out.println("Seleziona se vuoi piazzarla di fronte o retro: 1) -> Fronte | 0) -> Retro");
+        waitForInput();
         sceltaFronte = Integer.parseInt(in.readLine());
 
         /*Checks se esiste una carta in questo slot*/
         while (!cardFlag) {
             playingPlayer.printField(out);
             out.println("Seleziona la riga della carta a cui vuoi attaccarti:");
+            waitForInput();
             riga = Integer.parseInt(in.readLine());
             out.println("Seleziona la colonna della carta a cui vuoi attaccarti:");
+            waitForInput();
             colonna = Integer.parseInt(in.readLine());
 
             cardFlag = checkSlotHasCard(playingPlayer, riga, colonna, out);
@@ -209,6 +216,7 @@ public class Match {
         //Check della disponibilità dell'angolo
         while (!cornerFlag) {
             out.println("Seleziona l'angolo della carta sul tavolo a cui vuoi attaccarti (a partire da in alto a dx in senso orario 0->3): ");
+            waitForInput();
             sceltaAngolo = Integer.parseInt(in.readLine());
             cornerFlag = checkCornerLegitness(cartaNelTavolo, sceltaAngolo, out);
         }
@@ -271,6 +279,7 @@ public class Match {
             out.println("Pesca una carta dai mazzi:");
             out.println("1) Mazzo Resource");
             out.println("2) Mazzo Oro");
+            waitForInput();
             sceltaMazzo = Integer.parseInt(in.readLine());
             flagMazzo = true;
 
@@ -306,8 +315,10 @@ public class Match {
 
         playingPlayer.printField(out);
         out.println("Scegli la riga della carta che vuoi analizzare: ");
+        waitForInput();
         riga = Integer.parseInt(in.readLine());
         out.println("Scegli la colonna della carta che vuoi analizzare: ");
+        waitForInput();
         colonna = Integer.parseInt(in.readLine());
         playingPlayer.getPlayerField().cardAnalysis(riga, colonna, out);
     }
@@ -363,6 +374,9 @@ public class Match {
         return  winnerFlag;
     }
 
+    private void waitForInput(){
+        out.println("INPUT");
+    }
     /**
      * Last Round Routine
      */

@@ -22,7 +22,7 @@ public class ZakClient {
 
             do {
                 serverResponse = inputFromServer.readLine();
-                System.out.println(serverResponse);
+                if(!serverResponse.equals("INPUT")) System.out.println(serverResponse);
                 if (validStrings(serverResponse)) {
                     inputClient = scanner.nextLine();
                     outputToServer.println(inputClient);
@@ -39,8 +39,8 @@ public class ZakClient {
 
 
     static boolean validStrings(String s) {
-        boolean flag = false;
-        if (s.equals("Inserisci il nome utente che userai per la partita: ") ||
+        return s.equals("INPUT");
+        /*if (s.equals("Inserisci il nome utente che userai per la partita: ") ||
             s.equals("Sei pronto a giocare ? 1) -> si | 0) -> no") ||
             s.equals("Quanti giocatori ci saranno ?") ||
             s.equals("Seleziona se vuoi piazzare la carta iniziale di fronte o retro: 1) -> Fronte | 0) -> Retro") ||
@@ -56,7 +56,7 @@ public class ZakClient {
             flag = true;
         }
 
-        return flag;
+        return flag;*/
     }
 
 }
