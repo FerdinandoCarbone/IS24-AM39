@@ -1,9 +1,6 @@
 package com.example.codexnaturalis;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.TooManyListenersException;
+
 
 /**
  * Token of players
@@ -12,11 +9,7 @@ public class Token {
     /**
      * Defines the color of a token
      */
-    /**
-     * tokenColor: Defines the color of a token
-     */
     private Color tokenColor;
-    //static ArrayList<Integer> totalAvailableColors = (ArrayList<Integer>) Arrays.asList(new Integer[]{2, 2, 2, 2});
 
     public enum Color {
         Red,
@@ -28,17 +21,18 @@ public class Token {
 
     /**
      * Constructor of Token
-     *
-     * @param
      */
-    public Token() throws IOException {
+    public Token() {
         this.tokenColor = pickColor();
     }
 
-    public Color pickColor() throws IOException {
+    public Token(Color color) {
+        this.tokenColor = color;
+    }
+
+    public Color pickColor() {
         Token.Color tokenColor = null;
-        Integer setElem;
-        int z = Server.clients.size();
+        int z = ZakServer.hashPlayer.size();
         if (z > 4) {
             System.out.println("Una partita è già in corso\nCrearne una nuova?");
         }

@@ -1,13 +1,12 @@
+//DA CANCELLARE
 package com.example.codexnaturalis;
 
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.io.IOException;
 
 /**
  * Player of the game
  */
 public class Player {
-    Socket playerSocket;
     /**
      * Defines the player's name
      */
@@ -51,7 +50,7 @@ public class Player {
      * @param token: Defines the player's token
      * @param playerField: Defines the player's own field
      */
-    public Player(String playerName, Token token, Field playerField) {
+    public Player(String playerName, Token token, Field playerField) throws IOException {
         this.playerName = playerName;
         this.token = token;
         this.playerDeck = DrawingDeck.generatePlayerDeck();
@@ -61,8 +60,7 @@ public class Player {
         this.elementsMana = new int[]{0,0,0};
     }
 
-    public Player(Socket socket, Token token, Field playerField) {
-        this.playerSocket = socket;
+    public Player(Token token, Field playerField) throws IOException {
         this.playerName = null;
         this.token = token;
         this.playerDeck = DrawingDeck.generatePlayerDeck();
@@ -72,12 +70,11 @@ public class Player {
         this.elementsMana = new int[]{0,0,0};
     }
 
-
     /**
      * Places the starter card at the center of the player's field
      * @param fronte: true if the card is faced with if front facing up, otherwise false
      */
-    public void placeStarterCard(boolean fronte, PrintWriter out) {
+    public void placeStarterCard(boolean fronte) {
         int r, c;
         r = c = playerField.getSlots().length / 2;
         StarterCard carta = playerDeck.getStarterCard();
@@ -85,7 +82,7 @@ public class Player {
         playerField.getSlots()[r][c].setBusySlot(true);
         playerField.getSlots()[r][c].setCardSlot(carta);
         playerDeck.setStarterCard(null);
-        out.println("Carta " + carta.getClass() + " piazzata nello slot [" + r + "][" + c + "]." );
+        //TODO: aggiornare i mana
     }
 
     /**
@@ -93,13 +90,12 @@ public class Player {
      * @param rCartaPiazzata: row of card A
      * @param cCartaPiazzata: column of card B
      * @param cartaDaPiazzare: card B
-     * @param fronte: defines how B will be placed, true for front facing up, false otherwise
      * @param angoloCartaPiazzata: Defines the angle of card A where B will be placed
      */
-    public void placeCard(int rCartaPiazzata, int cCartaPiazzata, NonObjectiveCard cartaDaPiazzare, boolean fronte, int angoloCartaPiazzata) {
+    public void placeCard(int rCartaPiazzata, int cCartaPiazzata, NonObjectiveCard cartaDaPiazzare, int angoloCartaPiazzata) throws Exception {
         NonObjectiveCard cartaPiazzata = playerField.getSlots()[rCartaPiazzata][cCartaPiazzata].getCardSlot();
-        if (!checkCardInDeck(cartaDaPiazzare)) return;
-        if (checkAvailableCorner(cartaPiazzata, cartaPiazzata.isPlacedFront(), angoloCartaPiazzata)) {
+        
+        if (cartaPiazzata.checkAvailableCorner(angoloCartaPiazzata)) {
             int offSetR = calculateOffSetR(angoloCartaPiazzata);
             int offSetC = calculateOffSetC(angoloCartaPiazzata);
             int rCartaDaPiazzare = rCartaPiazzata + offSetR;
@@ -108,112 +104,17 @@ public class Player {
 
             playerField.getSlots()[rCartaDaPiazzare][cCartaDaPiazzare].setCardSlot(cartaDaPiazzare);
             playerField.getSlots()[rCartaDaPiazzare][cCartaDaPiazzare].setBusySlot(true);
-            cartaDaPiazzare.setIsPlacedFront(fronte);
 
-            updateCorner(cartaPiazzata, angoloCartaPiazzata);
-            updateCorner(cartaDaPiazzare, angoloOccupatoCartaDaPiazzare);
+            cartaPiazzata.updateCorner(angoloCartaPiazzata);
+            cartaDaPiazzare.updateCorner(angoloOccupatoCartaDaPiazzare);
 
-            playerDeck.getPlayerCards().remove(cartaDaPiazzare);
+            playerDeck.getResourceGoldCards().remove(cartaDaPiazzare);
             System.out.println("Carta " + cartaDaPiazzare.getClass() + " piazzata nello slot [" + rCartaDaPiazzare + "][" + cCartaDaPiazzare + "]." );
 
             //TODO: AGGIUNGERE PUNTI/ELEMENTS/RESOURCES QUANDO SI PIAZZA LA CARTA
 
-
-        }
-    }
-
-    /**
-     * Prints the state of the player's field, [1] is a busy slot, [0] otherwise
-     */
-    public void printField(PrintWriter out) {
-        out.println("-------------------------");
-        for (int i = 0; i < playerField.getR(); i++) {
-            for (int j = 0; j < playerField.getC(); j++) {
-                out.print("[" + (playerField.getSlots()[i][j].isBusySlot()? "1" : "0") + "]");
-            }
-            out.println();
-        }
-    }
-
-    /**
-     * Prints the state of the player's deck
-     */
-    public void printDeck(PrintWriter out) {
-        out.println(":::Mazzo di " + playerName + ":::");
-        for (int i = 1; i <= playerDeck.getPlayerCards().size(); i++) {
-            out.println(i + ") " + playerDeck.getPlayerCards().get(i-1).getClass());
-        }
-    }
-
-    /**
-     * Prints the details of the starter Card
-     */
-    public void printStarterCard(PrintWriter out) {
-        out.println("Carta iniziale di " + playerName);
-        playerDeck.getStarterCard().printCard(out);
-    }
-
-    /**
-     * Checks if a slot is busy
-     * @param r slot's row
-     * @param c slot's column
-     * @return boolean, true if slot is busy, false otherwise
-     */
-    private boolean checkBusySlot(int r, int c) {
-        boolean flag;
-        if (playerField.getSlots()[r][c].isBusySlot()) {
-            System.out.println("ERRORE: SLOT GIA' OCCUPATO");
-            flag = true;
         } else {
-            flag = false;
-        }
-        return flag;
-    }
-
-    /**
-     * Checks if the card is in the player's deck
-     * @param card: card that will be checked
-     * @return boolean, true if the card is in the player's deck, otherwise false
-     */
-    private boolean checkCardInDeck(NonObjectiveCard card) {
-        boolean flag;
-        if (!playerDeck.getPlayerCards().contains(card)) {
-            System.out.println("ERRORE: CARTA NON DISPONIBILE NEL MAZZO");
-            flag = false;
-        } else {
-            flag = true;
-        }
-        return flag;
-    }
-
-    /**
-     * Checks if the corner is available
-     * @param card: card that will be checked
-     * @param inFront: boolean, true if the card is placed with the front facing up, otherwise false
-     * @param corner: integer defining the corner that will be checked in order (UR[0], BR[1], BL[2], UL[3])
-     * @return boolean, true if the corner is available, otherwise false
-     */
-    private boolean checkAvailableCorner(NonObjectiveCard card, boolean inFront, int corner) {
-        boolean flag;
-        if (inFront) {
-            flag = card.getFrontCorners().get(corner).isAvailableCorner();
-        } else {
-            flag = card.getBackCorners().get(corner).isAvailableCorner();
-        }
-        return flag;
-    }
-
-    /**
-     * Updates the state of a card's corner. If card A is placed on the upper right (UR) corner of card B
-     * the UR corner of B will be updated to [0] while the bottom left (BL) corner if A will be updated to [0]
-     * @param card: card that will be updated
-     * @param corner: integer defining the corner that will be updated (UR[0], BR[1], BL[2], UL[3])
-     */
-    private void updateCorner(NonObjectiveCard card, int corner) {
-        if (card.isPlacedFront()) {
-            card.getFrontCorners().get(corner).setAvailableCorner(false);
-        } else {
-            card.getBackCorners().get(corner).setAvailableCorner(false);
+            throw new RuntimeException("ANGOLO NON DISPONIBILE");
         }
     }
 
@@ -238,20 +139,15 @@ public class Player {
      * @param corner: integer defining the corner of the card already on the field (UR[0], BR[1], BL[2], UL[3])
      * @return int, defines the row offset of the card that will be placed
      */
-    private int calculateOffSetR(int corner) {
+    protected int calculateOffSetR(int corner) {
         int offSetR = 0;
         switch (corner) {
-            case 0:
+            case 0, 3:
                 offSetR = -1;
                 break;
-            case 1:
+            case 1, 2:
                 offSetR = 1;
                 break;
-            case 2:
-                offSetR = 1;
-                break;
-            case 3:
-                offSetR = -1;
             default:
         }
         return offSetR;
@@ -262,20 +158,15 @@ public class Player {
      * @param corner: integer defining the corner of the card already on the field (UR[0], BR[1], BL[2], UL[3])
      * @return int, defines the column offset of the card that will be placed
      */
-    private int calculateOffSetC(int corner) {
+    protected int calculateOffSetC(int corner) {
         int offSetC = 0;
         switch (corner) {
-            case 0:
+            case 0, 1:
                 offSetC = 1;
                 break;
-            case 1:
-                offSetC = 1;
-                break;
-            case 2:
+            case 2, 3:
                 offSetC = -1;
                 break;
-            case 3:
-                offSetC = -1;
             default:
         }
         return offSetC;
@@ -285,7 +176,7 @@ public class Player {
      * Adds points to the player score
      * @param points: points to be added
      */
-    private void addScore(int points) {
+    public void addScore(int points) {
         score += points;
     }
 
@@ -294,7 +185,7 @@ public class Player {
      * @param mana: number of resources to be added
      * @param index: type of Resource
      */
-    private void addResourceMana(int mana, int index) {
+    public void addResourceMana(int mana, int index) {
         resourceMana[index] += mana;
     }
 
@@ -303,14 +194,11 @@ public class Player {
      * @param mana: number of elements to be added
      * @param index: type of Element
      */
-    private void addElementsMana(int mana, int index) {
+    public void addElementsMana(int mana, int index) {
         elementsMana[index] += mana;
     }
 
-    /**
-     * Setter of firstPlayer
-     * @param firstPlayer: boolean, true if the Player is the first to play, false otherwise
-     */
+    //SETTERS AND GETTERS
     public void setFirstPlayer(boolean firstPlayer) {
         this.firstPlayer = firstPlayer;
     }
@@ -319,47 +207,20 @@ public class Player {
         this.playerName = playerName;
     }
 
-    public void setToken(Token token) {
-        this.token = token;
-    }
-
-    public void setPlayerField(Field playerField) {
-        this.playerField = playerField;
-    }
-
     public void setFirstTurn(boolean firstTurn) {
         this.firstTurn = firstTurn;
     }
-    /**
-     * Getter of player's name
-     * @return String, defines the player's name
-     */
+
     public String getPlayerName() {
         return playerName;
     }
 
-    /**
-     * Getter of playerDeck
-     * @return PlayerDeck
-     */
     public PlayerDeck getPlayerDeck() {
         return playerDeck;
     }
 
-    /**
-     * Getter of the player's field
-     * @return FIELD
-     */
     public Field getPlayerField() {
         return playerField;
-    }
-
-    public Socket getPlayerSocket() {
-        return playerSocket;
-    }
-
-    public Token getToken(){
-        return this.token;
     }
 
     public int getScore() {
@@ -368,5 +229,13 @@ public class Player {
 
     public boolean isFirstTurn() {
         return firstTurn;
+    }
+
+    public int[] getResourceMana() {
+        return resourceMana;
+    }
+
+    public int[] getElementsMana() {
+        return elementsMana;
     }
 }

@@ -7,10 +7,11 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ZakServer {
 
-    static ArrayList<Player> players = new ArrayList<>();
+    static HashMap<Player, Socket> hashPlayer = new HashMap<>();
     static int numPlayers = -1;
     static int counterAcks = 0;
     static boolean firstPlayer = false;
@@ -19,7 +20,10 @@ public class ZakServer {
 
     public static void main(String[] args) {
 
-        try(ServerSocket serverSocket = new ServerSocket(8081)) {
+        int port = Integer.parseInt(args[0]);
+
+
+        try(ServerSocket serverSocket = new ServerSocket(port)) {
 
             while (true) {
 
@@ -33,12 +37,16 @@ public class ZakServer {
                     PrintWriter out = new PrintWriter(firstClientSocket.getOutputStream(), true);
 
                     out.println("Quanti giocatori ci saranno ?");
-                    out.println("INPUT");
-                    numPlayers = Integer.parseInt(in.readLine());
+
+                    try {
+                        numPlayers = Integer.parseInt(in.readLine());
+                    } catch (NumberFormatException e) {
+                        throw new NumberFormatException("NOT A NUMBER");
+                    }
                     new Thread(new ClientHandler(firstClientSocket)).start();
                 }
 
-                while (players.size() != numPlayers) {
+                while (hashPlayer.size() != numPlayers) {
                     Socket clientSocket = serverSocket.accept();
                     System.out.println("Connessione accettata");
                     new Thread(new ClientHandler(clientSocket)).start();
@@ -52,7 +60,7 @@ public class ZakServer {
 
     }
 
-    public static void checkStart() throws IOException {
+    public static void checkStart() throws Exception {
         if (counterAcks == numPlayers) {
             System.out.println("CHECK ACKS");
             matchReady = true;
@@ -61,6 +69,8 @@ public class ZakServer {
         if (matchReady) {
             System.out.println("Tutti i giocatori sono pronti");
             System.out.println("La partita sta per cominciare...");
+
+            ArrayList<Player> players = new ArrayList<>(hashPlayer.keySet());
 
             match = new Match(players, new ScoreTracker());
             match.startMatch();
@@ -79,8 +89,8 @@ class ClientHandler implements Runnable {
 
     public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
-        this.player = new Player(socket, new Token(), new Field(5, 5));
-        ZakServer.players.add(player);
+        this.player = new Player(new Token(), new Field(5, 5));
+        ZakServer.hashPlayer.put(player, socket);
     }
 
     @Override
@@ -101,7 +111,7 @@ class ClientHandler implements Runnable {
 
             } while (true);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("ERRORE CLIENT HANDLER");
         }
     }
@@ -119,11 +129,16 @@ class ClientHandler implements Runnable {
         welcomeFlag = true;
     }
 
-    public void readyToPlay(BufferedReader in, PrintWriter out) throws IOException {
+    public void readyToPlay(BufferedReader in, PrintWriter out) throws Exception {
         int clientReady;
         out.println("Sei pronto a giocare ? 1) -> si | 0) -> no");
-        out.println("INPUT");
-        clientReady = Integer.parseInt(in.readLine());
+        try {
+            clientReady = Integer.parseInt(in.readLine());
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("NOT A NUMBER");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (clientReady == 1) {
             System.out.println(clientName + " è pronto a giocare");
             ZakServer.counterAcks++;

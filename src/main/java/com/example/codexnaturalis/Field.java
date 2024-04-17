@@ -26,24 +26,15 @@ public class Field {
         }
     }
 
-    /**
-     * Dati la riga r e la colonna c, controlla se lo slot [r][c] è occupato, in caso printa la toString() della carta occupante
-     * @param r riga dello slot
-     * @param c colonna dello slot
-     */
-    public void cardAnalysis(int r, int c, PrintWriter out) {
-        if (slots[r][c].isBusySlot() == false) {
-            out.println("ERORRE: SLOT NON OCCUPATO DA NESSUNA CARTA.");
-            return;
+    public void printField(PrintWriter out) {
+        out.println("-------------------------");
+        for (int i = 0; i < getR(); i++) {
+            for (int j = 0; j < getC(); j++) {
+                out.print("[" + (getSlots()[i][j].isBusySlot()? "1" : "0") + "]");
+            }
+            out.println();
         }
-        NonObjectiveCard carta = slots[r][c].getCardSlot();
-        out.println("Analisi della carta nello slot [" + r + "][" + c + "].");
-        out.println("idCard: " + carta.getIdCard());
-        if (carta.isPlacedFront()) {
-            carta.printFrontCorners(out);
-        } else {
-            carta.printBackCorners(out);
-        }
+
     }
 
     public Slot[][] getSlots() {
@@ -67,18 +58,6 @@ public class Field {
          * Defines the card contained in the slot if busy
          */
         private NonObjectiveCard cardSlot = null;
-
-        /**
-         * Analysis of the slot
-         */
-        public void analysisSlot() {
-            if (busySlot) {
-                System.out.println("Lo slot è occupato da una carta");
-                cardSlot.toString();
-            } else {
-                System.out.println("Lo slot è libero");
-            }
-        }
 
         /**
          * Getter of busySlot
@@ -112,4 +91,5 @@ public class Field {
             this.cardSlot = cardSlot;
         }
     }
+
 }
