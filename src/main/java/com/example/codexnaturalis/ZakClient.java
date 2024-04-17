@@ -11,7 +11,8 @@ public class ZakClient {
 
     public static void main(String[] args) {
 
-        try(Socket socket = new Socket("localhost", 8081)) {
+        int port = Integer.parseInt(args[0]);
+        try(Socket socket = new Socket("localhost", port)) {
 
             BufferedReader inputFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter outputToServer = new PrintWriter(socket.getOutputStream(), true);
@@ -28,7 +29,7 @@ public class ZakClient {
                     outputToServer.println(inputClient);
                 }
 
-            } while (true);
+            } while(true);
 
         } catch (IOException e) {
             System.out.println("PROBLEMA CLIENT");
