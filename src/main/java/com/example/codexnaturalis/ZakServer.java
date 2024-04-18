@@ -1,65 +1,88 @@
 package com.example.codexnaturalis;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class ZakServer {
 
     static HashMap<Player, Socket> hashPlayer = new HashMap<>();
-    static int numPlayers = -1;
-    static int counterAcks = 0;
+    static HashMap<UUID, Socket> hashClient = new HashMap<>();
+    static int numPlayers;
+    static int counterAcks;
     static boolean firstPlayer = false;
     static boolean matchReady = false;
     static Match match;
-
-    public static void main(String[] args) {
+    static ServerSocket serverSocket;
+    static String serverName;
+    public static void main(String[] args) throws IOException {
 
         int port = Integer.parseInt(args[0]);
 
 
-        try(ServerSocket serverSocket = new ServerSocket(port)) {
-
-            while (true) {
-
-
-                if (!firstPlayer) {
-                    System.out.println("Aspettando la prima connessione");
-                    firstPlayer = true;
-                    Socket firstClientSocket = serverSocket.accept();
-                    System.out.println("Connessione accettata");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(firstClientSocket.getInputStream()));
-                    PrintWriter out = new PrintWriter(firstClientSocket.getOutputStream(), true);
-
-                    out.println("Quanti giocatori ci saranno ?");
-
-                    try {
-                        numPlayers = Integer.parseInt(in.readLine());
-                    } catch (NumberFormatException e) {
-                        throw new NumberFormatException("NOT A NUMBER");
-                    }
-                    new Thread(new ClientHandler(firstClientSocket)).start();
-                }
-
-                while (hashPlayer.size() != numPlayers) {
-                    Socket clientSocket = serverSocket.accept();
-                    System.out.println("Connessione accettata");
-                    new Thread(new ClientHandler(clientSocket)).start();
-                }
-
+        try{
+            serverStart(port);
+            while (firstPlayer || hashClient.size()<=numPlayers) {
+                acceptConnections();
             }
-
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             System.out.println("PROBLEMA SERVER");
         }
 
     }
-
+    public static void acceptConnections() throws IOException, ClassNotFoundException {
+        ObjectOutputStream out;
+        ObjectInputStream in;
+        Message clientJoinRequest;
+        LobbyCreationMessage handshakeACK;
+        Socket clientSocket = serverSocket.accept();
+        in = new ObjectInputStream(clientSocket.getInputStream());
+        out = new ObjectOutputStream(clientSocket.getOutputStream());
+        clientJoinRequest = (Message) in.readObject();
+        if (!firstPlayer) {
+            firstPlayer=true;
+            handshakeACK = new LobbyCreationMessage(serverName,null,numPlayers);
+            out.writeObject(handshakeACK);
+            handshakeACK = (LobbyCreationMessage) in.readObject();
+            numPlayers = handshakeACK.getNumPlayer();
+        }
+        else{
+            handshakeACK = new LobbyCreationMessage(serverName,null, hashClient.size());
+            out.writeObject(handshakeACK);
+        }
+        if(hashClient.size()<=numPlayers){
+            hashClient.put(clientJoinRequest.getClientID(),clientSocket);
+            System.out.println(clientJoinRequest.getSender() + " si è unito al server");
+            new Thread(new ClientHandler(handshakeACK.getSender(),clientSocket)).start();
+        }
+    }
+    public static void serverStart(int port) throws IOException {
+        numPlayers = 0;
+        counterAcks = 0;
+        serverSocket = new ServerSocket(port);
+        serverName = "SERVER";
+        System.out.println("\n" +
+                "\n" +
+                " _____                                                                      _____ \n" +
+                "( ___ )--------------------------------------------------------------------( ___ )\n" +
+                " |   |                                                                      |   | \n" +
+                " |   |   ____          _           _   _       _                   _ _      |   | \n" +
+                " |   |  / ___|___   __| | _____  _| \\ | | __ _| |_ _   _ _ __ __ _| (_)___  |   | \n" +
+                " |   | | |   / _ \\ / _` |/ _ \\ \\/ /  \\| |/ _` | __| | | | '__/ _` | | / __| |   | \n" +
+                " |   | | |__| (_) | (_| |  __/>  <| |\\  | (_| | |_| |_| | | | (_| | | \\__ \\ |   | \n" +
+                " |   |  \\____\\___/ \\__,_|\\___/_/\\_\\_| \\_|\\__,_|\\__|\\__,_|_|  \\__,_|_|_|___/ |   | \n" +
+                " |   | / ___|  ___ _ ____   _____ _ __                                      |   | \n" +
+                " |   | \\___ \\ / _ \\ '__\\ \\ / / _ \\ '__|                                     |   | \n" +
+                " |   |  ___) |  __/ |   \\ V /  __/ |                                        |   | \n" +
+                " |   | |____/ \\___|_|    \\_/ \\___|_|                                        |   | \n" +
+                " |___|                                                                      |___| \n" +
+                "(_____)--------------------------------------------------------------------(_____)\n" +
+                "\n");
+        System.out.println("- developed by Team AM39");
+    }
     public static void checkStart() throws Exception {
         if (counterAcks == numPlayers) {
             System.out.println("CHECK ACKS");
@@ -84,10 +107,13 @@ class ClientHandler implements Runnable {
     private Socket socket;
     private boolean welcomeFlag = false;
     private boolean ackFlag = false;
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
     String clientName;
     Player player;
 
-    public ClientHandler(Socket socket) throws IOException {
+    public ClientHandler(String clientName,Socket socket) throws IOException {
+        this.clientName = clientName;
         this.socket = socket;
         this.player = new Player(new Token(), new Field(5, 5));
         ZakServer.hashPlayer.put(player, socket);
@@ -96,15 +122,15 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            BufferedReader inputFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter outputToClient = new PrintWriter(socket.getOutputStream(), true);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
 
             do {
                 if (!welcomeFlag) {
-                    welcomePlayer(inputFromClient, outputToClient);
+                    welcomePlayer(in, out);
                 }
                 if (!ackFlag) {
-                    readyToPlay(inputFromClient, outputToClient);
+                    readyToPlay(in, out);
                 }
 
 

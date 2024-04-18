@@ -1,41 +1,111 @@
 package com.example.codexnaturalis;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class ZakClient {
 
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
+    private static String playerNick;
+    static Socket socket;
+    static UUID clientID;
     public static void main(String[] args) {
 
-        int port = Integer.parseInt(args[0]);
-        try(Socket socket = new Socket("localhost", port)) {
+        final int port = Integer.parseInt(args[1]);
+        final String serverAddress = args[0];
+        playerNick = playerGreeting() ;
 
-            BufferedReader inputFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter outputToServer = new PrintWriter(socket.getOutputStream(), true);
-
-            Scanner scanner = new Scanner(System.in);
-            String inputClient;
-            String serverResponse;
-
-            do {
-                serverResponse = inputFromServer.readLine();
-                if(!serverResponse.equals("INPUT")) System.out.println(serverResponse);
-                if (validStrings(serverResponse)) {
-                    inputClient = scanner.nextLine();
-                    outputToServer.println(inputClient);
-                }
-
-            } while(true);
-
-        } catch (IOException e) {
-            System.out.println("PROBLEMA CLIENT");
-
+        try {
+            initialClientSetup(serverAddress,port);
+        }catch(IOException | ClassNotFoundException | StupidUserException | HandShakeException e){
+            System.out.println("Unable to establish a connection with server");
         }
+        //todo: GenericMessage Assembler
 
+
+    }
+
+    private static void startHandshake() throws IOException, ClassNotFoundException, HandShakeException, StupidUserException {
+        Message handshakeMessage = new Message(playerNick,clientID);
+        out.writeObject(handshakeMessage);
+        try{
+            LobbyCreationMessage handshakeACK = (LobbyCreationMessage) in.readObject();
+            switch(handshakeACK.numPlayer) {
+                case 0:
+                    lobbyCreation(handshakeACK);
+                     break;
+                case 1,2,3:
+                    System.out.println("Joined existing match...");
+                    System.out.println("Waiting for everyone to join.");
+                    break;
+                default:
+                    throw new TooManyPlayersException("Lobby is currently full. Wait for the match to end and try again");
+            }
+        } catch(ClassNotFoundException e){
+            e.getMessage();
+        }
+    }
+    private static void lobbyCreation(LobbyCreationMessage msg) throws IOException, HandShakeException, StupidUserException {
+        int desiredPlayerCount = 0;
+        int i;
+        System.out.println("No match found. Creating a new one:\nHow many players will be playing?\nWrite a value between 2 and 4:");
+        try(Scanner scanner = new Scanner(System.in);) {
+            for (i = 0; i<3; i++) {
+                desiredPlayerCount = Integer.parseInt(scanner.nextLine());
+                if (desiredPlayerCount >= 2 && desiredPlayerCount <= 4) break;
+                else  System.out.println("Unacceptable value was input.\nWrite a number between 2 and 4: ");
+                if (i == 2) throw new StupidUserException("u stupid bruh");
+            }
+        } catch (NumberFormatException e){
+            e.getMessage();
+            throw new StupidUserException("Unacceptable value was input.\nWrite a number between 2 and 4");
+        } catch (StupidUserException e) {
+            e.getMessage();
+            throw new HandShakeException("Something went wrong during connection");
+        } finally{
+            msg.setNumPlayer(desiredPlayerCount);
+            msg.setSender(playerNick);
+            msg.setClientID(clientID);
+            out.writeObject(msg);
+        }
+    }
+    private static void initialClientSetup(String serverAddress,int port) throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
+        clientID = UUID.randomUUID();
+        socket  = new Socket(serverAddress, port);
+        // OutputStream
+        out = new ObjectOutputStream(socket.getOutputStream());
+        // Ora leggi la risposta dal server
+        in = new ObjectInputStream(socket.getInputStream());
+        // Inizializza la connessione
+        startHandshake();
+    }
+    private static String playerGreeting(){
+        Scanner in = new Scanner(System.in);
+        System.out.println("Welcome Player to:");
+        System.out.println("\n" +
+                "\n" +
+                " _____                                                              _____ \n" +
+                "( ___ )------------------------------------------------------------( ___ )\n" +
+                " |   |                                                              |   | \n" +
+                " |   |   .-._   .-._.    .                                          |   | \n" +
+                " |   | ..' (_)`-'        /    `--.  .-.                             |   | \n" +
+                " |   | |      .-._..-../   .-.   \\/                                 |   | \n" +
+                " |   | |    _(   )(   /  ./.-'_  /\\                                 |   | \n" +
+                " |   | `.    )`-'  `-'-..(__.'.-'  `-.                              |   | \n" +
+                " |   |   `--'.-.                                     .              |   | \n" +
+                " |   |         /  |         /                       /    .-.        |   | \n" +
+                " |   |        /\\  | .-. ---/---)  (   ).--..-.     /     `-' .      |   | \n" +
+                " |   |       /  \\ |(  |   /   (    ) /    (  |    /     /   / \\     |   | \n" +
+                " |   |  .-' /    \\| `-'-'/     `--':/      `-'-'_/_.-_.(__./ ._)    |   | \n" +
+                " |   | (__.'      `.                                      /         |   | \n" +
+                " |___|                                                              |___| \n" +
+                "(_____)------------------------------------------------------------(_____)\n" +
+                "\n");
+        System.out.println("Please enter your nickname:");
+        return in.nextLine();
     }
 
     static boolean validStrings(String s) {
