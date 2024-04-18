@@ -1,0 +1,55 @@
+Divisione Compiti
+    1.	Implementazione del Ciclo (Zakaria, Ferdinando)
+        a.	Check di quanti client ci sono
+        b.	Specificare le azioni che il client può fare all’interno del suo turno (Vedere terreno proprio e altrui, carte obiettivo comuni e 4 carte scoperte, personali, tabellone). Bisogna inviare principalmente la sequenza di posizionamento al server che indica la fine del turno del giocatore ()
+        c.	Impacchettamento della sequenza di istruzioni e check di correttezza (fin quando siamo da terminale)
+        d.	Aggiungere la funzionalità di pesca delle 4 carte scoperte
+
+Vincenzo, Rocco
+    2.	Check punti (Ogni volta che viene finito il turno per aggiornare in tempo reale) + Tie Break
+        a.	Check punti calcola i punteggi alla fine di ogni turno
+        b.	Se un giocatore arriva a 20
+            i.	Porta alla fine della partita
+            ii.	Check di fine ciclo
+            iii.	Calcolo punteggi extra + Logica delle disposizioni
+            iv.	Check di Parità + Logica di pareggio
+3.	Tabellone (Ultima delle priorità)
+    a.	Aggiorna la posizione dei Token alla fine di ogni turno
+    b.	Una volta che uno arriva a 20 punti
+        i.	Check del fino ciclo
+4.	Comunicazione(Struttura pacchetto) + Sequence Diagram (Da fare insieme)
+    a.	Scelta della carta da posizionare
+    b.	Scelta della carta da coprire
+    c.	Scelta della carta pescata
+
+Messaggi
+
+Messaggio CreateRoom
+    String nickName
+    Int numGiocatori
+    Int idStanza
+Messaggio JoinRoom
+    String nickName
+    Int idStanza
+Messaggio Client inizialeGenerico
+    String nickName
+Messaggio Client generico
+    String nickName
+    Card drawnCard
+    Card cardOnHand
+    Int row
+    Int column
+Messaggio di BroadCast iniziale
+    HashMap<nickName, Field> playerFields
+    Array ObjectiveCard commonObjectiveCards
+    Array ResourceGoldCard publicCards
+    StarterCard starterCard
+Messaggio di BroadCast generico
+    List playerPoints
+    ClientGenerico msg
+Messaggio ServerClientIndividuale
+    Array di ObjectiveCard
+    PlayerDeck deck
+Messaggio chatMessage extends ClientInizialeGenerico
+    String nickNameReceiver
+    String messageSent
