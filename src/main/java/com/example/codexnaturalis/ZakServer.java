@@ -127,10 +127,10 @@ class ClientHandler implements Runnable {
 
             do {
                 if (!welcomeFlag) {
-                    welcomePlayer(in, out);
+                    welcomePlayer();
                 }
                 if (!ackFlag) {
-                    readyToPlay(in, out);
+                    readyToPlay();
                 }
 
 
@@ -142,22 +142,15 @@ class ClientHandler implements Runnable {
         }
     }
 
-    public void welcomePlayer(BufferedReader in, PrintWriter out) throws IOException {
-        String clientResponse;
-        out.println("Benvenuto in CodexNaturalis");
-        out.println("Inserisci il nome utente che userai per la partita: ");
-        out.println("INPUT");
-        clientResponse = in.readLine();
-        clientName = clientResponse;
-        player.setPlayerName(clientName);
-        System.out.println(clientResponse + " aggiunto ai giocatori");
-        out.println("Sei stato aggiunto ai giocatori");
+    public void welcomePlayer() throws IOException {
+        System.out.println(clientName + " aggiunto ai giocatori");
+        //out.println("Sei stato aggiunto ai giocatori");
         welcomeFlag = true;
     }
 
-    public void readyToPlay(BufferedReader in, PrintWriter out) throws Exception {
+    public void readyToPlay() throws Exception {
         int clientReady;
-        out.println("Sei pronto a giocare ? 1) -> si | 0) -> no");
+        //out.println("Sei pronto a giocare ? 1) -> si | 0) -> no");
         try {
             clientReady = Integer.parseInt(in.readLine());
         } catch (NumberFormatException e) {
