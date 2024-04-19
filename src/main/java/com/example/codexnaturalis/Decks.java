@@ -3,6 +3,7 @@ package com.example.codexnaturalis;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 class DrawingDeck {
@@ -20,29 +21,36 @@ class DrawingDeck {
         DrawingDeck.totalStartingCards = (ArrayList<StarterCard>)StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/StarterCardDB.json");
         DrawingDeck.totalObjectiveComboCards = (ArrayList<ObjectiveCardCombo>)ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardDB.json");
         DrawingDeck.totalObjectiveResourceSetCards = (ArrayList<ObjectiveCardResourceSet>)ObjectiveCardResourceSetDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardResourceSetDB.json");
-
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveComboCards);
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
-    }
 
+        Collections.shuffle(DrawingDeck.totalGoldCard);
+        Collections.shuffle(DrawingDeck.totalResourceCard);
+        Collections.shuffle(DrawingDeck.totalStartingCards);
+        Collections.shuffle(DrawingDeck.totalObjectiveCards);
+    }
+    public static ArrayList<ObjectiveCard> getCommonObjective(){
+        ArrayList<ObjectiveCard> commonObj = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            commonObj.add(totalObjectiveCards.getFirst());
+            totalObjectiveCards.removeFirst();
+        }
+        return commonObj;
+    }
     /**
      * Method called from the player who draws a card
      * @param cardType: defines the card that will be drawn, true for resource, false for gold
      * @return ResourceGoldCard, card that will be added to the playerDeck and removed from its deck
      */
     public static ResourceGoldCard drawCard(boolean cardType){
-        Random rand = new Random();
-        int z;
         ResourceGoldCard drewCard;
         if(cardType){
-            z=rand.nextInt(totalResourceCard.size());
-            drewCard= totalResourceCard.get(z);
-            totalResourceCard.remove(z);
+            drewCard= totalResourceCard.getFirst();
+            totalResourceCard.removeFirst();
         }
         else {
-            z=rand.nextInt(totalGoldCard.size());
-            drewCard= totalGoldCard.get(z);
-            totalGoldCard.remove(z);
+            drewCard= totalGoldCard.getFirst();
+            totalGoldCard.removeFirst();
         }
         return drewCard;
     }
@@ -56,25 +64,19 @@ class DrawingDeck {
             generateDecks();
             decksAreGenerated = true;
         }
-        Random rand = new Random();
-        int z;
         ArrayList<ResourceGoldCard> deckGen = new ArrayList<>();
         StarterCard starterGen;
         ObjectiveCard secretObjectiveGen;
         for(int i=0;i<2;i++){
-            z = rand.nextInt(totalResourceCard.size());
-            deckGen.add(totalResourceCard.get(z));
-            totalResourceCard.remove(z);
+            deckGen.add(totalResourceCard.getFirst());
+            totalResourceCard.removeFirst();
         }
-        z = rand.nextInt(totalGoldCard.size());
-        deckGen.add(totalGoldCard.get(z));
-        totalGoldCard.remove(z);
-        z = rand.nextInt(totalStartingCards.size());
-        starterGen = totalStartingCards.get(z);
-        totalStartingCards.remove(z);
-        z = rand.nextInt(totalObjectiveCards.size());
-        secretObjectiveGen = totalObjectiveCards.get(z);
-        totalObjectiveCards.remove(z);
+        deckGen.add(totalGoldCard.getFirst());
+        totalGoldCard.removeFirst();
+        starterGen = totalStartingCards.getFirst();
+        totalStartingCards.removeFirst();
+        secretObjectiveGen = totalObjectiveCards.getFirst();
+        totalObjectiveCards.removeFirst();
         return new PlayerDeck(deckGen, starterGen, secretObjectiveGen);
     }
 

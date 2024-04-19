@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,7 +12,7 @@ class PlayerTest {
 
     @Test
     void placeStarterCardFront() throws IOException {
-        Player player = new Player("pippo", new Token(Token.Color.Red), new Field(3, 3));
+        Player player = new Player("pippo", new Token(Token.Color.Red), new Field(3, 3), UUID.randomUUID());
         StarterCard card = player.getPlayerDeck().getStarterCard();
         Field field = player.getPlayerField();
         int r, c;

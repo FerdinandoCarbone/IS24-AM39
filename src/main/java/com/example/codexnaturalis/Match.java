@@ -13,6 +13,7 @@ public class Match {
     BufferedReader in;
     PrintWriter out;
     private boolean lastRound = false;
+    private ArrayList<ObjectiveCard> commonObjectives;
     private ChoiceManager choices;
 
     /**
@@ -28,6 +29,10 @@ public class Match {
     public Match(ScoreTracker scoreTracker) {
         this.players = new ArrayList<>();
         this.scoreTracker = scoreTracker;
+    }
+
+    public void setCommonObjectives(ArrayList<ObjectiveCard> commonObjectives) {
+        this.commonObjectives = commonObjectives;
     }
 
     /**

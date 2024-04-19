@@ -27,12 +27,13 @@ Messaggi
 Messaggio CreateRoom
     String nickName
     Int numGiocatori
-    Int idStanza
+    Int idStanza //superfluo per server monostanza
 Messaggio JoinRoom
     String nickName
     Int idStanza
 Messaggio Client inizialeGenerico
     String nickName
+    UUID clientID
 Messaggio Client generico
     String nickName
     Card drawnCard

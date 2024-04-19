@@ -2,6 +2,7 @@
 package com.example.codexnaturalis;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Player of the game
@@ -14,6 +15,7 @@ public class Player {
     /**
      * Defines the player's token
      */
+    private UUID playerID;
     private Token token;
     /**
      * Defines the player's deck
@@ -50,7 +52,7 @@ public class Player {
      * @param token: Defines the player's token
      * @param playerField: Defines the player's own field
      */
-    public Player(String playerName, Token token, Field playerField) throws IOException {
+    public Player(String playerName, Token token, Field playerField,UUID playerID) throws IOException {
         this.playerName = playerName;
         this.token = token;
         this.playerDeck = DrawingDeck.generatePlayerDeck();
@@ -58,6 +60,7 @@ public class Player {
         this.playerField = playerField;
         this.resourceMana = new int[]{0,0,0,0};
         this.elementsMana = new int[]{0,0,0};
+        this.playerID = playerID;
     }
 
     public Player(Token token, Field playerField) throws IOException {
@@ -237,5 +240,9 @@ public class Player {
 
     public int[] getElementsMana() {
         return elementsMana;
+    }
+
+    public UUID getPlayerID() {
+        return playerID;
     }
 }

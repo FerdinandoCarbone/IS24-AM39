@@ -1,6 +1,11 @@
 package com.example.codexnaturalis;
 
+import javafx.util.Pair;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class Message implements Serializable {
@@ -39,4 +44,38 @@ class LobbyCreationMessage extends Message{
         return numPlayer;
     }
 }
+class GenericTurnMessage extends Message{
+    private Card drawnCard;
+    private Card cardOnHand;
+    private Pair<Integer,Integer> coordinates;
+    public GenericTurnMessage(String sender, UUID ClientID,Card drawnCard,Card cardOnHand,Pair<Integer,Integer> coordinates) {
+        super(sender, ClientID);
+        this.cardOnHand = cardOnHand;
+        this.drawnCard = drawnCard;
+        this.coordinates = coordinates;
+    }
+    public Card getDrawnCard(){ return this.drawnCard;}
 
+    public Pair<Integer, Integer> getCoordinates() {
+        return coordinates;
+    }
+
+    public Card getCardOnHand() {
+        return cardOnHand;
+    }
+}
+class BroadCastStartingMessage extends Message{
+
+    private HashMap<UUID, Player> playerFields;
+    private ArrayList<ObjectiveCard> commonObjectiveCards;
+    //private List<ResourceGoldCard> publicCards;
+    //private StarterCard starterCard;
+
+    public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> playerFields, ArrayList<ObjectiveCard> commonObjectiveCards) {
+        super(sender, ClientID);
+        this.playerFields = playerFields;
+//      this.publicCards = publicCards
+//      this.starterCard = starterCard;
+        this.commonObjectiveCards = commonObjectiveCards;
+    }
+}
