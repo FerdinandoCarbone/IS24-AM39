@@ -26,7 +26,7 @@ public class ZakServer {
 
         try{
             serverStart(port);
-            while (firstPlayer || hashClient.size()<=numPlayers) {
+            while (hashClient.size()<numPlayers) {
                 acceptConnections();
             }
         } catch (IOException | ClassNotFoundException   e) {
