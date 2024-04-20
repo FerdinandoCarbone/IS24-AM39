@@ -2,10 +2,7 @@ package com.example.codexnaturalis;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class ZakClient {
 

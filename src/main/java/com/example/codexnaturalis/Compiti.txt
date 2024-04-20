@@ -3,7 +3,7 @@ Divisione Compiti
         a.	Check di quanti client ci sono
         b.	Specificare le azioni che il client può fare all’interno del suo turno (Vedere terreno proprio e altrui, carte obiettivo comuni e 4 carte scoperte, personali, tabellone). Bisogna inviare principalmente la sequenza di posizionamento al server che indica la fine del turno del giocatore ()
         c.	Impacchettamento della sequenza di istruzioni e check di correttezza (fin quando siamo da terminale)
-        d.	Aggiungere la funzionalità di pesca delle 4 carte scoperte
+        d.	Aggiungere la funzionalità di pesca delle 4 carte scoperte (Zak)
 
 Vincenzo, Rocco
     2.	Check punti (Ogni volta che viene finito il turno per aggiornare in tempo reale) + Tie Break

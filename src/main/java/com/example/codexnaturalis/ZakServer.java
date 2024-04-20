@@ -18,13 +18,14 @@ public class ZakServer {
     static Match match;
     static ServerSocket serverSocket;
     static String serverName;
+    static int playerCounter = 1;
     public static void main(String[] args) throws IOException {
 
         int port = Integer.parseInt(args[0]);
 
         try{
             serverStart(port);
-            while ( !firstPlayer || hashClient.size()<numPlayers) {
+            while (!firstPlayer || hashClient.size()<numPlayers) {
                 acceptConnections();
             }
         } catch (IOException | ClassNotFoundException   e) {
@@ -54,6 +55,7 @@ public class ZakServer {
             //todo: Timeout
             handshakeACK = (LobbyCreationMessage) in.readObject();
             numPlayers = handshakeACK.getNumPlayer();
+            playerCounter = numPlayers;
             System.out.println("There will be "+numPlayers+" players");
         }
         else{
@@ -69,7 +71,9 @@ public class ZakServer {
             hashPlayer.put(player, clientSocket);
             hashClient.put(clientJoinRequest.getClientID(),player);
             System.out.println(clientJoinRequest.getSender() + " si è unito al server");
-            new Thread(new ClientHandler(handshakeACK.getSender(),clientSocket,clientJoinRequest.getClientID())).start();
+            ClientHandler handler = new ClientHandler(handshakeACK.getSender(),clientSocket,clientJoinRequest.getClientID(), out, in);
+            new Thread(handler).start();
+            handlers.put(clientJoinRequest.getClientID(), handler);
         }
     }
     public static void serverStart(int port) throws IOException {
@@ -124,6 +128,14 @@ public class ZakServer {
         }
         sendBroadCastMessage(new TextMessage(ZakServer.serverName,null,text));
     }
+
+    private static void sendBroadCastMessage(Message message) throws IOException {
+        for (ClientHandler handler : handlers.values()) {
+            handler.sendMessage(message);
+        }
+    }
+
+
    /* private static void sendStartingCards() throws IOException {
         GenericTurnMessage message;
         Collection<Player> players = hashClient.values();
@@ -149,15 +161,15 @@ class ClientHandler implements Runnable {
     private Socket socket;
     private boolean welcomeFlag = false;
     private boolean ackFlag = false;
-    private static ObjectOutputStream out;
-    private static ObjectInputStream in;
+    private ObjectOutputStream outClient;
+    private ObjectInputStream inClient;
     private final String clientName;
 
-    public ClientHandler(String clientName,Socket socket,UUID clientID) throws IOException {
+    public ClientHandler(String clientName,Socket socket,UUID clientID, ObjectOutputStream outFromServer, ObjectInputStream inFromServer) throws IOException {
         this.clientName = clientName;
         this.socket = socket;
-        out = new ObjectOutputStream(socket.getOutputStream());
-        in = new ObjectInputStream(socket.getInputStream());
+        this.outClient = outFromServer;
+        this.inClient = inFromServer;
     }
 
     @Override

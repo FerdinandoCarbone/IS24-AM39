@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Message implements Serializable {
     private String sender;
     private UUID clientID;
-    public Message(String sender,UUID ClientID){
+    public Message(String sender,UUID clientID){
         this.sender = sender;
         this.clientID = clientID;
     }
