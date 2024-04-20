@@ -1,8 +1,9 @@
 package com.example.codexnaturalis;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 
-public class Field {
+public class Field implements Serializable {
     /**
      * Matrix containing slots
      */
@@ -49,7 +50,7 @@ public class Field {
         return c;
     }
 
-    public static class Slot {
+    public static class Slot implements Serializable{
         /**
          * Boolean that defines whether the slot is busy or not
          */

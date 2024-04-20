@@ -1,12 +1,13 @@
 package com.example.codexnaturalis;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Card {
+public class Card implements Serializable {
 
     private int idCard;
     private String[] artRef;

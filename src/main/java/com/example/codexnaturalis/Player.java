@@ -2,12 +2,13 @@
 package com.example.codexnaturalis;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
  * Player of the game
  */
-public class Player {
+public class Player implements Serializable {
     /**
      * Defines the player's name
      */

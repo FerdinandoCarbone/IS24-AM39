@@ -2,6 +2,7 @@ package com.example.codexnaturalis;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -120,7 +121,7 @@ class DrawingDeck {
         return totalStartingCards;
     }
 }
-    class PlayerDeck {
+    class PlayerDeck implements Serializable {
         /**
          *  cards: ArrayList of the cards the player has except the Secret Card and the Starter Card
          */

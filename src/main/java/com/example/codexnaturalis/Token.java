@@ -1,11 +1,12 @@
 package com.example.codexnaturalis;
 
 
+import java.io.Serializable;
 
 /**
  * Token of players
  */
-public class Token {
+public class Token implements Serializable {
     /**
      * Defines the color of a token
      */

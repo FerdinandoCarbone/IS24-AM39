@@ -38,7 +38,6 @@ public class ZakClient {
         out.writeObject(handshakeMessage);
         try{
             LobbyCreationMessage handshakeACK = (LobbyCreationMessage) in.readObject();
-            System.out.println("CurrentPlayers: "+handshakeACK.getNumPlayer());
             switch(handshakeACK.getNumPlayer()) {
                 case 0:
                     lobbyCreation(handshakeACK);
@@ -50,6 +49,7 @@ public class ZakClient {
                 default:
                     throw new TooManyPlayersException("Lobby is currently full. Wait for the match to end and try again");
             }
+            System.out.println("CurrentPlayers: "+(handshakeACK.getNumPlayer()));
         } catch(ClassNotFoundException e){
             e.getMessage();
         }
@@ -83,6 +83,7 @@ public class ZakClient {
         clientID = UUID.randomUUID();
         socket  = new Socket(serverAddress, port);
         currentGameStatus = false;
+        otherFields= new ArrayList<>();
         // OutputStream
         out = new ObjectOutputStream(socket.getOutputStream());
         // Ora leggi la risposta dal server
@@ -113,11 +114,22 @@ public class ZakClient {
                 "(_____)------------------------------------------------------------(_____)\n" +
                 "\n");
         System.out.println("Please enter your nickname:");
-        return in.nextLine();
+        //return in.nextLine();
+        Random rand = new Random();
+        Integer val = rand.nextInt(10);
+        return val.toString();
     }
-    private static void initialMatchSetup() throws IOException, ClassNotFoundException {
-        BroadCastStartingMessage initialMatchSetupMessage;
-        initialMatchSetupMessage = (BroadCastStartingMessage)in.readObject();
+    private static void initialMatchSetup() throws IOException {
+        BroadCastStartingMessage initialMatchSetupMessage = null;
+        try{
+            initialMatchSetupMessage = (BroadCastStartingMessage)in.readObject();
+            if(initialMatchSetupMessage == null) throw new WrongMessageConversionException("Was not able to initialize Starting Field");
+        } catch(ClassNotFoundException e){
+            e.getMessage();
+        } catch (WrongMessageConversionException e) {
+            e.getMessage();
+            throw new RuntimeException(e);
+        }
         try{
             Collection<Player> players;
             player = initialMatchSetupMessage.getPlayers().get(clientID);
@@ -125,14 +137,18 @@ public class ZakClient {
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players=initialMatchSetupMessage.getPlayers().values();
             for(Player p:players) otherFields.add(p.getPlayerField());
+            //todo:otherfields deve essere una hashmap con anche i players
         } catch (WrongPlayerUUIDException e){
             e.getMessage();
+        }finally {
+            System.out.println("All players' fields were correctly received");
         }
     }
     private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         currentGameStatus = true;
         initialMatchSetup();
         //todo: GenericMessage Assembler
+        System.out.println("zazza");
         genericMessageAssembler();
 
     }
@@ -149,7 +165,7 @@ public class ZakClient {
     }
     private static void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         Message message = (Message) in.readObject();
-        Class a = message.getClass();
+        Class<? extends Message> a = message.getClass();
         switch (a.getName()){
             case "GenericTurnMessage":
             case "TextMessage":

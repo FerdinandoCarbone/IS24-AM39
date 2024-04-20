@@ -68,14 +68,11 @@ class BroadCastStartingMessage extends Message{
 
     private HashMap<UUID, Player> players;
     private ArrayList<ObjectiveCard> commonObjectiveCards;
-    //private List<ResourceGoldCard> publicCards;
-    //private StarterCard starterCard;
+
 
     public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> players, ArrayList<ObjectiveCard> commonObjectiveCards) {
         super(sender, ClientID);
         this.players = players;
-//      this.publicCards = publicCards
-//      this.starterCard = starterCard;
         this.commonObjectiveCards = commonObjectiveCards;
     }
 

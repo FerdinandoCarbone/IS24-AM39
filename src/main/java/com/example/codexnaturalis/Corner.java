@@ -2,7 +2,9 @@ package com.example.codexnaturalis;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Corner {
+import java.io.Serializable;
+
+public class Corner implements Serializable {
 
     /**
      * availableCorner: boolean value, defines whether a corner is available or not

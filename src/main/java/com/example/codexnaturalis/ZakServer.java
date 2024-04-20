@@ -12,6 +12,8 @@ public class ZakServer {
 
     static HashMap<Player, Socket> hashPlayer = new HashMap<>();
     static HashMap<UUID, Player> hashClient = new HashMap<>();
+    static HashMap<UUID, ClientHandler> handlers = new HashMap<>();
+
     static int numPlayers;
     static boolean firstPlayer = false;
     static boolean gameStarted = false;
@@ -147,14 +149,7 @@ public class ZakServer {
         }
     }*/
 
-    private static void sendBroadCastMessage(Message message) throws IOException {
-        Collection<Socket> clientsSockets = hashPlayer.values();
-        ObjectOutputStream out;
-        for(Socket s: clientsSockets){
-            out = new ObjectOutputStream(s.getOutputStream());
-            out.writeObject(message);
-        }
-    }
+
 }
 
 class ClientHandler implements Runnable {
@@ -175,18 +170,19 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            while(true){
+            while(ZakServer.gameStarted){
                 messageReceiver();
             }
 
         } catch (Exception e) {
             System.out.println("ERRORE CLIENT HANDLER");
+            e.getMessage();
         }
     }
 
-    private static void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        Message message = (Message) in.readObject();
-        Class a = message.getClass();
+    private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
+        Message message = (Message) inClient.readObject();
+        Class<? extends Message> a = message.getClass();
         switch (a.getName()){
             case "GenericTurnMessage":
             case "TextMessage":
@@ -198,10 +194,12 @@ class ClientHandler implements Runnable {
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server");
         }
     }
-
-    private static void textMessageHandler(TextMessage message) {
+    public void sendMessage(Message message) throws IOException {
+        outClient.writeObject(message);
     }
-    private static void endOfTheGame(EndGameMessage message){
+    private void textMessageHandler(TextMessage message) {
+    }
+    private void endOfTheGame(EndGameMessage message){
 
     }
 }
