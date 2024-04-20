@@ -2,6 +2,8 @@ package com.example.codexnaturalis;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -10,6 +12,9 @@ public class ZakClient {
     private static ObjectOutputStream out;
     private static ObjectInputStream in;
     private static String playerNick;
+    private static Player player;
+    private static ArrayList<Field> otherFields;
+    private static boolean currentGameStatus;
     static Socket socket;
     static UUID clientID;
     public static void main(String[] args) {
@@ -23,8 +28,11 @@ public class ZakClient {
         }catch(IOException | ClassNotFoundException | StupidUserException | HandShakeException e){
             System.out.println("Unable to establish a connection with server");
         }
-        //todo: GenericMessage Assembler
-
+        try{
+            gameStart();
+        } catch(IOException | ClassNotFoundException | WrongMessageConversionException e){
+            e.getMessage();
+        }
 
     }
 
@@ -33,7 +41,8 @@ public class ZakClient {
         out.writeObject(handshakeMessage);
         try{
             LobbyCreationMessage handshakeACK = (LobbyCreationMessage) in.readObject();
-            switch(handshakeACK.numPlayer) {
+            System.out.println("CurrentPlayers: "+handshakeACK.getNumPlayer());
+            switch(handshakeACK.getNumPlayer()) {
                 case 0:
                     lobbyCreation(handshakeACK);
                      break;
@@ -70,11 +79,13 @@ public class ZakClient {
             msg.setSender(playerNick);
             msg.setClientID(clientID);
             out.writeObject(msg);
+            System.out.println("Number of players:"+desiredPlayerCount);
         }
     }
     private static void initialClientSetup(String serverAddress,int port) throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
         clientID = UUID.randomUUID();
         socket  = new Socket(serverAddress, port);
+        currentGameStatus = false;
         // OutputStream
         out = new ObjectOutputStream(socket.getOutputStream());
         // Ora leggi la risposta dal server
@@ -107,28 +118,60 @@ public class ZakClient {
         System.out.println("Please enter your nickname:");
         return in.nextLine();
     }
-
-    static boolean validStrings(String s) {
-        return s.equals("INPUT");
-        /*if (s.equals("Inserisci il nome utente che userai per la partita: ") ||
-            s.equals("Sei pronto a giocare ? 1) -> si | 0) -> no") ||
-            s.equals("Quanti giocatori ci saranno ?") ||
-            s.equals("Seleziona se vuoi piazzare la carta iniziale di fronte o retro: 1) -> Fronte | 0) -> Retro") ||
-            s.equals("2) Analizza il tavolo") ||
-            s.equals("Seleziona la riga della carta a cui vuoi attaccarti:") ||
-            s.equals("Seleziona la colonna della carta a cui vuoi attaccarti:") ||
-            s.equals("Seleziona l'angolo della carta sul tavolo a cui vuoi attaccarti (a partire da in alto a dx in senso orario 0->3): ") ||
-            s.equals("2) Mazzo Oro") ||
-            s.equals("Scegli la riga della carta che vuoi analizzare: ") ||
-            s.equals("Scegli la colonna della carta che vuoi analizzare: ") ||
-            s.equals("Seleziona il numero della carta che vuoi piazzare: ") ||
-            s.equals("Seleziona se vuoi piazzarla di fronte o retro: 1) -> Fronte | 0) -> Retro")) {
-            flag = true;
+    private static void initialMatchSetup() throws IOException, ClassNotFoundException {
+        BroadCastStartingMessage initialMatchSetupMessage;
+        initialMatchSetupMessage = (BroadCastStartingMessage)in.readObject();
+        try{
+            Collection<Player> players;
+            player = initialMatchSetupMessage.getPlayers().get(clientID);
+            if(player == null) throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
+            initialMatchSetupMessage.getPlayers().remove(clientID);
+            players=initialMatchSetupMessage.getPlayers().values();
+            for(Player p:players) otherFields.add(p.getPlayerField());
+        } catch (WrongPlayerUUIDException e){
+            e.getMessage();
         }
+    }
+    private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
+        currentGameStatus = true;
+        initialMatchSetup();
+        //todo: GenericMessage Assembler
+        genericMessageAssembler();
 
-        return flag;*/
+    }
+    private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException{
+        while(currentGameStatus){
+            messageReceiver();
+        }
+    }
+    private static void endOfTheGame(EndGameMessage message) throws IOException {
+        String winner = message.getWinner();
+        System.out.println(winner+" ha vinto la partita\nGrazie per aver giocato\n");
+        in.close();
+        out.close();
+    }
+    private static void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
+        Message message = (Message) in.readObject();
+        Class a = message.getClass();
+        switch (a.getName()){
+            case "GenericTurnMessage":
+            case "TextMessage":
+                textMessageHandler((TextMessage) message);
+            case "BroadCastStandardMessage":
+            case "EndGameMessage":
+                currentGameStatus = false;
+                endOfTheGame((EndGameMessage)message);
+            default: throw new WrongMessageConversionException("Something went wrong while communicating with the server");
+        }
     }
 
+    private static void textMessageHandler(TextMessage message) {
+        System.out.println(message.getSender()+": "+message.getTextMessage());
+    }
+
+    public static void setOtherFields(ArrayList<Field> otherFields) {
+        ZakClient.otherFields = otherFields;
+    }
 }
 
 

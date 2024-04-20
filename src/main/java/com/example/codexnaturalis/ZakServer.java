@@ -13,9 +13,8 @@ public class ZakServer {
     static HashMap<Player, Socket> hashPlayer = new HashMap<>();
     static HashMap<UUID, Player> hashClient = new HashMap<>();
     static int numPlayers;
-    static int counterAcks;
     static boolean firstPlayer = false;
-    static boolean matchReady = false;
+    static boolean gameStarted = false;
     static Match match;
     static ServerSocket serverSocket;
     static String serverName;
@@ -23,17 +22,16 @@ public class ZakServer {
 
         int port = Integer.parseInt(args[0]);
 
-
         try{
             serverStart(port);
-            while (hashClient.size()<numPlayers) {
+            while ( !firstPlayer || hashClient.size()<numPlayers) {
                 acceptConnections();
             }
         } catch (IOException | ClassNotFoundException   e) {
             System.out.println("PROBLEMA SERVER: "+e.getMessage());
         }
         try{
-            checkStart();
+            matchStart();
         }catch(Exception e){
             e.getMessage();
         }
@@ -56,10 +54,15 @@ public class ZakServer {
             //todo: Timeout
             handshakeACK = (LobbyCreationMessage) in.readObject();
             numPlayers = handshakeACK.getNumPlayer();
+            System.out.println("There will be "+numPlayers+" players");
         }
         else{
-            handshakeACK = new LobbyCreationMessage(serverName,null, hashClient.size());
-            out.writeObject(handshakeACK);
+            handshakeACK = new LobbyCreationMessage(serverName, null, hashClient.size());
+            try {
+                out.writeObject(handshakeACK);
+            } catch(RuntimeException e){
+                e.getMessage();
+            }
         }
         if(hashClient.size()<=numPlayers){
             player = new Player(new Token(), new Field(5, 5));
@@ -73,6 +76,7 @@ public class ZakServer {
         numPlayers = 0;
         serverSocket = new ServerSocket(port);
         serverName = "SERVER";
+        gameStarted = false;
         System.out.println("\n" +
                 "\n" +
                 " _____                                                                      _____ \n" +
@@ -92,15 +96,14 @@ public class ZakServer {
                 "\n");
         System.out.println("- developed by Team AM39");
     }
-    public static void checkStart() throws Exception {
-        System.out.println("Tutti i giocatori sono pronti");
-        System.out.println("La partita sta per cominciare...");
+    public static void matchStart() throws Exception {
+        System.out.println("La partita sta per cominciare");
         ArrayList<Player> players = new ArrayList<>(hashPlayer.keySet());
         match = new Match(players, new ScoreTracker());
         startingFieldClientSetup();
+        welcomePlayer();
+        gameStarted = true;
         match.startMatch();
-
-
     }
     private static void startingFieldClientSetup() throws IOException{
         BroadCastStartingMessage fieldSetupMessage;
@@ -109,10 +112,19 @@ public class ZakServer {
         match.setCommonObjectives(commonObjectiveCard);
         fieldSetupMessage = new BroadCastStartingMessage(ZakServer.serverName,null,ZakServer.hashClient,commonObjectiveCard);
         sendBroadCastMessage(fieldSetupMessage);
-        sendStartingCards();
-
     }
-    private static void sendStartingCards() throws IOException {
+   private static void welcomePlayer() throws IOException {
+        String text = "Match is about to start\nPlayers:\n";
+        String firstPlayerStar = "";
+        Collection<Player> players = hashClient.values();
+        for(Player p: players){
+            //if (p.isFirstTurn()) firstPlayerStar = " *";
+            text=text.concat(p.getPlayerName()+firstPlayerStar+"\n");
+            //firstPlayerStar = "";
+        }
+        sendBroadCastMessage(new TextMessage(ZakServer.serverName,null,text));
+    }
+   /* private static void sendStartingCards() throws IOException {
         GenericTurnMessage message;
         Collection<Player> players = hashClient.values();
         ObjectOutputStream out;
@@ -121,7 +133,8 @@ public class ZakServer {
             out = new ObjectOutputStream(hashPlayer.get(p).getOutputStream());
             out.writeObject(message);
         }
-    }
+    }*/
+
     private static void sendBroadCastMessage(Message message) throws IOException {
         Collection<Socket> clientsSockets = hashPlayer.values();
         ObjectOutputStream out;
@@ -138,7 +151,7 @@ class ClientHandler implements Runnable {
     private boolean ackFlag = false;
     private static ObjectOutputStream out;
     private static ObjectInputStream in;
-    private String clientName;
+    private final String clientName;
 
     public ClientHandler(String clientName,Socket socket,UUID clientID) throws IOException {
         this.clientName = clientName;
@@ -150,39 +163,33 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            welcomePlayer();
-            do {
-                if (!ackFlag) {
-                    startingFieldSetup();
-                }
-            } while (true);
+            while(true){
+                messageReceiver();
+            }
 
         } catch (Exception e) {
             System.out.println("ERRORE CLIENT HANDLER");
         }
     }
 
-    public void welcomePlayer() throws IOException {
-
-
-    }
-
-    public void readyToPlay() throws Exception {
-        int clientReady;
-        //out.println("Sei pronto a giocare ? 1) -> si | 0) -> no");
-        try {
-            clientReady = Integer.parseInt(in.readLine());
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("NOT A NUMBER");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (clientReady == 1) {
-            System.out.println(clientName + " è pronto a giocare");
-            ZakServer.counterAcks++;
-            ackFlag = true;
-            ZakServer.checkStart();
+    private static void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
+        Message message = (Message) in.readObject();
+        Class a = message.getClass();
+        switch (a.getName()){
+            case "GenericTurnMessage":
+            case "TextMessage":
+                textMessageHandler((TextMessage) message);
+            case "BroadCastStandardMessage":
+            case "EndGameMessage":
+                ZakServer.gameStarted = false;
+                endOfTheGame((EndGameMessage)message);
+            default: throw new WrongMessageConversionException("Something went wrong while communicating with the server");
         }
     }
 
+    private static void textMessageHandler(TextMessage message) {
+    }
+    private static void endOfTheGame(EndGameMessage message){
+
+    }
 }

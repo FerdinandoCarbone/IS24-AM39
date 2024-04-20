@@ -44,6 +44,8 @@ public class Match {
         /*Si inizia scegliendo in modo casuale il giocatore iniziale*/
         Player playingPlayer = chooseRandomFirstPlayer();
         Socket playingPlayerSocket = ZakServer.hashPlayer.get(playingPlayer);
+        //todo: qui facciamo partire la scelta della carta obiettivo segreto
+        //todo: secretObjectiveChoice();
         in = new BufferedReader(new InputStreamReader(playingPlayerSocket.getInputStream()));
         out = new PrintWriter(playingPlayerSocket.getOutputStream(), true);
 

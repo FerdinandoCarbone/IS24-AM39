@@ -37,6 +37,9 @@ class DrawingDeck {
         }
         return commonObj;
     }
+    public static void reAddSecretObjectiveCard(ObjectiveCard objectiveCard){
+        totalObjectiveCards.addLast(objectiveCard);
+    }
     /**
      * Method called from the player who draws a card
      * @param cardType: defines the card that will be drawn, true for resource, false for gold
@@ -66,7 +69,7 @@ class DrawingDeck {
         }
         ArrayList<ResourceGoldCard> deckGen = new ArrayList<>();
         StarterCard starterGen;
-        ObjectiveCard secretObjectiveGen;
+        ArrayList<ObjectiveCard> secretObjectiveGen = new ArrayList<>();
         for(int i=0;i<2;i++){
             deckGen.add(totalResourceCard.getFirst());
             totalResourceCard.removeFirst();
@@ -75,8 +78,10 @@ class DrawingDeck {
         totalGoldCard.removeFirst();
         starterGen = totalStartingCards.getFirst();
         totalStartingCards.removeFirst();
-        secretObjectiveGen = totalObjectiveCards.getFirst();
-        totalObjectiveCards.removeFirst();
+        for(int i=0;i<2;i++){
+            secretObjectiveGen.add(totalObjectiveCards.getFirst());
+            totalObjectiveCards.removeFirst();
+        }
         return new PlayerDeck(deckGen, starterGen, secretObjectiveGen);
     }
 
@@ -127,9 +132,9 @@ class DrawingDeck {
         /**
          * secretObjectiveCard: secret Objective Card of the player
          */
-        private ObjectiveCard secretObjectiveCard;
+        private ArrayList<ObjectiveCard> secretObjectiveCard;
 
-        public PlayerDeck(ArrayList<ResourceGoldCard> resourceGoldCards, StarterCard starterCard, ObjectiveCard secretObjectiveCard) {
+        public PlayerDeck(ArrayList<ResourceGoldCard> resourceGoldCards, StarterCard starterCard, ArrayList<ObjectiveCard> secretObjectiveCard) {
 
             this.resourceGoldCards = resourceGoldCards;
             this.starterCard = starterCard;
@@ -155,8 +160,9 @@ class DrawingDeck {
          * Setter of secretObjectiveCard
          * @param secretObjectiveCard: secret Objective Card of the player
          */
-        public void setSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
-            this.secretObjectiveCard = secretObjectiveCard;
+        public void removeUnusedSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
+            this.secretObjectiveCard.remove(secretObjectiveCard);
+            DrawingDeck.reAddSecretObjectiveCard(secretObjectiveCard);
         }
 
         /**
@@ -180,9 +186,7 @@ class DrawingDeck {
          * @return secret Objective Card of the player
          */
         public ObjectiveCard getSecretObjectiveCard() {
-            return secretObjectiveCard;
+            return secretObjectiveCard.getFirst();
         }
-
-
 
     }

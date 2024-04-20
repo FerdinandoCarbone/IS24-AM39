@@ -31,7 +31,7 @@ public class Message implements Serializable {
     }
 }
 class LobbyCreationMessage extends Message{
-    int numPlayer;
+    private int numPlayer;
     public LobbyCreationMessage(String sender,UUID clientID,int numPlayer){
         super(sender,clientID);
         this.numPlayer = numPlayer;
@@ -66,16 +66,52 @@ class GenericTurnMessage extends Message{
 }
 class BroadCastStartingMessage extends Message{
 
-    private HashMap<UUID, Player> playerFields;
+    private HashMap<UUID, Player> players;
     private ArrayList<ObjectiveCard> commonObjectiveCards;
     //private List<ResourceGoldCard> publicCards;
     //private StarterCard starterCard;
 
-    public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> playerFields, ArrayList<ObjectiveCard> commonObjectiveCards) {
+    public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> players, ArrayList<ObjectiveCard> commonObjectiveCards) {
         super(sender, ClientID);
-        this.playerFields = playerFields;
+        this.players = players;
 //      this.publicCards = publicCards
 //      this.starterCard = starterCard;
         this.commonObjectiveCards = commonObjectiveCards;
+    }
+
+    public ArrayList<ObjectiveCard> getCommonObjectiveCards() {
+        return commonObjectiveCards;
+    }
+
+    public HashMap<UUID, Player> getPlayers() {
+        return players;
+    }
+}
+class BroadCastStandardMessage extends Message{
+
+    public BroadCastStandardMessage(String sender, UUID ClientID) {
+        super(sender, ClientID);
+    }
+}
+class TextMessage extends Message{
+    private String textMessage;
+    public TextMessage(String sender, UUID ClientID,String textMex) {
+        super(sender, ClientID);
+        this.textMessage = textMex;
+    }
+
+    public String getTextMessage() {
+        return textMessage;
+    }
+}
+class EndGameMessage extends Message{
+    private String winner;
+    public EndGameMessage(String sender, UUID ClientID,String winner) {
+        super(sender, ClientID);
+        this.winner = winner;
+    }
+
+    public String getWinner() {
+        return this.winner;
     }
 }
