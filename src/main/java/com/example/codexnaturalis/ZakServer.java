@@ -1,5 +1,8 @@
 package com.example.codexnaturalis;
 
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import javafx.util.Pair;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,26 +24,33 @@ public class ZakServer {
     static ServerSocket serverSocket;
     static String serverName;
     static int playerCounter = 1;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         int port = Integer.parseInt(args[0]);
-
         try{
             serverStart(port);
-            while (!firstPlayer || hashClient.size()<numPlayers) {
-                acceptConnections();
-            }
-        } catch (IOException | ClassNotFoundException   e) {
-            System.out.println("PROBLEMA SERVER: "+e.getMessage());
+        } catch(IOException e){
+            e.getMessage();
         }
-        try{
+        while (!firstPlayer || hashClient.size() < numPlayers) {
+        try {
+            acceptConnections(false);
+            } catch(ClassNotFoundException e){
+                System.out.println("PROBLEMA SERVER: " + e.getMessage());
+            }
+        catch(IOException e){
+                System.err.println("PROBLEMA SERVER: " + e.getMessage());
+                //if (firstPlayer) continue;
+            }
+        }
+            try{
             matchStart();
         }catch(Exception e){
             e.getMessage();
         }
 
     }
-    public static void acceptConnections() throws IOException, ClassNotFoundException {
+    public static Pair<ObjectInputStream,ObjectOutputStream> acceptConnections(boolean isReconnection) throws IOException, ClassNotFoundException {
         ObjectOutputStream out;
         ObjectInputStream in;
         Message clientJoinRequest;
@@ -68,15 +78,26 @@ public class ZakServer {
                 e.getMessage();
             }
         }
-        if(hashClient.size()<=numPlayers){
-            player = new Player(new Token(), new Field(5, 5));
+        if(hashClient.size()<=numPlayers && !isReconnection){
+            String sender = clientJoinRequest.getSender();
+            UUID clientID = clientJoinRequest.getClientID();
+            player = new Player(sender,new Token(), new Field(5, 5),clientID);
             hashPlayer.put(player, clientSocket);
-            hashClient.put(clientJoinRequest.getClientID(),player);
-            System.out.println(clientJoinRequest.getSender() + " si è unito al server");
-            ClientHandler handler = new ClientHandler(handshakeACK.getSender(),clientSocket,clientJoinRequest.getClientID(), out, in);
+            hashClient.put(clientID,player);
+            System.out.println(sender + " joined the server");
+            ClientHandler handler = new ClientHandler(sender,clientSocket,clientID, out, in);
             new Thread(handler).start();
-            handlers.put(clientJoinRequest.getClientID(), handler);
+            handlers.put(clientID, handler);
+            return new Pair<>(in,out);
         }
+        else if(isReconnection){
+            String sender = clientJoinRequest.getSender();
+            UUID clientID = clientJoinRequest.getClientID();
+            hashPlayer.replace(hashClient.get(clientID),clientSocket);
+            System.out.println(sender + " rejoined the server");
+            return new Pair<>(in,out);
+        }
+        return null;
     }
     public static void serverStart(int port) throws IOException {
         numPlayers = 0;
@@ -112,6 +133,7 @@ public class ZakServer {
         match.startMatch();
     }
     private static void startingFieldClientSetup() throws IOException{
+        //todo: da spostare in match probabilmente
         BroadCastStartingMessage fieldSetupMessage;
         ArrayList<ObjectiveCard> commonObjectiveCard;
         commonObjectiveCard = DrawingDeck.getCommonObjective();
@@ -130,14 +152,16 @@ public class ZakServer {
         }
         sendBroadCastMessage(new TextMessage(ZakServer.serverName,null,text));
     }
-
-    private static void sendBroadCastMessage(Message message) throws IOException {
+    public static void sendBroadCastMessage(Message message) throws IOException {
         for (ClientHandler handler : handlers.values()) {
             handler.sendMessage(message);
         }
     }
-
-
+    public static void stopThread(UUID clientID){
+        //todo: fare le opportune modifiche a match
+        handlers.get(clientID).interrupt();
+        handlers.remove(clientID);
+    }
    /* private static void sendStartingCards() throws IOException {
         GenericTurnMessage message;
         Collection<Player> players = hashClient.values();
@@ -148,49 +172,78 @@ public class ZakServer {
             out.writeObject(message);
         }
     }*/
+    //todo:funzione da avviare da match e inviare con sendMessage da ClientHandler
 
 
 }
 
-class ClientHandler implements Runnable {
+class ClientHandler extends Thread implements Runnable {
     private Socket socket;
     private boolean welcomeFlag = false;
     private boolean ackFlag = false;
     private ObjectOutputStream outClient;
     private ObjectInputStream inClient;
     private final String clientName;
+    private final UUID clientID;
 
     public ClientHandler(String clientName,Socket socket,UUID clientID, ObjectOutputStream outFromServer, ObjectInputStream inToServer) throws IOException {
         this.clientName = clientName;
         this.socket = socket;
         this.outClient = outFromServer;
         this.inClient = inToServer;
+        this.clientID = clientID;
     }
 
     @Override
     public void run() {
+        while (ZakServer.gameStarted) {
         try {
-            while(ZakServer.gameStarted){
                 messageReceiver();
+            } catch(IOException | ClassNotFoundException | WrongMessageConversionException e){
+                System.out.println("ERRORE CLIENT HANDLER");
+                e.getMessage();
             }
-
-        } catch (Exception e) {
-            System.out.println("ERRORE CLIENT HANDLER");
-            e.getMessage();
+        try{
+            if(!ZakServer.gameStarted && socket.isClosed()) throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected: Attempting reconnection");
+        }catch(ClientAbruptlyDisconnectedException e){
+                if(tryReconnectClient()) continue;
+                //todo: reconnection attempt
+                clientDisconnected();
+            }
         }
     }
-
+    private boolean tryReconnectClient(){
+        boolean result=true;
+        Pair<ObjectInputStream,ObjectOutputStream> oIOstream;
+        try {
+            oIOstream = ZakServer.acceptConnections(true);
+            outClient= oIOstream.getValue();
+            inClient = oIOstream.getKey();
+        } catch (Exception e){
+            result = false;
+        }
+        return result;
+    }
+    private void clientDisconnected(){
+        ZakServer.hashPlayer.remove(ZakServer.hashClient.get(clientID));
+        ZakServer.hashClient.remove(clientID);
+        ZakServer.stopThread(clientID);
+    }
     private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         Message message = (Message) inClient.readObject();
         Class<? extends Message> a = message.getClass();
         switch (a.getName()){
             case "GenericTurnMessage":
+                break;
             case "TextMessage":
                 textMessageHandler((TextMessage) message);
+                break;
             case "BroadCastStandardMessage":
+                break;
             case "EndGameMessage":
                 ZakServer.gameStarted = false;
                 endOfTheGame((EndGameMessage)message);
+                break;
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server");
         }
     }

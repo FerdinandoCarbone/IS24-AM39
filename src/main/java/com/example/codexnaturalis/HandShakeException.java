@@ -16,3 +16,9 @@ class StupidUserException extends Exception{
         super(errorMsg);
     }
 }
+class ClientAbruptlyDisconnectedException extends Exception{
+    public ClientAbruptlyDisconnectedException(String errorMessage) {
+        super(errorMessage);
+    }
+
+}
