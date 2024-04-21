@@ -160,11 +160,11 @@ class ClientHandler implements Runnable {
     private ObjectInputStream inClient;
     private final String clientName;
 
-    public ClientHandler(String clientName,Socket socket,UUID clientID, ObjectOutputStream outFromServer, ObjectInputStream inFromServer) throws IOException {
+    public ClientHandler(String clientName,Socket socket,UUID clientID, ObjectOutputStream outFromServer, ObjectInputStream inToServer) throws IOException {
         this.clientName = clientName;
         this.socket = socket;
         this.outClient = outFromServer;
-        this.inClient = inFromServer;
+        this.inClient = inToServer;
     }
 
     @Override
