@@ -1,6 +1,5 @@
 package com.example.codexnaturalis;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
 
 public class Field implements Serializable {
@@ -27,13 +26,13 @@ public class Field implements Serializable {
         }
     }
 
-    public void printField(PrintWriter out) {
-        out.println("-------------------------");
+    public void printField() {
+        System.out.println("-------------------------");
         for (int i = 0; i < getR(); i++) {
             for (int j = 0; j < getC(); j++) {
-                out.print("[" + (getSlots()[i][j].isBusySlot()? "1" : "0") + "]");
+                System.out.print("[" + (getSlots()[i][j].isBusySlot()? "1" : "0") + "]");
             }
-            out.println();
+            System.out.println();
         }
 
     }

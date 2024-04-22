@@ -1,7 +1,6 @@
 package com.example.codexnaturalis;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,9 +141,9 @@ class DrawingDeck {
             this.secretObjectiveCard = secretObjectiveCard;
         }
 
-        public void printResourceGoldCards(PrintWriter out) {
+        public void printResourceGoldCards() {
             for (int i = 1; i <= getResourceGoldCards().size(); i++) {
-                out.println(i + ") " + getResourceGoldCards().get(i-1).getClass());
+                System.out.println(i + ") " + getResourceGoldCards().get(i-1).getClass());
             }
 
         }

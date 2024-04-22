@@ -45,24 +45,25 @@ class LobbyCreationMessage extends Message{
     }
 }
 class GenericTurnMessage extends Message{
-    private Card drawnCard;
-    private Card cardOnHand;
+    private ResourceGoldCard drawnCard;
+    private ResourceGoldCard cardOnHand;
     private Pair<Integer,Integer> coordinates;
-    public GenericTurnMessage(String sender, UUID ClientID,Card drawnCard,Card cardOnHand,Pair<Integer,Integer> coordinates) {
+    public GenericTurnMessage(String sender, UUID ClientID,ResourceGoldCard drawnCard,ResourceGoldCard cardOnHand,Pair<Integer,Integer> coordinates) {
         super(sender, ClientID);
         this.cardOnHand = cardOnHand;
         this.drawnCard = drawnCard;
         this.coordinates = coordinates;
     }
-    public Card getDrawnCard(){ return this.drawnCard;}
+    public ResourceGoldCard getDrawnCard(){ return this.drawnCard;}
 
     public Pair<Integer, Integer> getCoordinates() {
         return coordinates;
     }
 
-    public Card getCardOnHand() {
+    public ResourceGoldCard getCardOnHand() {
         return cardOnHand;
     }
+
 }
 class BroadCastStartingMessage extends Message{
 

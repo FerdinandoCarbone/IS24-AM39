@@ -130,7 +130,7 @@ public class ZakServer {
         startingFieldClientSetup();
         welcomePlayer();
         gameStarted = true;
-        match.startMatch();
+//        match.startMatch();
     }
     private static void startingFieldClientSetup() throws IOException{
         //todo: da spostare in match probabilmente
