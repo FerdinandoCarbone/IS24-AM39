@@ -41,14 +41,14 @@ class PlayerTest {
 
     @Test
     void placeCardSwitchOffset1() throws Exception {
-        Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
         ResourceGoldCard card = player.getPlayerDeck().getResourceGoldCards().get((new Random()).nextInt(2));
         int originalDeckSize = player.getPlayerDeck().getResourceGoldCards().size();
         int randomAngolo = 0;
         player.placeStarterCard(true);
-        player.placeCard(1, 1, card, randomAngolo);
-        assertTrue(player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].isBusySlot());
-        assertEquals(card, player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].getCardSlot());
+        player.placeCardAndRemoveFromDeck(1, 3, card);
+        assertTrue(player.getPlayerField().getSlots()[1][3].isBusySlot());
+        assertEquals(card, player.getPlayerField().getSlots()[1][3].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
     }
     @Test
@@ -58,46 +58,34 @@ class PlayerTest {
         int originalDeckSize = player.getPlayerDeck().getResourceGoldCards().size();
         int randomAngolo = 2;
         player.placeStarterCard(true);
-        player.placeCard(1, 1, card, randomAngolo);
-        assertTrue(player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].isBusySlot());
-        assertEquals(card, player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].getCardSlot());
+        player.placeCardAndRemoveFromDeck(0, 2, card);
+        assertTrue(player.getPlayerField().getSlots()[0][2].isBusySlot());
+        assertEquals(card, player.getPlayerField().getSlots()[0][2].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
     }
     @Test
-    void placeCardCornerToPlace2() throws Exception {
+    void placeCardCornerToPlace2AndRemoveFromDeck() throws Exception {
         Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
         ResourceGoldCard card = player.getPlayerDeck().getResourceGoldCards().get((new Random()).nextInt(2));
         int originalDeckSize = player.getPlayerDeck().getResourceGoldCards().size();
         int randomAngolo = 1;
         player.placeStarterCard(true);
-        player.placeCard(1, 1, card, randomAngolo);
-        assertTrue(player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].isBusySlot());
-        assertEquals(card, player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].getCardSlot());
+        player.placeCardAndRemoveFromDeck(2, 2, card);
+        assertTrue(player.getPlayerField().getSlots()[2][2].isBusySlot());
+        assertEquals(card, player.getPlayerField().getSlots()[2][2].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
     }
     @Test
-    void placeCardCornerToPlace4() throws Exception {
+    void placeCardCornerToPlace4AndRemoveFromDeck() throws Exception {
         Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
         ResourceGoldCard card = player.getPlayerDeck().getResourceGoldCards().get((new Random()).nextInt(2));
         int originalDeckSize = player.getPlayerDeck().getResourceGoldCards().size();
         int randomAngolo = 3;
         player.placeStarterCard(true);
-        player.placeCard(1, 1, card, randomAngolo);
-        assertTrue(player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].isBusySlot());
-        assertEquals(card, player.getPlayerField().getSlots()[player.calculateOffSetR(randomAngolo) + 1][player.calculateOffSetC(randomAngolo) + 1].getCardSlot());
+        player.placeCardAndRemoveFromDeck(0, 0, card);
+        assertTrue(player.getPlayerField().getSlots()[0][0].isBusySlot());
+        assertEquals(card, player.getPlayerField().getSlots()[0][0].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
-    }
-
-    @Test
-    void placeCardCornerException() throws IOException {
-        Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
-        ResourceGoldCard card = player.getPlayerDeck().getResourceGoldCards().get((new Random()).nextInt(2));
-        int randomAngolo = 1;
-        player.getPlayerDeck().getStarterCard().getFrontCorners().get(randomAngolo).setAvailableCorner(false);
-        player.placeStarterCard(true);
-
-        assertThrows(RuntimeException.class, () -> player.placeCard(1, 1, card, randomAngolo));
-
     }
 
     @Test

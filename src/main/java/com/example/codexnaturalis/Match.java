@@ -13,8 +13,6 @@ public class Match {
     private ArrayList<ObjectiveCard> commonObjectives;
     private ArrayList<ResourceGoldCard> publicCards;
     private int indexPlayingPlayer;
-    private ObjectOutputStream toServer;
-    private ObjectInputStream fromServer;
 
     /**
      * Constructor of Match
@@ -116,6 +114,10 @@ public class Match {
         playingPlayer.setFirstPlayer(true);
         playingPlayer.setFirstTurn(false);
         System.out.println(playingPlayer.getPlayerName() + " è il primo a giocare!");
+        publicCards.add(DrawingDeck.drawCard(true));
+        publicCards.add(DrawingDeck.drawCard(true));
+        publicCards.add(DrawingDeck.drawCard(false));
+        publicCards.add(DrawingDeck.drawCard(false));
 
         return new MatchMessage(publicCards, playingPlayer.getPlayerID(), null, null, null);
     }

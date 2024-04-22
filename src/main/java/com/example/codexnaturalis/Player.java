@@ -105,6 +105,7 @@ public class Player implements Serializable {
      */
     public void placeCardAndRemoveFromDeck(int row, int column, ResourceGoldCard cartaDaPiazzare) throws Exception {
         playerField.getSlots()[row][column].setCardSlot(cartaDaPiazzare);
+        playerField.getSlots()[row][column].setBusySlot(true);
 
         //Check the corners of the placed card and add them to the manas
         for (int i = 0; i < 4; i++) {
@@ -112,9 +113,43 @@ public class Player implements Serializable {
             increaseResourceElementsMana(corner);
         }
 
-        for (int i = 0; i < 4; i++) {
-            updateAdjacentSlots(cartaDaPiazzare, row, column, i);
+        if (row != 0 && row != (playerField.getR()-1) && column != 0 && column != (playerField.getC()-1)) {
+            for (int i = 0; i < 4; i++) {
+                updateAdjacentSlots(cartaDaPiazzare, row, column, i);
+            }
+        } else {
+            if (row == 0) {
+                if (column != 0 && column != (playerField.getC()-1)) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 1);
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 2);
+                } else if (column == (playerField.getC()-1)) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 2);
+                } else if (column == 0) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 1);
+                }
+            } else if (row == (playerField.getR()-1)) {
+                if (column != 0 && column != (playerField.getC()-1)) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 0);
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 3);
+                } else if (column == (playerField.getC()-1)) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 3);
+                } else if (column == 0) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 0);
+                }
+            } else if (column == 0) {
+                if (row != playerField.getR() - 1) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 0);
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 1);
+                }
+            } else if (column == (playerField.getC()-1)) {
+                if (row != playerField.getR() - 1) {
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 2);
+                    updateAdjacentSlots(cartaDaPiazzare, row, column, 3);
+                }
+            }
+
         }
+
         //Remove the placed card from the player's deck
         playerDeck.getResourceGoldCards().remove(cartaDaPiazzare);
 
