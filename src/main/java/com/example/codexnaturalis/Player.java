@@ -36,10 +36,17 @@ public class Player implements Serializable {
     private int score;
     /**
      * resourceMana: Defines the amount of resources the player has
+     * 0: Mushroom
+     * 1: Leaf
+     * 2: Wolf
+     * 3: Butterfly
      */
     private int[] resourceMana;
     /**
      * elementsMana: Defines the amount of elements the player has
+     * 0: Ink
+     * 1: Papyrus
+     * 2: Feather
      */
     private int[] elementsMana;
     /**
@@ -86,39 +93,70 @@ public class Player implements Serializable {
         playerField.getSlots()[r][c].setBusySlot(true);
         playerField.getSlots()[r][c].setCardSlot(carta);
         playerDeck.setStarterCard(null);
-        //TODO: aggiornare i mana
+        //Update resources and elements manas
+        for (int i = 0; i < 4; i++) {
+            Corner corner = carta.getCorners().get(i);
+            increaseResourceElementsMana(corner);
+        }
     }
 
     /**
-     * Let A be a card already on the field and B a card that the player wants to place on top of B
-     * @param rCartaPiazzata: row of card A
-     * @param cCartaPiazzata: column of card B
-     * @param cartaDaPiazzare: card B
-     * @param angoloCartaPiazzata: Defines the angle of card A where B will be placed
+     * TODO: DOCS
      */
-    public void placeCard(int rCartaPiazzata, int cCartaPiazzata, NonObjectiveCard cartaDaPiazzare, int angoloCartaPiazzata) throws Exception {
-        NonObjectiveCard cartaPiazzata = playerField.getSlots()[rCartaPiazzata][cCartaPiazzata].getCardSlot();
-        
-        if (cartaPiazzata.checkAvailableCorner(angoloCartaPiazzata)) {
-            int offSetR = calculateOffSetR(angoloCartaPiazzata);
-            int offSetC = calculateOffSetC(angoloCartaPiazzata);
-            int rCartaDaPiazzare = rCartaPiazzata + offSetR;
-            int cCartaDaPiazzare = cCartaPiazzata + offSetC;
-            int angoloOccupatoCartaDaPiazzare = findCornerToPlace(angoloCartaPiazzata);
+    public void placeCardAndRemoveFromDeck(int row, int column, ResourceGoldCard cartaDaPiazzare) throws Exception {
+        playerField.getSlots()[row][column].setCardSlot(cartaDaPiazzare);
 
-            playerField.getSlots()[rCartaDaPiazzare][cCartaDaPiazzare].setCardSlot(cartaDaPiazzare);
-            playerField.getSlots()[rCartaDaPiazzare][cCartaDaPiazzare].setBusySlot(true);
+        //Check the corners of the placed card and add them to the manas
+        for (int i = 0; i < 4; i++) {
+            Corner corner = cartaDaPiazzare.getCorners().get(i);
+            increaseResourceElementsMana(corner);
+        }
 
-            cartaPiazzata.updateCorner(angoloCartaPiazzata);
-            cartaDaPiazzare.updateCorner(angoloOccupatoCartaDaPiazzare);
+        for (int i = 0; i < 4; i++) {
+            updateAdjacentSlots(cartaDaPiazzare, row, column, i);
+        }
+        //Remove the placed card from the player's deck
+        playerDeck.getResourceGoldCards().remove(cartaDaPiazzare);
 
-            playerDeck.getResourceGoldCards().remove(cartaDaPiazzare);
-            System.out.println("Carta " + cartaDaPiazzare.getClass() + " piazzata nello slot [" + rCartaDaPiazzare + "][" + cCartaDaPiazzare + "]." );
+    }
 
-            //TODO: AGGIUNGERE PUNTI/ELEMENTS/RESOURCES QUANDO SI PIAZZA LA CARTA
+    private void updateAdjacentSlots(ResourceGoldCard cartaDaPiazzare,int selectedRow, int selectedColumn, int corner) throws Exception {
+        int rowToCheck = selectedRow + calculateOffSetR(corner);
+        int columnToCheck = selectedColumn + calculateOffSetC(corner);
+        /* Check if the adjacent slot is busy. If busy update the availability of the adjacent card's corner and
+        * update the availability of the placed card. Also update resourceMana and elementsMana
+        *  */
+        if (playerField.getSlots()[rowToCheck][columnToCheck].isBusySlot()) {
+            NonObjectiveCard coveredCard = playerField.getSlots()[rowToCheck][columnToCheck].getCardSlot();
+            int coveredCornerIndex = findCornerToPlace(corner);
+            Corner coveredCorner = coveredCard.getCorners().get(coveredCornerIndex);
+            decreaseResourceElementsMana(coveredCorner);
+            cartaDaPiazzare.updateCornerToBusy(corner);
+            coveredCard.updateCornerToBusy(coveredCornerIndex);
+        }
+    }
 
-        } else {
-            throw new RuntimeException("ANGOLO NON DISPONIBILE");
+    private void increaseResourceElementsMana(Corner corner) {
+        switch (corner.getResourceElement()) {
+            case Mushroom -> resourceMana[0]++;
+            case Leaf -> resourceMana[1]++;
+            case Wolf -> resourceMana[2]++;
+            case Butterfly -> resourceMana[3]++;
+            case Ink -> elementsMana[0]++;
+            case Papyrus -> elementsMana[1]++;
+            case Feather -> elementsMana[2]++;
+        }
+    }
+
+    private void decreaseResourceElementsMana(Corner corner) {
+        switch (corner.getResourceElement()) {
+            case Mushroom -> resourceMana[0]--;
+            case Leaf -> resourceMana[1]--;
+            case Wolf -> resourceMana[2]--;
+            case Butterfly -> resourceMana[3]--;
+            case Ink -> elementsMana[0]--;
+            case Papyrus -> elementsMana[1]--;
+            case Feather -> elementsMana[2]--;
         }
     }
 
@@ -137,6 +175,8 @@ public class Player implements Serializable {
             default -> -1;
         };
     }
+
+
 
     /**
      * Calculates the row where the new card will be placed based on the card that's already on the player's field

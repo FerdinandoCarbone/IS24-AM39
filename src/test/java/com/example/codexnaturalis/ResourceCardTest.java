@@ -54,10 +54,10 @@ class ResourceCardTest {
                 new Corner(true, ResourceGoldCard.ResourceElement.empty)
         )), 10, Seed.Red);
 
-        assertThrows(Exception.class, () -> card.updateCorner(10));
-        assertThrows(Exception.class, () -> card.updateCorner(-1));
+        assertThrows(Exception.class, () -> card.updateCornerToBusy(10));
+        assertThrows(Exception.class, () -> card.updateCornerToBusy(-1));
         assertTrue(card.getFrontCorners().get(0).isAvailableCorner());
-        card.updateCorner(0);
+        card.updateCornerToBusy(0);
         assertFalse(card.getFrontCorners().get(0).isAvailableCorner());
     }
 
@@ -72,7 +72,7 @@ class ResourceCardTest {
         card.setIsPlacedFront(false);
 
         assertTrue(card.getBackCorners().get(0).isAvailableCorner());
-        card.updateCorner(0);
+        card.updateCornerToBusy(0);
         assertFalse(card.getBackCorners().get(0).isAvailableCorner());
     }
 
