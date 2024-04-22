@@ -10,7 +10,7 @@ public class ZakClient {
 
     private static ObjectOutputStream out;
     private static ObjectInputStream in;
-    private static ServerComHandler serverComHandler;
+    private static ServerHandler serverComHandler;
     private static String playerNick;
     private static Player player;
     private static ArrayList<Field> otherFields;
@@ -56,7 +56,7 @@ public class ZakClient {
                     throw new TooManyPlayersException("Lobby is currently full. Wait for the match to end and try again");
             }
             System.out.println("CurrentPlayers: "+(handshakeACK.getNumPlayer()));
-            serverComHandler = new ServerComHandler(playerNick,clientID,out,in);
+            serverComHandler = new ServerHandler(playerNick,clientID,out,in);
         } catch(ClassNotFoundException e){
             e.getMessage();
         }
@@ -302,14 +302,19 @@ public class ZakClient {
         out.close();
     }
 
+    public static void clientDisconnect() {
+        serverComHandler.interrupt();
+        System.err.println("Disconnected from server: Unable to establish a connection with server");
+        System. exit(0);
+    }
 }
-class ServerComHandler implements Runnable {
+class ServerHandler extends Thread implements Runnable {
     private final String clientName;
     private final UUID clientID;
     private ObjectOutputStream outServer;
     private ObjectInputStream inServer;
 
-    public ServerComHandler(String clientName, UUID clientID, ObjectOutputStream outFromServer, ObjectInputStream inFromServer) throws IOException {
+    public ServerHandler(String clientName, UUID clientID, ObjectOutputStream outFromServer, ObjectInputStream inFromServer) throws IOException {
         this.clientName = clientName;
         this.clientID = clientID;
         this.outServer = outFromServer;
@@ -349,6 +354,7 @@ class ServerComHandler implements Runnable {
 
     private void clientDisconnected() {
         //todo: robe per chiudere i thread
+        ZakClient.clientDisconnect();
     }
 
     private boolean tryReconnectToServer()  {
