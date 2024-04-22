@@ -130,7 +130,7 @@ public class ZakServer {
         startingFieldClientSetup();
         welcomePlayer();
         gameStarted = true;
-        match.startMatch();
+        //match.startMatch();
     }
     private static void startingFieldClientSetup() throws IOException{
         //todo: da spostare in match probabilmente
@@ -162,18 +162,10 @@ public class ZakServer {
         handlers.get(clientID).interrupt();
         handlers.remove(clientID);
     }
-   /* private static void sendStartingCards() throws IOException {
-        GenericTurnMessage message;
-        Collection<Player> players = hashClient.values();
-        ObjectOutputStream out;
-        for(Player p: players){
-            message = new GenericTurnMessage(serverName,null,p.getPlayerDeck().getStarterCard(), null,null);
-            out = new ObjectOutputStream(hashPlayer.get(p).getOutputStream());
-            out.writeObject(message);
-        }
-    }*/
-    //todo:funzione da avviare da match e inviare con sendMessage da ClientHandler
-
+    public static void sendStartingCards(Message message) throws IOException {
+        UUID clientID = message.getClientID();
+        handlers.get(clientID).sendMessage(message);
+    }
 
 }
 
@@ -234,11 +226,13 @@ class ClientHandler extends Thread implements Runnable {
         Class<? extends Message> a = message.getClass();
         switch (a.getName()){
             case "GenericTurnMessage":
+                GenericTurnMessageHandler((GenericTurnMessage) message);
                 break;
             case "TextMessage":
                 textMessageHandler((TextMessage) message);
                 break;
             case "BroadCastStandardMessage":
+                broadCastMessageHandler((BroadCastStandardMessage) message);
                 break;
             case "EndGameMessage":
                 ZakServer.gameStarted = false;
@@ -247,10 +241,20 @@ class ClientHandler extends Thread implements Runnable {
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server");
         }
     }
+
+    private void broadCastMessageHandler(BroadCastStandardMessage message) {
+    }
+
+    private void GenericTurnMessageHandler(GenericTurnMessage message) {
+    }
+
     public void sendMessage(Message message) throws IOException {
+        message.setClientID(clientID);
+        message.setSender(clientName);
         outClient.writeObject(message);
     }
     private void textMessageHandler(TextMessage message) {
+        //todo:chat functionality
     }
     private void endOfTheGame(EndGameMessage message){
 

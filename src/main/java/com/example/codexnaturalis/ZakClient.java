@@ -154,17 +154,7 @@ public class ZakClient {
         Integer val = rand.nextInt(10);
         return val.toString();*/
     }
-    private static void initialMatchSetup() throws IOException {
-        BroadCastStartingMessage initialMatchSetupMessage = null;
-        try{
-            initialMatchSetupMessage = (BroadCastStartingMessage)in.readObject();
-            if(initialMatchSetupMessage == null) throw new WrongMessageConversionException("Was not able to initialize Starting Field");
-        } catch(ClassNotFoundException e){
-            e.getMessage();
-        } catch (WrongMessageConversionException e) {
-            e.getMessage();
-            throw new RuntimeException(e);
-        }
+    public static void initialMatchSetup(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
         try{
             Collection<Player> players;
             player = initialMatchSetupMessage.getPlayers().get(clientID);
@@ -175,14 +165,19 @@ public class ZakClient {
             //todo:otherfields deve essere una hashmap con anche i players
         } catch (WrongPlayerUUIDException e){
             e.getMessage();
-        }finally {
+        }  finally {
             System.out.println("All players' fields were correctly received");
-            new Thread(serverComHandler).start();
+
         }
     }
     private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         currentGameStatus = true;
-        initialMatchSetup();
+        new Thread(serverComHandler).start();
+        try {
+            Thread.sleep(1000);
+        }catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         //todo: GenericMessage Assembler
         while(currentGameStatus) selectPossibleActions();
     }
@@ -223,6 +218,7 @@ public class ZakClient {
             case 4:
                 break;
             case 5:
+                //todo: match updater
                 genericMessageAssembler();
                 break;
             default:
@@ -328,9 +324,18 @@ class ServerComHandler implements Runnable {
                 messageReceiver();
 
 
-            } catch (IOException | ClassNotFoundException | WrongMessageConversionException e) {
+            } catch (ClassNotFoundException | WrongMessageConversionException e) {
                 System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
 
+            } catch(IOException e){
+                System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
+                try {
+                    throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected from server due to socket degradation: Attempting reconnection");
+                } catch (ClientAbruptlyDisconnectedException ex) {
+                    if(tryReconnectToServer()) continue;
+                    //todo: reconnection attempt
+                    clientDisconnected();
+                }
             }
             try{
                 if(ZakClient.socket.isClosed() && ZakClient.isCurrentGameStatus()) throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected from server: Attempting reconnection");
@@ -372,6 +377,9 @@ class ServerComHandler implements Runnable {
                 break;
             case "BroadCastStandardMessage":
                 break;
+            case "BroadCastStartingMessage":
+                broadCastStartingMessageHandler((BroadCastStartingMessage) message);
+                break;
             case "EndGameMessage":
                 endOfTheGame((EndGameMessage)message);
                 break;
@@ -379,6 +387,15 @@ class ServerComHandler implements Runnable {
                 break;
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
         }
+    }
+    private void broadCastStartingMessageHandler(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
+        try{
+            if(initialMatchSetupMessage == null) throw new WrongMessageConversionException("Was not able to initialize Starting Field");
+        } catch (WrongMessageConversionException e) {
+            e.getMessage();
+            throw new RuntimeException(e);
+        }
+        ZakClient.initialMatchSetup(initialMatchSetupMessage);
     }
     public void sendMessage(Message message) throws IOException {
         message.setSender(clientName);
