@@ -181,6 +181,13 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         )));
         this.points = points;
         this.seed = seed;
+
+    }
+    public void setPoints(int points) {
+        this.points = points;
+    }
+    public int getPoints() {
+        return points;
     }
 }
 /**
