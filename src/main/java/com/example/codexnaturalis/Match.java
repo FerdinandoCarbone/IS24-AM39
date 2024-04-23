@@ -4,11 +4,13 @@ import java.util.*;
 
 public class Match {
     private ArrayList<Player> players;
+    private ArrayList<Player> winners;
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
     private ArrayList<ObjectiveCard> commonObjectives;
     private ArrayList<ResourceGoldCard> publicCards;
     private int indexPlayingPlayer;
+
 
     /**
      * Constructor of Match
@@ -216,7 +218,7 @@ public class Match {
      */
     private void lastRoundRoutine() {
         checkTotalPoints();
-        declareWinner();
+        declareWinnerOrDraw();
         //Dichiara il vincitore
     }
     /** Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo*/
@@ -242,12 +244,47 @@ public class Match {
         return extraPoints;
     }
 
-    private Player declareWinner() {
+    private void declareWinnerOrDraw() {
 
-        Player player = null;
-
-        return player;
+        int totalScore=0;
+        boolean draw =false;
+        Player playerWin = null;
+        /**
+         * ricerca del punteggio più alto
+         */
+        for(Player p : players){
+            if(p.getScore()>totalScore){
+                totalScore = p.getScore();
+                playerWin = p;
+            }
+        }
+        winners[0]=playerWin;
+        /**
+         * controllo se esiste un pari punteggio
+         */
+        int i=0;
+        for(Player p2 : players){
+            if(p2.getScore()==totalScore && p2!=playerWin){
+                draw = true;
+                winners[i]=p2;
+                i++;
+            }
+        }
+        if(draw){
+            drawWinners();
+        }
+        else
+            declareWinners();
     }
+
+    private void drawWinners() {
+        //confronta i punti obiettivo dei giocatori in winners[]
+        //salva winners per lavorarci e modifica i o il nome del vincitore
+    }
+    private void declareWinners() {
+        //stampa vincitori con size
+    }
+
 }
 
 
