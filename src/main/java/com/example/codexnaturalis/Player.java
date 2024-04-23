@@ -147,7 +147,6 @@ public class Player implements Serializable {
                     updateAdjacentSlots(cartaDaPiazzare, row, column, 3);
                 }
             }
-
         }
 
         //Remove the placed card from the player's deck
@@ -168,6 +167,7 @@ public class Player implements Serializable {
             decreaseResourceElementsMana(coveredCorner);
             cartaDaPiazzare.updateCornerToBusy(corner);
             coveredCard.updateCornerToBusy(coveredCornerIndex);
+            cartaDaPiazzare.coveredCornersWhenPlaced++;
         }
     }
 

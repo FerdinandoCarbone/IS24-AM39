@@ -160,6 +160,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
 
     private int points;
     private Seed seed;
+    protected int coveredCornersWhenPlaced = 0;
     //private ResourceElement backCentreResource;
     public enum ResourceElement{
         Mushroom,
@@ -188,6 +189,9 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     }
     public int getPoints() {
         return points;
+    }
+    public int getCoveredCornersWhenPlaced() {
+        return coveredCornersWhenPlaced;
     }
 }
 /**

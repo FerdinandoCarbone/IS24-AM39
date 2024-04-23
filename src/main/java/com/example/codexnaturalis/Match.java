@@ -204,7 +204,7 @@ public class Match {
                     currentPlayer.addScore(currentPlayer.getElementsMana()[1]*pts);
                 /** se idCard==44||45||46||54||55||56||64||65||66||74||75||76 conta angoli coperti*/
                 case 44,45,46,54,55,56,64,65,66,74,75,76:
-                    currentPlayer.addScore(coveredCorners*pts);
+                    currentPlayer.addScore(playedCard.getCoveredCornersWhenPlaced()*pts);
                 /** altrimenti assegna punti*/
                 default:
                     currentPlayer.addScore(pts);
