@@ -6,9 +6,10 @@ public class Match {
     private ArrayList<Player> players;
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
+    private boolean isLastCycle = false;
     private ArrayList<ObjectiveCard> commonObjectives;
     private ArrayList<ResourceGoldCard> publicCards;
-    private int indexPlayingPlayer;
+    private int indexCurrentPlayer;
 
     /**
      * Constructor of Match
@@ -30,83 +31,14 @@ public class Match {
     }
 
     /**
-     * Main function that starts the match. Also, only public method
-     */
-//    public void startMatch() throws Exception {
-//        int sceltaGiocatore;
-//        boolean playerHaPiazzatoLaCarta = false;
-//        /*Si inizia scegliendo in modo casuale il giocatore iniziale*/
-//        Player playingPlayer = chooseRandomFirstPlayer();
-//        Socket playingPlayerSocket = ZakServer.hashPlayer.get(playingPlayer);
-//        //todo: qui facciamo partire la scelta della carta obiettivo segreto
-//        //todo: secretObjectiveChoice();
-//        in = new BufferedReader(new InputStreamReader(playingPlayerSocket.getInputStream()));
-//        out = new PrintWriter(playingPlayerSocket.getOutputStream(), true);
-//
-//        /*Creo il choice container per le scelte del giocatore*/
-//        choices = new ChoiceManager(in, out);
-//
-//        /*Il giocatore piazza la sua carta iniziale*/
-//        placeStarterCard(playingPlayer);
-//
-//        /*Il giocatore sceglie cosa fare*/
-//        sceltaGiocatore = choices.chooseFromMenu(false);
-//
-//        while (!lastRound) {
-//
-//            while (sceltaGiocatore != -1) {
-//
-//                /*Il giocatore ha scelto di piazzare la sua carta*/
-//                if (sceltaGiocatore == 1 && !playerHaPiazzatoLaCarta) {
-//
-//                    /*Player sta piazzando la carta, questo boolean impedisce che il giocatore
-//                    * faccia di nuovo questa azione nello stesso turno*/
-//                    playerHaPiazzatoLaCarta = true;
-//
-//                    /*Piazza una carta dal mazzo*/
-//                    placeCard(playingPlayer);
-//
-//                    //TODO: aumentare i punti nello scoreTracker
-//
-//                    /*Il giocatore ora deve pescare una carta dai due mazzi risorsa od oro*/
-//                    drawCard(playingPlayer);
-//                } else if (sceltaGiocatore == 2) {
-//                    /*Il giocatore sceglie una carta dando come input la sua riga e colonna*/
-//                    fieldAnalysis(playingPlayer);
-//                }
-//
-//                /*Il giocatore sceglie cosa fare*/
-//                sceltaGiocatore = choices.chooseFromMenu(playerHaPiazzatoLaCarta);
-//            }
-//
-//            if (checkWinner(playingPlayer)) {
-//                lastRound = true;
-//            } else {
-//                /*Playing player ora passa al prossimo giocatore*/
-//                playingPlayer = selectNextPlayer(playingPlayer);
-//                playerHaPiazzatoLaCarta = false;
-//
-//                /*Il giocatore sceglie cosa fare*/
-//                sceltaGiocatore = choices.chooseFromMenu(playerHaPiazzatoLaCarta);
-//
-//            }
-//
-//        }
-//        //TODO
-//
-//        lastRoundRoutine();
-//
-//    }
-
-    /**
      * Chooses who will be the first player and updates its firstPlayer attribute
      * @return Player, first player of the match
      */
-    private MatchMessage chooseRandomFirstPlayer() {
+    private StandardMatchMessage chooseRandomFirstPlayer() {
         Collections.shuffle(players);
 
         Player playingPlayer = players.getFirst();
-        indexPlayingPlayer = 0;
+        indexCurrentPlayer = 0;
         playingPlayer.setFirstPlayer(true);
         playingPlayer.setFirstTurn(false);
         System.out.println(playingPlayer.getPlayerName() + " è il primo a giocare!");
@@ -115,16 +47,26 @@ public class Match {
         publicCards.add(DrawingDeck.drawCard(false));
         publicCards.add(DrawingDeck.drawCard(false));
 
-        return new MatchMessage(publicCards, playingPlayer.getPlayerID(), null, null, null);
+        return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), null, null, null);
     }
 
-    private MatchMessage genericTurn(GenericTurnMessage msg) throws Exception {
+    private StandardMatchMessage genericTurn(GenericTurnMessage msg) throws Exception {
         Player playingPlayer = getPlayerFromId(msg.getClientID());
 
         //PLACE CARD ON FIELD
         int row = msg.getCoordinates().getKey();
         int column = msg.getCoordinates().getValue();
         playingPlayer.placeCardAndRemoveFromDeck(row, column, msg.getCardOnHand());
+
+        //These 2 Ifs check if we are at the end of the cycle and if the playing player is the last on the cycle
+        if (!isLastCycle) {
+            if (playerIsWinner(msg.getCardOnHand(), playingPlayer)) {
+                isLastCycle = true;
+            }
+        }
+        if (isLastCycle && indexCurrentPlayer == players.size() - 1) {
+            return new EndMatchMessage(null, msg.getClientID(), null, msg.getCardOnHand(), msg.getCoordinates());
+        }
 
         //ADD THE DRAWN CARD TO THE PLAYER'S DECK AND REMOVE IT FROM WHERE IT WAS DRAWN
         boolean isResourceCard = msg.getDrawnCard() instanceof ResourceCard;
@@ -139,12 +81,14 @@ public class Match {
 
         //SELECT INDEX OF NEXT PLAYER
         UUID currentPlayerId = playingPlayer.getPlayerID();
-        int nextPlayerIndex = selectIndexNextPlayer(indexPlayingPlayer);
+        int nextPlayerIndex = selectIndexNextPlayer(indexCurrentPlayer);
         Player nextPlayer = players.get(nextPlayerIndex);
         UUID nextPlayerId = nextPlayer.getPlayerID();
+        indexCurrentPlayer = nextPlayerIndex;
         /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
          * Infine chiamare lastRoundRoutine*/
-        return new MatchMessage(publicCards, currentPlayerId, nextPlayerId, msg.getCardOnHand(), msg.getCoordinates());
+        return new StandardMatchMessage(publicCards, currentPlayerId, nextPlayerId, msg.getCardOnHand(), msg.getCoordinates());
+
     }
 
     private Player getPlayerFromId(UUID playerId) {
@@ -156,6 +100,23 @@ public class Match {
             }
         }
         return player;
+    }
+
+    public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
+        Player playerToRemove = getPlayerFromId(disconnectedPlayerId);
+        Player currentPlayer = players.get(indexCurrentPlayer);
+        //Se il giocatore si disconnette prima di giocare il suo turno
+        if (playerToRemove.equals(currentPlayer)) {
+            Player nextPlayer = players.get(selectIndexNextPlayer(indexCurrentPlayer));
+            UUID nextPlayerId = nextPlayer.getPlayerID();
+            indexCurrentPlayer = players.indexOf(nextPlayer);
+            players.remove(playerToRemove);
+            return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, nextPlayerId);
+        } else {
+            players.remove(playerToRemove);
+            return new notCurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId);
+        }
+
     }
 
     /**
