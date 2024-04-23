@@ -1,19 +1,14 @@
 package com.example.codexnaturalis;
 
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import javafx.util.Pair;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 public class ZakServer {
-
-    static HashMap<Player, Socket> hashPlayer = new HashMap<>();
+    protected static HashMap<Player, Socket> hashPlayer = new HashMap<>();
     static HashMap<UUID, Player> hashClient = new HashMap<>();
     static HashMap<UUID, ClientHandler> handlers = new HashMap<>();
 
@@ -124,13 +119,47 @@ public class ZakServer {
         System.out.println("- developed by Team AM39");
     }
     public static void matchStart() throws Exception {
-        System.out.println("La partita sta per cominciare");
+        System.out.println("Match is about to start");
+        String serverCommand;
         ArrayList<Player> players = new ArrayList<>(hashPlayer.keySet());
         match = new Match(players, new ScoreTracker());
         startingFieldClientSetup();
         welcomePlayer();
         gameStarted = true;
-        //match.startMatch();
+        do{
+            serverCommand = getInput();
+            interpreteInput(serverCommand);
+        } while(true);
+    }
+    private static String getInput(){
+        Scanner scanner= new Scanner(System.in);
+        String input=null;
+        do{
+            try{
+                input = scanner.nextLine();
+            }catch (NoSuchElementException e){
+                continue;
+            }
+        }while(Objects.equals(input, "\n") || input==null);
+        //scanner.close();
+        return input;
+    }
+
+    private static void interpreteInput(String serverCommand) {
+        switch(serverCommand.toLowerCase()){
+            case "close":
+                System.out.println("Server shutting down");
+                System.exit(0);
+                break;
+            case "ban":
+                break;
+            case "restart":
+                break;
+            default: System.out.println("Unknown command");
+        }
+    }
+    private void receiveInput(){
+
     }
     private static void startingFieldClientSetup() throws IOException{
         //todo: da spostare in match probabilmente
@@ -150,7 +179,7 @@ public class ZakServer {
             text=text.concat(p.getPlayerName()+firstPlayerStar+"\n");
             //firstPlayerStar = "";
         }
-        sendBroadCastMessage(new TextMessage(ZakServer.serverName,null,text));
+        sendBroadCastMessage(new TextMessage(ZakServer.serverName,null,text,"Everyone"));
     }
     public static void sendBroadCastMessage(Message message) throws IOException {
         for (ClientHandler handler : handlers.values()) {
@@ -162,8 +191,7 @@ public class ZakServer {
         handlers.get(clientID).interrupt();
         handlers.remove(clientID);
     }
-    public static void sendStartingCards(Message message) throws IOException {
-        UUID clientID = message.getClientID();
+    public static void sendMessage(UUID clientID,Message message) throws IOException {
         handlers.get(clientID).sendMessage(message);
     }
 
@@ -253,8 +281,22 @@ class ClientHandler extends Thread implements Runnable {
         message.setSender(clientName);
         outClient.writeObject(message);
     }
-    private void textMessageHandler(TextMessage message) {
+    private void textMessageHandler(TextMessage message) throws IOException {
+        UUID recipientClientID=null;
+        String recipient = message.getRecipient();
+        if(Objects.equals(recipient, "Everyone")) ZakServer.sendBroadCastMessage(message);
+         else{
+             for(Player p:ZakServer.hashClient.values()){
+                if(Objects.equals(p.getPlayerName(), recipient)) {
+                    recipientClientID = p.getPlayerID();
+                    break;
+                }
+             }
+            ZakServer.sendMessage(recipientClientID,message);
+         }
         //todo:chat functionality
+        System.out.println((message.getSender()+" to "+ message.getRecipient()+":\n"+message.getTextMessage()));
+
     }
     private void endOfTheGame(EndGameMessage message){
 

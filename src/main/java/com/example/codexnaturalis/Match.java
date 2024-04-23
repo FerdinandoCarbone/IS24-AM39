@@ -187,7 +187,7 @@ public class Match {
         int coveredCorners;
 
          /** se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
-         if(0<id && id<41 && pts){
+         if(0<id && id<41 /*&& pts*/){
              currentPlayer.addScore(pts);
         }
          /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
@@ -221,11 +221,12 @@ public class Match {
     }
     /** Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo*/
     private void checkTotalPoints() {
-        int p=players.size();
-        int i;
+       // int p=players.size();
+        //int i;
         int s;
-            for(i=0;i<p;i++) {
-               s = players[i].getScore+checkExtraPoints();
+            for(Player p: players) {
+               s = p.getScore();
+               p.addScore(s+checkExtraPoints(p));
             }
 
     }

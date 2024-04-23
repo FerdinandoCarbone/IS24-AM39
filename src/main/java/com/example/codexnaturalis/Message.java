@@ -93,9 +93,15 @@ class BroadCastStandardMessage extends Message{
 }
 class TextMessage extends Message{
     private String textMessage;
-    public TextMessage(String sender, UUID ClientID,String textMex) {
+    private String recipient;
+    public TextMessage(String sender, UUID ClientID, String textMex, String recipient) {
         super(sender, ClientID);
         this.textMessage = textMex;
+        this.recipient = recipient;
+    }
+
+    public String getRecipient() {
+        return recipient;
     }
 
     public String getTextMessage() {

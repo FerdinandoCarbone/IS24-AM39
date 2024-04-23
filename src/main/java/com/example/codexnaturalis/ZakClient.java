@@ -1,5 +1,7 @@
 package com.example.codexnaturalis;
 
+import javafx.scene.text.TextBoundsType;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
@@ -13,7 +15,7 @@ public class ZakClient {
     private static ServerHandler serverComHandler;
     private static String playerNick;
     private static Player player;
-    private static ArrayList<Field> otherFields;
+    private static ArrayList<Player> otherPlayers;
     private static boolean currentGameStatus;
     private static boolean myTurn;
     static int port;
@@ -89,7 +91,7 @@ public class ZakClient {
         clientID = UUID.randomUUID();
         currentGameStatus = false;
         myTurn = false;
-        otherFields= new ArrayList<>();
+        otherPlayers= new ArrayList<>();
         playerNick = playerGreeting();
         try {
             socket = connectionAttempt(serverAddress, port);
@@ -161,7 +163,7 @@ public class ZakClient {
             if(player == null) throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players=initialMatchSetupMessage.getPlayers().values();
-            for(Player p:players) otherFields.add(p.getPlayerField());
+            for(Player p:players) otherPlayers.add(p);
             //todo:otherfields deve essere una hashmap con anche i players
         } catch (WrongPlayerUUIDException e){
             e.getMessage();
@@ -199,10 +201,43 @@ public class ZakClient {
                 break;
             case 4:
                 break;
+            case 5:
+                writeTextMessage();
+                break;
             default:
                 System.out.println("Wrong input: Input the number associated to the desired action");
         }
     }
+
+    private static void writeTextMessage() throws IOException {
+        TextMessage chatMessage;
+        String recipient;
+        String text;
+        HashMap<Integer,Player> recipientChooser=new HashMap<>();
+        int i=1;
+        System.out.println("Who do you want to send the message to?");
+        System.out.println(0 + " - Cancel");
+        for(Player p: otherPlayers){
+            recipientChooser.put(i,p);
+            System.out.println(i+" - "+p.getPlayerName());
+            ++i;
+        }
+        System.out.println(i + " - Everyone");
+        int counter = recipientChooser.size()+1;
+        do{
+            i=Integer.parseInt(receiveInput());
+            if(i<=counter&&i>0){
+                text = receiveInput();
+                recipient = recipientChooser.get(i).getPlayerName();
+                if(i==counter) serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,recipient));
+                else serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,"Everyone"));
+                break;
+            }
+            else if(i==0) break;
+            System.out.println("Invalid input: please select a valid option");
+        }while(true);
+    }
+
     private static void selectPossibleActions(Message message) throws IOException, ClassNotFoundException, WrongMessageConversionException {
         System.out.println("What would you like to do:\n");
         printPossibleChoices(myTurn);
@@ -218,6 +253,9 @@ public class ZakClient {
             case 4:
                 break;
             case 5:
+                writeTextMessage();
+                break;
+            case 6:
                 //todo: match updater
                 genericMessageAssembler();
                 break;
@@ -228,6 +266,7 @@ public class ZakClient {
     private static void printPossibleChoices(boolean myTurn) {
         String choices;
         //if(myTurn) clearConsole();
+        //todo: Add ASCII art to write a TextMessage
         if (!myTurn){
             choices = "\n" +
                 "\n" +
@@ -238,6 +277,7 @@ public class ZakClient {
                 " |   | [2] Show Objective Cards  |   | \n" +
                 " |   | [3] Show personal deck    |   | \n" +
                 " |   | [4] Show personal Codex   |   | \n" +
+                " |   | [5] Write to chat         |   | \n" +
                 " |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| \n" +
                 "(_____)                         (_____)\n" +
                 "\n";
@@ -252,7 +292,8 @@ public class ZakClient {
                     " |   | [2] Show Objective Cards  |   | \n" +
                     " |   | [3] Show personal deck    |   | \n" +
                     " |   | [4] Show personal Codex   |   | \n" +
-                    " |   | [5] Play Turn             |   | \n" +
+                    " |   | [5] Write to chat         |   | \n" +
+                    " |   | [6] Play turn             |   | \n" +
                     " |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| \n" +
                     "(_____)                         (_____)\n" +
                     "\n";
@@ -272,8 +313,8 @@ public class ZakClient {
         //scanner.close();
         return input;
      }
-    public static void setOtherFields(ArrayList<Field> otherFields) {
-        ZakClient.otherFields = otherFields;
+    public static void setOtherFields(ArrayList<Player> otherPlayers) {
+        ZakClient.otherPlayers = otherPlayers;
     }
     public static void genericTurnMessageHandler(GenericTurnMessage message){
         myTurn=true;
