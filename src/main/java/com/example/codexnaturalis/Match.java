@@ -1,9 +1,5 @@
 package com.example.codexnaturalis;
 
-import javafx.util.Pair;
-
-import java.io.*;
-import java.net.Socket;
 import java.util.*;
 
 public class Match {
@@ -146,7 +142,8 @@ public class Match {
         int nextPlayerIndex = selectIndexNextPlayer(indexPlayingPlayer);
         Player nextPlayer = players.get(nextPlayerIndex);
         UUID nextPlayerId = nextPlayer.getPlayerID();
-
+        /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
+         * Infine chiamare lastRoundRoutine*/
         return new MatchMessage(publicCards, currentPlayerId, nextPlayerId, msg.getCardOnHand(), msg.getCoordinates());
     }
 
@@ -184,25 +181,68 @@ public class Match {
         }
         return  winnerFlag;
     }
+    public void checkPoints(ResourceGoldCard playedCard, Player currentPlayer) throws Exception {
+        int id = playedCard.getIdCard();
+        int pts = playedCard.getPoints();
+        int coveredCorners;
 
+         /** se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
+         if(0<id && id<41 && pts){
+             currentPlayer.addScore(pts);
+        }
+         /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
+         else if(40<id && id<81){
+            switch (id) {
+                /** se idCard==41||51||63||71 Feather*/
+                case 41,51,63,71:
+                    currentPlayer.addScore(currentPlayer.getElementsMana()[2]*pts);
+                /** se idCard==42||53||61||73  Ink*/
+                case 42,53,61,73:
+                    currentPlayer.addScore(currentPlayer.getElementsMana()[0]*pts);
+                /** se idCard==43||52||62||72 Papyrus*/
+                case 43,52,62,72:
+                    currentPlayer.addScore(currentPlayer.getElementsMana()[1]*pts);
+                /** se idCard==44||45||46||54||55||56||64||65||66||74||75||76 conta angoli coperti*/
+                case 44,45,46,54,55,56,64,65,66,74,75,76:
+                    currentPlayer.addScore(coveredCorners*pts);
+                /** altrimenti assegna punti*/
+                default:
+                    currentPlayer.addScore(pts);
+            }
+         }
+    }
     /**
      * Last Round Routine
      */
     private void lastRoundRoutine() {
-        //TODO
-        //Si fa il giro dei giocatori rimanenti
         checkTotalPoints();
         declareWinner();
         //Dichiara il vincitore
     }
-
+    /** Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo*/
     private void checkTotalPoints() {
-        //TODO
+        int p=players.size();
+        int i;
+        int s;
+            for(i=0;i<p;i++) {
+               s = players[i].getScore+checkExtraPoints();
+            }
 
+    }
+    private int checkExtraPoints(Player p) {
+        int extraPoints=0;
+        /** Punti obiettivi personali
+         * Punti obiettivi comuni
+         * extraPoints=punti obiettivo personale + punti obiettivi comuni
+         */
+
+
+
+        return extraPoints;
     }
 
     private Player declareWinner() {
-        //TODO
+
         Player player = null;
 
         return player;
