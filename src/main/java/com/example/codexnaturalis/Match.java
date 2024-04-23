@@ -175,21 +175,20 @@ public class Match {
     /**
      * Checks if a player has reached at least 20 points
      */
-    public boolean checkWinner(Player playingPlayer) {
+    public boolean playerIsWinner(ResourceGoldCard playedCard , Player playingPlayer) {
         boolean winnerFlag = false;
-        if (playingPlayer.getScore() >= 20) {
+        if (checkPoints(playedCard, playingPlayer) >= 20) {
             winnerFlag = true;
             System.out.println(playingPlayer.getPlayerName() + " ha raggiunto " + playingPlayer.getScore() + " punti!");
         }
         return  winnerFlag;
     }
-    public void checkPoints(ResourceGoldCard playedCard, Player currentPlayer) throws Exception {
+    public int checkPoints(ResourceGoldCard playedCard, Player currentPlayer) {
         int id = playedCard.getIdCard();
         int pts = playedCard.getPoints();
-        int coveredCorners;
 
          /** se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
-         if(0<id && id<41 /*&& pts*/){
+         if(0<id && id<41){
              currentPlayer.addScore(pts);
         }
          /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
@@ -211,7 +210,7 @@ public class Match {
                 default:
                     currentPlayer.addScore(pts);
             }
-         }
+         } return currentPlayer.getScore();
     }
     /**
      * Last Round Routine
@@ -258,7 +257,7 @@ public class Match {
                 playerWin = p;
             }
         }
-        winners[0]=playerWin;
+        winners.add(playerWin);
         /**
          * controllo se esiste un pari punteggio
          */
@@ -266,7 +265,7 @@ public class Match {
         for(Player p2 : players){
             if(p2.getScore()==totalScore && p2!=playerWin){
                 draw = true;
-                winners[i]=p2;
+                winners.add(p2);
                 i++;
             }
         }
