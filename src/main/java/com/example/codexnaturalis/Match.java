@@ -5,7 +5,7 @@ import java.util.*;
 public class Match {
     private ArrayList<Player> players;
     private ArrayList<Player> winners;
-    private ArrayList<Player> objectivePoints;
+    private int[] objectivePoints;      //inizializzare dinamicamente
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
     private boolean isLastCycle = false;
@@ -200,11 +200,10 @@ public class Match {
     /**
      * calculate objective points and add into the array
      */
-    //TO DO: c'è  confuzione. bisogna decidere se i valori vanno inviati in int e poi salvati (da chi?) nel vettore punti obiettivo, o se salvati direttamente
     private int calculateObjPoints(Player p, int id){
         int points=0;
         if(87<id && id<102){
-            switch (id) {
+            switch (id) {       //TO DO: modificare addScore con nuovo metodo ?!?!?
                 /** se idCard is ripetizioni semi*/
                 case 95,96,97,98:
                     //95 3funghi, 96 3foglie, 97 3lupo, 98 3farfalle. tutto x2 punti
@@ -245,30 +244,27 @@ public class Match {
         int extraPersonalPoints=0;
         int id=0;
 
-        /** Punti obiettivi personali
-         *
-         */
+        /** Punti obiettivi personali */
           id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
           extraPersonalPoints = calculateObjPoints(p,id);
+          //ferdinando ha detto di rivedere getSecretObjectiveCard perchè da sempre null
+
+        /** Punti obiettivi comuni */// commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
+
+        for(ObjectiveCard oc : commonObjectives){
+
+        }
+        //rifare per 2 carte e usare common anzichè secret
+        //id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
+        //extraCommonlPoints = calculateObjPoints(p,id);
 
 
-         /**
-         * Punti obiettivi comuni
-         */
-         // commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
-         //rifare per 2 carte e usare common anzichè secret
-         //id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
-         //extraPersonalPoints = calculateObjPoints(p,id);
-
-
-         /**
-         * extraPoints=punti obiettivo personale + punti obiettivi comuni
-         */
+        /** extraPoints=punti obiettivo personale + punti obiettivi comuni */
 
         extraPoints = extraCommonPoints + extraPersonalPoints;
 
 
-        //TO DO aggiornare l'array: objectivePoints
+        /** TO DO: aggiornare l'array: objectivePoints */
         //TO DO: aggiungere metodo per aggiornare i punti obiettivo (array objectivePoints)
 
 
@@ -280,9 +276,8 @@ public class Match {
         int totalScore=0;
         boolean draw =false;
         Player playerWin = null;
-        /**
-         * find max points
-         */
+
+        /** find max points */
         for(Player p : players){
             if(p.getScore()>totalScore){
                 totalScore = p.getScore();
@@ -290,9 +285,8 @@ public class Match {
             }
         }
         winners.add(playerWin);
-        /**
-         * check if a draw exists
-         */
+
+        /** check if a draw exists */
         int i=0;
         for(Player p2 : players){
             if(p2.getScore()==totalScore && p2!=playerWin){
