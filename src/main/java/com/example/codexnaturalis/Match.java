@@ -5,6 +5,7 @@ import java.util.*;
 public class Match {
     private ArrayList<Player> players;
     private ArrayList<Player> winners;
+    private ArrayList<Player> objectivePoints;
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
     private boolean isLastCycle = false;
@@ -186,21 +187,72 @@ public class Match {
        // int p=players.size();
         //int i;
         int s;
+        int o;
             for(Player p: players) {
                s = p.getScore();
-               p.addScore(s+checkExtraPoints(p));
+               o = checkExtraPoints(p);
+               //TO DO aggiornare l'array: objectivePoints
+                //TO DO: aggiungere metodo per aggiornare i punti obiettivo (array objectivePoints)
+               p.addScore(s+o);
             }
 
     }
+
+    /**
+     * calculate objective points and add into the array
+     */
     private int checkExtraPoints(Player p) {
         int extraPoints=0;
+        int extraCommonPoints=0;
+        int extraPersonalPoints=0;
+        int id=0;
+
         /** Punti obiettivi personali
+         *
+         */
+        //TO DO: capire perchè non posso usare il metodo
+          id = drawingDeck.getSecretObjectiveCard().getIdCard();
+
+          if(87<id && id<102){
+            switch (id) {
+                /** se idCard is ripetizioni semi*/
+                case 95,96,97,98:
+                    //95 3funghi, 96 3foglie, 97 3lupo, 98 3farfalle. tutto x2 punti
+                    switch (id){
+                        case 95: p.addScore(p.getResourceMana()[2]*2);  //TO DO: da cambiare tutti gli indici e applicare l'algoritmo di trio
+                        case 96: p.addScore(p.getResourceMana()[2]*2);
+                        case 97: p.addScore(p.getResourceMana()[2]*2);
+                        case 98: p.addScore(p.getResourceMana()[2]*2);
+                    }
+                    /** se idCard is ripetizioni elementi*/
+                case 99,100,101,102:
+                    switch (id){
+                        //piuma, ink, pergamena
+                        case 99:  p.addScore(p.getElementsMana()[2]*2); //TO DO: da cambiare tutti gli indici e applicare l'algoritmo divisione
+                        // 2 pergamene
+                        case 100: p.addScore(p.getElementsMana()[2]*2);
+                        // 2 ink
+                        case 101: p.addScore(p.getElementsMana()[2]*2);
+                        // 2 piume
+                        case 102: p.addScore(p.getElementsMana()[2]*2);
+                    }
+
+                    /** se idCard is disposizioni grafiche*/
+                case 87,88,89,90,91,92,93,94:
+            }
+        }
+
+
+         /**
          * Punti obiettivi comuni
+         */
+         // commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
+         /**
          * extraPoints=punti obiettivo personale + punti obiettivi comuni
          */
 
 
-
+        extraPoints = extraCommonPoints + extraPersonalPoints;
         return extraPoints;
     }
 
@@ -210,7 +262,7 @@ public class Match {
         boolean draw =false;
         Player playerWin = null;
         /**
-         * ricerca del punteggio più alto
+         * find max points
          */
         for(Player p : players){
             if(p.getScore()>totalScore){
@@ -220,7 +272,7 @@ public class Match {
         }
         winners.add(playerWin);
         /**
-         * controllo se esiste un pari punteggio
+         * check if a draw exists
          */
         int i=0;
         for(Player p2 : players){
