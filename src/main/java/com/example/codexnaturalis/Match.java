@@ -5,7 +5,7 @@ import java.util.*;
 public class Match {
     private ArrayList<Player> players;
     private ArrayList<Player> winners;
-    private int[]  objectivePoints;      //inizializzare dinamicamente
+    private int[] objectivePoints;      //inizializzare dinamicamente
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
     private boolean isLastCycle = false;
