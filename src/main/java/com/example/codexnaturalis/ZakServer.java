@@ -126,15 +126,16 @@ public class ZakServer {
         startingFieldClientSetup();
         welcomePlayer();
         gameStarted = true;
-        do{
+        while(gameStarted){
             serverCommand = getInput();
             interpreteInput(serverCommand);
-        } while(true);
+        }
     }
     private static String getInput(){
         Scanner scanner= new Scanner(System.in);
         String input=null;
         do{
+            System.out.print("Command: ");
             try{
                 input = scanner.nextLine();
             }catch (NoSuchElementException e){
@@ -167,6 +168,8 @@ public class ZakServer {
         ArrayList<ObjectiveCard> commonObjectiveCard;
         commonObjectiveCard = DrawingDeck.getCommonObjective();
         match.setCommonObjectives(commonObjectiveCard);
+        System.out.println("CommonObjectiveCards:");
+        for(ObjectiveCard oc: commonObjectiveCard) oc.printCardAscii();
         fieldSetupMessage = new BroadCastStartingMessage(ZakServer.serverName,null,ZakServer.hashClient,commonObjectiveCard);
         sendBroadCastMessage(fieldSetupMessage);
     }
@@ -216,21 +219,21 @@ class ClientHandler extends Thread implements Runnable {
 
     @Override
     public void run() {
-        while (ZakServer.gameStarted) {
-        try {
+        do{
+            try {
                 messageReceiver();
             } catch(IOException | ClassNotFoundException | WrongMessageConversionException e){
                 System.out.println("ERRORE CLIENT HANDLER");
                 e.getMessage();
             }
-        try{
-            if(!ZakServer.gameStarted && socket.isClosed()) throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected: Attempting reconnection");
-        }catch(ClientAbruptlyDisconnectedException e){
+             try{
+                if(!ZakServer.gameStarted && socket.isClosed()) throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected: Attempting reconnection");
+             }catch(ClientAbruptlyDisconnectedException e){
                 if(tryReconnectClient()) continue;
                 //todo: reconnection attempt
                 clientDisconnected();
             }
-        }
+        }while (true);
     }
     private boolean tryReconnectClient(){
         boolean result=true;
@@ -252,7 +255,8 @@ class ClientHandler extends Thread implements Runnable {
     private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         Message message = (Message) inClient.readObject();
         Class<? extends Message> a = message.getClass();
-        switch (a.getName()){
+        String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
+        switch (messageType){
             case "GenericTurnMessage":
                 GenericTurnMessageHandler((GenericTurnMessage) message);
                 break;
@@ -263,7 +267,6 @@ class ClientHandler extends Thread implements Runnable {
                 broadCastMessageHandler((BroadCastStandardMessage) message);
                 break;
             case "EndGameMessage":
-                ZakServer.gameStarted = false;
                 endOfTheGame((EndGameMessage)message);
                 break;
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server");
@@ -277,13 +280,16 @@ class ClientHandler extends Thread implements Runnable {
     }
 
     public void sendMessage(Message message) throws IOException {
-        message.setClientID(clientID);
-        message.setSender(clientName);
+        if(!(message instanceof TextMessage)) {
+            message.setClientID(clientID);
+            message.setSender(clientName);
+        }
         outClient.writeObject(message);
     }
     private void textMessageHandler(TextMessage message) throws IOException {
         UUID recipientClientID=null;
         String recipient = message.getRecipient();
+        //System.out.println(recipient+" "+ recipientClientID);
         if(Objects.equals(recipient, "Everyone")) ZakServer.sendBroadCastMessage(message);
          else{
              for(Player p:ZakServer.hashClient.values()){
@@ -295,10 +301,13 @@ class ClientHandler extends Thread implements Runnable {
             ZakServer.sendMessage(recipientClientID,message);
          }
         //todo:chat functionality
-        System.out.println((message.getSender()+" to "+ message.getRecipient()+":\n"+message.getTextMessage()));
+        System.out.println("\n"+message.getSender()+" to "+ message.getRecipient()+": "+message.getTextMessage());
+        System.out.print("Command: ");
 
     }
     private void endOfTheGame(EndGameMessage message){
-
+        ZakServer.gameStarted = false;
+        ZakServer.match=null;
+        //todo: match reset and restart function to initialize everything
     }
 }

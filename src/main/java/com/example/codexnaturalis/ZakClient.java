@@ -16,7 +16,7 @@ public class ZakClient {
     private static String playerNick;
     private static Player player;
     private static ArrayList<Player> otherPlayers;
-    private static boolean currentGameStatus;
+    private static volatile boolean currentGameStatus;
     private static boolean myTurn;
     static int port;
     static String serverAddress;
@@ -107,18 +107,19 @@ public class ZakClient {
 
     public static Socket connectionAttempt(String serverAddress,int port) throws HandShakeException {
         int retryCount = 0;
+        int milliseconds = 5000;
         Socket socket;
         while(true) {
             try {
                 socket = new Socket(serverAddress, port);
                 break;
             } catch (IOException e) {
-                System.err.println("Unable to connect to the server: Trying to reconnect in 3s");
+                System.err.println("Unable to connect to the server: Trying to reconnect in "+milliseconds/1000+ "s");
                 retryCount++;
                 if (retryCount >= 3) throw new HandShakeException("Unable to connect to the server: Host may be down");
             }
             try {
-                Thread.sleep(5000); // Aspetta 5 secondi prima di tentare di riconnettersi
+                Thread.sleep(milliseconds); // Aspetta milliseconds millisecondi prima di tentare di riconnettersi
             } catch (InterruptedException ex) {
                 // Gestisci l'eccezione
                 ex.printStackTrace();
@@ -169,27 +170,22 @@ public class ZakClient {
             e.getMessage();
         }  finally {
             System.out.println("All players' fields were correctly received");
-
+            currentGameStatus = true;
         }
     }
     private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        currentGameStatus = true;
         new Thread(serverComHandler).start();
-        try {
-            Thread.sleep(1000);
-        }catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        //todo: GenericMessage Assembler
+        while(!(currentGameStatus && serverComHandler.wasFirstBroadCastReceived())) Thread.onSpinWait();
         while(currentGameStatus) selectPossibleActions();
     }
     private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException{
         Message message = null;
+        //todo: GenericMessage Assembler
         serverComHandler.sendMessage(message);
     }
     private static void selectPossibleActions() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         System.out.println("What would you like to do:\n");
-        printPossibleChoices(myTurn);
+        printPossibleChoices();
         int action = Integer.parseInt(receiveInput());
         clearConsole();
         switch (action){
@@ -210,7 +206,6 @@ public class ZakClient {
     }
 
     private static void writeTextMessage() throws IOException {
-        TextMessage chatMessage;
         String recipient;
         String text;
         HashMap<Integer,Player> recipientChooser=new HashMap<>();
@@ -228,9 +223,11 @@ public class ZakClient {
             i=Integer.parseInt(receiveInput());
             if(i<=counter&&i>0){
                 text = receiveInput();
-                recipient = recipientChooser.get(i).getPlayerName();
-                if(i==counter) serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,recipient));
-                else serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,"Everyone"));
+                if(i==counter) serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,"Everyone"));
+                else{
+                    recipient = recipientChooser.get(i).getPlayerName();
+                    serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,recipient));
+                }
                 break;
             }
             else if(i==0) break;
@@ -240,7 +237,7 @@ public class ZakClient {
 
     private static void selectPossibleActions(Message message) throws IOException, ClassNotFoundException, WrongMessageConversionException {
         System.out.println("What would you like to do:\n");
-        printPossibleChoices(myTurn);
+        printPossibleChoices();
         int action = Integer.parseInt(receiveInput());
         clearConsole();
         switch (action){
@@ -263,13 +260,11 @@ public class ZakClient {
                 System.out.println("Wrong input: Input the number associated to the desired action");
         }
     }
-    private static void printPossibleChoices(boolean myTurn) {
+    private static void printPossibleChoices() {
         String choices;
         //if(myTurn) clearConsole();
-        //todo: Add ASCII art to write a TextMessage
         if (!myTurn){
-            choices = "\n" +
-                "\n" +
+            choices =
                 " _____                           _____ \n" +
                 "( ___ )                         ( ___ )\n" +
                 " |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~|   | \n" +
@@ -279,12 +274,10 @@ public class ZakClient {
                 " |   | [4] Show personal Codex   |   | \n" +
                 " |   | [5] Write to chat         |   | \n" +
                 " |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| \n" +
-                "(_____)                         (_____)\n" +
-                "\n";
+                "(_____)                         (_____)\n";
     }
         else {
-            choices = "\n" +
-                    "\n" +
+            choices =
                     " _____                           _____ \n" +
                     "( ___ )                         ( ___ )\n" +
                     " |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~|   | \n" +
@@ -295,8 +288,7 @@ public class ZakClient {
                     " |   | [5] Write to chat         |   | \n" +
                     " |   | [6] Play turn             |   | \n" +
                     " |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| \n" +
-                    "(_____)                         (_____)\n" +
-                    "\n";
+                    "(_____)                         (_____)\n";
         }
         System.out.println(choices);
     }
@@ -313,9 +305,9 @@ public class ZakClient {
         //scanner.close();
         return input;
      }
-    public static void setOtherFields(ArrayList<Player> otherPlayers) {
+   /* public static void setOtherFields(ArrayList<Player> otherPlayers) {
         ZakClient.otherPlayers = otherPlayers;
-    }
+    }*/
     public static void genericTurnMessageHandler(GenericTurnMessage message){
         myTurn=true;
         //todo: Aggiornamento dello stato dei fields dei deck del player
@@ -352,6 +344,8 @@ public class ZakClient {
 class ServerHandler extends Thread implements Runnable {
     private final String clientName;
     private final UUID clientID;
+    private boolean firstBroadCastwasReceived;
+
     private ObjectOutputStream outServer;
     private ObjectInputStream inServer;
 
@@ -360,16 +354,14 @@ class ServerHandler extends Thread implements Runnable {
         this.clientID = clientID;
         this.outServer = outFromServer;
         this.inServer = inFromServer;
+        firstBroadCastwasReceived = false;
     }
 
     @Override
     public void run() {
-        while(ZakClient.isCurrentGameStatus()) {
+       do{
             try {
-
                 messageReceiver();
-
-
             } catch (ClassNotFoundException | WrongMessageConversionException e) {
                 System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
 
@@ -390,7 +382,7 @@ class ServerHandler extends Thread implements Runnable {
                 //todo: reconnection attempt
                 clientDisconnected();
             }
-        }
+        }while(ZakClient.isCurrentGameStatus());
     }
 
     private void clientDisconnected() {
@@ -409,6 +401,10 @@ class ServerHandler extends Thread implements Runnable {
             result = false;
         }
         return result;
+    }
+
+    public boolean wasFirstBroadCastReceived() {
+        return firstBroadCastwasReceived;
     }
 
     private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
@@ -451,6 +447,7 @@ class ServerHandler extends Thread implements Runnable {
     }
     private void textMessageHandler(TextMessage message) {;
         System.out.println(message.getSender()+": "+message.getTextMessage());
+        if(!firstBroadCastwasReceived) firstBroadCastwasReceived = true;
     }
     private void genericTurnMessageHandler(GenericTurnMessage message){
         ZakClient.genericTurnMessageHandler(message);

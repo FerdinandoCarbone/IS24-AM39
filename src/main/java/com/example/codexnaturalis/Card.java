@@ -243,7 +243,7 @@ class GoldCard extends ResourceGoldCard {
 //TODO: DA METTERE ASTRATTA
  class ObjectiveCard extends Card {
      private int points;
-
+     private String asciiArt;
     /**
      * Constructor of ObjectiveCard
      *
@@ -251,15 +251,19 @@ class GoldCard extends ResourceGoldCard {
      * @param artRef:  Art Reference of the Card
      * @param points:  points given to the player when placing the card
      */
-    public ObjectiveCard(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points) {
+    public ObjectiveCard(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("asciiArt") String asciiArt) {
         super(idCard, artRef);
         this.points = points;
+        this.asciiArt = asciiArt;
     }
 
     public void printObjectiveCard() {
         System.out.println("-----------------------------");
         System.out.println("Objective Card #" + getIdCard());
         System.out.println("Points: " + getPoints());
+    }
+    public void printCardAscii(){
+        System.out.print(asciiArt);
     }
 
     /**
@@ -293,8 +297,8 @@ class ObjectiveCardCombo extends ObjectiveCard {
              * @param artRef: Art Reference of the Card
              * @param points: points given to the player when placing the card
              */
-            public ObjectiveCardCombo(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points, @JsonProperty("seed") Seed seed,@JsonProperty("type") boolean type) {
-                super(idCard, artRef, points);
+            public ObjectiveCardCombo(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("asciiArt") String asciiArt, @JsonProperty("seed") Seed seed,@JsonProperty("type") boolean type) {
+                super(idCard, artRef, points,asciiArt);
                 this.seed = seed;
                 this.type = type;
             }
@@ -315,8 +319,8 @@ class ObjectiveCardResourceSet extends ObjectiveCard {
      * @param points: points given to the player when placing the card
      * @param resourceSet: ArrayList of the resources required
      */
-    public ObjectiveCardResourceSet(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("requiredMaterials")  ArrayList<ResourceGoldCard.ResourceElement> resourceSet) {
-        super(idCard, artRef, points);
+    public ObjectiveCardResourceSet(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("asciiArt") String asciiArt,@JsonProperty("requiredMaterials")  ArrayList<ResourceGoldCard.ResourceElement> resourceSet) {
+        super(idCard, artRef, points,asciiArt);
         this.resourceSet = resourceSet;
     }
 }
