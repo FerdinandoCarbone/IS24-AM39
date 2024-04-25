@@ -2,26 +2,21 @@ package com.example.codexnaturalis;
 
 import javafx.util.Pair;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.util.UUID;
 
-import static com.example.codexnaturalis.ZakClient.initialMatchSetup;
 import static com.example.codexnaturalis.ZakClient.receiveInput;
 
 public class ConnectionManger {
-    private int rmiPort;
-    private static Pair<ObjectInputStream,ObjectOutputStream> ioStream;
-    static boolean typeOfConnection;
+    private Pair<ObjectInputStream,ObjectOutputStream> ioStream;
+    boolean typeOfConnection;
     static String serverAddress;
     static int port;
-    static Socket socket;
+    Socket socket;
     static RemoteServerMethodInterface remoteServerProxy;
-    static RemoteServerMethodInterface remoteClientProxy;
 
     public ConnectionManger(boolean typeOfConnection,Pair<String,Integer> connectionInfo){
         this.typeOfConnection = typeOfConnection;
@@ -30,24 +25,26 @@ public class ConnectionManger {
         socket=null;
         remoteServerProxy=null;
     }
-    public ConnectionManger(boolean typeOfConnection,Pair<String,Integer> connectionInfo,int rmiPort){
+   /* public ConnectionManger(boolean typeOfConnection,Pair<String,Integer> connectionInfo){
         this.typeOfConnection = typeOfConnection;
         serverAddress = connectionInfo.getKey();
         port = connectionInfo.getValue();
         socket=null;
         remoteServerProxy=null;
-        this.rmiPort = rmiPort;
-    }
-    public Pair<ObjectInputStream,ObjectOutputStream> connectionSetup() throws IOException {
+    }*/
+    public void connectionSetup() throws IOException {
         if (!(typeOfConnection)) {
             remoteServerProxy=null;
             try {
                 socket = connectionAttempt();
-                ioStream =  new Pair<>(new ObjectInputStream(socket.getInputStream()), new ObjectOutputStream(socket.getOutputStream()));
-            } catch (HandShakeException | NotBoundException e) {
+                InputStream sInStream = socket.getInputStream();
+                OutputStream sOutStream = socket.getOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(sOutStream);
+                ObjectInputStream in = new ObjectInputStream(sInStream);
+                ioStream =  new Pair<>(in,out);
+            } catch (HandShakeException | NotBoundException |NullPointerException |IOException e) {
                 System.err.println(e.getMessage());
             }
-            return ioStream;
         }
         else{
             socket=null;
@@ -56,10 +53,9 @@ public class ConnectionManger {
             } catch (NotBoundException | HandShakeException e) {
                 System.err.println(e.getMessage());
             }
-            return null;
         }
     }
-    public static Socket connectionAttempt() throws HandShakeException, NotBoundException {
+    public Socket connectionAttempt() throws HandShakeException, NotBoundException {
         int retryCount = 0;
         int milliseconds = 5000;
         Socket socket;
@@ -122,7 +118,7 @@ public class ConnectionManger {
         }
     }
     
-    private static void lobbyCreation(LobbyCreationMessage msg) throws IOException, HandShakeException, StupidUserException {
+    private void lobbyCreation(LobbyCreationMessage msg) throws IOException, HandShakeException, StupidUserException {
         int desiredPlayerCount = 0;
         int i;
         System.out.println("No match found. Creating a new one:\nHow many players will be playing?\nWrite a number between 2 and 4:");
@@ -150,13 +146,18 @@ public class ConnectionManger {
                 bcStart = remoteServerProxy.createLobby(msg);
             }
             System.out.println("Desired number of players:"+desiredPlayerCount);
+
         }
     }
 
 
-
+    private boolean isTypeOfConnection(){
+        return typeOfConnection;
+    }
     public void setRmiPort(int rmiPort) {
-        this.rmiPort = rmiPort;
+    }
+    public Pair<ObjectInputStream,ObjectOutputStream> getIoStream(){
+        return ioStream;
     }
 
 }

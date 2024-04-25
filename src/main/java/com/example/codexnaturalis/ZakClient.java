@@ -16,7 +16,6 @@ public class ZakClient {
     private static ServerHandler serverHandler;
     private static String playerNick;
     private static Player player;
-    private static ConnectionManger connMan;
     private static ArrayList<Player> otherPlayers;
     private static volatile boolean currentGameStatus;
     private static boolean myTurn;
@@ -46,13 +45,13 @@ public class ZakClient {
     }
 
     private static void initialClientSetup(String serverAddress,int port) throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
+        ConnectionManger connMan = null;
         clientID = UUID.randomUUID();
         currentGameStatus = false;
         myTurn = false;
         otherPlayers= new ArrayList<>();
         connectionInfo = new Pair<>(serverAddress,port);
         playerNick = playerGreeting();
-        connMan = null;
         int i=0;
         do{
             if(i==3) throw new StupidUserException("Too many bad failed attempts: Closing client");
@@ -68,7 +67,7 @@ public class ZakClient {
                     connMan = new ConnectionManger(false,connectionInfo);
                     break;
                 case 2:
-                    connMan = new ConnectionManger(true,connectionInfo,1099);
+                    connMan = new ConnectionManger(true,connectionInfo);
                     break;
                 default:
                     i++;
@@ -305,10 +304,6 @@ public class ZakClient {
         ZakClient.serverHandler = serverHandler;
     }
 
-    public static ConnectionManger getConnMan() {
-        return connMan;
-    }
-
     public static UUID getClientID() {
         return clientID;
     }
@@ -323,17 +318,18 @@ class ServerHandler extends Thread implements Runnable {
     private boolean firstBroadCastWasReceived;
     private Socket socket;
     private Pair<String,Integer> connectionInfo;
-    private ConnectionManger conMan;
+    private ConnectionManger connMan;
     private ObjectOutputStream outServer;
     private ObjectInputStream inServer;
 
-    public ServerHandler(String clientName, UUID clientID,ConnectionManger conMan) throws IOException {
+    public ServerHandler(String clientName, UUID clientID,ConnectionManger connMan) throws IOException {
         this.clientName = clientName;
+        System.out.println("ClientName: "+clientName);
         this.clientID = clientID;
-        //this.outServer = outFromServer;
-        //this.inServer = inFromServer;
-        //this.socket = socket;
-        this.conMan = conMan;
+        this.outServer = connMan.getIoStream().getValue();
+        this.inServer = connMan.getIoStream().getKey();
+        this.socket = connMan.socket;
+        this.connMan = connMan;
         this.connectionInfo = ZakClient.getConnectionInfo();
         firstBroadCastWasReceived = false;
     }
@@ -375,7 +371,7 @@ class ServerHandler extends Thread implements Runnable {
         boolean result=true;
         Socket socket;
         try {
-            socket = ConnectionManger.connectionAttempt();
+            socket = connMan.connectionAttempt();
             outServer= new ObjectOutputStream(socket.getOutputStream());
             inServer = new ObjectInputStream(socket.getInputStream());
         } catch (Exception e){
@@ -426,8 +422,10 @@ class ServerHandler extends Thread implements Runnable {
         message.setClientID(clientID);
         outServer.writeObject(message);
     }
-    private void textMessageHandler(TextMessage message) {;
-        System.out.println(message.getSender()+": "+message.getTextMessage());
+    private void textMessageHandler(TextMessage message) {
+        String sender = message.getSender();
+        if(Objects.equals(sender, clientName)) sender="You";
+        System.out.println(sender+": "+message.getTextMessage());
         if(!firstBroadCastWasReceived) firstBroadCastWasReceived = true;
     }
     private void genericTurnMessageHandler(GenericTurnMessage message){
