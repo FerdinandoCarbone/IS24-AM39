@@ -176,6 +176,7 @@ public class ZakClient {
         do{
             i=Integer.parseInt(receiveInput());
             if(i<=counter&&i>0){
+                System.out.println("Please input your message:");
                 text = receiveInput();
                 if(i==counter) serverHandler.sendMessage(new TextMessage(playerNick,clientID,text,"Everyone"));
                 else{
@@ -282,8 +283,7 @@ public class ZakClient {
     }
     public static void endOfTheGame() throws IOException {
         currentGameStatus=false;
-        ioStream.getKey().close();
-        ioStream.getValue().close();
+
     }
 
     public static void clientDisconnect() {
@@ -312,129 +312,3 @@ public class ZakClient {
         return playerNick;
     }
 }
-class ServerHandler extends Thread implements Runnable {
-    private final String clientName;
-    private final UUID clientID;
-    private boolean firstBroadCastWasReceived;
-    private Socket socket;
-    private Pair<String,Integer> connectionInfo;
-    private ConnectionManger connMan;
-    private ObjectOutputStream outServer;
-    private ObjectInputStream inServer;
-
-    public ServerHandler(String clientName, UUID clientID,ConnectionManger connMan) throws IOException {
-        this.clientName = clientName;
-        System.out.println("ClientName: "+clientName);
-        this.clientID = clientID;
-        this.outServer = connMan.getIoStream().getValue();
-        this.inServer = connMan.getIoStream().getKey();
-        this.socket = connMan.socket;
-        this.connMan = connMan;
-        this.connectionInfo = ZakClient.getConnectionInfo();
-        firstBroadCastWasReceived = false;
-    }
-
-    @Override
-    public void run() {
-       do{
-            try {
-                messageReceiver();
-            } catch (ClassNotFoundException | WrongMessageConversionException e) {
-                System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
-
-            } catch(IOException e){
-                System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
-                try {
-                    throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected from server due to socket degradation: Attempting reconnection");
-                } catch (ClientAbruptlyDisconnectedException ex) {
-                    if(tryReconnectToServer()) continue;
-                    //todo: reconnection attempt
-                    clientDisconnected();
-                }
-            }
-            try{
-                if(socket.isClosed() && ZakClient.isCurrentGameStatus()) throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected from server: Attempting reconnection");
-            }catch(ClientAbruptlyDisconnectedException e){
-                if(tryReconnectToServer()) continue;
-                //todo: reconnection attempt
-                clientDisconnected();
-            }
-        }while(ZakClient.isCurrentGameStatus());
-    }
-
-    private void clientDisconnected() {
-        //todo: robe per chiudere i thread
-        ZakClient.clientDisconnect();
-    }
-
-    private boolean tryReconnectToServer()  {
-        boolean result=true;
-        Socket socket;
-        try {
-            socket = connMan.connectionAttempt();
-            outServer= new ObjectOutputStream(socket.getOutputStream());
-            inServer = new ObjectInputStream(socket.getInputStream());
-        } catch (Exception e){
-            result = false;
-        }
-        return result;
-    }
-
-    public boolean wasFirstBroadCastReceived() {
-        return firstBroadCastWasReceived;
-    }
-
-    private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        Message message = (Message) inServer.readObject();
-        Class<? extends Message> a = message.getClass();
-        String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
-        switch (messageType){
-            case "GenericTurnMessage":
-                genericTurnMessageHandler((GenericTurnMessage) message);
-                break;
-            case "TextMessage":
-                textMessageHandler((TextMessage) message);
-                break;
-            case "BroadCastStandardMessage":
-                break;
-            case "BroadCastStartingMessage":
-                broadCastStartingMessageHandler((BroadCastStartingMessage) message);
-                break;
-            case "EndGameMessage":
-                endOfTheGame((EndGameMessage)message);
-                break;
-            case "LobbyCreationMessage":
-                break;
-            default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
-        }
-    }
-    private void broadCastStartingMessageHandler(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
-        try{
-            if(initialMatchSetupMessage == null) throw new WrongMessageConversionException("Was not able to initialize Starting Field");
-        } catch (WrongMessageConversionException e) {
-            e.getMessage();
-            throw new RuntimeException(e);
-        }
-        ZakClient.initialMatchSetup(initialMatchSetupMessage);
-    }
-    public void sendMessage(Message message) throws IOException {
-        message.setSender(clientName);
-        message.setClientID(clientID);
-        outServer.writeObject(message);
-    }
-    private void textMessageHandler(TextMessage message) {
-        String sender = message.getSender();
-        if(Objects.equals(sender, clientName)) sender="You";
-        System.out.println(sender+": "+message.getTextMessage());
-        if(!firstBroadCastWasReceived) firstBroadCastWasReceived = true;
-    }
-    private void genericTurnMessageHandler(GenericTurnMessage message){
-        ZakClient.genericTurnMessageHandler(message);
-    }
-    private void endOfTheGame(EndGameMessage message) throws IOException {
-        String winner = message.getWinner();
-        System.out.println(winner+" ha vinto la partita\nGrazie per aver giocato\n");
-        ZakClient.endOfTheGame();
-    }
-}
-

@@ -59,11 +59,11 @@ public class ZakServer {
         System.out.println("- developed by Team AM39");
     }
     public static void matchStart() throws Exception {
-        System.out.println("Match is about to start");
         String serverCommand;
         ArrayList<Player> players = new ArrayList<>(serverConMan.getPlayers());
         match = new Match(players, new ScoreTracker());
         startingFieldClientSetup();
+        System.out.println("Match is about to start");
         welcomePlayer();
         gameStarted = true;
         while(gameStarted){
@@ -125,5 +125,7 @@ public class ZakServer {
             default: System.out.println("Unknown command");
         }
     }
-
+    public static int getNumOfPlayers(){
+       return serverConMan.getNumPlayers();
+    }
 }

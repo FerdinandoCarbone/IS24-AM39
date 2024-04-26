@@ -1,7 +1,6 @@
 package com.example.codexnaturalis;
 
 import javafx.util.Pair;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,37 +8,40 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
-import static com.example.codexnaturalis.ZakClient.receiveInput;
-
 public class ServerConnectionManager {
-    protected static HashMap<Player, Socket> hashPlayer = new HashMap<>();
-    static HashMap<UUID, Player> hashClient = new HashMap<>();
-    private static HashMap<UUID, ClientHandler> handlers = new HashMap<>();
-    static boolean firstPlayer;
+    protected static HashMap<Player, Socket> hashPlayer;
+    static HashMap<UUID, Player> hashClient;
+    public static HashMap<UUID, ClientHandler> handlers;
     private Pair<ObjectInputStream, ObjectOutputStream> ioStream;
-    private boolean typeOfConnection;
+    static boolean firstPlayer;
     static String serverName;
     static int port;
     private int rmiPort;
     static RMIConnectionListener rmiListener;
+    static SocketConnectionListener socketListener;
     static int numPlayers;
     static ServerSocket serverSocket;
     static RemoteServerMethodInterface remoteServerSkeleton;
 
     public ServerConnectionManager(Pair<String,Integer> connectionInfo,int rmiPort) throws IOException {
         this.rmiPort = rmiPort;
+        hashPlayer = new HashMap<>();
+        hashClient = new HashMap<>();
+        handlers = new HashMap<>();
         port = connectionInfo.getValue();
         serverName = connectionInfo.getKey();
         serverSocket=new ServerSocket(port);
         firstPlayer = false;
         numPlayers = 0;
         rmiListener = new RMIConnectionListener(this);
+        socketListener = new SocketConnectionListener(this);
     }
     public void acceptConnection(boolean isReconnection) {
         rmiListener.start();
-        while (!firstPlayer || hashClient.size() < numPlayers) {
+        socketListener.start();
+        while (!firstPlayer || connectionCondition()) {
             try {
-                acceptSocketConnections(isReconnection);
+                acceptSocketRMIConnections(isReconnection);
             } catch(ClassNotFoundException e){
                 System.out.println("PROBLEMA SERVER: " + e.getMessage());
             }
@@ -48,14 +50,17 @@ public class ServerConnectionManager {
                 //if (firstPlayer) continue;
             }
         }
+        socketListener.setHasToRun(false);
     }
-    public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketConnections(boolean isReconnection) throws IOException, ClassNotFoundException {
+    public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketRMIConnections(boolean isReconnection) throws IOException, ClassNotFoundException {
         ObjectOutputStream out;
         ObjectInputStream in;
         Message clientJoinRequest;
         LobbyCreationMessage handshakeACK;
         Player player;
-        Socket clientSocket = serverSocket.accept();
+        if(socketListener.sockets.isEmpty()) return null;
+        Socket clientSocket = socketListener.sockets.getFirst();
+        socketListener.sockets.removeFirst();
         in = new ObjectInputStream(clientSocket.getInputStream());
         out = new ObjectOutputStream(clientSocket.getOutputStream());
         clientJoinRequest = (Message) in.readObject();
@@ -126,8 +131,8 @@ public class ServerConnectionManager {
     public Pair<ObjectInputStream,ObjectOutputStream> getIoStream(){
         return ioStream;
     }
-    public Set<Player> getPlayers(){
-        return hashPlayer.keySet();
+    public Collection<Player> getPlayers(){
+        return hashClient.values();
     }
 
     public HashMap<UUID, Player> getHashClient() {
@@ -140,5 +145,12 @@ public class ServerConnectionManager {
 
     public HashMap<UUID, ClientHandler> getHandlers() {
         return handlers;
+    }
+    private boolean connectionCondition(){
+        return hashClient.size() < numPlayers;
+    }
+
+    public int getNumPlayers() {
+        return numPlayers;
     }
 }

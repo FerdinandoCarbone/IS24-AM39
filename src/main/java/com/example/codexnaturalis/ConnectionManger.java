@@ -42,7 +42,7 @@ public class ConnectionManger {
                 ObjectOutputStream out = new ObjectOutputStream(sOutStream);
                 ObjectInputStream in = new ObjectInputStream(sInStream);
                 ioStream =  new Pair<>(in,out);
-            } catch (HandShakeException | NotBoundException |NullPointerException |IOException e) {
+            } catch (HandShakeException | NullPointerException | IOException e) {
                 System.err.println(e.getMessage());
             }
         }
@@ -50,26 +50,26 @@ public class ConnectionManger {
             socket=null;
             try{
                 connectionAttempt();
-            } catch (NotBoundException | HandShakeException e) {
+            } catch ( HandShakeException e) {
                 System.err.println(e.getMessage());
             }
         }
     }
-    public Socket connectionAttempt() throws HandShakeException, NotBoundException {
+    public Socket connectionAttempt() throws HandShakeException {
         int retryCount = 0;
         int milliseconds = 5000;
         Socket socket;
         while(true) {
             try {
                 if(typeOfConnection){
-                    remoteServerProxy = (RemoteServerMethodInterface) Naming.lookup("rmi://"+serverAddress+"/SERVER");
+                    remoteServerProxy = (RemoteServerMethodInterface) Naming.lookup("rmi://" + serverAddress + "/Server");
                     return null;
                 }
                 else {
                     socket = new Socket(serverAddress, port);
                     return socket;
                 }
-            } catch (IOException e) {
+            } catch (IOException| NotBoundException e) {
                 System.err.println("Unable to connect to the server: Trying to reconnect in "+milliseconds/1000+ "s");
                 retryCount++;
                 if (retryCount >= 3) throw new HandShakeException("Unable to connect to the server: Host may be down");
@@ -93,32 +93,37 @@ public class ConnectionManger {
     }
     private void startHandShake(String playerNick, UUID clientID) throws IOException, HandShakeException, StupidUserException {
         Message handshakeMessage = new Message(playerNick,clientID);
-        LobbyCreationMessage handshakeACK;
+        LobbyCreationMessage handshakeACK=null;
+        int numOfUsers=0;
         try{
-            if(typeOfConnection) handshakeACK = remoteServerProxy.handShake(handshakeMessage);
+            if(typeOfConnection) {
+                numOfUsers= remoteServerProxy.getNumOfPlayers();
+                ZakClient.setServerHandler(new ServerRMIHandler(playerNick,clientID,this));
+            }
             else {
                 ioStream.getValue().writeObject(handshakeMessage);
                 handshakeACK = (LobbyCreationMessage) ioStream.getKey().readObject();
+                ZakClient.setServerHandler(new ServerSocketHandler(playerNick,clientID,this));
+                numOfUsers=handshakeACK.getNumPlayer();
             }
-            switch(handshakeACK.getNumPlayer()) {
+            switch(numOfUsers) {
                 case 0:
-                    lobbyCreation(handshakeACK);
+                    numOfUsers=lobbyCreation();
                     break;
                 case 1,2,3:
+                    if(typeOfConnection) remoteServerProxy.joinLobby(new LobbyCreationMessage(playerNick,clientID,numOfUsers));
                     System.out.println("Joined existing match...");
                     System.out.println("Waiting for everyone to join.");
                     break;
                 default:
                     throw new TooManyPlayersException("Lobby is currently full. Wait for the match to end and try again");
             }
-            System.out.println("CurrentPlayers: "+(handshakeACK.getNumPlayer()));
-            ZakClient.setServerHandler(new ServerHandler(playerNick,clientID,this));
+            System.out.println("CurrentPlayers: "+numOfUsers);
         } catch(HandShakeException | ClassNotFoundException e){
             System.err.println("There was an error during Handshake process: "+e.getMessage());
         }
     }
-    
-    private void lobbyCreation(LobbyCreationMessage msg) throws IOException, HandShakeException, StupidUserException {
+    private int lobbyCreation() throws IOException, HandShakeException, StupidUserException {
         int desiredPlayerCount = 0;
         int i;
         System.out.println("No match found. Creating a new one:\nHow many players will be playing?\nWrite a number between 2 and 4:");
@@ -135,7 +140,7 @@ public class ConnectionManger {
             e.getMessage();
             throw new HandShakeException("Something went wrong during connection");
         } finally{
-            BroadCastStartingMessage bcStart;
+            LobbyCreationMessage msg = new LobbyCreationMessage(null,null,0);
             msg.setNumPlayer(desiredPlayerCount);
             msg.setSender(ZakClient.getPlayerNick());
             msg.setClientID(ZakClient.getClientID());
@@ -143,11 +148,11 @@ public class ConnectionManger {
                 ioStream.getValue().writeObject(msg);
             }
             else{
-                bcStart = remoteServerProxy.createLobby(msg);
+                remoteServerProxy.createLobby(msg);
             }
             System.out.println("Desired number of players:"+desiredPlayerCount);
-
         }
+        return desiredPlayerCount;
     }
 
 
@@ -160,4 +165,7 @@ public class ConnectionManger {
         return ioStream;
     }
 
+    public RemoteServerMethodInterface getRemoteServerProxy() {
+        return remoteServerProxy;
+    }
 }
