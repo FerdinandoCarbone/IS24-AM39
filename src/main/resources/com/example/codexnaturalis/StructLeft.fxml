@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import com.example.codexnaturalis.SlotController?>
 <?import javafx.geometry.Insets?>
-<fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
-         xmlns:fx="http://javafx.com/fxml"
-         prefHeight="163.0" prefWidth="738.0">
+
+<fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml" >
     <SlotController fx:id="c0"/>
     <SlotController fx:id="c1"/>
     <SlotController fx:id="c2"/>

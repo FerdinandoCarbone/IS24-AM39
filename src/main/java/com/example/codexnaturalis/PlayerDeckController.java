@@ -22,8 +22,8 @@ public class PlayerDeckController extends HBox {
     private CardController starterCard;
     @FXML
     private CardController secretObjCard;
-    @FXML
-    private Button cardReceiverButton;
+//    @FXML
+//    private Button cardReceiverButton;
 
     public PlayerDeckController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PlayerDeck.fxml"));
@@ -31,7 +31,7 @@ public class PlayerDeckController extends HBox {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
-        cardReceiverButton.setOnAction(event -> receiveCards());
+//        cardReceiverButton.setOnAction(event -> receiveCards());
     }
 
     public void receiveCards() {
@@ -62,7 +62,7 @@ public class PlayerDeckController extends HBox {
         return secretObjCard;
     }
 
-    public Button getCardReceiverButton() {
-        return cardReceiverButton;
-    }
+//    public Button getCardReceiverButton() {
+//        return cardReceiverButton;
+//    }
 }

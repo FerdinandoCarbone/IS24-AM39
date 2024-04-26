@@ -2,18 +2,16 @@ package com.example.codexnaturalis;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
     @FXML
     private PlayerDeckController playerDeck;
     @FXML
-    private RowController row1;
+    private StructRightController struct;
     private CardController cardToRemove;
     private boolean readyToPlace = false;
 
@@ -22,20 +20,20 @@ public class MainController implements Initializable {
         playerDeck.receiveCards();
         for (int i = 0; i < 5; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
-            System.out.println(tmpCard.getCard().getIdCard());
             tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
                 cardToRemove = tmpCard;
                 readyToPlace = true;
             });
         }
-        for (int i = 0; i < row1.getChildren().size(); i++) {
-            SlotController tmpSlot = (SlotController) row1.getChildren().get(i);
+        for (int i = 0; i < struct.getChildren().size(); i++) {
+            SlotController tmpSlot = (SlotController) struct.getChildren().get(i);
             tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
                 if (readyToPlace) {
                     if (tmpSlot.isEmpty()) {
                         tmpSlot.setSlotCardView(cardToRemove.getShownImage());
                         playerDeck.getChildren().remove(cardToRemove);
                         readyToPlace = false;
+                        tmpSlot.toFront();
                     } else {
                         System.out.println("SLOT GIA' OCCUPATO");
                     }

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import com.example.codexnaturalis.PlayerDeckController?>
-<?import com.example.codexnaturalis.RowController?>
+<?import com.example.codexnaturalis.StructLeftController?>
 
+<?import com.example.codexnaturalis.StructRightController?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.codexnaturalis.MainController"
@@ -11,6 +12,6 @@
         <PlayerDeckController fx:id="playerDeck" />
     </bottom>
     <top >
-        <RowController fx:id="row1" />
+        <StructRightController fx:id="struct" />
     </top>
 </BorderPane>

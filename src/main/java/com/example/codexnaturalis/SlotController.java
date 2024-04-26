@@ -2,14 +2,16 @@ package com.example.codexnaturalis;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 import java.util.Objects;
+
+import static com.example.codexnaturalis.CardDim.*;
 
 public class SlotController extends Pane {
 
@@ -23,6 +25,9 @@ public class SlotController extends Pane {
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         fxmlLoader.load();
+
+        slotCardView.setFitHeight(cardHeight);
+        slotCardView.setFitWidth(cardWidth);
     }
 
     public void setSlotCardView(Image slotImage) {
