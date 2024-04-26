@@ -24,14 +24,4 @@ public class RowController extends HBox {
         fxmlLoader.load();
     }
 
-    public void setSlotImageWhenClicked(MouseEvent event, Image image) {
-        double sw = 246.0;
-        if (event.getX() < sw) {
-            c0.setSlotCardView(image);
-        } else if (event.getX() >= sw && event.getX() < 2*sw) {
-            c1.setSlotCardView(image);
-        } else if (event.getX() >= 2*sw && event.getX() < 3*sw) {
-            c2.setSlotCardView(image);
-        }
-    }
 }

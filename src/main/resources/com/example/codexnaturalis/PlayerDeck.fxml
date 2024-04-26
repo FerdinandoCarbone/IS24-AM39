@@ -7,10 +7,10 @@
 <fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml">
     <CardController fx:id="card1"/>
-    <CardController fx:id="card2" layoutX="256.0"/>
-    <CardController fx:id="card3" layoutX="512.0"/>
-    <CardController fx:id="starterCard" layoutX="768.0"/>
-    <CardController fx:id="secretObjCard" layoutX="1024.0"/>
+    <CardController fx:id="card2" />
+    <CardController fx:id="card3" />
+    <CardController fx:id="starterCard" />
+    <CardController fx:id="secretObjCard" />
     <Button fx:id="cardReceiverButton" text="GenCards" minWidth="50.0" maxWidth="50.0" layoutY="-10.0">
     </Button>
 

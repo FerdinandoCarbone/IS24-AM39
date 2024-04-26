@@ -8,9 +8,9 @@
             fx:controller="com.example.codexnaturalis.MainController"
             minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
     <bottom>
-        <PlayerDeckController fx:id="playerDeck" onMouseClicked="#selectCardToPlace"/>
+        <PlayerDeckController fx:id="playerDeck" />
     </bottom>
     <top >
-        <RowController fx:id="row1" onMouseClicked="#placeCardOnSlot"/>
+        <RowController fx:id="row1" />
     </top>
 </BorderPane>

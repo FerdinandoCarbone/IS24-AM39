@@ -2,6 +2,7 @@ package com.example.codexnaturalis;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -13,7 +14,9 @@ import java.util.Objects;
 public class SlotController extends Pane {
 
     @FXML
-    ImageView slotCardView;
+    ImageView slotCardView = null;
+    private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
+    private boolean isEmpty = true;
 
     public SlotController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Slot.fxml"));
@@ -23,6 +26,17 @@ public class SlotController extends Pane {
     }
 
     public void setSlotCardView(Image slotImage) {
-        this.slotCardView.setImage(slotImage);
+        if (!slotImage.equals(emptyImage)) {
+            if (isEmpty) {
+                this.slotCardView.setImage(slotImage);
+                slotCardView.setCursor(Cursor.DEFAULT);
+                isEmpty = false;
+            }
+
+        }
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
     }
 }

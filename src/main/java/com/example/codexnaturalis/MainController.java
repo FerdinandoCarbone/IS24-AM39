@@ -14,21 +14,36 @@ public class MainController implements Initializable {
     private PlayerDeckController playerDeck;
     @FXML
     private RowController row1;
-    private Image cardToPlace = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
+    private CardController cardToRemove;
+    private boolean readyToPlace = false;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         playerDeck.receiveCards();
-    }
-
-    @FXML
-    public void selectCardToPlace(MouseEvent event) {
-        cardToPlace = playerDeck.getImageFromClick(event);
-    }
-
-    @FXML
-    public void placeCardOnSlot(MouseEvent event) {
-        row1.setSlotImageWhenClicked(event, cardToPlace);
+        for (int i = 0; i < 5; i++) {
+            CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
+            System.out.println(tmpCard.getCard().getIdCard());
+            tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
+                cardToRemove = tmpCard;
+                readyToPlace = true;
+            });
+        }
+        for (int i = 0; i < row1.getChildren().size(); i++) {
+            SlotController tmpSlot = (SlotController) row1.getChildren().get(i);
+            tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
+                if (readyToPlace) {
+                    if (tmpSlot.isEmpty()) {
+                        tmpSlot.setSlotCardView(cardToRemove.getShownImage());
+                        playerDeck.getChildren().remove(cardToRemove);
+                        readyToPlace = false;
+                    } else {
+                        System.out.println("SLOT GIA' OCCUPATO");
+                    }
+                } else {
+                    System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
+                }
+            });
+        }
     }
 
 }

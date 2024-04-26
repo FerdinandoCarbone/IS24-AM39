@@ -42,23 +42,6 @@ public class PlayerDeckController extends HBox {
         secretObjCard.setupCard(DrawingDeck.getTotalObjectiveCards().getFirst());
     }
 
-    public Image getImageFromClick(MouseEvent event) {
-        Image ret;
-        double cw = 256.0;
-        if (event.getX() < cw) {
-            ret = card1.getShownImage();
-        } else if (event.getX() >= cw && event.getX() < 2* cw) {
-            ret = card2.getShownImage();
-        } else if (event.getX() >= 2* cw && event.getX() < 3* cw) {
-            ret = card3.getShownImage();
-        } else if (event.getX() >= 3* cw && event.getX() < 4* cw) {
-            ret = starterCard.getShownImage();
-        } else {
-            ret = secretObjCard.getShownImage();
-        }
-        return ret;
-    }
-
     public CardController getCard1() {
         return card1;
     }
