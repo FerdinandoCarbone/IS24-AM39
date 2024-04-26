@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import com.example.codexnaturalis.PlayerDeckController?>
+<?import com.example.codexnaturalis.RowController?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.codexnaturalis.MainController"
+            minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
+    <bottom>
+        <PlayerDeckController fx:id="playerDeck" onMouseClicked="#selectCardToPlace"/>
+    </bottom>
+    <top >
+        <RowController fx:id="row1" onMouseClicked="#placeCardOnSlot"/>
+    </top>
+</BorderPane>
