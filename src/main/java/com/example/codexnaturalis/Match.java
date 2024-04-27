@@ -5,7 +5,7 @@ import java.util.*;
 public class Match {
     private ArrayList<Player> players;
     private ArrayList<Player> winners;
-    private int[] objectivePoints;      //inizializzare dinamicamente
+    private ArrayList<Integer> objectivePoints;
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
     private boolean isLastCycle = false;
@@ -180,26 +180,18 @@ public class Match {
     private void lastRoundRoutine() {
         checkTotalPoints();
         declareWinnerOrDraw();
-        //Dichiara il vincitore
     }
+
     /** Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo*/
     private void checkTotalPoints() {
-       // int p=players.size();
-        //int i;
-        int s;
-        int o;
+        int obj = 0;
             for(Player p: players) {
-               s = p.getScore();
-               o = checkExtraPoints(p);
-
-               p.addScore(s+o);
+               obj = checkExtraPoints(p);
+               p.addScore(obj);
             }
-
     }
 
-    /**
-     * calculate objective points and add into the array
-     */
+    /** calculate objective points and add into the array */
     private int calculateObjPoints(Player p, int id){
         int points=0;
         if(87<id && id<102){
@@ -247,26 +239,19 @@ public class Match {
         /** Punti obiettivi personali */
           id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
           extraPersonalPoints = calculateObjPoints(p,id);
-          //ferdinando ha detto di rivedere getSecretObjectiveCard perchè da sempre null
+          //ferdinando ha detto di rivedere getSecretObjectiveCard perchè da sempre null    !!!!!
 
-        /** Punti obiettivi comuni */// commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
-
+        /** Punti obiettivi comuni */  // commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
         for(ObjectiveCard oc : commonObjectives){
-
+            id = oc.getIdCard();
+            extraCommonPoints = extraCommonPoints + calculateObjPoints(p,id);
         }
-        //rifare per 2 carte e usare common anzichè secret
-        //id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
-        //extraCommonlPoints = calculateObjPoints(p,id);
-
 
         /** extraPoints=punti obiettivo personale + punti obiettivi comuni */
-
         extraPoints = extraCommonPoints + extraPersonalPoints;
 
-
         /** TO DO: aggiornare l'array: objectivePoints */
-        //TO DO: aggiungere metodo per aggiornare i punti obiettivo (array objectivePoints)
-
+        objectivePoints.add(extraPoints);
 
         return extraPoints;
     }
@@ -308,6 +293,7 @@ public class Match {
     }
     private void declareWinners() {
         //stampa vincitori con size
+        int s = winners.size();
     }
 
 }
