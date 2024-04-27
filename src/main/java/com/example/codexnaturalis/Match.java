@@ -258,42 +258,47 @@ public class Match {
 
     private void declareWinnerOrDraw() {
 
-        int totalScore=0;
-        boolean draw =false;
+        int maxScore =0;
+        int draw = 0;
         Player playerWin = null;
 
         /** find max points */
         for(Player p : players){
-            if(p.getScore()>totalScore){
-                totalScore = p.getScore();
+            if(p.getScore()> maxScore){
+                maxScore = p.getScore();
                 playerWin = p;
             }
         }
         winners.add(playerWin);
 
         /** check if a draw exists */
-        int i=0;
-        for(Player p2 : players){
-            if(p2.getScore()==totalScore && p2!=playerWin){
-                draw = true;
-                winners.add(p2);
-                i++;
+        for(Player pDraw : players){
+            if(pDraw.getScore()== maxScore && pDraw != playerWin){
+                draw++;
+                winners.add(pDraw);
             }
         }
-        if(draw){
+        if(draw !=0){
             drawWinners();
         }
-        else
-            declareWinners();
+
+        declareWinners();
     }
 
     private void drawWinners() {
         //confronta i punti obiettivo dei giocatori in winners[]
-        //salva winners per lavorarci e modifica i o il nome del vincitore
+        //come faccio a prendere l'indice del giocatore di winner corrispondente al valore dei punti obiettico nel vettore objectivePoints?
+        int i=0;
+        objectivePoints.get(i);
+        //se esiste un vincitore cancella gli altri da winners. se ne esistono di piu, cancella i non vincitori
+
     }
     private void declareWinners() {
         //stampa vincitori con size
         int s = winners.size();
+        for(int i = 0; i < s; i++){
+            System.out.println("VINCITORE:");
+        }
     }
 
 }
