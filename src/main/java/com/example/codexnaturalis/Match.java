@@ -5,7 +5,8 @@ import java.util.*;
 public class Match {
     private ArrayList<Player> players;
     private ArrayList<Player> winners;
-    private int[] objectivePoints;      //inizializzare dinamicamente
+    private ArrayList<Player> finalWinners;
+    protected static HashMap<Player, Integer> hashobjectivePoints = new HashMap<>();
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
     private boolean isLastCycle = false;
@@ -178,28 +179,20 @@ public class Match {
      * Last Round Routine
      */
     private void lastRoundRoutine() {
-        checkTotalPoints();
+        addObjectiveTotalPoints();
         declareWinnerOrDraw();
-        //Dichiara il vincitore
     }
+
     /** Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo*/
-    private void checkTotalPoints() {
-       // int p=players.size();
-        //int i;
-        int s;
-        int o;
+    private void addObjectiveTotalPoints() {
+        int obj = 0;
             for(Player p: players) {
-               s = p.getScore();
-               o = checkExtraPoints(p);
-
-               p.addScore(s+o);
+               obj = checkExtraPoints(p);
+               p.addScore(obj);
             }
-
     }
 
-    /**
-     * calculate objective points and add into the array
-     */
+    /** calculate objective points and add into the array */
     private int calculateObjPoints(Player p, int id){
         int points=0;
         if(87<id && id<102){
@@ -247,67 +240,88 @@ public class Match {
         /** Punti obiettivi personali */
           id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
           extraPersonalPoints = calculateObjPoints(p,id);
-          //ferdinando ha detto di rivedere getSecretObjectiveCard perchè da sempre null
+          //ferdinando ha detto di rivedere getSecretObjectiveCard perchè da sempre null    !!!!!
 
-        /** Punti obiettivi comuni */// commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
-
+        /** Punti obiettivi comuni */  // commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
         for(ObjectiveCard oc : commonObjectives){
-
+            id = oc.getIdCard();
+            extraCommonPoints = extraCommonPoints + calculateObjPoints(p,id);
         }
-        //rifare per 2 carte e usare common anzichè secret
-        //id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
-        //extraCommonlPoints = calculateObjPoints(p,id);
-
 
         /** extraPoints=punti obiettivo personale + punti obiettivi comuni */
-
         extraPoints = extraCommonPoints + extraPersonalPoints;
 
-
-        /** TO DO: aggiornare l'array: objectivePoints */
-        //TO DO: aggiungere metodo per aggiornare i punti obiettivo (array objectivePoints)
-
+        /** aggiornare l'array (mappa): objectivePoints */
+        hashobjectivePoints.put(p, extraPoints);
 
         return extraPoints;
     }
 
     private void declareWinnerOrDraw() {
 
-        int totalScore=0;
-        boolean draw =false;
+        int maxScore =0;
+        int draw = 0;
         Player playerWin = null;
 
         /** find max points */
         for(Player p : players){
-            if(p.getScore()>totalScore){
-                totalScore = p.getScore();
+            if(p.getScore()> maxScore){
+                maxScore = p.getScore();
                 playerWin = p;
             }
         }
         winners.add(playerWin);
 
         /** check if a draw exists */
-        int i=0;
-        for(Player p2 : players){
-            if(p2.getScore()==totalScore && p2!=playerWin){
-                draw = true;
-                winners.add(p2);
-                i++;
+        for(Player pDraw : players){
+            if(pDraw.getScore()== maxScore && pDraw != playerWin){
+                draw++;
+                winners.add(pDraw);
             }
         }
-        if(draw){
-            drawWinners();
-        }
-        else
-            declareWinners();
+
+        if(draw !=0) drawWinners();
+        else declareWinners();
     }
 
     private void drawWinners() {
-        //confronta i punti obiettivo dei giocatori in winners[]
-        //salva winners per lavorarci e modifica i o il nome del vincitore
+
+        int MaxObjPoint=0;
+        int objPoint=0;
+        Player playerObjWin = null;
+
+        /** find max objective points in winners[] */
+        for(Player p : winners){
+            objPoint = hashobjectivePoints.get(p);
+            if(objPoint > MaxObjPoint){
+                MaxObjPoint = objPoint;
+                playerObjWin = p;
+            }
+        }
+        finalWinners.add(playerObjWin);
+
+        /** check if a draw exists */
+        for(Player p : winners){
+            if(hashobjectivePoints.get(p) == MaxObjPoint && p != playerObjWin){
+                finalWinners.add(p);
+            }
+        }
+        /** print draw winners */
+        System.out.println("DRAW BETWEEN: ");
+        int s = finalWinners.size();
+        for(int i = 0; i < s; i++){
+            Player p = finalWinners.get(i);
+            System.out.println(p.getPlayerName());
+        }
     }
+
+    /** print winner */
     private void declareWinners() {
-        //stampa vincitori con size
+        int s = winners.size();
+        for(int i = 0; i < s; i++){
+            Player p = winners.get(i);
+            System.out.println("WINNER: " + p.getPlayerName());
+        }
     }
 
 }
