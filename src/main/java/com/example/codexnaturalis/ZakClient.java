@@ -110,16 +110,23 @@ public class ZakClient {
 
     public static void initialMatchSetup(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
         try{
+            ObjectiveCard chosenCard;
             Collection<Player> players;
             player = initialMatchSetupMessage.getPlayers().get(clientID);
             if(player == null) throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players=initialMatchSetupMessage.getPlayers().values();
-            for(Player p:players) otherPlayers.add(p);
+            otherPlayers.addAll(players);
             //todo:otherfields deve essere una hashmap con anche i players
+            chosenCard = player.chooseSecretObj(initialMatchSetupMessage.getSecretObjectiveCards(clientID));
+            ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
+            initialMatchSetupMessage.setSelectedSecret(tmpList);
+            serverHandler.sendMessage(initialMatchSetupMessage);
         } catch (WrongPlayerUUIDException e){
             e.getMessage();
-        }  finally {
+        } catch (StupidUserException e) {
+            throw new RuntimeException(e);
+        } finally {
             System.out.println("All players' fields were correctly received");
             currentGameStatus = true;
         }
@@ -130,32 +137,15 @@ public class ZakClient {
         while(currentGameStatus) selectPossibleActions();
     }
 
-
-
     private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException{
-        Message message = null;
+        GenericTurnMessage message = serverHandler.getMessageTurn();
         //todo: GenericMessage Assembler
         serverHandler.sendMessage(message);
+        serverHandler.setMessageTurn(null);
     }
-    private static void selectPossibleActions() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        System.out.println("What would you like to do:\n");
-        printPossibleChoices();
-        int action = Integer.parseInt(receiveInput());
-        clearConsole();
-        switch (action){
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                writeTextMessage();
-                break;
-            default:
-                System.out.println("Wrong input: Input the number associated to the desired action");
+    private static void printPlayerField() {
+        for (Player p : otherPlayers) {
+            p.printFieldWithName();
         }
     }
 
@@ -190,26 +180,37 @@ public class ZakClient {
         }while(true);
     }
 
-    private static void selectPossibleActions(Message message) throws IOException, ClassNotFoundException, WrongMessageConversionException {
+    private static void selectPossibleActions() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         System.out.println("What would you like to do:\n");
         printPossibleChoices();
-        int action = Integer.parseInt(receiveInput());
+        int action;
+        try{
+        action = Integer.parseInt(receiveInput());}
+        catch(Exception e){
+            System.out.println("Invalid input: try again");
+            return;
+        }
         clearConsole();
         switch (action){
             case 1:
+                printPlayerField();
                 break;
             case 2:
+                player.printAllObjective();
                 break;
             case 3:
+                player.getPlayerDeck().printResourceGoldCards();
                 break;
             case 4:
+                player.printFieldWithName();
                 break;
             case 5:
                 writeTextMessage();
                 break;
             case 6:
                 //todo: match updater
-                genericMessageAssembler();
+                if(serverHandler.getMessageTurn() != null) genericMessageAssembler();
+                else System.out.println("Wrong input: Input the number associated to the desired action");
                 break;
             default:
                 System.out.println("Wrong input: Input the number associated to the desired action");
@@ -247,7 +248,7 @@ public class ZakClient {
         }
         System.out.println(choices);
     }
-    static String receiveInput(){
+    public static String receiveInput(){
         Scanner scanner= new Scanner(System.in);
         String input=null;
         do{
@@ -260,7 +261,7 @@ public class ZakClient {
         //scanner.close();
         return input;
      }
-    public static void genericTurnMessageHandler(GenericTurnMessage message){
+    public static void genericTurnMessageHandler() {
         myTurn=true;
         //todo: Aggiornamento dello stato dei fields dei deck del player
         System.out.println("It's your turn:");

@@ -1,7 +1,9 @@
 package com.example.codexnaturalis;
 
 import java.io.ObjectInputValidation;
+import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Match {
     private ArrayList<Player> players;
@@ -33,6 +35,7 @@ public class Match {
 
     public void setCommonObjectives(ArrayList<ObjectiveCard> commonObjectives) {
         this.commonObjectives = commonObjectives;
+        for(Player p: players) p.setCommonObjCards(commonObjectives);
     }
 
     /**
@@ -107,13 +110,13 @@ public class Match {
         return player;
     }
 
-    public SecretObjectiveCardsMessage getTwoSecretObjectiveCards() {
+    public HashMap<UUID, ArrayList<ObjectiveCard>> getTwoSecretObjectiveCards() {
         HashMap<UUID, ArrayList<ObjectiveCard>> hash = new HashMap<>();
         for (Player p : players) {
             ArrayList<ObjectiveCard> cards = DrawingDeck.getTwoObjectiveCards();
             hash.put(p.getPlayerID(), cards);
         }
-        return new SecretObjectiveCardsMessage(hash);
+        return hash;
     }
 
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {

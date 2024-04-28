@@ -142,7 +142,7 @@ class DrawingDeck {
 
             this.resourceGoldCards = resourceGoldCards;
             this.starterCard = starterCard;
-            this.secretObjectiveCard = secretObjectiveCard;
+            this.secretObjectiveCard = null;
         }
 
         public void printResourceGoldCards() {
@@ -190,7 +190,6 @@ class DrawingDeck {
          * @return secret Objective Card of the player
          */
         public ObjectiveCard getSecretObjectiveCard() {
-            return secretObjectiveCard.getFirst();
+            return secretObjectiveCard;
         }
-
     }

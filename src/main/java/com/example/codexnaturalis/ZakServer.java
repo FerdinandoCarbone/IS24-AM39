@@ -63,9 +63,11 @@ public class ZakServer {
         ArrayList<Player> players = new ArrayList<>(serverConMan.getPlayers());
         match = new Match(players, new ScoreTracker());
         startingFieldClientSetup();
-        System.out.println("Match is about to start");
+        System.out.println("Match is about to start: Waiting for all players to choose a secret objective");
+        while(!match.areAllSecretObjectiveSet()) Thread.onSpinWait();
         welcomePlayer();
         gameStarted = true;
+        System.out.println("Match has began");
         while(gameStarted){
             serverCommand = getInput();
             interpretInput(serverCommand);
@@ -79,7 +81,7 @@ public class ZakServer {
         match.setCommonObjectives(commonObjectiveCard);
         System.out.println("CommonObjectiveCards:");
         //for(ObjectiveCard oc: commonObjectiveCard) oc.printCardAscii();
-        fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(),null,serverConMan.getHashClient(),commonObjectiveCard);
+        fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(),null,serverConMan.getHashClient(),commonObjectiveCard,match.getTwoSecretObjectiveCards());
         serverConMan.sendBroadCastMessage(fieldSetupMessage);
     }
    private static void welcomePlayer() throws IOException {

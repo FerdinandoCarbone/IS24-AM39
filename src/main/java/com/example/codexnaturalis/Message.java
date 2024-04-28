@@ -68,17 +68,25 @@ class GenericTurnMessage extends Message{
 class BroadCastStartingMessage extends Message{
 
     private HashMap<UUID, Player> players;
-    private ArrayList<ObjectiveCard> commonObjectiveCards;
-
-
-    public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> players, ArrayList<ObjectiveCard> commonObjectiveCards) {
+    private ArrayList<ObjectiveCard> selectedSecret;
+    private HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector;
+    public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> players, ArrayList<ObjectiveCard> commonObjectiveCards,HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector) {
         super(sender, ClientID);
         this.players = players;
-        this.commonObjectiveCards = commonObjectiveCards;
+        this.secretObjectiveCardSelector = secretObjectiveCardSelector;
+        this.selectedSecret=null;
     }
 
-    public ArrayList<ObjectiveCard> getCommonObjectiveCards() {
-        return commonObjectiveCards;
+    public ArrayList<ObjectiveCard> getSecretObjectiveCards(UUID clientID) {
+        return secretObjectiveCardSelector.get(clientID);
+    }
+
+    public void setSelectedSecret(ArrayList<ObjectiveCard> secretObjectiveCardSelector) {
+        this.selectedSecret = secretObjectiveCardSelector;
+    }
+
+    public ObjectiveCard getSelectedSecret() {
+        return selectedSecret.getFirst();
     }
 
     public HashMap<UUID, Player> getPlayers() {

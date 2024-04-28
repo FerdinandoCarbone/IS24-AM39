@@ -14,6 +14,7 @@ public class ServerHandler extends Thread implements Runnable {
     private final String clientName;
     private final UUID clientID;
     private Pair<String,Integer> connectionInfo;
+    private GenericTurnMessage messageTurn;
     private ConnectionManger connMan;
     private boolean firstBroadCastWasReceived;
 
@@ -23,6 +24,7 @@ public class ServerHandler extends Thread implements Runnable {
         this.connMan = connMan;
         this.connectionInfo = ZakClient.getConnectionInfo();
         this.firstBroadCastWasReceived=false;
+        this.messageTurn=null;
     }
 
     public UUID getClientID() {
@@ -51,7 +53,8 @@ public class ServerHandler extends Thread implements Runnable {
         if(!wasFirstBroadCastReceived()) setFirstBroadCastWasReceived(true);
     }
     public void genericTurnMessageHandler(GenericTurnMessage message){
-        ZakClient.genericTurnMessageHandler(message);
+        this.messageTurn = message;
+        ZakClient.genericTurnMessageHandler();
     }
     public void sendMessage(Message message) throws IOException {
 
@@ -68,6 +71,14 @@ public class ServerHandler extends Thread implements Runnable {
     public void clientDisconnected() {
         //todo: robe per chiudere i thread
         ZakClient.clientDisconnect();
+    }
+
+    public GenericTurnMessage getMessageTurn() {
+        return messageTurn;
+    }
+
+    public void setMessageTurn(GenericTurnMessage messageTurn) {
+        this.messageTurn = messageTurn;
     }
 }
 

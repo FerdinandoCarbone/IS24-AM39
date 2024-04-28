@@ -13,10 +13,16 @@ public class ClientHandler extends Thread implements Runnable {
     private ServerConnectionManager connMan;
     private final String clientName;
     private final UUID clientID;
+    private boolean secretWasChosen;
     public ClientHandler(String clientName,UUID clientID,ServerConnectionManager connMan){
         this.clientName=clientName;
         this.clientID=clientID;
         this.connMan = connMan;
+        this.secretWasChosen = false;
+    }
+
+    public boolean getSecretWasChosen() {
+        return this.secretWasChosen;
     }
 
     public void sendMessage(Message message) throws IOException{
@@ -60,6 +66,10 @@ public class ClientHandler extends Thread implements Runnable {
         ZakServer.match=null;
         //todo: match reset and restart function to initialize everything
     }
+    public void secretObjectiveSelector(BroadCastStartingMessage message){
+        ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().setSecretObjectiveCard(message.getSelectedSecret());
+        this.secretWasChosen=true;
+    }
 }
 class RMIClientHandler extends ClientHandler{
 
@@ -97,6 +107,9 @@ class RMIClientHandler extends ClientHandler{
                 break;
             case "BroadCastStandardMessage":
                 broadCastMessageHandler((BroadCastStandardMessage) message);
+                break;
+            case "BroadCastStartingMessage":
+                secretObjectiveSelector((BroadCastStartingMessage) message);
                 break;
             case "EndGameMessage":
                 endOfTheGame((EndGameMessage)message);
@@ -170,6 +183,9 @@ class SocketClientHandler extends ClientHandler{
                 break;
             case "TextMessage":
                 textMessageHandler((TextMessage) message);
+                break;
+            case "BroadCastStartingMessage":
+                secretObjectiveSelector((BroadCastStartingMessage) message);
                 break;
             case "BroadCastStandardMessage":
                 broadCastMessageHandler((BroadCastStandardMessage) message);
