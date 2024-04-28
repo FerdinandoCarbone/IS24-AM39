@@ -33,7 +33,7 @@ public class Token implements Serializable {
 
     public Color pickColor() {
         Token.Color tokenColor = null;
-        int z = ZakServer.hashPlayer.size();
+        int z = ServerConnectionManager.hashPlayer.size();
         if (z > 4) {
             System.out.println("Una partita è già in corso\nCrearne una nuova?");
         }

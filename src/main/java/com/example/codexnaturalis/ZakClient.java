@@ -1,6 +1,7 @@
 package com.example.codexnaturalis;
 
 import javafx.scene.text.TextBoundsType;
+import javafx.util.Pair;
 
 import java.io.*;
 import java.net.Socket;
@@ -10,124 +11,73 @@ import java.util.*;
 
 public class ZakClient {
 
-    private static ObjectOutputStream out;
-    private static ObjectInputStream in;
-    private static ServerHandler serverComHandler;
+    private static Pair<ObjectInputStream,ObjectOutputStream> ioStream;
+    private static Pair<String,Integer> connectionInfo;
+    private static ServerHandler serverHandler;
     private static String playerNick;
     private static Player player;
     private static ArrayList<Player> otherPlayers;
     private static volatile boolean currentGameStatus;
     private static boolean myTurn;
-    static int port;
-    static String serverAddress;
-    static Socket socket;
-    static UUID clientID;
+    private static UUID clientID;
     public static void main(String[] args) {
 
-        port = Integer.parseInt(args[1]);
-        serverAddress = args[0];
-
+        Integer port=null;
+        String serverAddress=null;
+        if(!args[1].isBlank()) port = Integer.parseInt(args[1]);
+        if(!args[0].isBlank()) serverAddress = args[0];
+        else{
+            System.err.println("Missing arguments\nMake sure to start the client with Server Address and Port as parameters\ni.e. java Client localhost 8081");
+            System.exit(0);
+        }
         try {
             initialClientSetup(serverAddress,port);
         }catch(IOException | ClassNotFoundException | StupidUserException | HandShakeException e){
-            e.getMessage();
+            System.err.println("Client Setup error: "+e.getMessage());
             throw new RuntimeException("Please restart the client and try again");
         }
         try{
             //clearConsole();
             gameStart();
         } catch(IOException | ClassNotFoundException | WrongMessageConversionException e){
-            e.getMessage();
+            System.err.println("Game Start error: "+e.getMessage());
         }
     }
 
-    private static void startHandshake() throws IOException, ClassNotFoundException, HandShakeException, StupidUserException {
-        Message handshakeMessage = new Message(playerNick,clientID);
-        out.writeObject(handshakeMessage);
-        try{
-            LobbyCreationMessage handshakeACK = (LobbyCreationMessage) in.readObject();
-            switch(handshakeACK.getNumPlayer()) {
-                case 0:
-                    lobbyCreation(handshakeACK);
-                     break;
-                case 1,2,3:
-                    System.out.println("Joined existing match...");
-                    System.out.println("Waiting for everyone to join.");
-                    break;
-                default:
-                    throw new TooManyPlayersException("Lobby is currently full. Wait for the match to end and try again");
-            }
-            System.out.println("CurrentPlayers: "+(handshakeACK.getNumPlayer()));
-            serverComHandler = new ServerHandler(playerNick,clientID,out,in);
-        } catch(ClassNotFoundException e){
-            e.getMessage();
-        }
-    }
-    private static void lobbyCreation(LobbyCreationMessage msg) throws IOException, HandShakeException, StupidUserException {
-        int desiredPlayerCount = 0;
-        int i;
-        System.out.println("No match found. Creating a new one:\nHow many players will be playing?\nWrite a number between 2 and 4:");
-        try{
-            for (i = 0; i<3; i++) {
-                desiredPlayerCount = Integer.parseInt(receiveInput());
-                if (desiredPlayerCount >= 2 && desiredPlayerCount <= 4) break;
-                System.out.println("Unacceptable value was input.\nWrite a number between 2 and 4: ");
-                if (i == 2) throw new StupidUserException("u stupid bruh");
-            }
-        } catch (NumberFormatException e){
-            throw new StupidUserException("Unacceptable value was input.\nWrite a number between 2 and 4");
-        } catch (StupidUserException e) {
-            e.getMessage();
-            throw new HandShakeException("Something went wrong during connection");
-        } finally{
-            msg.setNumPlayer(desiredPlayerCount);
-            msg.setSender(playerNick);
-            msg.setClientID(clientID);
-            out.writeObject(msg);
-            System.out.println("Desired number of players:"+desiredPlayerCount);
-        }
-    }
     private static void initialClientSetup(String serverAddress,int port) throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
+        ConnectionManger connMan = null;
         clientID = UUID.randomUUID();
         currentGameStatus = false;
         myTurn = false;
         otherPlayers= new ArrayList<>();
+        connectionInfo = new Pair<>(serverAddress,port);
         playerNick = playerGreeting();
-        try {
-            socket = connectionAttempt(serverAddress, port);
-        } catch(HandShakeException e){
-            e.getMessage();
-        }
-        out = new ObjectOutputStream(socket.getOutputStream());
-        // Ora leggi la risposta dal server
-        in = new ObjectInputStream(socket.getInputStream());
-        // Inizializza la connessione
-        startHandshake();
-    }
-
-    public static Socket connectionAttempt(String serverAddress,int port) throws HandShakeException {
-        int retryCount = 0;
-        int milliseconds = 5000;
-        Socket socket;
-        while(true) {
-            try {
-                socket = new Socket(serverAddress, port);
-                break;
-            } catch (IOException e) {
-                System.err.println("Unable to connect to the server: Trying to reconnect in "+milliseconds/1000+ "s");
-                retryCount++;
-                if (retryCount >= 3) throw new HandShakeException("Unable to connect to the server: Host may be down");
+        int i=0;
+        do{
+            if(i==3) throw new StupidUserException("Too many bad failed attempts: Closing client");
+            System.out.println("How would you like to connect?");
+            System.out.println("0 - Cancel");
+            System.out.println("1 - Socket");
+            System.out.println("2 - RMI");
+            switch(Integer.parseInt(receiveInput())){
+                case 0:
+                    System.exit(0);
+                    break;
+                case 1:
+                    connMan = new ConnectionManger(false,connectionInfo);
+                    break;
+                case 2:
+                    connMan = new ConnectionManger(true,connectionInfo);
+                    break;
+                default:
+                    i++;
+                    System.out.println("Not a valid input: Try again");
             }
-            try {
-                Thread.sleep(milliseconds); // Aspetta milliseconds millisecondi prima di tentare di riconnettersi
-            } catch (InterruptedException ex) {
-                // Gestisci l'eccezione
-                ex.printStackTrace();
-            }
-        }
-        return socket;
+            if (connMan!=null) break;
+        }while(i<=3);
+        connMan.connectionSetup();
+        connMan.doHandShake();
     }
-
     private static String playerGreeting(){
         //Scanner input = new Scanner(System.in);
         System.out.println("Welcome Player to:");
@@ -157,6 +107,7 @@ public class ZakClient {
         Integer val = rand.nextInt(10);
         return val.toString();*/
     }
+
     public static void initialMatchSetup(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
         try{
             Collection<Player> players;
@@ -174,14 +125,17 @@ public class ZakClient {
         }
     }
     private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        new Thread(serverComHandler).start();
-        while(!(currentGameStatus && serverComHandler.wasFirstBroadCastReceived())) Thread.onSpinWait();
+        new Thread(serverHandler).start();
+        while(!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())) Thread.onSpinWait();
         while(currentGameStatus) selectPossibleActions();
     }
+
+
+
     private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException{
         Message message = null;
         //todo: GenericMessage Assembler
-        serverComHandler.sendMessage(message);
+        serverHandler.sendMessage(message);
     }
     private static void selectPossibleActions() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         System.out.println("What would you like to do:\n");
@@ -222,11 +176,12 @@ public class ZakClient {
         do{
             i=Integer.parseInt(receiveInput());
             if(i<=counter&&i>0){
+                System.out.println("Please input your message:");
                 text = receiveInput();
-                if(i==counter) serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,"Everyone"));
+                if(i==counter) serverHandler.sendMessage(new TextMessage(playerNick,clientID,text,"Everyone"));
                 else{
                     recipient = recipientChooser.get(i).getPlayerName();
-                    serverComHandler.sendMessage(new TextMessage(playerNick,clientID,text,recipient));
+                    serverHandler.sendMessage(new TextMessage(playerNick,clientID,text,recipient));
                 }
                 break;
             }
@@ -292,7 +247,7 @@ public class ZakClient {
         }
         System.out.println(choices);
     }
-    private static String receiveInput(){
+    static String receiveInput(){
         Scanner scanner= new Scanner(System.in);
         String input=null;
         do{
@@ -305,9 +260,6 @@ public class ZakClient {
         //scanner.close();
         return input;
      }
-   /* public static void setOtherFields(ArrayList<Player> otherPlayers) {
-        ZakClient.otherPlayers = otherPlayers;
-    }*/
     public static void genericTurnMessageHandler(GenericTurnMessage message){
         myTurn=true;
         //todo: Aggiornamento dello stato dei fields dei deck del player
@@ -331,131 +283,32 @@ public class ZakClient {
     }
     public static void endOfTheGame() throws IOException {
         currentGameStatus=false;
-        in.close();
-        out.close();
+
     }
 
     public static void clientDisconnect() {
-        serverComHandler.interrupt();
+        serverHandler.interrupt();
         System.err.println("Disconnected from server: Unable to establish a connection with server");
         System. exit(0);
     }
-}
-class ServerHandler extends Thread implements Runnable {
-    private final String clientName;
-    private final UUID clientID;
-    private boolean firstBroadCastwasReceived;
 
-    private ObjectOutputStream outServer;
-    private ObjectInputStream inServer;
-
-    public ServerHandler(String clientName, UUID clientID, ObjectOutputStream outFromServer, ObjectInputStream inFromServer) throws IOException {
-        this.clientName = clientName;
-        this.clientID = clientID;
-        this.outServer = outFromServer;
-        this.inServer = inFromServer;
-        firstBroadCastwasReceived = false;
+    public static Pair<String, Integer> getConnectionInfo() {
+        return connectionInfo;
     }
 
-    @Override
-    public void run() {
-       do{
-            try {
-                messageReceiver();
-            } catch (ClassNotFoundException | WrongMessageConversionException e) {
-                System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
-
-            } catch(IOException e){
-                System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
-                try {
-                    throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected from server due to socket degradation: Attempting reconnection");
-                } catch (ClientAbruptlyDisconnectedException ex) {
-                    if(tryReconnectToServer()) continue;
-                    //todo: reconnection attempt
-                    clientDisconnected();
-                }
-            }
-            try{
-                if(ZakClient.socket.isClosed() && ZakClient.isCurrentGameStatus()) throw new ClientAbruptlyDisconnectedException(clientName+" abruptly disconnected from server: Attempting reconnection");
-            }catch(ClientAbruptlyDisconnectedException e){
-                if(tryReconnectToServer()) continue;
-                //todo: reconnection attempt
-                clientDisconnected();
-            }
-        }while(ZakClient.isCurrentGameStatus());
+    public static ServerHandler getServerHandler() {
+        return serverHandler;
     }
 
-    private void clientDisconnected() {
-        //todo: robe per chiudere i thread
-        ZakClient.clientDisconnect();
+    public static void setServerHandler(ServerHandler serverHandler) {
+        ZakClient.serverHandler = serverHandler;
     }
 
-    private boolean tryReconnectToServer()  {
-        boolean result=true;
-        Socket socket;
-        try {
-            socket = ZakClient.connectionAttempt(ZakClient.serverAddress, ZakClient.port);
-            outServer= new ObjectOutputStream(socket.getOutputStream());
-            inServer = new ObjectInputStream(socket.getInputStream());
-        } catch (Exception e){
-            result = false;
-        }
-        return result;
+    public static UUID getClientID() {
+        return clientID;
     }
 
-    public boolean wasFirstBroadCastReceived() {
-        return firstBroadCastwasReceived;
-    }
-
-    private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        Message message = (Message) inServer.readObject();
-        Class<? extends Message> a = message.getClass();
-        String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
-        switch (messageType){
-            case "GenericTurnMessage":
-                genericTurnMessageHandler((GenericTurnMessage) message);
-                break;
-            case "TextMessage":
-                textMessageHandler((TextMessage) message);
-                break;
-            case "BroadCastStandardMessage":
-                break;
-            case "BroadCastStartingMessage":
-                broadCastStartingMessageHandler((BroadCastStartingMessage) message);
-                break;
-            case "EndGameMessage":
-                endOfTheGame((EndGameMessage)message);
-                break;
-            case "LobbyCreationMessage":
-                break;
-            default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
-        }
-    }
-    private void broadCastStartingMessageHandler(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
-        try{
-            if(initialMatchSetupMessage == null) throw new WrongMessageConversionException("Was not able to initialize Starting Field");
-        } catch (WrongMessageConversionException e) {
-            e.getMessage();
-            throw new RuntimeException(e);
-        }
-        ZakClient.initialMatchSetup(initialMatchSetupMessage);
-    }
-    public void sendMessage(Message message) throws IOException {
-        message.setSender(clientName);
-        message.setClientID(clientID);
-        outServer.writeObject(message);
-    }
-    private void textMessageHandler(TextMessage message) {;
-        System.out.println(message.getSender()+": "+message.getTextMessage());
-        if(!firstBroadCastwasReceived) firstBroadCastwasReceived = true;
-    }
-    private void genericTurnMessageHandler(GenericTurnMessage message){
-        ZakClient.genericTurnMessageHandler(message);
-    }
-    private void endOfTheGame(EndGameMessage message) throws IOException {
-        String winner = message.getWinner();
-        System.out.println(winner+" ha vinto la partita\nGrazie per aver giocato\n");
-        ZakClient.endOfTheGame();
+    public static String getPlayerNick() {
+        return playerNick;
     }
 }
-
