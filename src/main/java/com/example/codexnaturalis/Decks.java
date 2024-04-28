@@ -78,7 +78,6 @@ class DrawingDeck {
         }
         ArrayList<ResourceGoldCard> deckGen = new ArrayList<>();
         StarterCard starterGen;
-        ArrayList<ObjectiveCard> secretObjectiveGen = new ArrayList<>();
         for(int i=0;i<2;i++){
             deckGen.add(totalResourceCard.getFirst());
             totalResourceCard.removeFirst();
@@ -87,11 +86,7 @@ class DrawingDeck {
         totalGoldCard.removeFirst();
         starterGen = totalStartingCards.getFirst();
         totalStartingCards.removeFirst();
-        for(int i=0;i<2;i++){
-            secretObjectiveGen.add(totalObjectiveCards.getFirst());
-            totalObjectiveCards.removeFirst();
-        }
-        return new PlayerDeck(deckGen, starterGen, secretObjectiveGen);
+        return new PlayerDeck(deckGen, starterGen);
     }
 
     /**
@@ -141,9 +136,9 @@ class DrawingDeck {
         /**
          * secretObjectiveCard: secret Objective Card of the player
          */
-        private ArrayList<ObjectiveCard> secretObjectiveCard;
+        private ObjectiveCard secretObjectiveCard;
 
-        public PlayerDeck(ArrayList<ResourceGoldCard> resourceGoldCards, StarterCard starterCard, ArrayList<ObjectiveCard> secretObjectiveCard) {
+        public PlayerDeck(ArrayList<ResourceGoldCard> resourceGoldCards, StarterCard starterCard) {
 
             this.resourceGoldCards = resourceGoldCards;
             this.starterCard = starterCard;
@@ -169,9 +164,9 @@ class DrawingDeck {
          * Setter of secretObjectiveCard
          * @param secretObjectiveCard: secret Objective Card of the player
          */
-        public void removeUnusedSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
-            this.secretObjectiveCard.remove(secretObjectiveCard);
-            DrawingDeck.reAddSecretObjectiveCard(secretObjectiveCard);
+
+        public void setSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
+            this.secretObjectiveCard = secretObjectiveCard;
         }
 
         /**

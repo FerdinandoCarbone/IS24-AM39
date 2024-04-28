@@ -263,6 +263,7 @@ class GoldCard extends ResourceGoldCard {
         System.out.println("-----------------------------");
         System.out.println("Objective Card #" + getIdCard());
         System.out.println("Points: " + getPoints());
+        printCardAscii();
     }
     public void printCardAscii(){
         System.out.print(asciiArt);

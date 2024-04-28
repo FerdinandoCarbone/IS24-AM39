@@ -49,12 +49,3 @@ class notCurrentPlayerDisconnectedMessage extends CurrentPlayerDisconnectedMessa
         super(publicCardsNewState, currentPlayerId, null);
     }
 }
-
-class SecretObjectiveCardsMessage {
-    private HashMap<UUID, ArrayList<ObjectiveCard>> secretObjID;
-
-    public SecretObjectiveCardsMessage(HashMap<UUID, ArrayList<ObjectiveCard>> secretObjID) {
-        this.secretObjID = secretObjID;
-    }
-}
-

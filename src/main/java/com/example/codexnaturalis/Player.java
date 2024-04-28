@@ -3,6 +3,7 @@ package com.example.codexnaturalis;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -25,6 +26,7 @@ public class Player implements Serializable {
     /**
      * Defines whether the player is the first to start the game
      */
+    private ArrayList<ObjectiveCard> commonObjCards;
     private boolean firstPlayer;
     /**
      * Defines the player's own field
@@ -98,6 +100,19 @@ public class Player implements Serializable {
             Corner corner = carta.getCorners().get(i);
             increaseResourceElementsMana(corner);
         }
+    }
+
+    public void printAllObjective() {
+        for (ObjectiveCard c : commonObjCards) {
+            c.printObjectiveCard();
+        }
+        playerDeck.getSecretObjectiveCard().printObjectiveCard();
+    }
+
+    public void printFieldWithName() {
+        System.out.println("-------------------------");
+        System.out.println(playerName + "'s Codex");
+        playerField.printField();
     }
 
     /**
@@ -276,10 +291,32 @@ public class Player implements Serializable {
     public void addElementsMana(int mana, int index) {
         elementsMana[index] += mana;
     }
-
     //SETTERS AND GETTERS
     public void setFirstPlayer(boolean firstPlayer) {
         this.firstPlayer = firstPlayer;
+    }
+
+    public ObjectiveCard chooseSecretObj(ArrayList<ObjectiveCard> cards) throws StupidUserException {
+        System.out.println("Choose a secret objective card: ");
+        int i=1;
+        int choice;
+        while (true) {
+            for (ObjectiveCard c : cards) {
+                System.out.println(i + ": ");
+                c.printObjectiveCard();
+                i++;
+            }
+            try{
+                choice = Integer.parseInt(ZakClient.receiveInput());
+            } catch (Exception e){
+                System.out.println("Invalid input: try again");
+                continue;
+            }
+            if(choice>=1 && choice<=2) break;
+            else if(choice==3)throw new StupidUserException("Too many wrong input were given");
+        }
+        playerDeck.setSecretObjectiveCard(cards.get(choice-1));
+        return cards.get(choice-1);
     }
 
     public void setPlayerName(String playerName) {
@@ -288,6 +325,10 @@ public class Player implements Serializable {
 
     public void setFirstTurn(boolean firstTurn) {
         this.firstTurn = firstTurn;
+    }
+
+    public void setCommonObjCards(ArrayList<ObjectiveCard> cards) {
+        this.commonObjCards = cards;
     }
 
     public String getPlayerName() {

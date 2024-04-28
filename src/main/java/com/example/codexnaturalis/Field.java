@@ -27,14 +27,12 @@ public class Field implements Serializable {
     }
 
     public void printField() {
-        System.out.println("-------------------------");
         for (int i = 0; i < getR(); i++) {
             for (int j = 0; j < getC(); j++) {
                 System.out.print("[" + (getSlots()[i][j].isBusySlot()? "1" : "0") + "]");
             }
             System.out.println();
         }
-
     }
 
     public Slot[][] getSlots() {

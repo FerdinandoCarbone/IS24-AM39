@@ -632,7 +632,16 @@ public class Match {
         return points;
     }
 
-
+    public boolean areAllSecretObjectiveSet() {
+        int counter = 0;
+        List<ClientHandler> handlersList = ServerConnectionManager.handlers.values().stream().toList();
+        for (ClientHandler ch : handlersList) {
+            if (ch.getSecretWasChosen()) {
+                ++counter;
+            }
+        }
+        return counter == handlersList.size();
+    }
 
 
     /**
