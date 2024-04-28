@@ -29,6 +29,15 @@ class DrawingDeck {
         Collections.shuffle(DrawingDeck.totalStartingCards);
         Collections.shuffle(DrawingDeck.totalObjectiveCards);
     }
+    public static ArrayList<ObjectiveCard> getTwoObjectiveCards() {
+
+        ArrayList<ObjectiveCard> cards = new ArrayList<>();
+        cards.add(totalObjectiveCards.get(0));
+        cards.add(totalObjectiveCards.get(1));
+        totalObjectiveCards.remove(0);
+        totalObjectiveCards.remove(1);
+        return cards;
+    }
     public static ArrayList<ObjectiveCard> getCommonObjective(){
         ArrayList<ObjectiveCard> commonObj = new ArrayList<>();
         for (int i = 0; i < 2; i++) {

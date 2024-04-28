@@ -3,6 +3,7 @@ package com.example.codexnaturalis;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class StandardMatchMessage {
@@ -46,6 +47,14 @@ class notCurrentPlayerDisconnectedMessage extends CurrentPlayerDisconnectedMessa
 
     public notCurrentPlayerDisconnectedMessage(ArrayList<ResourceGoldCard> publicCardsNewState, UUID currentPlayerId) {
         super(publicCardsNewState, currentPlayerId, null);
+    }
+}
+
+class SecretObjectiveCardsMessage {
+    private HashMap<UUID, ArrayList<ObjectiveCard>> secretObjID;
+
+    public SecretObjectiveCardsMessage(HashMap<UUID, ArrayList<ObjectiveCard>> secretObjID) {
+        this.secretObjID = secretObjID;
     }
 }
 

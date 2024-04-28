@@ -1,5 +1,6 @@
 package com.example.codexnaturalis;
 
+import java.io.ObjectInputValidation;
 import java.util.*;
 
 public class Match {
@@ -104,6 +105,15 @@ public class Match {
             }
         }
         return player;
+    }
+
+    public SecretObjectiveCardsMessage getTwoSecretObjectiveCards() {
+        HashMap<UUID, ArrayList<ObjectiveCard>> hash = new HashMap<>();
+        for (Player p : players) {
+            ArrayList<ObjectiveCard> cards = DrawingDeck.getTwoObjectiveCards();
+            hash.put(p.getPlayerID(), cards);
+        }
+        return new SecretObjectiveCardsMessage(hash);
     }
 
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
