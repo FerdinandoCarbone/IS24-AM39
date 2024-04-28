@@ -1,6 +1,5 @@
 package com.example.codexnaturalis;
 
-import java.net.Socket;
 import java.util.*;
 
 public class Match {
@@ -180,12 +179,12 @@ public class Match {
      * Last Round Routine
      */
     private void lastRoundRoutine() {
-        checkTotalPoints();
+        addObjectiveTotalPoints();
         declareWinnerOrDraw();
     }
 
     /** Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo*/
-    private void checkTotalPoints() {
+    private void addObjectiveTotalPoints() {
         int obj = 0;
             for(Player p: players) {
                obj = checkExtraPoints(p);
@@ -282,7 +281,7 @@ public class Match {
         }
 
         if(draw !=0) drawWinners();
-        declareWinners();
+        else declareWinners();
     }
 
     private void drawWinners() {
@@ -307,14 +306,21 @@ public class Match {
                 finalWinners.add(p);
             }
         }
-    }
-
-    /** print winners */
-    private void declareWinners() {
+        /** print draw winners */
+        System.out.println("DRAW BETWEEN: ");
         int s = finalWinners.size();
         for(int i = 0; i < s; i++){
             Player p = finalWinners.get(i);
-            System.out.println("VINCITORE: " + p.getPlayerName());
+            System.out.println(p.getPlayerName());
+        }
+    }
+
+    /** print winner */
+    private void declareWinners() {
+        int s = winners.size();
+        for(int i = 0; i < s; i++){
+            Player p = winners.get(i);
+            System.out.println("WINNER: " + p.getPlayerName());
         }
     }
 
