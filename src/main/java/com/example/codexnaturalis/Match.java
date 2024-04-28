@@ -193,39 +193,436 @@ public class Match {
     }
 
     /** calculate objective points and add into the array */
-    private int calculateObjPoints(Player p, int id){
-        int points=0;
-        if(87<id && id<102){
-            switch (id) {       //TO DO: modificare addScore con nuovo metodo ?!?!?
+    private int calculateObjPoints(Player p, int id) {
+        int points = 0;
+        if (86 < id && id < 103) {
+            switch (id) {
                 /** se idCard is ripetizioni semi*/
-                case 95,96,97,98:
+                case 95, 96, 97, 98:
                     //95 3funghi, 96 3foglie, 97 3lupo, 98 3farfalle. tutto x2 punti
-                    switch (id){
-                        case 95: p.addScore(p.getResourceMana()[2]*2);  //TO DO: da cambiare tutti gli indici e applicare l'algoritmo di trio
-                        case 96: p.addScore(p.getResourceMana()[2]*2);
-                        case 97: p.addScore(p.getResourceMana()[2]*2);
-                        case 98: p.addScore(p.getResourceMana()[2]*2);
+                    switch (id) {
+                        case 95:
+                            p.addScore((p.getResourceMana()[0] / 3) * 2);
+                        case 96:
+                            p.addScore((p.getResourceMana()[1] / 3) * 2);
+                        case 97:
+                            p.addScore((p.getResourceMana()[2] / 3) * 2);
+                        case 98:
+                            p.addScore((p.getResourceMana()[3] / 3) * 2);
+                        default:
+                            break;
                     }
                     /** se idCard is ripetizioni elementi*/
-                case 99,100,101,102:
-                    switch (id){
+                case 99, 100, 101, 102:
+                    switch (id) {
                         //piuma, ink, pergamena
-                        case 99:  p.addScore(p.getElementsMana()[2]*2); //TO DO: da cambiare tutti gli indici e applicare l'algoritmo divisione
+                        case 99:
+                            int i, min = p.getElementsMana()[0];
+                            for (i = 1; i < 3; i++) {
+                                if (p.getElementsMana()[i] < min) {
+                                    min = p.getElementsMana()[i];
+                                }
+                            }
+                            p.addScore(min * 2);
                             // 2 pergamene
-                        case 100: p.addScore(p.getElementsMana()[2]*2);
+                        case 100:
+                            p.addScore((p.getElementsMana()[1] / 2) * 2);
                             // 2 ink
-                        case 101: p.addScore(p.getElementsMana()[2]*2);
+                        case 101:
+                            p.addScore((p.getElementsMana()[0] / 2) * 2);
                             // 2 piume
-                        case 102: p.addScore(p.getElementsMana()[2]*2);
+                        case 102:
+                            p.addScore((p.getElementsMana()[2] / 2) * 2);
+
+                        default:
+                            break;
                     }
 
                     /** se idCard is disposizioni grafiche*/
-                case 87,88,89,90,91,92,93,94:
-                    //TO DO: pensare alle disposizioni
+                case 87, 88, 89, 90, 91, 92, 93, 94:
+                    int r = p.getPlayerField().getR(), c = p.getPlayerField().getC();
+                    int i, j;
+                    Field.Slot[][] s;
+                    s = p.getPlayerField().getSlots();
+                    ResourceGoldCard card;
+                    switch (id) {
+                        case 87:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
+                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<51)) &&
+                                                (i+2<r && 0<j-2) && (s[i+2][j-2].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard()<51))
+                                        ) card.arrangements++;
+                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
+                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<51)) &&
+                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<51))
+                                        ) card.arrangements++;
+                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
+                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<51)) &&
+                                                (0<i-2 && j+2<c) && (s[i-2][j+2].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard()<51))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                        case 88:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
+                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<61)) &&
+                                                (i+2<r && j+2<c) && (s[i+2][j+2].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard()<61))
+                                        ) card.arrangements++;
+                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
+                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<61)) &&
+                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<61))
+                                        ) card.arrangements++;
+                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
+                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<61)) &&
+                                                (0<i-2 && 0<j-2) && (s[i-2][j-2].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard()<61))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                        case 89:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
+                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<71)) &&
+                                                (i+2<r && 0<j-2) && (s[i+2][j-2].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j-2].getCardSlot()).getIdCard()<71))
+                                        ) card.arrangements++;
+                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
+                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<71)) &&
+                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<71))
+                                        ) card.arrangements++;
+                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
+                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<71)) &&
+                                                (0<i-2 && j+2<c) && (s[i-2][j+2].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j+2].getCardSlot()).getIdCard()<71))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                        case 90:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
+                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<81)) &&
+                                                (i+2<r && j+2<c) && (s[i+2][j+2].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j+2].getCardSlot()).getIdCard()<81))
+                                        ) card.arrangements++;
+                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
+                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<81)) &&
+                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<21))
+                                        ) card.arrangements++;
+                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
+                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<81)) &&
+                                                (0<i-2 && 0<j-2) && (s[i-2][j-2].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j-2].getCardSlot()).getIdCard()<81))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                        case 91:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
+                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<51)) &&
+                                                (i+3<r && j+1<c) && (s[i+3][j+1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard()<61))
+                                        ) card.arrangements++;
+                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
+                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<51)) &&
+                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<61))
+                                        ) card.arrangements++;
+                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
+                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<51)) &&
+                                                (0<i-2) && (s[i-2][j-1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-2][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j-1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-2][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j-1].getCardSlot()).getIdCard()<51))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                        case 92:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
+                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<61)) &&
+                                                (i+3<r && 0<j-1) && (s[i+3][j-1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard()<81))
+                                        ) card.arrangements++;
+                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
+                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<61)) &&
+                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<81))
+                                        ) card.arrangements++;
+                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
+                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<61)) &&
+                                                (0<i-3) && (s[i-3][j+1].isBusySlot()) &&
+                                                ((10<((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard()<21)||
+                                                        (50<((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard()<61))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                        case 93:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
+                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j-1].getCardSlot()).getIdCard()<71)) &&
+                                                (i+3<r) && (s[i+3][j-1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+3][j-1].getCardSlot()).getIdCard()<71))
+                                        ) card.arrangements++;
+                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
+                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j+1].getCardSlot()).getIdCard()<51)) &&
+                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<71))
+                                        ) card.arrangements++;
+                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
+                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<71)) &&
+                                                (0<i-3 && j+1<c) && (s[i-3][j+1].isBusySlot()) &&
+                                                ((0<((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard()<11)||
+                                                        (40<((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-3][j+1].getCardSlot()).getIdCard()<51))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                        case 94:
+                            for (i = 0; i <r ; i++) {
+                                for (j = 0; j <c ; j++) {
+                                    if(s[i][j].isBusySlot()){
+                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                                        int id1 = card.getIdCard();
+                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
+                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+1][j+1].getCardSlot()).getIdCard()<81)) &&
+                                                (i+3<r) && (s[i+3][j+1].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+3][j+1].getCardSlot()).getIdCard()<81))
+                                        ) card.arrangements++;
+                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
+                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-1][j-1].getCardSlot()).getIdCard()<71)) &&
+                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i+2][j].getCardSlot()).getIdCard()<81))
+                                        ) card.arrangements++;
+                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
+                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
+                                                ((30<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<41)||
+                                                        (70<((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-2][j].getCardSlot()).getIdCard()<81)) &&
+                                                (0<i-3 && 0<j-1) && (s[i-3][j-1].isBusySlot()) &&
+                                                ((20<((ResourceGoldCard) s[i-3][j-1].getCardSlot()).getIdCard() &&
+                                                        ((ResourceGoldCard) s[i-3][j-1].getCardSlot()).getIdCard()<31)||
+                                                        (60<((ResourceGoldCard) s[i-3][j-1].getCardSlot()).getIdCard() &&
+                                                                ((ResourceGoldCard) s[i-3][j-1].getCardSlot()).getIdCard()<71))
+                                        ) card.arrangements++;
+                                    }
+                                }
+                            }
+                    }
+
+                    int arrangedCards=0;
+                    for(i=0; i<r; i++){
+                        for(j=0; j<c; j++) {
+                            if(s[i][j].isBusySlot()) {
+                                if (((ResourceGoldCard)s[i][j].getCardSlot()).arrangements != 0)
+                                    arrangedCards++;
+                            }
+                        }
+                    } points=(arrangedCards/3)*3;
             }
         }
         return points;
     }
+
+
 
 
     /**
