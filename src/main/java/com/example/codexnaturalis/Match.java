@@ -1,11 +1,13 @@
 package com.example.codexnaturalis;
 
+import java.net.Socket;
 import java.util.*;
 
 public class Match {
     private ArrayList<Player> players;
     private ArrayList<Player> winners;
-    private ArrayList<Integer> objectivePoints;
+    private ArrayList<Player> finalWinners;
+    protected static HashMap<Player, Integer> hashobjectivePoints = new HashMap<>();
     private ScoreTracker scoreTracker;
     private boolean lastRound = false;
     private boolean isLastCycle = false;
@@ -250,8 +252,8 @@ public class Match {
         /** extraPoints=punti obiettivo personale + punti obiettivi comuni */
         extraPoints = extraCommonPoints + extraPersonalPoints;
 
-        /** TO DO: aggiornare l'array: objectivePoints */
-        objectivePoints.add(extraPoints);
+        /** aggiornare l'array (mappa): objectivePoints */
+        hashobjectivePoints.put(p, extraPoints);
 
         return extraPoints;
     }
@@ -278,26 +280,41 @@ public class Match {
                 winners.add(pDraw);
             }
         }
-        if(draw !=0){
-            drawWinners();
-        }
 
+        if(draw !=0) drawWinners();
         declareWinners();
     }
 
     private void drawWinners() {
-        //confronta i punti obiettivo dei giocatori in winners[]
-        //come faccio a prendere l'indice del giocatore di winner corrispondente al valore dei punti obiettico nel vettore objectivePoints?
-        int i=0;
-        objectivePoints.get(i);
-        //se esiste un vincitore cancella gli altri da winners. se ne esistono di piu, cancella i non vincitori
 
+        int MaxObjPoint=0;
+        int objPoint=0;
+        Player playerObjWin = null;
+
+        /** find max objective points in winners[] */
+        for(Player p : winners){
+            objPoint = hashobjectivePoints.get(p);
+            if(objPoint > MaxObjPoint){
+                MaxObjPoint = objPoint;
+                playerObjWin = p;
+            }
+        }
+        finalWinners.add(playerObjWin);
+
+        /** check if a draw exists */
+        for(Player p : winners){
+            if(hashobjectivePoints.get(p) == MaxObjPoint && p != playerObjWin){
+                finalWinners.add(p);
+            }
+        }
     }
+
+    /** print winners */
     private void declareWinners() {
-        //stampa vincitori con size
-        int s = winners.size();
+        int s = finalWinners.size();
         for(int i = 0; i < s; i++){
-            System.out.println("VINCITORE:");
+            Player p = finalWinners.get(i);
+            System.out.println("VINCITORE: " + p.getPlayerName());
         }
     }
 
