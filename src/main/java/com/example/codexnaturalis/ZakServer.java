@@ -40,7 +40,7 @@ public class ZakServer {
     }
     public static void serverStart(int port) throws IOException {
         gameStarted = false;
-        serverConMan=new ServerConnectionManager(connectionInfo,1099);
+        serverConMan=new ServerConnectionManager(connectionInfo,8082);
         System.out.println(
                 " _____                                                                      _____ \n" +
                 "( ___ )--------------------------------------------------------------------( ___ )\n" +
