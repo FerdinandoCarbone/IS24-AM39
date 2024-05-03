@@ -6,7 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class ServerConnectionManager {
     protected static HashMap<Player, Socket> hashPlayer;
@@ -105,12 +107,12 @@ public class ServerConnectionManager {
         return null;
     }
 
-    public void sendBroadCastMessage(Message message) throws IOException {
+    public static void sendBroadCastMessage(Message message) throws IOException {
         for (ClientHandler handler : handlers.values()) {
             handler.sendMessage(message);
         }
     }
-    public void sendMessage(UUID clientID,Message message) throws IOException {
+    public static void sendMessage(UUID clientID,Message message) throws IOException {
         handlers.get(clientID).sendMessage(message);
     }
     public void setRmiPort(int rmiPort) {
@@ -153,4 +155,22 @@ public class ServerConnectionManager {
     public int getNumPlayers() {
         return numPlayers;
     }
+    /*private static void timeOutThrower(){
+        final Duration timeout = Duration.ofSeconds(30);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        final Future<String> handler = executor.submit((Callable) () -> {
+            return requestDataFromModem();
+        });
+
+        try {
+            handler.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            handler.cancel(true);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        executor.shutdownNow();
+    }*/
 }

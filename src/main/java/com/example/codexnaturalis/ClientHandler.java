@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -53,13 +54,16 @@ public class ClientHandler extends Thread implements Runnable {
             }
             getConnMan().sendMessage(recipientClientID,message);
         }
-        //todo:chat functionality
         System.out.println("\n"+message.getSender()+" to "+ message.getRecipient()+": "+message.getTextMessage());
         System.out.print("Command: ");
 
     }
     public void broadCastMessageHandler(BroadCastStandardMessage message) {}
-    public void genericTurnMessageHandler(GenericTurnMessage message) {
+    public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException {
+        StandardMatchMessage newStatus = ZakServer.match.genericTurn(message);
+        GenericTurnMessage newTurn = new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards(),newStatus.getPublicCardsNewState(),null);
+        ServerConnectionManager.sendBroadCastMessage(newStatus);
+        ServerConnectionManager.sendMessage(newStatus.getNextPlayerId(),newTurn);
     }
     public void endOfTheGame(EndGameMessage message){
         ZakServer.gameStarted = false;
@@ -68,6 +72,12 @@ public class ClientHandler extends Thread implements Runnable {
     }
     public void secretObjectiveSelector(BroadCastStartingMessage message){
         ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().setSecretObjectiveCard(message.getSelectedSecret());
+        ArrayList<Player> players = ZakServer.match.getPlayers();
+        for(Player p: players){
+            if(p.getPlayerID().equals(getClientID())){
+                p.placeStarterCard(message.getStarterCardFace());
+            }
+        }
         this.secretWasChosen=true;
     }
 }
@@ -171,6 +181,7 @@ class SocketClientHandler extends ClientHandler{
     private void clientDisconnected(){
         ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(getClientID()));
         ServerConnectionManager.hashClient.remove(getClientID());
+        //todo: chiamata a match per rimuovere player
         ZakServer.stopThread(getClientID());
     }
     private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
@@ -199,9 +210,6 @@ class SocketClientHandler extends ClientHandler{
 
     @Override
     public void broadCastMessageHandler(BroadCastStandardMessage message) {
-    }
-    @Override
-    public void genericTurnMessageHandler(GenericTurnMessage message) {
     }
     @Override
     public void sendMessage(Message message) throws IOException {

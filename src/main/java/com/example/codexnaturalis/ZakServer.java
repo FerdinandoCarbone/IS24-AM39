@@ -40,7 +40,7 @@ public class ZakServer {
     }
     public static void serverStart(int port) throws IOException {
         gameStarted = false;
-        serverConMan=new ServerConnectionManager(connectionInfo,8082);
+        serverConMan=new ServerConnectionManager(connectionInfo,1099);
         System.out.println(
                 " _____                                                                      _____ \n" +
                 "( ___ )--------------------------------------------------------------------( ___ )\n" +
@@ -68,6 +68,9 @@ public class ZakServer {
         welcomePlayer();
         gameStarted = true;
         System.out.println("Match has began");
+        StandardMatchMessage stdmessage = match.chooseRandomFirstPlayer();
+        GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(),stdmessage.getClientID(),match.getCoveredCards(),stdmessage.getPublicCardsNewState(),null); //match loop starts here
+        serverConMan.sendMessage(stdmessage.getClientID(),message);
         while(gameStarted){
             serverCommand = getInput();
             interpretInput(serverCommand);

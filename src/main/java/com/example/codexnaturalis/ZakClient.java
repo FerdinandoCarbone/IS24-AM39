@@ -112,6 +112,7 @@ public class ZakClient {
         try{
             ObjectiveCard chosenCard;
             Collection<Player> players;
+            boolean cardFace;
             player = initialMatchSetupMessage.getPlayers().get(clientID);
             if(player == null) throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
             initialMatchSetupMessage.getPlayers().remove(clientID);
@@ -121,7 +122,20 @@ public class ZakClient {
             chosenCard = player.chooseSecretObj(initialMatchSetupMessage.getSecretObjectiveCards(clientID));
             ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
             initialMatchSetupMessage.setSelectedSecret(tmpList);
+            System.out.println("How do you want to face the starting card");
+            System.out.println("1 - face Up\n2 - face Down");
+            switch(getIntInput(2)){
+                case 0:
+                    cardFace=true;
+                    break;
+                case 1:
+                    cardFace=false;
+                    break;
+                default: throw new IOException("There was an error trying to read the string");
+            }
+            initialMatchSetupMessage.setStarterCardFace(cardFace);
             serverHandler.sendMessage(initialMatchSetupMessage);
+            player.placeStarterCard(cardFace);
         } catch (WrongPlayerUUIDException e){
             e.getMessage();
         } catch (StupidUserException e) {
@@ -138,10 +152,43 @@ public class ZakClient {
     }
 
     private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException{
+        clearConsole();
         GenericTurnMessage message = serverHandler.getMessageTurn();
-        //todo: GenericMessage Assembler
+        Pair<Integer, Integer> coordinates;
+        int row,column;
+        ResourceGoldCard selectedCard;
+        ArrayList<ResourceGoldCard> playerDeck = player.getPlayerDeck().getResourceGoldCards();
+        int fieldSize = player.getPlayerField().getSlots().length;
+        player.printFieldWithName();
+        player.getPlayerDeck().printResourceGoldCards();
+        System.out.println("What card would you like to place? ");
+        ResourceGoldCard placedCard= playerDeck.get(getIntInput(playerDeck.size()));
+        while(true) {
+            System.out.println("Select a row:");
+            row =getIntInput(fieldSize);
+            System.out.println("Select a column:");
+            column = getIntInput(fieldSize);
+            coordinates = new Pair<>(row, column);
+            if (player.getPlayerField().getSlots()[row][column].isBusySlot() && player.isCardAttachableToSlot(row, column)){
+                System.out.println("This slot is not available. Select another one");
+                continue;
+            }
+            break;
+        }
+        player.placeCardAndRemoveFromDeck(row, column, placedCard);
+        int i= message.printDrawnCards(1);//covered
+        i= message.printPublicCards(i);//public
+        System.out.println("Select a card to draw from public deck: ");
+        int selected=getIntInput(i);
+        if(selected<message.getDrawnCard().size())selectedCard=message.getDrawnCard().get(selected);
+        else selectedCard=message.getCardOnHand().get(selected);
+        player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
+        message = new GenericTurnMessage(null,null,new ArrayList<>(Collections.singletonList(selectedCard)),new ArrayList<>(Collections.singletonList(placedCard)),coordinates);
+        //todo: update points
         serverHandler.sendMessage(message);
         serverHandler.setMessageTurn(null);
+        myTurn=false;
+        clearConsole();
     }
     private static void printPlayerField() {
         for (Player p : otherPlayers) {
@@ -264,7 +311,10 @@ public class ZakClient {
     public static void genericTurnMessageHandler() {
         myTurn=true;
         //todo: Aggiornamento dello stato dei fields dei deck del player
+        System.lineSeparator();
+        clearConsole();
         System.out.println("It's your turn:");
+
     }
     public static void clearConsole() {
         try {
@@ -311,5 +361,22 @@ public class ZakClient {
 
     public static String getPlayerNick() {
         return playerNick;
+    }
+    private static int getIntInput(int range){
+        Integer thingToParse=null;
+        while(true){
+            try {
+                thingToParse = Integer.parseInt(receiveInput());
+            } catch (Exception e){
+                System.out.println("Invalid input: try again");
+                continue;
+            }
+            if(thingToParse<=range && thingToParse>0) break;
+        }
+        return thingToParse -1;
+    }
+
+    public static ArrayList<Player> getOtherPlayers() {
+        return otherPlayers;
     }
 }
