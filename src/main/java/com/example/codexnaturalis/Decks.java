@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 
 class DrawingDeck {
     private static ArrayList<ResourceCard> totalResourceCard= new ArrayList<>();
@@ -29,7 +28,7 @@ class DrawingDeck {
         Collections.shuffle(DrawingDeck.totalStartingCards);
         Collections.shuffle(DrawingDeck.totalObjectiveCards);
     }
-    public static ArrayList<ObjectiveCard> getTwoObjectiveCards() {
+    public static ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
 
         ArrayList<ObjectiveCard> cards = new ArrayList<>();
         cards.add(totalObjectiveCards.get(0));
@@ -38,7 +37,7 @@ class DrawingDeck {
         totalObjectiveCards.remove(1);
         return cards;
     }
-    public static ArrayList<ObjectiveCard> getCommonObjective(){
+    public static ArrayList<ObjectiveCard> drawCommonObjective(){
         ArrayList<ObjectiveCard> commonObj = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             commonObj.add(totalObjectiveCards.getFirst());

@@ -1,17 +1,13 @@
 package com.example.codexnaturalis;
 
-import java.io.ObjectInputValidation;
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Match {
     private ArrayList<Player> players;
     private ArrayList<Player> winners;
     private ArrayList<Player> finalWinners;
-    protected static HashMap<Player, Integer> hashobjectivePoints = new HashMap<>();
+    protected static HashMap<Player, Integer> hashObjectivePoints = new HashMap<>();
     private ScoreTracker scoreTracker;
-    private boolean lastRound = false;
     private boolean isLastCycle = false;
     private ArrayList<ObjectiveCard> commonObjectives;
     private ArrayList<ResourceGoldCard> publicCards;
@@ -113,7 +109,7 @@ public class Match {
     public HashMap<UUID, ArrayList<ObjectiveCard>> getTwoSecretObjectiveCards() {
         HashMap<UUID, ArrayList<ObjectiveCard>> hash = new HashMap<>();
         for (Player p : players) {
-            ArrayList<ObjectiveCard> cards = DrawingDeck.getTwoObjectiveCards();
+            ArrayList<ObjectiveCard> cards = DrawingDeck.drawTwoObjectiveCards();
             hash.put(p.getPlayerID(), cards);
         }
         return hash;
@@ -671,7 +667,7 @@ public class Match {
         extraPoints = extraCommonPoints + extraPersonalPoints;
 
         /** aggiornare l'array (mappa): objectivePoints */
-        hashobjectivePoints.put(p, extraPoints);
+        hashObjectivePoints.put(p, extraPoints);
 
         return extraPoints;
     }
@@ -711,7 +707,7 @@ public class Match {
 
         /** find max objective points in winners[] */
         for(Player p : winners){
-            objPoint = hashobjectivePoints.get(p);
+            objPoint = hashObjectivePoints.get(p);
             if(objPoint > MaxObjPoint){
                 MaxObjPoint = objPoint;
                 playerObjWin = p;
@@ -721,7 +717,7 @@ public class Match {
 
         /** check if a draw exists */
         for(Player p : winners){
-            if(hashobjectivePoints.get(p) == MaxObjPoint && p != playerObjWin){
+            if(hashObjectivePoints.get(p) == MaxObjPoint && p != playerObjWin){
                 finalWinners.add(p);
             }
         }

@@ -3,10 +3,6 @@ package com.example.codexnaturalis;
 import javafx.util.Pair;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.rmi.Naming;
-import java.rmi.registry.LocateRegistry;
 import java.util.*;
 
 public class ZakServer {
@@ -77,7 +73,7 @@ public class ZakServer {
         //todo: da spostare in match probabilmente
         BroadCastStartingMessage fieldSetupMessage;
         ArrayList<ObjectiveCard> commonObjectiveCard;
-        commonObjectiveCard = DrawingDeck.getCommonObjective();
+        commonObjectiveCard = DrawingDeck.drawCommonObjective();
         match.setCommonObjectives(commonObjectiveCard);
         System.out.println("CommonObjectiveCards:");
         //for(ObjectiveCard oc: commonObjectiveCard) oc.printCardAscii();
