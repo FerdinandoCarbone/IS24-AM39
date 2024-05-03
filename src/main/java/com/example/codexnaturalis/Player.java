@@ -1,4 +1,3 @@
-//DA CANCELLARE
 package com.example.codexnaturalis;
 
 import java.io.IOException;
@@ -85,13 +84,13 @@ public class Player implements Serializable {
 
     /**
      * Places the starter card at the center of the player's field
-     * @param fronte: true if the card is faced with if front facing up, otherwise false
+     * @param isFront: true if the card is faced with if front facing up, otherwise false
      */
-    public void placeStarterCard(boolean fronte) {
+    public void placeStarterCard(boolean isFront) {
         int r, c;
         r = c = playerField.getSlots().length / 2;
         StarterCard carta = playerDeck.getStarterCard();
-        carta.setIsPlacedFront(fronte);
+        carta.setIsPlacedFront(isFront);
         playerField.getSlots()[r][c].setBusySlot(true);
         playerField.getSlots()[r][c].setCardSlot(carta);
         playerDeck.setStarterCard(null);
@@ -102,6 +101,9 @@ public class Player implements Serializable {
         }
     }
 
+    /**
+     * Prints the common objectiveCards from the match
+     */
     public void printAllObjective() {
         for (ObjectiveCard c : commonObjCards) {
             c.printObjectiveCard();
@@ -109,14 +111,72 @@ public class Player implements Serializable {
         playerDeck.getSecretObjectiveCard().printObjectiveCard();
     }
 
+
+    /**
+     * Prints the player field with its name
+     */
     public void printFieldWithName() {
         System.out.println("-------------------------");
         System.out.println(playerName + "'s Codex");
         playerField.printField();
     }
 
+    public void placeCard(int row, int column, ResourceGoldCard cardToPlace) {
+        playerField.getSlots()[row][column].setCardSlot(cardToPlace);
+        playerField.getSlots()[row][column].setBusySlot(true);
+        try {
+            //Check the corners of the placed card and add them to the manas
+            for (int i = 0; i < 4; i++) {
+                Corner corner = cardToPlace.getCorners().get(i);
+                increaseResourceElementsMana(corner);
+            }
+
+            if (row != 0 && row != (playerField.getR() - 1) && column != 0 && column != (playerField.getC() - 1)) {
+                for (int i = 0; i < 4; i++) {
+                    updateAdjacentSlots(cardToPlace, row, column, i);
+                }
+            } else {
+                if (row == 0) {
+                    if (column != 0 && column != (playerField.getC() - 1)) {
+                        updateAdjacentSlots(cardToPlace, row, column, 1);
+                        updateAdjacentSlots(cardToPlace, row, column, 2);
+                    } else if (column == (playerField.getC() - 1)) {
+                        updateAdjacentSlots(cardToPlace, row, column, 2);
+                    } else if (column == 0) {
+                        updateAdjacentSlots(cardToPlace, row, column, 1);
+                    }
+                } else if (row == (playerField.getR() - 1)) {
+                    if (column != 0 && column != (playerField.getC() - 1)) {
+                        updateAdjacentSlots(cardToPlace, row, column, 0);
+                        updateAdjacentSlots(cardToPlace, row, column, 3);
+                    } else if (column == (playerField.getC() - 1)) {
+                        updateAdjacentSlots(cardToPlace, row, column, 3);
+                    } else if (column == 0) {
+                        updateAdjacentSlots(cardToPlace, row, column, 0);
+                    }
+                } else if (column == 0) {
+                    if (row != playerField.getR() - 1) {
+                        updateAdjacentSlots(cardToPlace, row, column, 0);
+                        updateAdjacentSlots(cardToPlace, row, column, 1);
+                    }
+                } else if (column == (playerField.getC() - 1)) {
+                    if (row != playerField.getR() - 1) {
+                        updateAdjacentSlots(cardToPlace, row, column, 2);
+                        updateAdjacentSlots(cardToPlace, row, column, 3);
+                    }
+                }
+            }
+        } catch(IndexOutOfBoundsException e){
+            System.err.println("There was an error placing the card. Try again.");
+        }
+    }
+
     /**
-     * TODO: DOCS
+     * Given a row, column, and a card, it places the said card and removes it from the players deck
+     * @param row: row of the placed card
+     * @param column: column of the placed card
+     * @param cardToPlace: card to place
+     * @throws Exception
      */
     public void placeCardAndRemoveFromDeck(int row, int column, ResourceGoldCard cartaDaPiazzare) throws Exception {
         playerField.getSlots()[row][column].setCardSlot(cartaDaPiazzare);
@@ -165,11 +225,20 @@ public class Player implements Serializable {
         }
 
         //Remove the placed card from the player's deck
-        playerDeck.getResourceGoldCards().remove(cartaDaPiazzare);
+        playerDeck.getResourceGoldCards().remove(cardToPlace);
 
     }
 
-    private void updateAdjacentSlots(ResourceGoldCard cartaDaPiazzare,int selectedRow, int selectedColumn, int corner) throws Exception {
+    /**
+     * Given a card to place in the field, one of its corners, the slot's row and column, updates the corner
+     * of the adjacent card
+     * @param cardToPlace: card place on the field
+     * @param selectedRow: Row of the placed card
+     * @param selectedColumn: Column of the placed card
+     * @param corner: corner of the placed card to check
+     * @throws Exception
+     */
+    private void updateAdjacentSlots(ResourceGoldCard cardToPlace,int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
         int rowToCheck = selectedRow + calculateOffSetR(corner);
         int columnToCheck = selectedColumn + calculateOffSetC(corner);
         /* Check if the adjacent slot is busy. If busy update the availability of the adjacent card's corner and
@@ -180,11 +249,16 @@ public class Player implements Serializable {
             int coveredCornerIndex = findCornerToPlace(corner);
             Corner coveredCorner = coveredCard.getCorners().get(coveredCornerIndex);
             decreaseResourceElementsMana(coveredCorner);
-            cartaDaPiazzare.updateCornerToBusy(corner);
+            cardToPlace.updateCornerToBusy(corner);
             coveredCard.updateCornerToBusy(coveredCornerIndex);
-            cartaDaPiazzare.coveredCornersWhenPlaced++;
+            cardToPlace.coveredCornersWhenPlaced++;
         }
     }
+
+    /**
+     * Given a Corner, analyses its content and updates the player's manas
+     * @param corner: corner to check
+     */
 
     private void increaseResourceElementsMana(Corner corner) {
         switch (corner.getResourceElement()) {
@@ -198,6 +272,11 @@ public class Player implements Serializable {
         }
     }
 
+
+    /**
+     * Given a Corner, analyses its content and updates the player's manas
+     * @param corner: corner to check
+     */
     private void decreaseResourceElementsMana(Corner corner) {
         switch (corner.getResourceElement()) {
             case Mushroom -> resourceMana[0]--;
@@ -209,6 +288,27 @@ public class Player implements Serializable {
             case Feather -> elementsMana[2]--;
         }
     }
+
+    /**
+     * Checks is a card is attachable to the adjacent slots
+     * @param row: row of placed card
+     * @param column: column of placed card
+     * @return boolean, true if card can be placed, false otherwise
+     */
+    public boolean isCardAttachableToSlot(int row, int column) {
+        boolean flag = true;
+        for (int i = 0; i < 4; i++) {
+            int rowToCheck = calculateOffSetR(i);
+            int columnToCheck = calculateOffSetC(i);
+            Field.Slot adjacentSlot = playerField.getSlots()[rowToCheck][columnToCheck];
+            if (adjacentSlot.getCardSlot().getCorners().get(findCornerToPlace(i)).isAvailableCorner()) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
+
 
     /**
      * Let A be a card on the field, the player wants to place card B over one if A's corners. Finds which one of
@@ -225,9 +325,6 @@ public class Player implements Serializable {
             default -> -1;
         };
     }
-
-
-
     /**
      * Calculates the row where the new card will be placed based on the card that's already on the player's field
      * @param corner: integer defining the corner of the card already on the field (UR[0], BR[1], BL[2], UL[3])
@@ -296,6 +393,12 @@ public class Player implements Serializable {
         this.firstPlayer = firstPlayer;
     }
 
+    /**
+     * Given an array list of cards, allow the player to choose one
+     * @param cards: cards form which the player will choose
+     * @return ObjectiveCard, chosen from the player
+     * @throws StupidUserException
+     */
     public ObjectiveCard chooseSecretObj(ArrayList<ObjectiveCard> cards) throws StupidUserException {
         System.out.println("Choose a secret objective card: ");
         int i=1;
@@ -318,7 +421,6 @@ public class Player implements Serializable {
         playerDeck.setSecretObjectiveCard(cards.get(choice-1));
         return cards.get(choice-1);
     }
-
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
@@ -362,4 +464,5 @@ public class Player implements Serializable {
     public UUID getPlayerID() {
         return playerID;
     }
+
 }

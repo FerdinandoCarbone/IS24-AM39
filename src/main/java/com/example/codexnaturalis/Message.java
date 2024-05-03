@@ -60,7 +60,7 @@ class GenericTurnMessage extends Message{
         return coordinates;
     }
 
-    public ResourceGoldCard getCardOnHand() {
+    public ArrayList<ResourceGoldCard> getCardOnHand() {
         return cardOnHand;
     }
 
