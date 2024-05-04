@@ -253,17 +253,30 @@ public class Player implements Serializable {
     public boolean isCardAttachableToSlot(int row, int column) {
         boolean flag = true;
         int fieldSize = playerField.getSlots().length;
+        int notBusyCounter = 0;
         for (int i = 0; i < 4; i++) {
             int rowToCheck = row + calculateOffSetR(i);
             int columnToCheck = column + calculateOffSetC(i);
+            System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
             if (rowToCheck < 0 || rowToCheck >= fieldSize || columnToCheck < 0 || columnToCheck >= fieldSize) {
                 System.out.println(RED + "--Slot [" + row + "][" + column + "] not available--" + RESET);
+                notBusyCounter++;
+                if (notBusyCounter == 4) {
+                    flag = false;
+                }
                 continue;
             }
             Field.Slot adjacentSlot = playerField.getSlots()[rowToCheck][columnToCheck];
-            if (adjacentSlot.getCardSlot().getCorners().get(findCornerToPlace(i)).isAvailableCorner()) {
-                flag = false;
-                break;
+            if (adjacentSlot.isBusySlot()) {
+                if (!adjacentSlot.getCardSlot().getCorners().get(findCornerToPlace(i)).isAvailableCorner()) {
+                    flag = false;
+                    break;
+                }
+            } else {
+                notBusyCounter++;
+                if (notBusyCounter == 4) {
+                    flag = false;
+                }
             }
         }
         return flag;

@@ -25,8 +25,8 @@ public class Match {
         this.players = players;
         this.scoreTracker = scoreTracker;
         this.coveredCards = new ArrayList<>();
-        coveredCards.set(0, DrawingDeck.drawCard(true));
-        coveredCards.set(1, DrawingDeck.drawCard(false));
+        coveredCards.add(0, DrawingDeck.drawCard(true));
+        coveredCards.add(1, DrawingDeck.drawCard(false));
     }
 
     /**
@@ -42,8 +42,8 @@ public class Match {
         System.out.println(Colors.GREEN + "--Getting public cards, please wait--" + Colors.RESET);
         ResourceGoldCard publicCard1 = DrawingDeck.drawCard(true);
         ResourceGoldCard publicCard2 = DrawingDeck.drawCard(true);
-        ResourceGoldCard publicCard3 = DrawingDeck.drawCard(true);
-        ResourceGoldCard publicCard4 = DrawingDeck.drawCard(true);
+        ResourceGoldCard publicCard3 = DrawingDeck.drawCard(false);
+        ResourceGoldCard publicCard4 = DrawingDeck.drawCard(false);
         System.out.println(Colors.GREEN + "--Adding public cards--" + Colors.RESET);
         publicCards.add(publicCard1);
         publicCards.add(publicCard2);
@@ -94,12 +94,12 @@ public class Match {
             ResourceGoldCard replacementCard = coveredCards.get(isResourceCard ? 0 : 1);
             publicCards.add(replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to public cards as replacement from covered cards--" + Colors.RESET);
-            coveredCards.set(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
+            coveredCards.add(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
         } else {
             coveredCards.remove(cardDrawn);
             System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " removed from covered cards--" + Colors.RESET);
             ResourceGoldCard replacementCard = DrawingDeck.drawCard(isResourceCard);
-            coveredCards.set(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
+            coveredCards.add(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to covered cards--" + Colors.RESET);
         }
         System.out.println(Colors.GREEN + "--Card added--" + Colors.RESET);

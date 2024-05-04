@@ -66,7 +66,6 @@ abstract class NonObjectiveCard extends Card {
         System.out.println(YELLOW + "[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]" + RESET);
         System.out.print(YELLOW + "[" + (frontCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(2).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "-----------------------------" + RESET);
     }
 
     /**
@@ -79,11 +78,9 @@ abstract class NonObjectiveCard extends Card {
         System.out.println(YELLOW + "[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]" + RESET);
         System.out.print(YELLOW + "[" + (backCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(2).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "-----------------------------" + RESET);
     }
 
     public void printCardFrontAndBack() {
-        System.out.println(YELLOW + "-----------------------------" + RESET);
         if (this instanceof ResourceGoldCard) {
             System.out.println("Analisi carta " + (this instanceof GoldCard? "Oro " : "Risorsa ") + "#" + getIdCard());
         } else if (this instanceof StarterCard) {
@@ -91,7 +88,6 @@ abstract class NonObjectiveCard extends Card {
         }
         printFrontCorners();
         printBackCorners();
-        System.out.println(YELLOW + "-----------------------------" + RESET);
     }
 
     public ArrayList<Corner> getCorners() {

@@ -177,6 +177,7 @@ public class ZakClient {
         }
         player.placeCardAndRemoveFromDeck(row, column, placedCard);
         int i= message.printDrawnCards(1);//covered
+        //TODO: PROBABILE CHE SIA SBAGLIATA QUESTA FUNZIONE, PRINTA DUE VOLTE LE STESSE CARTE
         i= message.printPublicCards(i);//public
         System.out.println("Select a card to draw from public deck: ");
         int selected=getIntInput(i);
@@ -362,6 +363,8 @@ public class ZakClient {
     public static String getPlayerNick() {
         return playerNick;
     }
+    //TODO: FUNZIONE DA CAMBIARE, SI FA -1 ALLA RETURN PERO' VIENE USATA IN POSTI DOVE POSSONO ESSERCI PROBLEMI
+    //TIPO NEL PIAZZARE LA CARTA NEL FIELD
     private static int getIntInput(int range){
         Integer thingToParse=null;
         while(true){
