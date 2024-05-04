@@ -10,7 +10,8 @@ public class Match {
     private ScoreTracker scoreTracker;
     private boolean isLastCycle = false;
     private ArrayList<ObjectiveCard> commonObjectives;
-    private ArrayList<ResourceGoldCard> publicCards;
+    private ArrayList<ResourceGoldCard> publicCards = new ArrayList<>();
+    private ArrayList<ResourceGoldCard> coveredCards;
     private int indexCurrentPlayer;
 
 
@@ -22,6 +23,7 @@ public class Match {
     public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
         this.players = players;
         this.scoreTracker = scoreTracker;
+        this.coveredCards = new ArrayList<>(Arrays.asList(DrawingDeck.drawCard(true), DrawingDeck.drawCard(false)));
     }
 
     public Match(ScoreTracker scoreTracker) {
@@ -38,7 +40,7 @@ public class Match {
      * Chooses who will be the first player and updates its firstPlayer attribute
      * @return Player, first player of the match
      */
-    private StandardMatchMessage chooseRandomFirstPlayer() {
+    public StandardMatchMessage chooseRandomFirstPlayer() {
         Collections.shuffle(players);
 
         Player playingPlayer = players.getFirst();
@@ -51,36 +53,39 @@ public class Match {
         publicCards.add(DrawingDeck.drawCard(false));
         publicCards.add(DrawingDeck.drawCard(false));
 
-        return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), null, null, null);
+        return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), null, null, null, null);
     }
 
-    private StandardMatchMessage genericTurn(GenericTurnMessage msg) throws Exception {
+    public StandardMatchMessage genericTurn(GenericTurnMessage msg) {
         Player playingPlayer = getPlayerFromId(msg.getClientID());
+        String playerName = msg.getSender();
 
         //PLACE CARD ON FIELD
         int row = msg.getCoordinates().getKey();
         int column = msg.getCoordinates().getValue();
-        playingPlayer.placeCardAndRemoveFromDeck(row, column, msg.getCardOnHand());
+        playingPlayer.placeCardAndRemoveFromDeck(row, column, msg.getCardOnHand().getFirst());
 
         //These 2 Ifs check if we are at the end of the cycle and if the playing player is the last on the cycle
         if (!isLastCycle) {
-            if (playerIsWinner(msg.getCardOnHand(), playingPlayer)) {
+            if (playerIsWinner(msg.getCardOnHand().getFirst(), playingPlayer)) {
                 isLastCycle = true;
             }
         }
         if (isLastCycle && indexCurrentPlayer == players.size() - 1) {
-            return new EndMatchMessage(null, msg.getClientID(), null, msg.getCardOnHand(), msg.getCoordinates());
+            return new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
         }
 
         //ADD THE DRAWN CARD TO THE PLAYER'S DECK AND REMOVE IT FROM WHERE IT WAS DRAWN
-        boolean isResourceCard = msg.getDrawnCard() instanceof ResourceCard;
-        if (publicCards.contains(msg.getDrawnCard())) {
-            publicCards.remove(msg.getDrawnCard());
+        ResourceGoldCard cardDrawn = msg.getDrawnCard().getFirst();
+        boolean isResourceCard = cardDrawn instanceof ResourceCard;
+        if (publicCards.contains(cardDrawn)) {
+            publicCards.remove(cardDrawn);
             ResourceGoldCard replacementCard = DrawingDeck.drawCard(isResourceCard);
             publicCards.add(replacementCard);
-            playingPlayer.getPlayerDeck().getResourceGoldCards().add(msg.getDrawnCard());
+            playingPlayer.getPlayerDeck().getResourceGoldCards().add(cardDrawn);
         } else {
-            playingPlayer.getPlayerDeck().getResourceGoldCards().add(DrawingDeck.drawCard(isResourceCard));
+            coveredCards.remove(cardDrawn);
+            coveredCards.add(DrawingDeck.drawCard(isResourceCard));
         }
 
         //SELECT INDEX OF NEXT PLAYER
@@ -91,7 +96,7 @@ public class Match {
         indexCurrentPlayer = nextPlayerIndex;
         /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
          * Infine chiamare lastRoundRoutine*/
-        return new StandardMatchMessage(publicCards, currentPlayerId, nextPlayerId, msg.getCardOnHand(), msg.getCoordinates());
+        return new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId,  msg.getCardOnHand().getFirst(), msg.getCoordinates());
 
     }
 
@@ -124,10 +129,10 @@ public class Match {
             UUID nextPlayerId = nextPlayer.getPlayerID();
             indexCurrentPlayer = players.indexOf(nextPlayer);
             players.remove(playerToRemove);
-            return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, nextPlayerId);
+            return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName(), nextPlayerId);
         } else {
             players.remove(playerToRemove);
-            return new notCurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId);
+            return new notCurrentPlayerDisconnectedMessage(publicCards,  disconnectedPlayerId, playerToRemove.getPlayerName());
         }
 
     }
@@ -739,6 +744,13 @@ public class Match {
         }
     }
 
+    public ArrayList<ResourceGoldCard> getCoveredCards() {
+        return coveredCards;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
 }
 
 

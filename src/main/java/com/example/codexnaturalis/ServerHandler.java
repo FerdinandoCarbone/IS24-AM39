@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -72,7 +73,18 @@ public class ServerHandler extends Thread implements Runnable {
         //todo: robe per chiudere i thread
         ZakClient.clientDisconnect();
     }
-
+    public void universalStatusUpdater(StandardMatchMessage newStatus){
+        UUID oldPlayer=newStatus.getClientID();
+        ResourceGoldCard placedCard= newStatus.getPlacedCard();
+        Pair<Integer,Integer> coords= newStatus.getCoords();
+        ArrayList<Player> players = ZakClient.getOtherPlayers();
+        for(Player p:players){
+            if(p.getPlayerID().equals(oldPlayer)){
+                p.placeCard(coords.getKey(), coords.getValue(),placedCard);
+                break;
+            }
+        }
+    }
     public GenericTurnMessage getMessageTurn() {
         return messageTurn;
     }
@@ -157,6 +169,10 @@ class ServerSocketHandler extends ServerHandler {
                 break;
             case "LobbyCreationMessage":
                 break;
+            case "StandardMatchMessage":
+                System.out.println(messageType);
+                universalStatusUpdater((StandardMatchMessage) message);
+                break;
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
         }
     }
@@ -227,6 +243,9 @@ class ServerRMIHandler extends ServerHandler{
                 endOfTheGame((EndGameMessage)message);
                 break;
             case "LobbyCreationMessage":
+                break;
+            case "StandardMatchMessage":
+                universalStatusUpdater((StandardMatchMessage) message);
                 break;
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
         }

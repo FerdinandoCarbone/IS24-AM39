@@ -64,6 +64,9 @@ public class ZakServer {
         welcomePlayer();
         gameStarted = true;
         System.out.println("Match has began");
+        StandardMatchMessage stdmessage = match.chooseRandomFirstPlayer();
+        GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(),stdmessage.getClientID(),match.getCoveredCards(),stdmessage.getPublicCardsNewState(),null); //match loop starts here
+        serverConMan.sendMessage(stdmessage.getClientID(),message);
         while(gameStarted){
             serverCommand = getInput();
             interpretInput(serverCommand);

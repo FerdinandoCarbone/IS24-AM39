@@ -47,9 +47,9 @@ abstract class NonObjectiveCard extends Card {
         return flagAvailable;
     }
 
-    public void updateCornerToBusy(int cornerIndex) throws Exception {
+    public void updateCornerToBusy(int cornerIndex) throws IndexOutOfBoundsException {
         if (cornerIndex < 0 || cornerIndex > 3) {
-            throw new Exception("CORNER OUT OF BOUNDS");
+            throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
         }
 
         getCorners().get(cornerIndex).setAvailableCorner(false);
@@ -58,7 +58,7 @@ abstract class NonObjectiveCard extends Card {
     /**
      * Printa a console gli angoli frontali della carta
      */
-    private void printFrontCorners() {
+    public void printFrontCorners() {
         System.out.println("Front Corners");
         System.out.print("[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]");
         System.out.println("[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]");
@@ -69,7 +69,7 @@ abstract class NonObjectiveCard extends Card {
     /**
      * Printa a console gli angoli posteriori della carta con [0] se non è disponibile e [1] se disponibile
      */
-    private void printBackCorners() {
+    public void printBackCorners() {
         System.out.println("Back Corners");
         System.out.print("[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]");
         System.out.println("[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]");

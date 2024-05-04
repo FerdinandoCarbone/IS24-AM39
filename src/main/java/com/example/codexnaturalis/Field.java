@@ -35,6 +35,7 @@ public class Field implements Serializable {
         }
     }
 
+
     public Slot[][] getSlots() {
         return slots;
     }

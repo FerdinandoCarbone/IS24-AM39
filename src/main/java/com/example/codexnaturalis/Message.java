@@ -45,23 +45,39 @@ class LobbyCreationMessage extends Message{
     }
 }
 class GenericTurnMessage extends Message{
-    private ResourceGoldCard drawnCard;
-    private ResourceGoldCard cardOnHand;
+    private ArrayList<ResourceGoldCard> drawnCard;
+    private ArrayList<ResourceGoldCard> cardOnHand;
     private Pair<Integer,Integer> coordinates;
-    public GenericTurnMessage(String sender, UUID ClientID,ResourceGoldCard drawnCard,ResourceGoldCard cardOnHand,Pair<Integer,Integer> coordinates) {
+    public GenericTurnMessage(String sender, UUID ClientID,ArrayList<ResourceGoldCard> drawnCard,ArrayList<ResourceGoldCard> cardOnHand,Pair<Integer,Integer> coordinates) {
         super(sender, ClientID);
         this.cardOnHand = cardOnHand;
         this.drawnCard = drawnCard;
         this.coordinates = coordinates;
     }
-    public ResourceGoldCard getDrawnCard(){ return this.drawnCard;}
+    public ArrayList<ResourceGoldCard> getDrawnCard(){ return this.drawnCard;}
 
     public Pair<Integer, Integer> getCoordinates() {
         return coordinates;
     }
 
-    public ResourceGoldCard getCardOnHand() {
+    public ArrayList<ResourceGoldCard> getCardOnHand() {
         return cardOnHand;
+    }
+    public int printDrawnCards(int i){
+        for(ResourceGoldCard rGC: drawnCard){
+            System.out.print(i+": ");
+            rGC.printBackCorners();
+            ++i;
+        }
+        return i;
+    }
+    public int printPublicCards(int i){
+        for(ResourceGoldCard rGC: drawnCard){
+            System.out.print(i+": ");
+            rGC.printCardFrontAndBack();
+            ++i;
+        }
+        return i;
     }
 
 }
@@ -70,15 +86,25 @@ class BroadCastStartingMessage extends Message{
     private HashMap<UUID, Player> players;
     private ArrayList<ObjectiveCard> selectedSecret;
     private HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector;
+    private Boolean starterCardFace;
     public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> players, ArrayList<ObjectiveCard> commonObjectiveCards,HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector) {
         super(sender, ClientID);
         this.players = players;
         this.secretObjectiveCardSelector = secretObjectiveCardSelector;
         this.selectedSecret=null;
+        this.starterCardFace = null;
     }
 
     public ArrayList<ObjectiveCard> getSecretObjectiveCards(UUID clientID) {
         return secretObjectiveCardSelector.get(clientID);
+    }
+
+    public Boolean getStarterCardFace() {
+        return starterCardFace;
+    }
+
+    public void setStarterCardFace(Boolean starterCardFace) {
+        this.starterCardFace = starterCardFace;
     }
 
     public void setSelectedSecret(ArrayList<ObjectiveCard> secretObjectiveCardSelector) {
