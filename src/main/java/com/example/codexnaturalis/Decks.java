@@ -32,8 +32,8 @@ class DrawingDeck {
 
         ArrayList<ObjectiveCard> cards = new ArrayList<>();
         cards.add(totalObjectiveCards.get(0));
-        cards.add(totalObjectiveCards.get(1));
         totalObjectiveCards.remove(0);
+        cards.add(totalObjectiveCards.get(1));
         totalObjectiveCards.remove(1);
         return cards;
     }

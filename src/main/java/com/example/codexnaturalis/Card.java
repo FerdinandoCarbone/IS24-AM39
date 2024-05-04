@@ -7,7 +7,8 @@ import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Card implements Serializable {
-
+    String YELLOW = "\u001B[33m";
+    String RESET = "\u001B[0m";
     private int idCard;
     private String[] artRef;
 
@@ -59,26 +60,30 @@ abstract class NonObjectiveCard extends Card {
      * Printa a console gli angoli frontali della carta
      */
     public void printFrontCorners() {
-        System.out.println("Front Corners");
-        System.out.print("[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]");
-        System.out.println("[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]");
-        System.out.print("[" + (frontCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(2).getResourceElement()) + "]");
-        System.out.println("[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]");
+        System.out.println(YELLOW + "-----------------------------" + RESET);
+        System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (frontCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "-----------------------------" + RESET);
     }
 
     /**
      * Printa a console gli angoli posteriori della carta con [0] se non è disponibile e [1] se disponibile
      */
     public void printBackCorners() {
-        System.out.println("Back Corners");
-        System.out.print("[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]");
-        System.out.println("[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]");
-        System.out.print("[" + (backCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(2).getResourceElement()) + "]");
-        System.out.println("[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]");
+        System.out.println(YELLOW + "-----------------------------" + RESET);
+        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (backCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "-----------------------------" + RESET);
     }
 
     public void printCardFrontAndBack() {
-        System.out.println("-----------------------------");
+        System.out.println(YELLOW + "-----------------------------" + RESET);
         if (this instanceof ResourceGoldCard) {
             System.out.println("Analisi carta " + (this instanceof GoldCard? "Oro " : "Risorsa ") + "#" + getIdCard());
         } else if (this instanceof StarterCard) {
@@ -86,27 +91,8 @@ abstract class NonObjectiveCard extends Card {
         }
         printFrontCorners();
         printBackCorners();
-        System.out.println("-----------------------------");
+        System.out.println(YELLOW + "-----------------------------" + RESET);
     }
-
-    /**
-     * Prints card
-     */
-    public void printCard() {
-            System.out.println("-----------------------------");
-            if (this instanceof ResourceGoldCard) {
-                System.out.println("Analisi carta " + (this instanceof GoldCard? "Oro " : "Risorsa ") + "#" + getIdCard());
-            } else if (this instanceof StarterCard) {
-                System.out.println("Analisi carta Starter " + "#" + getIdCard());
-            }
-            if (isPlacedFront) {
-                printFrontCorners();
-            } else {
-                printBackCorners();
-            }
-            System.out.println("-----------------------------");
-
-        }
 
     public ArrayList<Corner> getCorners() {
         if (isPlacedFront) {

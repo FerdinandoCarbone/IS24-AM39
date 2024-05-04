@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import static com.example.codexnaturalis.Colors.*;
+
 /**
  * Player of the game
  */
@@ -22,11 +24,7 @@ public class Player implements Serializable {
      * Defines the player's deck
      */
     private PlayerDeck playerDeck;
-    /**
-     * Defines whether the player is the first to start the game
-     */
     private ArrayList<ObjectiveCard> commonObjCards;
-    private boolean firstPlayer;
     /**
      * Defines the player's own field
      */
@@ -50,10 +48,6 @@ public class Player implements Serializable {
      * 2: Feather
      */
     private int[] elementsMana;
-    /**
-     * Defines if the player has played its first turn in the game
-     */
-    private boolean firstTurn = true;
 
     /**
      * Constructor of the Player class
@@ -65,7 +59,6 @@ public class Player implements Serializable {
         this.playerName = playerName;
         this.token = token;
         this.playerDeck = DrawingDeck.generatePlayerDeck();
-        this.firstPlayer = false;
         this.playerField = playerField;
         this.resourceMana = new int[]{0,0,0,0};
         this.elementsMana = new int[]{0,0,0};
@@ -76,7 +69,6 @@ public class Player implements Serializable {
         this.playerName = null;
         this.token = token;
         this.playerDeck = DrawingDeck.generatePlayerDeck();
-        this.firstPlayer = false;
         this.playerField = playerField;
         this.resourceMana = new int[]{0,0,0,0};
         this.elementsMana = new int[]{0,0,0};
@@ -179,6 +171,11 @@ public class Player implements Serializable {
      * @throws Exception
      */
     public void placeCardAndRemoveFromDeck(int row, int column, ResourceGoldCard cardToPlace) {
+
+        if (!isCardAttachableToSlot(row, column)) {
+            System.out.println(RED + "--[ERROR IN Player.placeCardAndRemoveFromDeck, CARD NOT PLACEBLE]--" + RESET);
+            return;
+        }
         //Place the card on the field
         placeCard(row, column, cardToPlace);
 
@@ -255,9 +252,14 @@ public class Player implements Serializable {
      */
     public boolean isCardAttachableToSlot(int row, int column) {
         boolean flag = true;
+        int fieldSize = playerField.getSlots().length;
         for (int i = 0; i < 4; i++) {
-            int rowToCheck = calculateOffSetR(i);
-            int columnToCheck = calculateOffSetC(i);
+            int rowToCheck = row + calculateOffSetR(i);
+            int columnToCheck = column + calculateOffSetC(i);
+            if (rowToCheck < 0 || rowToCheck >= fieldSize || columnToCheck < 0 || columnToCheck >= fieldSize) {
+                System.out.println(RED + "--Slot [" + row + "][" + column + "] not available--" + RESET);
+                continue;
+            }
             Field.Slot adjacentSlot = playerField.getSlots()[rowToCheck][columnToCheck];
             if (adjacentSlot.getCardSlot().getCorners().get(findCornerToPlace(i)).isAvailableCorner()) {
                 flag = false;
@@ -347,10 +349,6 @@ public class Player implements Serializable {
         elementsMana[index] += mana;
     }
     //SETTERS AND GETTERS
-    public void setFirstPlayer(boolean firstPlayer) {
-        this.firstPlayer = firstPlayer;
-    }
-
     /**
      * Given an array list of cards, allow the player to choose one
      * @param cards: cards form which the player will choose
@@ -383,10 +381,6 @@ public class Player implements Serializable {
         this.playerName = playerName;
     }
 
-    public void setFirstTurn(boolean firstTurn) {
-        this.firstTurn = firstTurn;
-    }
-
     public void setCommonObjCards(ArrayList<ObjectiveCard> cards) {
         this.commonObjCards = cards;
     }
@@ -405,10 +399,6 @@ public class Player implements Serializable {
 
     public int getScore() {
         return score;
-    }
-
-    public boolean isFirstTurn() {
-        return firstTurn;
     }
 
     public int[] getResourceMana() {

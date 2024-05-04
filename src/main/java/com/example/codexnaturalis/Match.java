@@ -3,16 +3,17 @@ package com.example.codexnaturalis;
 import java.util.*;
 
 public class Match {
-    private ArrayList<Player> players;
+    private final ArrayList<Player> players;
     private ArrayList<Player> winners;
     private ArrayList<Player> finalWinners;
     protected static HashMap<Player, Integer> hashObjectivePoints = new HashMap<>();
-    private ScoreTracker scoreTracker;
+    private final ScoreTracker scoreTracker;
     private boolean isLastCycle = false;
     private ArrayList<ObjectiveCard> commonObjectives;
     private ArrayList<ResourceGoldCard> publicCards = new ArrayList<>();
     private ArrayList<ResourceGoldCard> coveredCards;
     private int indexCurrentPlayer;
+
 
 
     /**
@@ -23,17 +24,9 @@ public class Match {
     public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
         this.players = players;
         this.scoreTracker = scoreTracker;
-        this.coveredCards = new ArrayList<>(Arrays.asList(DrawingDeck.drawCard(true), DrawingDeck.drawCard(false)));
-    }
-
-    public Match(ScoreTracker scoreTracker) {
-        this.players = new ArrayList<>();
-        this.scoreTracker = scoreTracker;
-    }
-
-    public void setCommonObjectives(ArrayList<ObjectiveCard> commonObjectives) {
-        this.commonObjectives = commonObjectives;
-        for(Player p: players) p.setCommonObjCards(commonObjectives);
+        this.coveredCards = new ArrayList<>();
+        coveredCards.set(0, DrawingDeck.drawCard(true));
+        coveredCards.set(1, DrawingDeck.drawCard(false));
     }
 
     /**
@@ -45,26 +38,40 @@ public class Match {
 
         Player playingPlayer = players.getFirst();
         indexCurrentPlayer = 0;
-        playingPlayer.setFirstPlayer(true);
-        playingPlayer.setFirstTurn(false);
-        System.out.println(playingPlayer.getPlayerName() + " è il primo a giocare!");
-        publicCards.add(DrawingDeck.drawCard(true));
-        publicCards.add(DrawingDeck.drawCard(true));
-        publicCards.add(DrawingDeck.drawCard(false));
-        publicCards.add(DrawingDeck.drawCard(false));
+        System.out.println(Colors.GREEN + playingPlayer.getPlayerName() + " is first to play!" + Colors.RESET);
+        System.out.println(Colors.GREEN + "--Getting public cards, please wait--" + Colors.RESET);
+        ResourceGoldCard publicCard1 = DrawingDeck.drawCard(true);
+        ResourceGoldCard publicCard2 = DrawingDeck.drawCard(true);
+        ResourceGoldCard publicCard3 = DrawingDeck.drawCard(true);
+        ResourceGoldCard publicCard4 = DrawingDeck.drawCard(true);
+        System.out.println(Colors.GREEN + "--Adding public cards--" + Colors.RESET);
+        publicCards.add(publicCard1);
+        publicCards.add(publicCard2);
+        publicCards.add(publicCard3);
+        publicCards.add(publicCard4);
+        System.out.println(Colors.GREEN + "--Public cards successfully added to the match, here they are:" + Colors.RESET);
+        for (ResourceGoldCard card : publicCards) {
+            card.printCardFrontAndBack();
+        }
 
-        return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), null, null, null, null);
+        return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), playingPlayer.getPlayerName(), null, null, null);
     }
 
     public StandardMatchMessage genericTurn(GenericTurnMessage msg) {
         Player playingPlayer = getPlayerFromId(msg.getClientID());
-        String playerName = msg.getSender();
+        String playerName = playingPlayer.getPlayerName();
+
+        System.out.println(Colors.GREEN + "--" + playerName + " is playing his turn--" + Colors.RESET);
 
         //PLACE CARD ON FIELD
         int row = msg.getCoordinates().getKey();
         int column = msg.getCoordinates().getValue();
-        playingPlayer.placeCardAndRemoveFromDeck(row, column, msg.getCardOnHand().getFirst());
+        ResourceGoldCard cardToPlace = msg.getCardOnHand().getFirst();
+        System.out.println(Colors.GREEN + "--Placing #" + cardToPlace.getIdCard() + " card on " + playerName + "'s field in [" + row + "][" + column + "]--" + Colors.RESET);
+        playingPlayer.placeCardAndRemoveFromDeck(row, column, cardToPlace);
+        System.out.println(Colors.GREEN + "--Card placed--" + Colors.RESET);
 
+        System.out.println(Colors.GREEN + "--Check of cycle--" + Colors.RESET);
         //These 2 Ifs check if we are at the end of the cycle and if the playing player is the last on the cycle
         if (!isLastCycle) {
             if (playerIsWinner(msg.getCardOnHand().getFirst(), playingPlayer)) {
@@ -77,27 +84,38 @@ public class Match {
 
         //ADD THE DRAWN CARD TO THE PLAYER'S DECK AND REMOVE IT FROM WHERE IT WAS DRAWN
         ResourceGoldCard cardDrawn = msg.getDrawnCard().getFirst();
+        System.out.println(Colors.GREEN + "--Adding the drawn card #" + cardDrawn.getIdCard() + " to " + playerName + "'s deck--" + Colors.RESET);
         boolean isResourceCard = cardDrawn instanceof ResourceCard;
         if (publicCards.contains(cardDrawn)) {
             publicCards.remove(cardDrawn);
-            ResourceGoldCard replacementCard = DrawingDeck.drawCard(isResourceCard);
-            publicCards.add(replacementCard);
+            System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " removed from public cards--" + Colors.RESET);
             playingPlayer.getPlayerDeck().getResourceGoldCards().add(cardDrawn);
+            System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " added to --" + playingPlayer.getPlayerName() + "'s deck from public cards--" + Colors.RESET);
+            ResourceGoldCard replacementCard = coveredCards.get(isResourceCard ? 0 : 1);
+            publicCards.add(replacementCard);
+            System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to public cards as replacement from covered cards--" + Colors.RESET);
+            coveredCards.set(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
         } else {
             coveredCards.remove(cardDrawn);
-            coveredCards.add(DrawingDeck.drawCard(isResourceCard));
+            System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " removed from covered cards--" + Colors.RESET);
+            ResourceGoldCard replacementCard = DrawingDeck.drawCard(isResourceCard);
+            coveredCards.set(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
+            System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to covered cards--" + Colors.RESET);
         }
+        System.out.println(Colors.GREEN + "--Card added--" + Colors.RESET);
 
         //SELECT INDEX OF NEXT PLAYER
+        System.out.println(Colors.GREEN + "--Selecting next player--" + Colors.RESET);
         UUID currentPlayerId = playingPlayer.getPlayerID();
         int nextPlayerIndex = selectIndexNextPlayer(indexCurrentPlayer);
         Player nextPlayer = players.get(nextPlayerIndex);
+        System.out.println(Colors.GREEN + "--" + nextPlayer.getPlayerName() + " is the next player--" + Colors.RESET);
         UUID nextPlayerId = nextPlayer.getPlayerID();
         indexCurrentPlayer = nextPlayerIndex;
+        System.out.println(Colors.GREEN + "--Next player selected, it's" + playerName + "'s turn--" + Colors.RESET);
         /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
          * Infine chiamare lastRoundRoutine*/
         return new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId,  msg.getCardOnHand().getFirst(), msg.getCoordinates());
-
     }
 
     private Player getPlayerFromId(UUID playerId) {
@@ -122,16 +140,22 @@ public class Match {
 
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
         Player playerToRemove = getPlayerFromId(disconnectedPlayerId);
+        System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " disconnected, removing from players--" + Colors.RESET);
         Player currentPlayer = players.get(indexCurrentPlayer);
+        System.out.println(Colors.GREEN + "--" + currentPlayer.getPlayerName() + " is playing--" + Colors.RESET);
         //Se il giocatore si disconnette prima di giocare il suo turno
         if (playerToRemove.equals(currentPlayer)) {
+            System.out.println(Colors.GREEN + "--Choosing next player--" + Colors.RESET);
             Player nextPlayer = players.get(selectIndexNextPlayer(indexCurrentPlayer));
             UUID nextPlayerId = nextPlayer.getPlayerID();
             indexCurrentPlayer = players.indexOf(nextPlayer);
+            System.out.println(Colors.GREEN + "--" + nextPlayer.getPlayerName() + " is the next player--" + Colors.RESET);
             players.remove(playerToRemove);
+            System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
             return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName(), nextPlayerId);
         } else {
             players.remove(playerToRemove);
+            System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
             return new notCurrentPlayerDisconnectedMessage(publicCards,  disconnectedPlayerId, playerToRemove.getPlayerName());
         }
 
@@ -751,6 +775,12 @@ public class Match {
     public ArrayList<Player> getPlayers() {
         return players;
     }
+
+    public void setCommonObjectives(ArrayList<ObjectiveCard> commonObjectives) {
+        this.commonObjectives = commonObjectives;
+        for(Player p: players) p.setCommonObjCards(commonObjectives);
+    }
+
 }
 
 
