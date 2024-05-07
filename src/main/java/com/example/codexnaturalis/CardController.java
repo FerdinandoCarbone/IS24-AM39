@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import java.io.IOException;
 import java.util.Objects;
@@ -29,9 +30,11 @@ public class CardController extends Pane {
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
-
         isFront = true;
         flipButton.setOnAction(event -> flipCard());
+        HBox hbox = new HBox(cardImageView,flipButton);
+        this.getChildren().add(hbox);
+
     }
 
     public void setupCard(Card newCard) {

@@ -17,7 +17,7 @@ public class HelloApplication extends Application {
         AppController controller = fxmlLoader.getController();
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
-        stage.setTitle("Hello!");
+        stage.setTitle("Codex Naturalis by IS-AM39");
         stage.setScene(scene);
         stage.show();
     }

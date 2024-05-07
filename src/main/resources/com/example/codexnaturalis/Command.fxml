@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root type="javafx.scene.layout.TilePane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <Button fx:id="command1" layoutX="10.0" layoutY="5.0" mnemonicParsing="false" text="Flip" style="-fx-cursor: hand"/>
+    <Button fx:id="command2" layoutX="20.0" layoutY="5.0" mnemonicParsing="false" text="Flip" style="-fx-cursor: hand"/>
+    <Button fx:id="command3" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Flip" style="-fx-cursor: hand"/>
+
+</fx:root>

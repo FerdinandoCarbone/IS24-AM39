@@ -5,12 +5,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 
-public class PlayerDeckController extends HBox {
+public class PlayerDeckController extends VBox {
 
     @FXML
     private CardController card1;
@@ -29,6 +29,7 @@ public class PlayerDeckController extends HBox {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PlayerDeck.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
+        this.setSpacing(168.0);
         fxmlLoader.load();
 
 //        cardReceiverButton.setOnAction(event -> receiveCards());

@@ -5,10 +5,12 @@
 <?import javafx.scene.layout.*?>
 
 <fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <HBox>
     <ImageView fx:id="cardImageView" fitHeight="163.0" fitWidth="246.0" layoutX="12.0" layoutY="12.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
     -fx-border-radius: 10; -fx-cursor: hand" />
-    <Button fx:id="flipButton" layoutX="123.0" layoutY="175.0" mnemonicParsing="false" text="Flip" style="-fx-cursor: hand"/>
-   <padding>
+    <Button fx:id="flipButton" layoutX="10.0" layoutY="81.5" mnemonicParsing="false" text="Flip" style="-fx-cursor: hand"/>
+    </HBox>
+    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
    </padding>
 </fx:root>

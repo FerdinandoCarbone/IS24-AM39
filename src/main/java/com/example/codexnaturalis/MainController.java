@@ -2,12 +2,18 @@ package com.example.codexnaturalis;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.TilePane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MainController implements Initializable {
+public class MainController extends TilePane implements Initializable {
+    @FXML
+    public CommandBoxController commands;
+    @FXML
+    public Button switchCards;
     @FXML
     private PlayerDeckController playerDeck;
     @FXML

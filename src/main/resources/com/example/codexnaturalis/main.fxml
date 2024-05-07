@@ -4,14 +4,30 @@
 <?import com.example.codexnaturalis.StructLeftController?>
 
 <?import com.example.codexnaturalis.StructRightController?>
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.codexnaturalis.MainController"
-            minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
-    <bottom>
-        <PlayerDeckController fx:id="playerDeck" />
-    </bottom>
-    <top >
+<?import com.example.codexnaturalis.CommandBoxController?>
+<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.text.TextFlow?>
+
+<TilePane xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="com.example.codexnaturalis.MainController"
+        minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
+<HBox>
         <StructRightController fx:id="struct" />
-    </top>
-</BorderPane>
+    <VBox>
+        <CommandBoxController fx:id="commands"/>
+        <BorderPane>
+        <Button fx:id="switchCards" layoutX="10.0" layoutY="81.5" mnemonicParsing="false" text="Flip" style="-fx-cursor: hand"/>
+        <PlayerDeckController fx:id="playerDeck" />
+        </BorderPane>
+        <TextFlow>
+
+        </TextFlow>
+        <TextField>
+
+        </TextField>
+    </VBox>
+</HBox>
+</TilePane>
