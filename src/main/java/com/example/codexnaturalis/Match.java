@@ -93,6 +93,7 @@ public class Match {
             System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " added to --" + playingPlayer.getPlayerName() + "'s deck from public cards--" + Colors.RESET);
             ResourceGoldCard replacementCard = coveredCards.get(isResourceCard ? 0 : 1);
             publicCards.add(replacementCard);
+            coveredCards.remove(replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to public cards as replacement from covered cards--" + Colors.RESET);
             coveredCards.add(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
         } else {

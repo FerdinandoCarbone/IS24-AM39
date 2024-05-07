@@ -177,7 +177,6 @@ public class ZakClient {
         }
         player.placeCardAndRemoveFromDeck(row, column, placedCard);
         int i= message.printDrawnCards(1);//covered
-        //TODO: PROBABILE CHE SIA SBAGLIATA QUESTA FUNZIONE, PRINTA DUE VOLTE LE STESSE CARTE
         i= message.printPublicCards(i);//public
         System.out.println("Select a card to draw from public deck: ");
         int selected=getIntInput(i);

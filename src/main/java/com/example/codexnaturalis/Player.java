@@ -2,8 +2,7 @@ package com.example.codexnaturalis;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 
 import static com.example.codexnaturalis.Colors.*;
 
@@ -85,7 +84,6 @@ public class Player implements Serializable {
         carta.setIsPlacedFront(isFront);
         playerField.getSlots()[r][c].setBusySlot(true);
         playerField.getSlots()[r][c].setCardSlot(carta);
-        playerDeck.setStarterCard(null);
         //Update resources and elements manas
         for (int i = 0; i < 4; i++) {
             Corner corner = carta.getCorners().get(i);
@@ -103,6 +101,28 @@ public class Player implements Serializable {
         playerDeck.getSecretObjectiveCard().printObjectiveCard();
     }
 
+    public void printManas() {
+        System.out.println(Colors.BLUE + "-----RESOURCES AND MATERIALS------" + Colors.RESET);
+        System.out.println(Colors.BLUE + "Mushroom: " + resourceMana[0] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Leaf: " + resourceMana[1] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Wolf: " + resourceMana[2] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Butterfly: " + resourceMana[3] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Ink: " + elementsMana[0] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Papyrus: " + elementsMana[0] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Feather: " + elementsMana[0] + Colors.RESET);
+    }
+
+    public boolean allCornersEmpty(NonObjectiveCard card) {
+        boolean flag = true;
+        for (Corner c : card.getCorners()) {
+            if (!c.isAvailableCorner()) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
+
 
     /**
      * Prints the player field with its name
@@ -111,6 +131,84 @@ public class Player implements Serializable {
         System.out.println("-------------------------");
         System.out.println(playerName + "'s Codex");
         playerField.printField();
+    }
+
+    /**
+     * Given a row and column, gives the info in that slot
+     * @param row: row to check
+     * @param column: column to check
+     */
+    public void fieldAnalysis(int row, int column) {
+        Field.Slot slotToCheck = getPlayerField().getSlots()[row][column];
+        NonObjectiveCard carta = slotToCheck.getCardSlot();
+        System.out.println(Colors.BLUE + "Analysis of card in slot [" + row + "][" + column + "]." + Colors.RESET);
+        carta.printCard();
+    }
+
+    /**
+     * Given a gold card, checks its requirements
+     * @param card: card to check
+     * @return boolean, true if requirements are fulfilled, false otherwise
+     */
+    public boolean requirementsAreFulfilled(GoldCard card) {
+        boolean reqsFulfilled = true;
+
+        ArrayList<ResourceGoldCard.ResourceElement> alreadySeen = new ArrayList<>();
+        HashMap<ResourceGoldCard.ResourceElement, Integer> counts = new HashMap<>();
+        ArrayList<ResourceGoldCard.ResourceElement> resources = card.getRequiredResources();
+
+        for (ResourceGoldCard.ResourceElement e : resources) {
+            if (!alreadySeen.contains(e)) {
+                alreadySeen.add(e);
+                counts.put(e, Collections.frequency(resources, e));
+            }
+        }
+
+        for (ResourceGoldCard.ResourceElement e : alreadySeen) {
+            switch (e) {
+                case Mushroom -> reqsFulfilled = isResourcesEnough(0, counts.get(e));
+                case Leaf -> reqsFulfilled = isResourcesEnough(1, counts.get(e));
+                case Wolf -> reqsFulfilled = isResourcesEnough(2, counts.get(e));
+                case Butterfly -> reqsFulfilled = isResourcesEnough(3, counts.get(e));
+                case Ink -> reqsFulfilled = isElementsEnough(0, counts.get(e));
+                case Papyrus -> reqsFulfilled = isElementsEnough(1, counts.get(e));
+                case Feather -> reqsFulfilled = isElementsEnough(2, counts.get(e));
+            }
+            if (!reqsFulfilled) {
+                break;
+            }
+        }
+
+        return reqsFulfilled;
+    }
+
+    /**
+     * Auxiliary method to check gold card requirements
+     * @param index: index of manas
+     * @param numberToCheck: number to check
+     * @return boolean, true if number to check is enough, false otherwise
+     */
+    private boolean isResourcesEnough(int index, int numberToCheck) {
+        boolean flag = true;
+        if (resourceMana[index] < numberToCheck) {
+            flag = false;
+        }
+        return flag;
+    }
+
+    /**
+     * Auxiliary method to check gold card requirements
+     * @param index: index of manas
+     * @param numberToCheck: number to check
+     * @return boolean, true if number to check is enough, false otherwise
+     */
+    private boolean isElementsEnough(int index, int numberToCheck) {
+        boolean flag = true;
+        if (elementsMana[index] < numberToCheck) {
+            flag = false;
+        }
+
+        return flag;
     }
 
     public void placeCard(int row, int column, ResourceGoldCard cardToPlace) {
@@ -259,7 +357,7 @@ public class Player implements Serializable {
             int columnToCheck = column + calculateOffSetC(i);
             System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
             if (rowToCheck < 0 || rowToCheck >= fieldSize || columnToCheck < 0 || columnToCheck >= fieldSize) {
-                System.out.println(RED + "--Slot [" + row + "][" + column + "] not available--" + RESET);
+                System.out.println(RED + "--Slot [" + rowToCheck + "][" + columnToCheck + "] not available--" + RESET);
                 notBusyCounter++;
                 if (notBusyCounter == 4) {
                     flag = false;
@@ -271,6 +369,8 @@ public class Player implements Serializable {
                 if (!adjacentSlot.getCardSlot().getCorners().get(findCornerToPlace(i)).isAvailableCorner()) {
                     flag = false;
                     break;
+                } else {
+                    flag = true;
                 }
             } else {
                 notBusyCounter++;

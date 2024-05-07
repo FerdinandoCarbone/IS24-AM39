@@ -60,7 +60,7 @@ abstract class NonObjectiveCard extends Card {
      * Printa a console gli angoli frontali della carta
      */
     public void printFrontCorners() {
-        System.out.println(YELLOW + "-----------------------------" + RESET);
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
         System.out.print(YELLOW + "[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]" + RESET);
@@ -72,7 +72,7 @@ abstract class NonObjectiveCard extends Card {
      * Printa a console gli angoli posteriori della carta con [0] se non è disponibile e [1] se disponibile
      */
     public void printBackCorners() {
-        System.out.println(YELLOW + "-----------------------------" + RESET);
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
         System.out.print(YELLOW + "[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]" + RESET);
@@ -88,6 +88,14 @@ abstract class NonObjectiveCard extends Card {
         }
         printFrontCorners();
         printBackCorners();
+    }
+
+    public void printCard() {
+        if (isPlacedFront) {
+            printFrontCorners();
+        } else {
+            printBackCorners();
+        }
     }
 
     public ArrayList<Corner> getCorners() {
@@ -116,6 +124,7 @@ abstract class NonObjectiveCard extends Card {
     public void setIsPlacedFront(boolean isPlacedFront) {
         this.isPlacedFront = isPlacedFront;
     }
+
 }
 /**
  * StarterCard: SubClass of NonObjectiveCard
@@ -217,6 +226,9 @@ class GoldCard extends ResourceGoldCard {
         this.requiredResources = requiredResources;
     }
 
+    public ArrayList<ResourceElement> getRequiredResources() {
+        return requiredResources;
+    }
 }
 
 

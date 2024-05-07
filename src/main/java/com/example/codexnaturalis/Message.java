@@ -65,7 +65,7 @@ class GenericTurnMessage extends Message{
     }
     public int printDrawnCards(int i){
         for(ResourceGoldCard rGC: drawnCard){
-            System.out.print(i+": ");
+            System.out.println("--------------[" + i + "]--------------");
             rGC.printBackCorners();
             ++i;
         }

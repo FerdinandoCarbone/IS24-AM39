@@ -147,6 +147,7 @@ class DrawingDeck {
         public void printResourceGoldCards() {
             for (int i = 1; i <= getResourceGoldCards().size(); i++) {
                 System.out.println("[" + i + "]- " + getResourceGoldCards().get(i-1).getIdCard());
+                getResourceGoldCards().get(i-1).printCardFrontAndBack();
             }
 
         }
