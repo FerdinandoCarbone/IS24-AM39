@@ -84,21 +84,24 @@ public class Match {
 
         //ADD THE DRAWN CARD TO THE PLAYER'S DECK AND REMOVE IT FROM WHERE IT WAS DRAWN
         ResourceGoldCard cardDrawn = msg.getDrawnCard().getFirst();
+        int cardDrawnId = cardDrawn.getIdCard();
         System.out.println(Colors.GREEN + "--Adding the drawn card #" + cardDrawn.getIdCard() + " to " + playerName + "'s deck--" + Colors.RESET);
         boolean isResourceCard = cardDrawn instanceof ResourceCard;
-        if (publicCards.contains(cardDrawn)) {
-            publicCards.remove(cardDrawn);
-            System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " removed from public cards--" + Colors.RESET);
-            playingPlayer.getPlayerDeck().getResourceGoldCards().add(cardDrawn);
-            System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " added to --" + playingPlayer.getPlayerName() + "'s deck from public cards--" + Colors.RESET);
+        if (publicCards.contains(getPublicCardFromId(cardDrawnId))) {
+            ResourceGoldCard tmpCard = getPublicCardFromId(cardDrawnId);
+            publicCards.remove(tmpCard);
+            System.out.println(Colors.GREEN + "--Card #" + tmpCard.getIdCard() + " removed from public cards--" + Colors.RESET);
+            playingPlayer.getPlayerDeck().getResourceGoldCards().add(tmpCard);
+            System.out.println(Colors.GREEN + "--Card #" + tmpCard.getIdCard() + " added to --" + playingPlayer.getPlayerName() + "'s deck from public cards--" + Colors.RESET);
             ResourceGoldCard replacementCard = coveredCards.get(isResourceCard ? 0 : 1);
             publicCards.add(replacementCard);
             coveredCards.remove(replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to public cards as replacement from covered cards--" + Colors.RESET);
             coveredCards.add(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
         } else {
-            coveredCards.remove(cardDrawn);
-            System.out.println(Colors.GREEN + "--Card #" + cardDrawn.getIdCard() + " removed from covered cards--" + Colors.RESET);
+            ResourceGoldCard tmpCard = getCoveredCardFromId(cardDrawnId);
+            coveredCards.remove(tmpCard);
+            System.out.println(Colors.GREEN + "--Card #" + tmpCard.getIdCard() + " removed from covered cards--" + Colors.RESET);
             ResourceGoldCard replacementCard = DrawingDeck.drawCard(isResourceCard);
             coveredCards.add(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to covered cards--" + Colors.RESET);
@@ -117,6 +120,25 @@ public class Match {
         /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
          * Infine chiamare lastRoundRoutine*/
         return new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId,  msg.getCardOnHand().getFirst(), msg.getCoordinates());
+    }
+
+    private ResourceGoldCard getPublicCardFromId(int cardId) {
+        ResourceGoldCard cardToReturn = null;
+        for (ResourceGoldCard publicCard : publicCards) {
+            if (publicCard.getIdCard() == cardId) {
+                cardToReturn = publicCard;
+            }
+        }
+        return cardToReturn;
+    }
+    private ResourceGoldCard getCoveredCardFromId(int cardId) {
+        ResourceGoldCard cardToReturn = null;
+        for (ResourceGoldCard publicCard : coveredCards) {
+            if (publicCard.getIdCard() == cardId) {
+                cardToReturn = publicCard;
+            }
+        }
+        return cardToReturn;
     }
 
     private Player getPlayerFromId(UUID playerId) {
