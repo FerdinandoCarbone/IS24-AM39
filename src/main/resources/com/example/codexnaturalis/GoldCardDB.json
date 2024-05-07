@@ -3,10 +3,10 @@
     "artRef": [],
     "points":1,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true},
       {"Element":"empty", "available": true},
-      {"Element":"Feather", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Red",
     "requiredResources": ["Mushroom","Mushroom","Wolf"]
@@ -15,8 +15,8 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
       {"Element":"empty", "available": true}
     ],
@@ -27,10 +27,10 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"Papyrus", "available": true},
       {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"Papyrus", "available": true}
     ],
     "seed": "Red",
     "requiredResources": ["Mushroom","Mushroom","Butterfly"]
@@ -52,9 +52,9 @@
     "points": 2,
     "frontCorners": [
       {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": true}
     ],
     "seed": "Red",
     "requiredResources": ["Mushroom","Mushroom","Mushroom","Leaf"]
@@ -63,8 +63,8 @@
     "artRef": [],
     "points": 2,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": true}
     ],
@@ -75,10 +75,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": false},
       {"Element":"Ink", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": true}
     ],
     "seed": "Red",
     "requiredResources": ["Mushroom","Mushroom","Mushroom"]
@@ -87,10 +87,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"Feather", "available": true},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": false},
+      {"Element":"Feather", "available": true}
     ],
     "seed": "Red",
     "requiredResources": ["Mushroom","Mushroom","Mushroom"]
@@ -99,10 +99,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Red",
     "requiredResources": ["Mushroom","Mushroom","Mushroom"]
@@ -111,10 +111,10 @@
     "artRef": [],
     "points": 5,
     "frontCorners": [
-      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": true}
     ],
     "seed": "Red",
     "requiredResources": ["Mushroom","Mushroom","Mushroom","Mushroom","Mushroom"]
@@ -123,10 +123,10 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"Feather", "available": true},
       {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"Feather", "available": true}
     ],
     "seed": "Green",
     "requiredResources": ["Leaf","Leaf","Butterfly"]
@@ -135,8 +135,8 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
       {"Element":"empty", "available": true}
     ],
@@ -147,8 +147,8 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"Ink", "available": true},
       {"Element":"empty", "available": true}
     ],
@@ -159,10 +159,10 @@
     "artRef": [],
     "points": 2,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": true}
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
     ],
     "seed": "Green",
     "requiredResources": ["Leaf","Leaf","Leaf","Butterfly"]
@@ -172,9 +172,9 @@
     "points": 2,
     "frontCorners": [
       {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": true}
     ],
     "seed": "Green",
     "requiredResources": ["Leaf","Leaf","Leaf","Wolf"]
@@ -183,8 +183,8 @@
     "artRef": [],
     "points": 2,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": true}
     ],
@@ -195,10 +195,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": false},
       {"Element":"Feather", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": true}
     ],
     "seed": "Green",
     "requiredResources": ["Leaf","Leaf","Leaf"]
@@ -207,10 +207,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"Papyrus", "available": false},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": false},
+      {"Element":"Papyrus", "available": true}
     ],
     "seed": "Green",
     "requiredResources": ["Leaf","Leaf","Leaf"]
@@ -219,10 +219,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Green",
     "requiredResources": ["Leaf","Leaf","Leaf"]
@@ -232,9 +232,9 @@
     "points": 5,
     "frontCorners": [
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
     ],
     "seed": "Green",
     "requiredResources": ["Leaf","Leaf","Leaf","Leaf","Leaf"]
@@ -243,10 +243,10 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"Ink", "available": true},
       {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"Ink", "available": true}
     ],
     "seed": "Blue",
     "requiredResources": ["Wolf","Wolf","Butterfly"]
@@ -255,10 +255,10 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
+      {"Element":"Papyrus", "available": true},
       {"Element":"empty", "available": true},
-      {"Element":"Papyrus", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Blue",
     "requiredResources": ["Wolf","Wolf","Leaf"]
@@ -267,8 +267,8 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"Feather", "available": true},
       {"Element":"empty", "available": true}
     ],
@@ -291,8 +291,8 @@
     "artRef": [],
     "points": 2,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": true}
     ],
@@ -303,10 +303,10 @@
     "artRef": [],
     "points": 2,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": true}
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
     ],
     "seed": "Blue",
     "requiredResources": ["Wolf","Wolf","Wolf","Leaf"]
@@ -315,10 +315,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": false},
       {"Element":"Papyrus", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": true}
     ],
     "seed": "Blue",
     "requiredResources": ["Wolf","Wolf","Wolf"]
@@ -327,10 +327,10 @@
     "artRef": [],
     "points":3,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"Ink", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
     ],
     "seed": "Blue",
     "requiredResources": ["Wolf","Wolf","Wolf"]
@@ -339,10 +339,10 @@
     "artRef": [],
     "points": 3,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"Feather", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Blue",
     "requiredResources": ["Wolf","Wolf","Wolf"]
@@ -351,10 +351,10 @@
     "artRef": [],
     "points": 5,
     "frontCorners": [
-      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Blue",
     "requiredResources": ["Wolf","Wolf","Wolf","Wolf","Wolf"]
@@ -363,8 +363,8 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
       {"Element":"empty", "available": true}
     ],
@@ -375,8 +375,8 @@
     "artRef": [],
     "points": 1,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"Papyrus", "available": true},
       {"Element":"empty", "available": true}
     ],
@@ -387,10 +387,10 @@
     "artRef": [],
     "points":1,
     "frontCorners": [
-      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
+      {"Element":"Ink", "available": true},
       {"Element":"empty", "available": true},
-      {"Element":"Ink", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Purple",
     "requiredResources": ["Butterfly","Butterfly","Mushroom"]
@@ -412,9 +412,9 @@
     "points":2,
     "frontCorners": [
       {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": true}
     ],
     "seed": "Purple",
     "requiredResources": ["Butterfly","Butterfly","Butterfly","Leaf"]
@@ -423,7 +423,7 @@
     "artRef": [],
     "points":2,
     "frontCorners": [
-      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": true},
       {"Element":"empty", "available": true}
@@ -435,10 +435,10 @@
     "artRef": [],
     "points":3,
     "frontCorners": [
-      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false},
       {"Element":"empty", "available": false},
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": false}
+      {"Element":"Ink", "available": true}
     ],
     "seed": "Purple",
     "requiredResources": ["Butterfly","Butterfly","Butterfly"]
@@ -447,10 +447,10 @@
     "artRef": [],
     "points":3,
     "frontCorners": [
-      {"Element":"empty", "available": true},
       {"Element":"Papyrus", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
     ],
     "seed": "Purple",
     "requiredResources": ["Butterfly","Butterfly","Butterfly"]
@@ -460,9 +460,9 @@
     "points":3,
     "frontCorners": [
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
       {"Element":"Feather", "available": true},
-      {"Element":"empty", "available": true}
+      {"Element":"empty", "available": false}
     ],
     "seed": "Purple",
     "requiredResources": ["Butterfly","Butterfly","Butterfly"]
@@ -472,9 +472,9 @@
     "points":5,
     "frontCorners": [
       {"Element":"empty", "available": true},
-      {"Element":"empty", "available": true},
       {"Element":"empty", "available": false},
-      {"Element":"empty", "available": false}
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
     ],
     "seed": "Purple",
     "requiredResources": ["Butterfly","Butterfly","Butterfly","Butterfly","Butterfly"]
