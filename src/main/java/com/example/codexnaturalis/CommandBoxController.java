@@ -4,10 +4,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.TilePane;
 
 import java.io.IOException;
 
-public class CommandBoxController extends GridPane {
+public class CommandBoxController extends TilePane {
     @FXML
     public Button command1;
     @FXML
