@@ -59,7 +59,7 @@ public class ZakClient {
             System.out.println("0 - Cancel");
             System.out.println("1 - Socket");
             System.out.println("2 - RMI");
-            switch(Integer.parseInt(receiveInput())){
+            switch(getIntInput(2,false)){
                 case 0:
                     System.exit(0);
                     break;
@@ -124,11 +124,11 @@ public class ZakClient {
             initialMatchSetupMessage.setSelectedSecret(tmpList);
             System.out.println("How do you want to face the starting card");
             System.out.println("1 - face Up\n2 - face Down");
-            switch(getIntInput(2)){
-                case 0:
+            switch(getIntInput(2,false)){
+                case 1:
                     cardFace=true;
                     break;
-                case 1:
+                case 2:
                     cardFace=false;
                     break;
                 default: throw new IOException("There was an error trying to read the string");
@@ -147,29 +147,77 @@ public class ZakClient {
     }
     private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         new Thread(serverHandler).start();
-        while(!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())) Thread.onSpinWait();
+        while(!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())){
+            /*try{
+                Thread.sleep(1000);
+            }
+            catch(InterruptedException e){
+                System.out.println(e.getMessage());}*/
+            Thread.onSpinWait();
+        }
         while(currentGameStatus) selectPossibleActions();
     }
 
-    private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException{
+    private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException {
         clearConsole();
+        ResourceGoldCard placedCard;
         GenericTurnMessage message = serverHandler.getMessageTurn();
         Pair<Integer, Integer> coordinates;
-        int row,column;
+        int row, column;
+        boolean face;
         ResourceGoldCard selectedCard;
+        if(player.allCornersEmpty(player.getPlayerDeck().getStarterCard())){
+            System.out.println("StarterCard:");
+            player.getPlayerDeck().getStarterCard().printCard();
+        }
         ArrayList<ResourceGoldCard> playerDeck = player.getPlayerDeck().getResourceGoldCards();
-        int fieldSize = player.getPlayerField().getSlots().length;
-        player.printFieldWithName();
-        player.getPlayerDeck().printResourceGoldCards();
-        System.out.println("What card would you like to place? ");
-        ResourceGoldCard placedCard= playerDeck.get(getIntInput(playerDeck.size()));
-        while(true) {
-            System.out.println("Select a row:");
-            row =getIntInput(fieldSize);
-            System.out.println("Select a column:");
-            column = getIntInput(fieldSize);
-            coordinates = new Pair<>(row, column);
-            if (player.getPlayerField().getSlots()[row][column].isBusySlot() && player.isCardAttachableToSlot(row, column)){
+        while(true){
+            player.printFieldWithName();
+            System.out.println("What would you like to do?");
+            System.out.println("0 - Cancel");
+            System.out.println("1 - Analyze field");
+            System.out.println("2 - Play a card");
+            int j = getIntInput(2, false);
+            if (j != 1 && j != 2 && j!=0) {
+                System.out.println("Not a valid input");
+                continue;
+            }
+            if(j==1){
+                coordinates = getCoords(false);
+                player.fieldAnalysis(coordinates.getKey(), coordinates.getValue());
+            }
+            else if(j==0) return;
+            else break;
+        }
+        while (true) {
+            player.getPlayerDeck().printResourceGoldCards();
+            player.printManas();
+            System.out.println("What card would you like to place? ");
+            placedCard = playerDeck.get(getIntInput(playerDeck.size(), true));
+            if (placedCard.getIdCard() > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
+                System.out.println("You do not possess enough materials or resources to place this card: choose another one");
+                continue;
+            }
+            break;
+        }
+        while (true){
+            System.out.println("What face would you like to play?");
+            System.out.println("1 - Front");
+            System.out.println("2 - Back");
+            int i = getIntInput(2, false);
+            if (i != 1 && i != 2) {
+                System.out.println("Not a valid input");
+                continue;
+            }
+            face = i == 1;
+            placedCard.setIsPlacedFront(face);
+            break;
+        }
+        while(true){
+            coordinates = getCoords(true);
+            row = coordinates.getKey();
+            column = coordinates.getValue();
+            if (!player.isCardAttachableToSlot(row, column)) {
                 System.out.println("This slot is not available. Select another one");
                 continue;
             }
@@ -179,9 +227,10 @@ public class ZakClient {
         int i= message.printDrawnCards(1);//covered
         i= message.printPublicCards(i);//public
         System.out.println("Select a card to draw from public deck: ");
-        int selected=getIntInput(i);
-        if(selected<message.getDrawnCard().size())selectedCard=message.getDrawnCard().get(selected);
-        else selectedCard=message.getCardOnHand().get(selected);
+        int selected=getIntInput(i,true);
+        ArrayList<ResourceGoldCard> selectable = message.getDrawnCard();
+        selectable.addAll(message.getCardOnHand());
+        selectedCard=selectable.get(selected);
         player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
         message = new GenericTurnMessage(null,null,new ArrayList<>(Collections.singletonList(selectedCard)),new ArrayList<>(Collections.singletonList(placedCard)),coordinates);
         //todo: update points
@@ -190,6 +239,34 @@ public class ZakClient {
         myTurn=false;
         clearConsole();
     }
+
+    private static Pair<Integer, Integer> getCoords(boolean mode) {
+        int fieldSize = player.getPlayerField().getSlots().length;
+        Pair<Integer, Integer> coordinates;
+        while (true) {
+            int row,column;
+            System.out.println("Select a row:");
+            row = getIntInput(fieldSize, false);
+            System.out.println("Select a column:");
+            column = getIntInput(fieldSize,false);
+            coordinates = new Pair<>(row, column);
+            if (mode) {
+                if (player.getPlayerField().getSlots()[row][column].isBusySlot()) {
+                    System.out.println("This slot is not available. Select another one");
+                    continue;
+                }
+            }
+            else{
+                if (!player.getPlayerField().getSlots()[row][column].isBusySlot()) {
+                    System.out.println("This slot is not available. Select another one");
+                    continue;
+                }
+            }
+            break;
+        }
+        return coordinates;
+    }
+
     private static void printPlayerField() {
         for (Player p : otherPlayers) {
             p.printFieldWithName();
@@ -311,8 +388,8 @@ public class ZakClient {
     public static void genericTurnMessageHandler() {
         myTurn=true;
         //todo: Aggiornamento dello stato dei fields dei deck del player
-        System.lineSeparator();
-        clearConsole();
+        //System.lineSeparator();
+        //clearConsole();
         System.out.println("It's your turn:");
 
     }
@@ -362,9 +439,7 @@ public class ZakClient {
     public static String getPlayerNick() {
         return playerNick;
     }
-    //TODO: FUNZIONE DA CAMBIARE, SI FA -1 ALLA RETURN PERO' VIENE USATA IN POSTI DOVE POSSONO ESSERCI PROBLEMI
-    //TIPO NEL PIAZZARE LA CARTA NEL FIELD
-    private static int getIntInput(int range){
+    private static int getIntInput(int range,boolean type){
         Integer thingToParse=null;
         while(true){
             try {
@@ -373,9 +448,10 @@ public class ZakClient {
                 System.out.println("Invalid input: try again");
                 continue;
             }
-            if(thingToParse<=range && thingToParse>0) break;
+            if(thingToParse<=range && thingToParse>=0) break;
         }
-        return thingToParse -1;
+        if(type)return thingToParse -1;
+        else return  thingToParse;
     }
 
     public static ArrayList<Player> getOtherPlayers() {

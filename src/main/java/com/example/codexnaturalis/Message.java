@@ -64,6 +64,7 @@ class GenericTurnMessage extends Message{
         return cardOnHand;
     }
     public int printDrawnCards(int i){
+        System.out.println("Draw from hidden deck");
         for(ResourceGoldCard rGC: drawnCard){
             System.out.println("--------------[" + i + "]--------------");
             rGC.printBackCorners();
@@ -72,9 +73,10 @@ class GenericTurnMessage extends Message{
         return i;
     }
     public int printPublicCards(int i){
-        for(ResourceGoldCard rGC: drawnCard){
-            System.out.print(i+": ");
-            rGC.printCardFrontAndBack();
+        System.out.println("Draw from public-card deck");
+        for(ResourceGoldCard rGC: cardOnHand){
+            System.out.println("--------------[" + i + "]--------------");
+            rGC.printFrontCorners();
             ++i;
         }
         return i;
@@ -120,9 +122,10 @@ class BroadCastStartingMessage extends Message{
     }
 }
 class BroadCastStandardMessage extends Message{
-
-    public BroadCastStandardMessage(String sender, UUID ClientID) {
+    HashMap<UUID,StarterCard> starterCards;
+    public BroadCastStandardMessage(String sender, UUID ClientID,HashMap<UUID,StarterCard> starterCards) {
         super(sender, ClientID);
+        this.starterCards = starterCards;
     }
 }
 class TextMessage extends Message{

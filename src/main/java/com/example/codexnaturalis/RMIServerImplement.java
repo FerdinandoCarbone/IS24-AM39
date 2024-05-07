@@ -50,8 +50,10 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     public Message whatToCall(UUID clientID){
         RMIClientHandler handler;
         handler = (RMIClientHandler) ZakServer.serverConMan.getHandlers().get(clientID);
-        handler.setHasToDeliver(false);
-        return handler.rmiDeliverer;
+        Message msg = handler.queue.getFirst();
+        handler.queue.removeFirst();
+        if(handler.queue.isEmpty())handler.setHasToDeliver(false);
+        return msg ;
     }
     @Override
     public void send(Message message) {

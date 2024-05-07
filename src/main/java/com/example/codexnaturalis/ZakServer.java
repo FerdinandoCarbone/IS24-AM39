@@ -81,19 +81,22 @@ public class ZakServer {
         System.out.println("CommonObjectiveCards:");
         //for(ObjectiveCard oc: commonObjectiveCard) oc.printCardAscii();
         fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(),null,serverConMan.getHashClient(),commonObjectiveCard,match.getTwoSecretObjectiveCards());
-        serverConMan.sendBroadCastMessage(fieldSetupMessage);
+        ServerConnectionManager.sendBroadCastMessage(fieldSetupMessage);
     }
    private static void welcomePlayer() throws IOException {
         String text = "Match is about to start\nPlayers:\n";
-        String firstPlayerStar = "";
+        HashMap<UUID,StarterCard> hashStart = new HashMap<>();
         Collection<Player> players = serverConMan.getPlayers();
         for(Player p: players){
-            //if (p.isFirstTurn()) firstPlayerStar = " *";
-            text=text.concat(p.getPlayerName()+firstPlayerStar+"\n");
-            //firstPlayerStar = "";
+            hashStart.put(p.getPlayerID(),p.getPlayerDeck().getStarterCard());
+            System.out.println(hashStart.get(p.getPlayerID()));
+            text=text.concat(p.getPlayerName()+"\n");
         }
-       serverConMan.sendBroadCastMessage(new TextMessage(connectionInfo.getKey(), null,text,"Everyone"));
-    }
+        ServerConnectionManager.sendBroadCastMessage(new TextMessage(connectionInfo.getKey(), null,text,"Everyone"));
+        ServerConnectionManager.sendBroadCastMessage(new BroadCastStandardMessage(connectionInfo.getKey(),null,hashStart));
+
+
+   }
     public static void stopThread(UUID clientID){
         //todo: fare le opportune modifiche a match
         serverConMan.getHandlers().get(clientID).interrupt();

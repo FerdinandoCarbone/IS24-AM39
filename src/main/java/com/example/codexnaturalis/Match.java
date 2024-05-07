@@ -61,7 +61,7 @@ public class Match {
         Player playingPlayer = getPlayerFromId(msg.getClientID());
         String playerName = playingPlayer.getPlayerName();
 
-        System.out.println(Colors.GREEN + "--" + playerName + " is playing his turn--" + Colors.RESET);
+        System.out.println(Colors.GREEN + "\n--" + playerName + " is playing his turn--" + Colors.RESET);
 
         //PLACE CARD ON FIELD
         int row = msg.getCoordinates().getKey();

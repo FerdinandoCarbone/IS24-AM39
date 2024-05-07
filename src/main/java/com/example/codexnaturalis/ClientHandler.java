@@ -61,6 +61,7 @@ public class ClientHandler extends Thread implements Runnable {
     public void broadCastMessageHandler(BroadCastStandardMessage message) {}
     public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException {
         StandardMatchMessage newStatus = ZakServer.match.genericTurn(message);
+        System.out.println("currentPlayer:"+newStatus.getClientID());
         GenericTurnMessage newTurn = new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards(),newStatus.getPublicCardsNewState(),null);
         ServerConnectionManager.sendBroadCastMessage(newStatus);
         ServerConnectionManager.sendMessage(newStatus.getNextPlayerId(),newTurn);
@@ -72,23 +73,26 @@ public class ClientHandler extends Thread implements Runnable {
     }
     public void secretObjectiveSelector(BroadCastStartingMessage message){
         ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().setSecretObjectiveCard(message.getSelectedSecret());
-        ArrayList<Player> players = ZakServer.match.getPlayers();
-        for(Player p: players){
+        //ArrayList<Player> players = ZakServer.match.getPlayers();
+        ServerConnectionManager.hashClient.get(clientID).placeStarterCard(message.getStarterCardFace());
+        /*for(Player p: players){
             if(p.getPlayerID().equals(getClientID())){
                 p.placeStarterCard(message.getStarterCardFace());
             }
-        }
+        }*/
         this.secretWasChosen=true;
     }
 }
 class RMIClientHandler extends ClientHandler{
 
     Message rmiDeliverer;
+    ArrayList<Message> queue;
     volatile boolean hasToDeliver;
     public RMIClientHandler(String clientName, UUID clientID, ServerConnectionManager connMan) {
         super(clientName, clientID, connMan);
         rmiDeliverer=null;
         hasToDeliver=false;
+        queue= new ArrayList<>();
     }
     @Override
     public void run(){
@@ -98,12 +102,15 @@ class RMIClientHandler extends ClientHandler{
     }
     @Override
     public void sendMessage(Message msg){
-        if(!(msg instanceof TextMessage)) {
+        queue.addLast(msg);
+        if(!hasToDeliver)hasToDeliver=true;
+        if(msg instanceof StandardMatchMessage){
+            System.out.println("Sending updates to:" + getClientName());
+        }
+        else if(!(msg instanceof TextMessage)) {
             msg.setClientID(getClientID());
             msg.setSender(getClientName());
         }
-        rmiDeliverer=msg;
-        hasToDeliver=true;
     }
     public void retrieveMessage(Message message) throws IOException, ClassNotFoundException, WrongMessageConversionException {
         Class<? extends Message> a = message.getClass();
@@ -128,7 +135,7 @@ class RMIClientHandler extends ClientHandler{
         }
     }
     public Message getRmiDeliverer() {
-        return rmiDeliverer;
+        return queue.getFirst();
     }
 
     public void setHasToDeliver(boolean hasToDeliver) {
@@ -213,7 +220,10 @@ class SocketClientHandler extends ClientHandler{
     }
     @Override
     public void sendMessage(Message message) throws IOException {
-        if(!(message instanceof TextMessage)) {
+        if(message instanceof StandardMatchMessage){
+            System.out.println("Sending Updates to"+ getClientName());
+        }
+        else if(!(message instanceof TextMessage)) {
             message.setClientID(getClientID());
             message.setSender(getClientName());
         }

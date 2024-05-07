@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public class ServerHandler extends Thread implements Runnable {
     private Pair<String,Integer> connectionInfo;
     private GenericTurnMessage messageTurn;
     private ConnectionManger connMan;
-    private boolean firstBroadCastWasReceived;
+    private volatile boolean firstBroadCastWasReceived;
 
     public ServerHandler(String clientName, UUID clientID,ConnectionManger connMan){
         this.clientName = clientName;
@@ -73,13 +74,24 @@ public class ServerHandler extends Thread implements Runnable {
         //todo: robe per chiudere i thread
         ZakClient.clientDisconnect();
     }
+    public void bcsHandler(BroadCastStandardMessage message) {
+        HashMap<UUID,StarterCard> hashStart= message.starterCards;
+        hashStart.remove(getClientID());
+        boolean face;
+        for(Player p: ZakClient.getOtherPlayers()){
+            face = hashStart.get(p.getPlayerID()).isPlacedFront();
+            p.placeStarterCard(face);
+        }
+    }
     public void universalStatusUpdater(StandardMatchMessage newStatus){
-        UUID oldPlayer=newStatus.getClientID();
+        UUID oldPlayer= newStatus.getClientID();
+        System.out.println("Updating game status" + oldPlayer);
         ResourceGoldCard placedCard= newStatus.getPlacedCard();
         Pair<Integer,Integer> coords= newStatus.getCoords();
         ArrayList<Player> players = ZakClient.getOtherPlayers();
         for(Player p:players){
             if(p.getPlayerID().equals(oldPlayer)){
+                System.out.println("Player found:");
                 p.placeCard(coords.getKey(), coords.getValue(),placedCard);
                 break;
             }
@@ -160,6 +172,7 @@ class ServerSocketHandler extends ServerHandler {
                 textMessageHandler((TextMessage) message);
                 break;
             case "BroadCastStandardMessage":
+                bcsHandler((BroadCastStandardMessage) message);
                 break;
             case "BroadCastStartingMessage":
                 broadCastStartingMessageHandler((BroadCastStartingMessage) message);
@@ -170,7 +183,6 @@ class ServerSocketHandler extends ServerHandler {
             case "LobbyCreationMessage":
                 break;
             case "StandardMatchMessage":
-                System.out.println(messageType);
                 universalStatusUpdater((StandardMatchMessage) message);
                 break;
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
@@ -235,6 +247,7 @@ class ServerRMIHandler extends ServerHandler{
                 textMessageHandler((TextMessage) message);
                 break;
             case "BroadCastStandardMessage":
+                bcsHandler((BroadCastStandardMessage) message);
                 break;
             case "BroadCastStartingMessage":
                 broadCastStartingMessageHandler((BroadCastStartingMessage) message);
@@ -250,6 +263,8 @@ class ServerRMIHandler extends ServerHandler{
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
         }
     }
+
+
     @Override
     public void sendMessage(Message message){
         message.setSender(getClientName());
