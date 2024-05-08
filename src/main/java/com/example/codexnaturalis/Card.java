@@ -146,6 +146,10 @@ class StarterCard extends NonObjectiveCard {
         super(idCard, artRef, frontCorners, backCorners);
         this.backCentreResources = backCentreResources;
     }
+
+    public ArrayList<ResourceGoldCard.ResourceElement> getBackCentreResources() {
+        return backCentreResources;
+    }
 }
 abstract class ResourceGoldCard extends NonObjectiveCard {
 
@@ -176,6 +180,34 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         this.seed = seed;
 
     }
+
+    /**
+     * Printa a console gli angoli frontali della carta
+     */
+    @Override
+    public void printFrontCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "Points given: " + points + RESET);
+    }
+
+    /**
+     * Printa a console gli angoli dietro della carta
+     */
+    @Override
+    public void printBackCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(1).getResourceElement()) + "]" + RESET);
+    }
+
     public void setPoints(int points) {
         this.points = points;
     }
@@ -186,6 +218,9 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         return coveredCornersWhenPlaced;
     }
 
+    public Seed getSeed() {
+        return seed;
+    }
 }
 /**
  * ResourceCard: subClass of ResourceGoldCard. No extra fields
@@ -225,6 +260,45 @@ class GoldCard extends ResourceGoldCard {
         super(idCard, artRef, frontCorners, points, seed);
         this.requiredResources = requiredResources;
     }
+
+    /**
+     * Printa a console gli angoli frontali della carta
+     */
+    @Override
+    public void printFrontCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "Points given: " + getPoints() + RESET);
+        System.out.print("Requirements: ");
+        for (int i = 0; i < requiredResources.size(); i++) {
+            System.out.print(requiredResources.get(i));
+        }
+        System.out.println();
+    }
+
+    /**
+     * Printa a console gli angoli dietro della carta
+     */
+    @Override
+    public void printBackCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.print("Requirements: ");
+        for (int i = 0; i < requiredResources.size(); i++) {
+            System.out.print(requiredResources.get(i));
+        }
+        System.out.println();
+
+    }
+
 
     public ArrayList<ResourceElement> getRequiredResources() {
         return requiredResources;

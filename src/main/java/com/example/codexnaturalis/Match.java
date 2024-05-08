@@ -53,6 +53,8 @@ public class Match {
         for (ResourceGoldCard card : publicCards) {
             card.printCardFrontAndBack();
         }
+        //TODO: DA ELIMINARE
+        playingPlayer.setScore(20);
 
         return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), playingPlayer.getPlayerName(), null, null, null);
     }
@@ -97,7 +99,9 @@ public class Match {
             publicCards.add(replacementCard);
             coveredCards.remove(replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to public cards as replacement from covered cards--" + Colors.RESET);
-            coveredCards.add(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
+            ResourceGoldCard cardAddedToCovered = DrawingDeck.drawCard(isResourceCard);
+            coveredCards.add(isResourceCard ? 0 : 1, cardAddedToCovered);
+            System.out.println(Colors.GREEN + "--Card #" + cardAddedToCovered.getIdCard() + " added to covered cards--" + Colors.RESET);
         } else {
             ResourceGoldCard tmpCard = getCoveredCardFromId(cardDrawnId);
             coveredCards.remove(tmpCard);

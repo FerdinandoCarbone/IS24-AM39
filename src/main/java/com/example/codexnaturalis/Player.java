@@ -82,6 +82,11 @@ public class Player implements Serializable {
         r = c = playerField.getSlots().length / 2;
         StarterCard carta = playerDeck.getStarterCard();
         carta.setIsPlacedFront(isFront);
+        if (!isFront) {
+            for (ResourceGoldCard.ResourceElement e : carta.getBackCentreResources()) {
+                increaseResourceElementsMana((e));
+            }
+        }
         playerField.getSlots()[r][c].setBusySlot(true);
         playerField.getSlots()[r][c].setCardSlot(carta);
         //Update resources and elements manas
@@ -214,6 +219,7 @@ public class Player implements Serializable {
     public void placeCard(int row, int column, ResourceGoldCard cardToPlace) {
         playerField.getSlots()[row][column].setCardSlot(cardToPlace);
         playerField.getSlots()[row][column].setBusySlot(true);
+        increaseResourceElementsMana(cardToPlace.getSeed());
         try {
             //Check the corners of the placed card and add them to the manas
             for (int i = 0; i < 4; i++) {
@@ -324,6 +330,39 @@ public class Player implements Serializable {
             case Feather -> elementsMana[2]++;
         }
     }
+
+    /**
+     * Given an element or resource, updates the player's manas
+     * @param e: resource or element to add
+     */
+
+    private void increaseResourceElementsMana(ResourceGoldCard.ResourceElement e) {
+        switch (e) {
+            case Mushroom -> resourceMana[0]++;
+            case Leaf -> resourceMana[1]++;
+            case Wolf -> resourceMana[2]++;
+            case Butterfly -> resourceMana[3]++;
+            case Ink -> elementsMana[0]++;
+            case Papyrus -> elementsMana[1]++;
+            case Feather -> elementsMana[2]++;
+        }
+    }
+
+    /**
+     * Given a seed, updates the player's manas
+     * @param s: seed or element to add
+     */
+
+    private void increaseResourceElementsMana(Seed s) {
+        switch (s) {
+            case Red -> resourceMana[0]++;
+            case Green -> resourceMana[1]++;
+            case Blue -> resourceMana[2]++;
+            case Purple -> resourceMana[3]++;
+        }
+    }
+
+
 
 
     /**
