@@ -94,12 +94,13 @@ public class Match {
         boolean isResourceCard = cardDrawn instanceof ResourceCard;
         if (publicCards.contains(getPublicCardFromId(cardDrawnId))) {
             ResourceGoldCard tmpCard = getPublicCardFromId(cardDrawnId);
+            int tmpCardPos = publicCards.indexOf(tmpCard);
             publicCards.remove(tmpCard);
             System.out.println(Colors.GREEN + "--Card #" + tmpCard.getIdCard() + " removed from public cards--" + Colors.RESET);
             playingPlayer.getPlayerDeck().getResourceGoldCards().add(tmpCard);
             System.out.println(Colors.GREEN + "--Card #" + tmpCard.getIdCard() + " added to --" + playingPlayer.getPlayerName() + "'s deck from public cards--" + Colors.RESET);
             ResourceGoldCard replacementCard = coveredCards.get(isResourceCard ? 0 : 1);
-            publicCards.add(replacementCard);
+            publicCards.add(tmpCardPos, replacementCard);
             coveredCards.remove(replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to public cards as replacement from covered cards--" + Colors.RESET);
             ResourceGoldCard cardAddedToCovered = DrawingDeck.drawCard(isResourceCard);

@@ -224,13 +224,22 @@ public class ZakClient {
             break;
         }
         player.placeCardAndRemoveFromDeck(row, column, placedCard);
-        message.printPublicCards(message.printDrawnCards(1));//covered
+        message.printCoveredCards();
+        message.printPublicCards();
         ArrayList<ResourceGoldCard> selectable = new ArrayList<>();
         selectable.addAll(message.getDrawnCard());
         selectable.addAll(message.getCardOnHand());
         System.out.println("Select a card to draw from public deck: ");
-        int selected=getIntInput(selectable.size(),true);
-        selectedCard=selectable.get(selected);
+
+        ArrayList<Integer> allIds = new ArrayList<>();
+        allIds.add(message.getDrawnCard().get(0).getIdCard());
+        allIds.add(message.getDrawnCard().get(1).getIdCard());
+        allIds.add(message.getCardOnHand().get(0).getIdCard());
+        allIds.add(message.getCardOnHand().get(1).getIdCard());
+        allIds.add(message.getCardOnHand().get(2).getIdCard());
+        allIds.add(message.getCardOnHand().get(3).getIdCard());
+        int idSelected = selectCardIdToDrawn(allIds);
+        selectedCard=selectable.get(getCardIndexFromId(idSelected, allIds));
         player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
         message = new GenericTurnMessage(null,null,new ArrayList<>(Collections.singletonList(selectedCard)),new ArrayList<>(Collections.singletonList(placedCard)),coordinates);
         //todo: update points
@@ -238,6 +247,42 @@ public class ZakClient {
         serverHandler.setMessageTurn(null);
         myTurn=false;
         clearConsole();
+    }
+
+    /**
+     * Given an array of card ids, gets input from the player. Input has to be within the values of array
+     * @param ids: arrays from which the player can choose
+     * @return int, input of the player
+     */
+    public static int selectCardIdToDrawn(ArrayList<Integer> ids) {
+        Integer choice = null;
+        while (true) {
+            try {
+                choice = Integer.parseInt(receiveInput());
+            } catch (Exception e) {
+                System.out.println("Invalid input: try again");
+                continue;
+            }
+            if (ids.contains(choice)) break;
+        }
+        return choice;
+    }
+
+    /**
+     * Given an id and an array of ids, returns the position of the id in the array
+     * @param id: id chosen
+     * @param ids: arrays of all ids
+     * @return int, position of id in ids
+     */
+    public static int getCardIndexFromId(int id, ArrayList<Integer> ids) {
+        int pos = -1;
+        for (int i : ids) {
+            if (i == id) {
+                pos = ids.indexOf(i);
+                break;
+            }
+        }
+        return pos;
     }
 
     private static Pair<Integer, Integer> getCoords(boolean mode) {

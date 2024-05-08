@@ -77,7 +77,8 @@ public class ClientHandler extends Thread implements Runnable {
         for(ResourceGoldCard c: coveredCards) System.out.println(Colors.BLUE + c.getIdCard() + Colors.RESET);
         for(ResourceGoldCard c: publicCards) System.out.println(Colors.RED + c.getIdCard() + Colors.RESET);
         GenericTurnMessage newTurn = new GenericTurnMessage("Server",null,coveredCards,publicCards,null);
-        newTurn.printPublicCards(newTurn.printDrawnCards(1));
+        newTurn.printCoveredCards();
+        newTurn.printPublicCards();
         ServerConnectionManager.sendBroadCastMessage(newStatus);
         ServerConnectionManager.sendMessage(newStatus.getNextPlayerId(),newTurn);
     }

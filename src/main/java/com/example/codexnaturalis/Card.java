@@ -181,6 +181,15 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
 
     }
 
+    public void printCoveredCard() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(1).getResourceElement()) + "]" + RESET);
+    }
+
     /**
      * Printa a console gli angoli frontali della carta
      */
@@ -246,9 +255,6 @@ class ResourceCard extends ResourceGoldCard {
 class GoldCard extends ResourceGoldCard {
 
     private ArrayList<ResourceGoldCard.ResourceElement> requiredResources;
-
-    //TODO: aggiungere l'attributo requisitiPunti
-
     /**
      * Constructor of GoldCard
      *
@@ -259,6 +265,14 @@ class GoldCard extends ResourceGoldCard {
     public GoldCard(@JsonProperty("idCard")int idCard,@JsonProperty("artRef") String[] artRef, @JsonProperty("frontCorners") ArrayList<Corner> frontCorners, @JsonProperty("points")int points, @JsonProperty("seed") Seed seed, @JsonProperty("requiredResources") ArrayList<ResourceGoldCard.ResourceElement> requiredResources) {
         super(idCard, artRef, frontCorners, points, seed);
         this.requiredResources = requiredResources;
+    }
+
+    public void printRequirements() {
+        System.out.print(YELLOW + "Requirements for card #" + getIdCard() + ": " + RESET);
+        for (int i = 0; i < requiredResources.size(); i++) {
+            System.out.print(YELLOW + requiredResources.get(i) + " " + RESET);
+        }
+        System.out.println();
     }
 
     /**
@@ -273,30 +287,7 @@ class GoldCard extends ResourceGoldCard {
         System.out.print(YELLOW + "[" + (getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(2).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "Points given: " + getPoints() + RESET);
-        System.out.print("Requirements: ");
-        for (int i = 0; i < requiredResources.size(); i++) {
-            System.out.print(requiredResources.get(i));
-        }
-        System.out.println();
-    }
-
-    /**
-     * Printa a console gli angoli dietro della carta
-     */
-    @Override
-    public void printBackCorners() {
-        System.out.println(Colors.BLUE + "------------------------------" + RESET);
-        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
-        System.out.print(YELLOW + "[" + (getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(3).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(0).getResourceElement()) + "]" + RESET);
-        System.out.print(YELLOW + "[" + (getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(2).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(1).getResourceElement()) + "]" + RESET);
-        System.out.print("Requirements: ");
-        for (int i = 0; i < requiredResources.size(); i++) {
-            System.out.print(requiredResources.get(i));
-        }
-        System.out.println();
-
+        printRequirements();
     }
 
 

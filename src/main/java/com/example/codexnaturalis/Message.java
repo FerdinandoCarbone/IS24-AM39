@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import static com.example.codexnaturalis.Colors.*;
+
 public class Message implements Serializable {
     private String sender;
     private UUID clientID;
@@ -63,23 +65,35 @@ class GenericTurnMessage extends Message{
     public ArrayList<ResourceGoldCard> getCardOnHand() {
         return cardOnHand;
     }
-    public int printDrawnCards(int i){
-        System.out.println("Draw from hidden deck");
-        for(ResourceGoldCard rGC: drawnCard){
-            System.out.println("--------------[" + i + "]--------------");
-            rGC.printBackCorners();
-            ++i;
+
+    private void printCardsSideBySideFront(ArrayList<ResourceGoldCard> deck, int index1, int index2) {
+        System.out.print(GREEN + deck.get(index1).getIdCard() + YELLOW + "[" + (deck.get(index1).getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getFrontCorners().get(3).getResourceElement()) + "]" + "[" + (deck.get(index1).getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getFrontCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.println(GREEN + deck.get(index2).getIdCard() + YELLOW + "[" + (deck.get(index2).getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getFrontCorners().get(3).getResourceElement()) + "]" + "[" + (deck.get(index2).getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getFrontCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "  [" + (deck.get(index1).getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getFrontCorners().get(2).getResourceElement()) + "]" + "[" + (deck.get(index1).getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "  [" + (deck.get(index2).getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getFrontCorners().get(2).getResourceElement()) + "]" + "[" + (deck.get(index2).getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "Points given from card " + deck.get(index1).getIdCard() + ": " + deck.get(index1).getPoints() + RESET);
+        if (deck.get(index1) instanceof GoldCard) {
+            ((GoldCard) deck.get(index1)).printRequirements();
         }
-        return i;
+        System.out.println(YELLOW + "Points given from card " + deck.get(index2).getIdCard() + ": " + deck.get(index2).getPoints() + RESET);
+        if (deck.get(index2) instanceof GoldCard) {
+            ((GoldCard) deck.get(index2)).printRequirements();
+        }
     }
-    public int printPublicCards(int i){
-        System.out.println("Draw from public-card deck");
-        for(ResourceGoldCard rGC: cardOnHand){
-            System.out.println("--------------[" + i + "]--------------");
-            rGC.printFrontCorners();
-            ++i;
-        }
-        return i;
+    private void printCardsSideBySideBack(ArrayList<ResourceGoldCard> deck, int index1, int index2) {
+        System.out.print(GREEN + deck.get(index1).getIdCard() + YELLOW + "[" + (deck.get(index1).getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getBackCorners().get(3).getResourceElement()) + "]" + "[" + (deck.get(index1).getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getBackCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.println(GREEN + deck.get(index2).getIdCard() + YELLOW + "[" + (deck.get(index2).getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getBackCorners().get(3).getResourceElement()) + "]" + "[" + (deck.get(index2).getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getBackCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "  [" + (deck.get(index1).getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getBackCorners().get(2).getResourceElement()) + "]" + "[" + (deck.get(index1).getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getBackCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "  [" + (deck.get(index2).getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getBackCorners().get(2).getResourceElement()) + "]" + "[" + (deck.get(index2).getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getBackCorners().get(1).getResourceElement()) + "]" + RESET);
+    }
+    public void printCoveredCards() {
+        System.out.println("HIDDEN CARDS");
+        printCardsSideBySideBack(drawnCard, 0, 1);
+    }
+    public void printPublicCards(){
+        System.out.println("PUBLIC CARDS");
+        printCardsSideBySideFront(cardOnHand, 0, 1);
+        printCardsSideBySideFront(cardOnHand, 2, 3);
     }
 
 }
