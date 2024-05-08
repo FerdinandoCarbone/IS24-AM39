@@ -44,6 +44,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     public boolean callFor(UUID clientID){
         RMIClientHandler handler;
         handler = (RMIClientHandler) ZakServer.serverConMan.getHandlers().get(clientID);
+        handler.setHeartBeat(true);
         return handler.hasToDeliver;
     }
     @Override

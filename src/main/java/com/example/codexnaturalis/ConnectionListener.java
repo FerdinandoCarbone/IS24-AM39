@@ -3,9 +3,13 @@ package com.example.codexnaturalis;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.rmi.Naming;
+import java.rmi.NoSuchObjectException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 public class ConnectionListener extends Thread implements Runnable{
@@ -30,8 +34,7 @@ class SocketConnectionListener extends ConnectionListener {
             try {
                 sockets.add(serverComMan.getServerSocket().accept());
             } catch (IOException e) {
-                System.err.println("There was an error listening for sockets: "+e.getMessage());
-                throw new RuntimeException(e);
+                System.err.println("There was an error listening for sockets: "+e.getMessage()+"\nRetrying...");
             }
         }
     }
@@ -51,5 +54,9 @@ class RMIConnectionListener extends ConnectionListener {
         while(hasToRun){
 
         }
+    }
+    public void shutRMIConnection() throws RemoteException, MalformedURLException, NotBoundException {
+        UnicastRemoteObject.unexportObject(remoteServerSkeleton,true);
+        Naming.unbind("rmi://localhost:"+serverComMan.getRmiPort()+"/Server");
     }
 }

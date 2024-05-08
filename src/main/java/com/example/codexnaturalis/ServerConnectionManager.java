@@ -45,22 +45,26 @@ public class ServerConnectionManager {
             try {
                 acceptSocketRMIConnections(isReconnection);
             } catch(ClassNotFoundException e){
-                System.out.println("PROBLEMA SERVER: " + e.getMessage());
+                System.out.println("SERVER failure: " + e.getMessage());
             }
             catch(IOException e){
-                System.err.println("PROBLEMA SERVER: " + e.getMessage());
+                System.err.println("SERVER failure: " + e.getMessage());
                 //if (firstPlayer) continue;
             }
         }
         socketListener.setHasToRun(false);
     }
     public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketRMIConnections(boolean isReconnection) throws IOException, ClassNotFoundException {
+        if(isReconnection) socketListener.setHasToRun(true);
         ObjectOutputStream out;
         ObjectInputStream in;
         Message clientJoinRequest;
         LobbyCreationMessage handshakeACK;
         Player player;
-        if(socketListener.sockets.isEmpty()) return null;
+        if(socketListener.sockets.isEmpty()){
+            if(isReconnection)socketListener.setHasToRun(false);
+            return null;
+        }
         Socket clientSocket = socketListener.sockets.getFirst();
         socketListener.sockets.removeFirst();
         in = new ObjectInputStream(clientSocket.getInputStream());

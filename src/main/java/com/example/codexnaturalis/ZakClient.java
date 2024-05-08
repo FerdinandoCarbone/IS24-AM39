@@ -224,12 +224,12 @@ public class ZakClient {
             break;
         }
         player.placeCardAndRemoveFromDeck(row, column, placedCard);
-        int i= message.printDrawnCards(1);//covered
-        i= message.printPublicCards(i);//public
-        System.out.println("Select a card to draw from public deck: ");
-        int selected=getIntInput(i,true);
-        ArrayList<ResourceGoldCard> selectable = message.getDrawnCard();
+        message.printPublicCards(message.printDrawnCards(1));//covered
+        ArrayList<ResourceGoldCard> selectable = new ArrayList<>();
+        selectable.addAll(message.getDrawnCard());
         selectable.addAll(message.getCardOnHand());
+        System.out.println("Select a card to draw from public deck: ");
+        int selected=getIntInput(selectable.size(),true);
         selectedCard=selectable.get(selected);
         player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
         message = new GenericTurnMessage(null,null,new ArrayList<>(Collections.singletonList(selectedCard)),new ArrayList<>(Collections.singletonList(placedCard)),coordinates);
@@ -411,6 +411,8 @@ public class ZakClient {
     }
     public static void endOfTheGame() throws IOException {
         currentGameStatus=false;
+        System.out.println("To start a new game, restart the client");
+        System.exit(0);
 
     }
 
@@ -457,4 +459,5 @@ public class ZakClient {
     public static ArrayList<Player> getOtherPlayers() {
         return otherPlayers;
     }
+    public static Player getPlayer(){return  player;}
 }

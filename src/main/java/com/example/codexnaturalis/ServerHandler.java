@@ -52,6 +52,7 @@ public class ServerHandler extends Thread implements Runnable {
         String sender = message.getSender();
         if(Objects.equals(sender, getClientName())) sender="You";
         System.out.println(sender+": "+message.getTextMessage());
+        if(message.getTextMessage().contains("kicked")) System.exit(0);
         if(!wasFirstBroadCastReceived()) setFirstBroadCastWasReceived(true);
     }
     public void genericTurnMessageHandler(GenericTurnMessage message){
@@ -85,22 +86,41 @@ public class ServerHandler extends Thread implements Runnable {
     }
     public void universalStatusUpdater(StandardMatchMessage newStatus){
         UUID oldPlayer= newStatus.getClientID();
-        System.out.println("Updating game status" + oldPlayer);
+        System.out.println("Updating game status" + oldPlayer+" Points: "+ newStatus.getCurrPlayerPoints());
         ResourceGoldCard placedCard= newStatus.getPlacedCard();
         Pair<Integer,Integer> coords= newStatus.getCoords();
         ArrayList<Player> players = ZakClient.getOtherPlayers();
-        for(Player p:players){
-            if(p.getPlayerID().equals(oldPlayer)){
-                System.out.println("Player found:");
-                p.placeCard(coords.getKey(), coords.getValue(),placedCard);
-                break;
+        if(getClientID().equals(oldPlayer))ZakClient.getPlayer().setScore(newStatus.getCurrPlayerPoints());
+        else {
+            for (Player p : players) {
+                if (p.getPlayerID().equals(oldPlayer)) {
+                    System.out.println("Player found:");
+                    p.placeCard(coords.getKey(), coords.getValue(), placedCard);
+                    p.setScore(newStatus.getCurrPlayerPoints());
+                    break;
+                }
             }
         }
     }
     public GenericTurnMessage getMessageTurn() {
         return messageTurn;
     }
-
+    public void winnerDeclaration(EndMatchMessage message) throws WrongMessageConversionException {
+        ArrayList<Player> players = message.getFinalWinners();
+        String winString;
+        switch(players.size()){
+            case 1:
+                winString = players.getFirst().getPlayerName() + " is the winner of this game";
+                break;
+            case 2,3,4:
+                winString = "There was a Draw between: \n";
+                for (Player p : players){
+                    winString.concat(p.getPlayerName()+" ");
+                }
+            default: throw new WrongMessageConversionException("There was a problem declaring the winner");
+        }
+        System.out.println(winString+"\nThank you for playing");
+    }
     public void setMessageTurn(GenericTurnMessage messageTurn) {
         this.messageTurn = messageTurn;
     }
@@ -177,8 +197,8 @@ class ServerSocketHandler extends ServerHandler {
             case "BroadCastStartingMessage":
                 broadCastStartingMessageHandler((BroadCastStartingMessage) message);
                 break;
-            case "EndGameMessage":
-                endOfTheGame((EndGameMessage)message);
+            case "EndMatchMessage":
+                endOfTheGame((EndMatchMessage)message);
                 break;
             case "LobbyCreationMessage":
                 break;
@@ -195,13 +215,14 @@ class ServerSocketHandler extends ServerHandler {
         outServer.writeObject(message);
     }
 
-    private void endOfTheGame(EndGameMessage message) throws IOException {
-        String winner = message.getWinner();
-        System.out.println(winner+" ha vinto la partita\nGrazie per aver giocato\n");
+    private void endOfTheGame(EndMatchMessage message) throws IOException, WrongMessageConversionException {
+        winnerDeclaration(message);
         outServer.close();
         inServer.close();
         ZakClient.endOfTheGame();
     }
+
+
 }
 class ServerRMIHandler extends ServerHandler{
 
@@ -217,6 +238,7 @@ class ServerRMIHandler extends ServerHandler{
         while(true){
             try {
                 if(remoteProxy.callFor(getClientID())) messageReceiver(remoteProxy.whatToCall(getClientID()));
+                Thread.sleep(1500);
             } catch(RemoteException e){
                 System.err.println("ServerRMIHandler: "+e.getMessage());
                 if(tryReconnectToServer()) continue;
@@ -224,6 +246,8 @@ class ServerRMIHandler extends ServerHandler{
                 clientDisconnected();
             } catch(IOException |WrongMessageConversionException e){
                 System.err.println("IOException: " +e.getMessage() );
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -252,8 +276,8 @@ class ServerRMIHandler extends ServerHandler{
             case "BroadCastStartingMessage":
                 broadCastStartingMessageHandler((BroadCastStartingMessage) message);
                 break;
-            case "EndGameMessage":
-                endOfTheGame((EndGameMessage)message);
+            case "EndMatchMessage":
+                endOfTheGame((EndMatchMessage)message);
                 break;
             case "LobbyCreationMessage":
                 break;
@@ -275,9 +299,8 @@ class ServerRMIHandler extends ServerHandler{
             System.err.println(e.getMessage());
         }
     }
-    private void endOfTheGame(EndGameMessage message) throws IOException {
-        String winner = message.getWinner();
-        System.out.println(winner+" ha vinto la partita\nGrazie per aver giocato\n");
+    private void endOfTheGame(EndMatchMessage message) throws IOException, WrongMessageConversionException {
+        winnerDeclaration(message);
         ZakClient.endOfTheGame();
     }
 }

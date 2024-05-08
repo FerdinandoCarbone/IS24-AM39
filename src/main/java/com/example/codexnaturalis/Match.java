@@ -4,8 +4,8 @@ import java.util.*;
 
 public class Match {
     private final ArrayList<Player> players;
-    private ArrayList<Player> winners;
-    private ArrayList<Player> finalWinners;
+    private ArrayList<Player> winners = new ArrayList<>();
+    private ArrayList<Player> finalWinners= new ArrayList<>();
     protected static HashMap<Player, Integer> hashObjectivePoints = new HashMap<>();
     private final ScoreTracker scoreTracker;
     private boolean isLastCycle = false;
@@ -81,7 +81,10 @@ public class Match {
             }
         }
         if (isLastCycle && indexCurrentPlayer == players.size() - 1) {
-            return new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
+            lastRoundRoutine();
+            EndMatchMessage endGame=new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
+            endGame.setFinalWinners(finalWinners);
+            return endGame;
         }
 
         //ADD THE DRAWN CARD TO THE PLAYER'S DECK AND REMOVE IT FROM WHERE IT WAS DRAWN
@@ -123,7 +126,9 @@ public class Match {
         System.out.println(Colors.GREEN + "--Next player selected, it's" + playerName + "'s turn--" + Colors.RESET);
         /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
          * Infine chiamare lastRoundRoutine*/
-        return new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId,  msg.getCardOnHand().getFirst(), msg.getCoordinates());
+        StandardMatchMessage mex = new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId,  msg.getCardOnHand().getFirst(), msg.getCoordinates());
+        mex.setCurrPlayerPoints(playingPlayer.getScore());
+        return mex;
     }
 
     private ResourceGoldCard getPublicCardFromId(int cardId) {
@@ -790,9 +795,10 @@ public class Match {
 
     /** print winner */
     private void declareWinners() {
+        finalWinners.removeAll(finalWinners.stream().toList());
+        finalWinners.addAll(winners);
         int s = winners.size();
-        for(int i = 0; i < s; i++){
-            Player p = winners.get(i);
+        for (Player p : winners) {
             System.out.println("WINNER: " + p.getPlayerName());
         }
     }

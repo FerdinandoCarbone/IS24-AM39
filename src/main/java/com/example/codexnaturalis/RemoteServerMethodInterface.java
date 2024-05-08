@@ -17,5 +17,6 @@ public interface RemoteServerMethodInterface extends Remote {
     Message whatToCall(UUID clientID) throws RemoteException;
 
     void send(Message message) throws RemoteException;
+
 }
 

@@ -136,6 +136,7 @@ public class Player implements Serializable {
         System.out.println("-------------------------");
         System.out.println(playerName + "'s Codex");
         playerField.printField();
+        System.out.println(playerName+"'s score: "+ score);
     }
 
     /**

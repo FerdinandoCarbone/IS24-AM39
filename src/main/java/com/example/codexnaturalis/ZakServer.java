@@ -3,6 +3,8 @@ package com.example.codexnaturalis;
 import javafx.util.Pair;
 
 import java.io.*;
+import java.net.Socket;
+import java.rmi.NotBoundException;
 import java.util.*;
 
 public class ZakServer {
@@ -21,6 +23,11 @@ public class ZakServer {
             System.err.println("Cannot start server: Start server with an integer parameter as port");
             System.exit(0);
         }
+        serverSetupProcedure();
+
+    }
+
+    private static void serverSetupProcedure() {
         try{
             serverStart(connectionInfo.getValue());
         } catch(Exception e){
@@ -32,8 +39,8 @@ public class ZakServer {
         } catch(Exception e){
             System.err.println("Server Failure: "+e.getMessage());
         }
-
     }
+
     public static void serverStart(int port) throws IOException {
         gameStarted = false;
         serverConMan=new ServerConnectionManager(connectionInfo,1099);
@@ -67,7 +74,7 @@ public class ZakServer {
         StandardMatchMessage stdmessage = match.chooseRandomFirstPlayer();
         GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(),stdmessage.getClientID(),match.getCoveredCards(),stdmessage.getPublicCardsNewState(),null); //match loop starts here
         serverConMan.sendMessage(stdmessage.getClientID(),message);
-        while(gameStarted){
+        while(true){
             serverCommand = getInput();
             interpretInput(serverCommand);
         }
@@ -99,7 +106,19 @@ public class ZakServer {
    }
     public static void stopThread(UUID clientID){
         //todo: fare le opportune modifiche a match
-        serverConMan.getHandlers().get(clientID).interrupt();
+        try{
+        serverConMan.getHandlers().get(clientID).setHasToRun(false);}
+        catch (Exception e){
+            System.err.println("Unable to stop process:" + e.getMessage());
+        }
+        try{
+            String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
+            ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
+            ServerConnectionManager.hashClient.remove(clientID);
+            System.out.println(playerName+ " left the game and was unable to reconnect");
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         serverConMan.getHandlers().remove(clientID);
     }
     private static String getInput(){
@@ -116,20 +135,78 @@ public class ZakServer {
         //scanner.close();
         return input;
     }
-    private static void interpretInput(String serverCommand) {
+    private static void interpretInput(String serverCommand) throws IOException, NotBoundException {
         switch(serverCommand.toLowerCase()){
             case "close":
                 System.out.println("Server shutting down");
                 System.exit(0);
                 break;
-            case "ban":
+            case "kick":
+                /*List<Player> players = serverConMan.getPlayers().stream().toList();
+                int i=1;
+                System.out.println("What player would you like to kick from match?");
+                for(Player p: players) {
+                    System.out.println(i+ " - "+ p.getPlayerName());
+                    ++i;
+                }
+                i=getIntInput(players.size(),false);
+                kick(players.get(i-1).getPlayerID());*/
                 break;
             case "restart":
+                //todo: cose inutili
+                /*for(ClientHandler p: ServerConnectionManager.handlers.values()){
+                    p.setHasToRun(false);
+                }
+                ServerConnectionManager.handlers.clear();
+                for(Socket s:ServerConnectionManager.hashPlayer.values()) s.close();
+                ServerConnectionManager.hashPlayer.clear();
+                ServerConnectionManager.serverSocket.close();
+                ServerConnectionManager.rmiListener.shutRMIConnection();
+                ServerConnectionManager.rmiListener.setHasToRun(false);
+                match = null;
+                serverConMan = null;
+                gameStarted = false;
+                serverSetupProcedure();*/
                 break;
             default: System.out.println("Unknown command");
         }
     }
+
+    private static void kick(UUID clientID) {
+        try{
+            ClientHandler h = serverConMan.getHandlers().get(clientID);
+            h.sendMessage(new TextMessage("Server",null,h.getClientName() +" has been kicked from server",h.getClientName()));
+            h.setHasToRun(false);}
+        catch (Exception e){
+            System.err.println("Unable to stop process:" + e.getMessage());
+        }
+        try{
+            String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
+            ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
+            ServerConnectionManager.hashClient.remove(clientID);
+            System.out.println(playerName+ " was kicked from server");
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        serverConMan.getHandlers().remove(clientID);
+    }
+
     public static int getNumOfPlayers(){
        return serverConMan.getNumPlayers();
     }
+    private static int getIntInput(int range,boolean type){
+        Integer thingToParse=null;
+        while(true){
+            try {
+                thingToParse = Integer.parseInt(getInput());
+            } catch (Exception e){
+                System.out.println("Invalid input: try again");
+                continue;
+            }
+            if(thingToParse<=range && thingToParse>=0) break;
+        }
+        if(type)return thingToParse -1;
+        else return  thingToParse;
+    }
+
 }

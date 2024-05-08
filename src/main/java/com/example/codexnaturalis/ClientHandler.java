@@ -15,13 +15,19 @@ public class ClientHandler extends Thread implements Runnable {
     private final String clientName;
     private final UUID clientID;
     private boolean secretWasChosen;
+    public boolean hasToRun;
     public ClientHandler(String clientName,UUID clientID,ServerConnectionManager connMan){
         this.clientName=clientName;
         this.clientID=clientID;
         this.connMan = connMan;
         this.secretWasChosen = false;
+        this.hasToRun = true;
     }
-
+    public void clientDisconnected(){
+        //todo: chiamata a match per rimuovere player
+        //todo:ZakServer.match.removeDisconnectedPlayer(getClientID());
+        ZakServer.stopThread(getClientID());
+    }
     public boolean getSecretWasChosen() {
         return this.secretWasChosen;
     }
@@ -62,7 +68,16 @@ public class ClientHandler extends Thread implements Runnable {
     public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException {
         StandardMatchMessage newStatus = ZakServer.match.genericTurn(message);
         System.out.println("currentPlayer:"+newStatus.getClientID());
-        GenericTurnMessage newTurn = new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards(),newStatus.getPublicCardsNewState(),null);
+        if(newStatus instanceof EndMatchMessage){
+            ServerConnectionManager.sendBroadCastMessage(newStatus);
+            return;
+        }
+        ArrayList<ResourceGoldCard> coveredCards = ZakServer.match.getCoveredCards();
+        ArrayList<ResourceGoldCard> publicCards = newStatus.getPublicCardsNewState();
+        for(ResourceGoldCard c: coveredCards) System.out.println(Colors.BLUE + c.getIdCard() + Colors.RESET);
+        for(ResourceGoldCard c: publicCards) System.out.println(Colors.RED + c.getIdCard() + Colors.RESET);
+        GenericTurnMessage newTurn = new GenericTurnMessage("Server",null,coveredCards,publicCards,null);
+        newTurn.printPublicCards(newTurn.printDrawnCards(1));
         ServerConnectionManager.sendBroadCastMessage(newStatus);
         ServerConnectionManager.sendMessage(newStatus.getNextPlayerId(),newTurn);
     }
@@ -82,24 +97,56 @@ public class ClientHandler extends Thread implements Runnable {
         }*/
         this.secretWasChosen=true;
     }
+
+    public void setHasToRun(boolean b) {
+        this.hasToRun = b;
+    }
 }
 class RMIClientHandler extends ClientHandler{
 
     Message rmiDeliverer;
     ArrayList<Message> queue;
+    private volatile boolean heartBeat;
     volatile boolean hasToDeliver;
     public RMIClientHandler(String clientName, UUID clientID, ServerConnectionManager connMan) {
         super(clientName, clientID, connMan);
         rmiDeliverer=null;
         hasToDeliver=false;
         queue= new ArrayList<>();
+        heartBeat=false;
     }
     @Override
     public void run(){
-        while(true){
-            while(!hasToDeliver) Thread.onSpinWait();
+        while(hasToRun){
+            try {
+                heartBeat=false;
+                Thread.sleep(5000);
+                if(!heartBeat) throw new ClientAbruptlyDisconnectedException("Client abruptly disconnected: Trying to reconnect...");
+            } catch (InterruptedException e) {
+                System.err.println("Thread Sleep issue:" + e.getMessage());
+            } catch (ClientAbruptlyDisconnectedException e){
+                System.err.println(e.getMessage());
+                if(tryReconnectToClient()) continue;
+                //todo: reconnection attempt
+                clientDisconnected();
+            }
+            //while(!hasToDeliver) Thread.onSpinWait();
         }
     }
+
+    private boolean tryReconnectToClient() {
+        for (int i = 0; i < 2; i++) {
+            if(heartBeat) return heartBeat;
+            System.err.println("Failed to reconnect: retrying in 5s");
+            try{
+                Thread.sleep(5000);
+            } catch(InterruptedException e){
+                System.err.println(e.getMessage());
+            }
+        }
+        return false;
+    }
+
     @Override
     public void sendMessage(Message msg){
         queue.addLast(msg);
@@ -107,6 +154,7 @@ class RMIClientHandler extends ClientHandler{
         if(msg instanceof StandardMatchMessage){
             System.out.println("Sending updates to:" + getClientName());
         }
+        //todo: reconnection attempt
         else if(!(msg instanceof TextMessage)) {
             msg.setClientID(getClientID());
             msg.setSender(getClientName());
@@ -141,11 +189,16 @@ class RMIClientHandler extends ClientHandler{
     public void setHasToDeliver(boolean hasToDeliver) {
         this.hasToDeliver = hasToDeliver;
     }
+
+    public void setHeartBeat(boolean b) {
+        this.heartBeat = b;
+    }
 }
 
 
 class SocketClientHandler extends ClientHandler{
     private Socket socket;
+    private boolean reconnect;
     private ObjectOutputStream outClient;
     private ObjectInputStream inClient;
     public SocketClientHandler(String clientName,Socket socket,UUID clientID, Pair<ObjectInputStream,ObjectOutputStream> iostream,ServerConnectionManager connMan) throws IOException {
@@ -153,6 +206,7 @@ class SocketClientHandler extends ClientHandler{
         this.socket = socket;
         this.outClient = iostream.getValue();
         this.inClient = iostream.getKey();
+        this.reconnect=false;
     }
 
     @Override
@@ -161,36 +215,57 @@ class SocketClientHandler extends ClientHandler{
             try {
                 messageReceiver();
             } catch(IOException | ClassNotFoundException | WrongMessageConversionException e){
-                System.out.println("ERRORE CLIENT HANDLER");
-                e.getMessage();
+                if(!getConnMan().getServerSocket().isClosed()){
+                    reconnect = true;
+                }
+                else {
+                    reconnect = false;
+                    break;
+                }
+                System.err.println("Client Handler failure: " +e.getMessage());
             }
             try{
-                if(!ZakServer.gameStarted && socket.isClosed()) throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected: Attempting reconnection");
+                if(ZakServer.gameStarted && reconnect){
+                    throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected: Attempting reconnection");
+                }
+                else if(!ZakServer.gameStarted && reconnect && (ZakServer.match == null||ZakServer.match.getFinalWinners().isEmpty())) throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected: Attempting reconnection");
+                else if(!reconnect && !ZakServer.match.getFinalWinners().isEmpty()) clientDisconnected();
             }catch(ClientAbruptlyDisconnectedException e){
+                System.err.println(e.getMessage());
                 if(tryReconnectClient()) continue;
                 //todo: reconnection attempt
                 clientDisconnected();
             }
-        }while (true);
+        }while (hasToRun);
     }
     private boolean tryReconnectClient(){
         boolean result=true;
+        System.err.println("Trying to re-establish a connection with client:");
         Pair<ObjectInputStream,ObjectOutputStream> oIOstream;
         try {
-            oIOstream = getConnMan().acceptSocketRMIConnections(true);
-            outClient= oIOstream.getValue();
-            inClient = oIOstream.getKey();
+            for(int i =0;i<3;i++) {
+                oIOstream = getConnMan().acceptSocketRMIConnections(true);
+                if (oIOstream == null) {
+                    if(i==2)throw new Exception("No socket enabled client was able to connect");
+                    else{
+                        System.err.println("Unable to establish a connection - retrying in 5s");
+                        Thread.sleep(5000);
+                        continue;
+                    }
+                }
+                outClient= oIOstream.getValue();
+                inClient = oIOstream.getKey();
+                break;
+            }
+
         } catch (Exception e){
+            System.err.println(e.getMessage());
             result = false;
         }
+        this.reconnect = !result;
         return result;
     }
-    private void clientDisconnected(){
-        ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(getClientID()));
-        ServerConnectionManager.hashClient.remove(getClientID());
-        //todo: chiamata a match per rimuovere player
-        ZakServer.stopThread(getClientID());
-    }
+
     private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         Message message = (Message) inClient.readObject();
         Class<? extends Message> a = message.getClass();
