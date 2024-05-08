@@ -510,6 +510,8 @@ public class Player implements Serializable {
         return playerField;
     }
 
+    public void setScore(int score) {this.score = score;}
+
     public int getScore() {
         return score;
     }
