@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class PlayerDeckController extends HBox {
 
@@ -22,8 +23,13 @@ public class PlayerDeckController extends HBox {
     private CardController starterCard;
     @FXML
     private CardController secretObjCard;
-//    @FXML
-//    private Button cardReceiverButton;
+    private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
+    @FXML
+    private Button drawGoldButton;
+    @FXML
+    private Button drawResButton;
+    private int position = 0 ;
+
 
     public PlayerDeckController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PlayerDeck.fxml"));
@@ -31,7 +37,8 @@ public class PlayerDeckController extends HBox {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
-//        cardReceiverButton.setOnAction(event -> receiveCards());
+        drawGoldButton.setOnAction(event -> drawGoldCard());
+        drawResButton.setOnAction(event -> drawResCard());
     }
 
     public void receiveCards() {
@@ -40,6 +47,32 @@ public class PlayerDeckController extends HBox {
         card3.setupCard(DrawingDeck.drawCard(false));
         starterCard.setupCard(DrawingDeck.getTotalStartingCards().getFirst());
         secretObjCard.setupCard(DrawingDeck.getTotalObjectiveCards().getFirst());
+    }
+    public void drawGoldCard() {
+        switch (position){
+            case 0: card1.setupCard(DrawingDeck.drawCard(false));
+            case 1: card2.setupCard(DrawingDeck.drawCard(false));
+            case 2: card3.setupCard(DrawingDeck.drawCard(false));
+            case 3: starterCard.setupCard(DrawingDeck.drawCard(false));
+        }
+    }
+    public void drawResCard() {
+        switch (position){
+            case 0: card1.setupCard(DrawingDeck.drawCard(true));
+            case 1: card2.setupCard(DrawingDeck.drawCard(true));
+            case 2: card3.setupCard(DrawingDeck.drawCard(true));
+            case 3: starterCard.setupCard(DrawingDeck.drawCard(true));
+        }
+    }
+    public void setEmpty(int pos){
+        position=pos;
+        switch (pos){
+            case 0: card1.setupEmptyCard();
+            case 1: card2.setupEmptyCard();
+            case 2: card3.setupEmptyCard();
+            case 3: starterCard.setupEmptyCard();
+        }
+
     }
 
     public CardController getCard1() {
@@ -62,7 +95,5 @@ public class PlayerDeckController extends HBox {
         return secretObjCard;
     }
 
-//    public Button getCardReceiverButton() {
-//        return cardReceiverButton;
-//    }
+
 }

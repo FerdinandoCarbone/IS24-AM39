@@ -14,15 +14,18 @@ public class MainController implements Initializable {
     private StructRightController struct;
     private CardController cardToRemove;
     private boolean readyToPlace = false;
+    private int pos = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         playerDeck.receiveCards();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
+            int finalI = i;
             tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
                 cardToRemove = tmpCard;
                 readyToPlace = true;
+                pos= finalI;
             });
         }
         for (int i = 0; i < struct.getChildren().size(); i++) {
@@ -31,7 +34,9 @@ public class MainController implements Initializable {
                 if (readyToPlace) {
                     if (tmpSlot.isEmpty()) {
                         tmpSlot.setSlotCardView(cardToRemove.getShownImage());
-                        playerDeck.getChildren().remove(cardToRemove);
+                        if(pos==3) playerDeck.getChildren().remove(cardToRemove);
+                        //playerDeck.getChildren().remove(cardToRemove);
+                        playerDeck.setEmpty(pos);
                         readyToPlace = false;
                         tmpSlot.toFront();
                     } else {

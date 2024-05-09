@@ -11,7 +11,9 @@
     <CardController fx:id="card3" />
     <CardController fx:id="starterCard" />
     <CardController fx:id="secretObjCard" />
-<!--    <Button fx:id="cardReceiverButton" text="GenCards" minWidth="50.0" maxWidth="50.0" layoutY="-10.0">-->
-<!--    </Button>-->
+    <Button fx:id="drawGoldButton" text="Gold" minWidth="50.0" maxWidth="50.0" layoutY="-10.0">
+    </Button>
+    <Button fx:id="drawResButton" text="Resource" minWidth="60.0" maxWidth="50.0" layoutY="-10.0">
+    </Button>
 
 </fx:root>

@@ -23,6 +23,7 @@ public class CardController extends Pane {
     private Image backImage;
     private Card card;
     private boolean isFront;
+    private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
 
     public CardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Card.fxml"));
@@ -40,6 +41,12 @@ public class CardController extends Pane {
         backImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[1])));
         cardImageView.setImage(isFront ? frontImage : backImage);
     }
+    public void setupEmptyCard() {
+        //card = newCard;
+        frontImage = emptyImage;
+        backImage = emptyImage;
+        cardImageView.setImage(isFront ? frontImage : backImage);
+    }
 
     public void flipCard() {
         if (isFront) {
@@ -50,6 +57,7 @@ public class CardController extends Pane {
             isFront = true;
         }
     }
+
 
     public Image getShownImage() {
         if (isFront) {
