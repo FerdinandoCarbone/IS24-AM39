@@ -80,24 +80,25 @@ public class ServerConnectionManager {
             //playerCounter = numPlayers;
             System.out.println("There will be "+numPlayers+" players");
         }
-        else{
-            List<Player> players = getPlayers().stream().toList();
-            Message tmp =new Message("!!++***++!!",null);
-            for(int i=0;i<players.size();i++){
-                System.out.println("OLD NICK: "+clientJoinRequest.getSender());
-                if(players.get(i).getPlayerName().equals(clientJoinRequest.getSender())){
+        else {
+            ArrayList<Player> players = new ArrayList<>(getPlayers());
+            Message tmp = new Message("!!++***++!!", null);
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).getPlayerID().equals(clientJoinRequest.getClientID())) break;
+                if (players.get(i).getPlayerName().equals(clientJoinRequest.getSender())) {
                     out.writeObject(tmp);
                     clientJoinRequest = (Message) in.readObject();
-                    System.out.println("New user changed nick to: "+clientJoinRequest.getSender());
-                    i=-1;
+                    i = -1;
                 }
-                System.out.println("i:"+i);
+                //System.out.println("i:"+i);
             }
-            handshakeACK = new LobbyCreationMessage(serverName, null, hashClient.size());
-            try {
-                out.writeObject(handshakeACK);
-            } catch(RuntimeException e){
+            if(!Arrays.stream((players.stream().map(Player::getPlayerID).toArray(UUID[]::new))).toList().contains(clientJoinRequest.getClientID())){
+                handshakeACK = new LobbyCreationMessage(serverName, null, hashClient.size());
+                try {
+                  out.writeObject(handshakeACK);
+                 } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
+                }
             }
         }
         if(hashClient.size()<=numPlayers && !isReconnection){
@@ -114,6 +115,7 @@ public class ServerConnectionManager {
             return null;
         }
         else if(isReconnection){
+            ioStream.getValue().writeObject(new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards(),ZakServer.match.getPublicCards(),null));
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
             hashPlayer.replace(hashClient.get(clientID),clientSocket);
@@ -149,7 +151,7 @@ public class ServerConnectionManager {
     public Pair<ObjectInputStream,ObjectOutputStream> getIoStream(){
         return ioStream;
     }
-    public Collection<Player> getPlayers(){
+    public static Collection<Player> getPlayers(){
         return hashClient.values();
     }
 

@@ -138,15 +138,14 @@ class ServerSocketHandler extends ServerHandler {
             try {
                 messageReceiver();
             } catch (ClassNotFoundException | WrongMessageConversionException e) {
-                System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
+                System.out.println("ServerComHandler error: " + e.getMessage());
 
             } catch(IOException e){
-                System.out.println("ERRORE ServerCom HANDLER: " + e.getMessage());
+                System.out.println("ServerComHandler error: " + e.getMessage());
                 try {
                     throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server due to socket degradation: Attempting reconnection");
                 } catch (ClientAbruptlyDisconnectedException ex) {
                     if(tryReconnectToServer()) continue;
-                    //todo: reconnection attempt
                     clientDisconnected();
                 }
             }
@@ -154,7 +153,6 @@ class ServerSocketHandler extends ServerHandler {
                 if(socket.isClosed() && ZakClient.isCurrentGameStatus()) throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server: Attempting reconnection");
             }catch(ClientAbruptlyDisconnectedException e){
                 if(tryReconnectToServer()) continue;
-                //todo: reconnection attempt
                 clientDisconnected();
             }
         }while(ZakClient.isCurrentGameStatus());

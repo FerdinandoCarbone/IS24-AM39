@@ -59,6 +59,10 @@ public class Match {
         return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), playingPlayer.getPlayerName(), null, null, null);
     }
 
+    public ArrayList<ObjectiveCard> getCommonObjectives() {
+        return commonObjectives;
+    }
+
     public StandardMatchMessage genericTurn(GenericTurnMessage msg) {
         Player playingPlayer = getPlayerFromId(msg.getClientID());
         String playerName = playingPlayer.getPlayerName();
@@ -821,6 +825,13 @@ public class Match {
         for(Player p: players) p.setCommonObjCards(commonObjectives);
     }
 
+    public UUID getCurrentPlayerID() {
+        return players.get(indexCurrentPlayer).getPlayerID();
+    }
+
+    public ArrayList<ResourceGoldCard> getPublicCards() {
+        return publicCards;
+    }
 }
 
 

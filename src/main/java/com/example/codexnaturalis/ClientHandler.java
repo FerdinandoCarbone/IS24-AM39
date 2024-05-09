@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -122,7 +123,7 @@ class RMIClientHandler extends ClientHandler{
             try {
                 heartBeat=false;
                 Thread.sleep(10000);
-                if(!heartBeat) throw new ClientAbruptlyDisconnectedException("Client disconnected: Trying to reconnect...");
+                if(!heartBeat) throw new ClientAbruptlyDisconnectedException("Client "+getClientName()+ " disconnected: Trying to reconnect...");
             } catch (InterruptedException e) {
                 System.err.println("Thread Sleep issue:" + e.getMessage());
             } catch (ClientAbruptlyDisconnectedException e){
@@ -220,21 +221,28 @@ class SocketClientHandler extends ClientHandler{
                     reconnect = true;
                 }
                 else {
+                    System.err.println("Client Handler failure: " +e.getMessage());
                     reconnect = false;
                     break;
                 }
-                System.err.println("Client Handler failure: " +e.getMessage());
             }
             try{
                 if(ZakServer.gameStarted && reconnect){
-                    throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected: Attempting reconnection");
+                    throw new ClientAbruptlyDisconnectedException("Client "+getClientName()+" abruptly disconnected: Attempting reconnection");
                 }
                 else if(!ZakServer.gameStarted && reconnect && (ZakServer.match == null||ZakServer.match.getFinalWinners().isEmpty())) throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected: Attempting reconnection");
                 else if(!reconnect && !ZakServer.match.getFinalWinners().isEmpty()) clientDisconnected();
             }catch(ClientAbruptlyDisconnectedException e){
                 System.err.println(e.getMessage());
-                if(tryReconnectClient()) continue;
-                //todo: reconnection attempt
+                if(tryReconnectClient()){
+                    try {
+                        outClient.reset();
+                        sendMessage(new BroadCastStartingMessage("Server",ZakServer.match.getCurrentPlayerID(),ServerConnectionManager.hashClient,ZakServer.match.getCommonObjectives(),null));
+                        continue;
+                    } catch (IOException ex) {
+                        System.out.println("Unable to send match status to disconnected player: "+getClientName());
+                    }
+                }
                 clientDisconnected();
             }
         }while (hasToRun);
@@ -272,6 +280,9 @@ class SocketClientHandler extends ClientHandler{
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
         switch (messageType){
+            case "Message":
+                resilience(message);
+                break;
             case "GenericTurnMessage":
                 genericTurnMessageHandler((GenericTurnMessage) message);
                 break;
@@ -289,6 +300,10 @@ class SocketClientHandler extends ClientHandler{
                 break;
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server");
         }
+    }
+
+    private void resilience(Message message) {
+
     }
 
     @Override

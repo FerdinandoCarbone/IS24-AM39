@@ -6,8 +6,9 @@ import java.util.*;
 
 public class ZakClient {
 
-    //private static Pair<ObjectInputStream,ObjectOutputStream> ioStream;
+    private static boolean crashed;
     private static Pair<String,Integer> connectionInfo;
+    private static boolean connectionType;
     private static ServerHandler serverHandler;
     private static String playerNick;
     private static Player player;
@@ -58,20 +59,28 @@ public class ZakClient {
      */
     private static void initialClientSetup(String serverAddress,int port) throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
         ConnectionManger connMan = null;
-        clientID = UUID.randomUUID();
+        int connectionInt=0;
+        crashed = false;
         currentGameStatus = false;
         myTurn = false;
         otherPlayers= new ArrayList<>();
         connectionInfo = new Pair<>(serverAddress,port);
         playerNick = playerGreeting();
+        clientID=uuidGen();
         int i=0;
         do {
+            if(crashed) {
+                System.out.println("Reconnecting...");
+                connMan = new ConnectionManger(connectionType, connectionInfo);
+                break;
+            }
             if (i == 3) throw new StupidUserException("Too many bad failed attempts: Closing client");
             System.out.println("How would you like to connect?");
             System.out.println("0 - Cancel");
             System.out.println("1 - Socket");
             System.out.println("2 - RMI");
-            switch (getIntInput(2, false)) {
+            connectionInt = getIntInput(2, false);
+            switch (connectionInt) {
                 case 0:
                     System.exit(0);
                     break;
@@ -85,10 +94,78 @@ public class ZakClient {
                     i++;
                     System.out.println("Not a valid input: Try again");
             }
+
         } while (connMan == null);
+        if(!crashed)writeConnectionTypeOnFile(connectionInt);
         connMan.connectionSetup();
-        connMan.doHandShake();
+        if(!crashed)connMan.doHandShake();
+        else connMan.reHandShake();
     }
+
+    public static void writeConnectionTypeOnFile(Integer i) throws IOException {
+        String fileName = "savedata/"+playerNick + "-matchInfo.cdxn";
+        StringBuilder existingContent = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            existingContent.append(line).append(System.lineSeparator());
+        }
+        String contentToAppend = i==1? "false":"true";
+        existingContent.append(contentToAppend).append(System.lineSeparator());
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        // Write the combined content back to the file
+        writer.write(existingContent.toString());
+        //System.out.println("Content appended to file successfully.");
+        reader.close();
+        writer.close();
+    }
+
+    public static UUID uuidGen() {
+        String fileName = "savedata/"+playerNick+"-matchInfo.cdxn";
+        ArrayList<String> content=new ArrayList<>();
+        UUID newID=null;
+        try {
+            // Create a FileReader to read data from the file
+            FileReader fileReader = new FileReader(fileName);
+
+            // Wrap the FileReader in a BufferedReader for efficient reading
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            // Read each line from the file and print it
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                content.add(line);
+            }
+            newID= UUID.fromString(content.getFirst());
+            content.removeFirst();
+            crashed = true;
+            connectionType= Objects.equals(content.getFirst(), "true");
+            // Close the BufferedReader and FileReader
+            bufferedReader.close();
+            fileReader.close();
+            return newID;
+        } catch (IOException e) {
+            System.out.println("No savefile found - Start as new Player");
+        }
+        try {
+            FileOutputStream outputStream = new FileOutputStream(fileName);
+            newID = UUID.randomUUID();
+            // Convert the string content to bytes and write to the file
+            byte[] bytes = newID.toString().getBytes();
+            outputStream.write(bytes);
+
+            // Close the stream
+            outputStream.close();
+            crashed = false;
+            return newID;
+        } catch (FileNotFoundException e){
+            System.out.println(e.getMessage());
+        }catch (IOException e) {
+            System.out.println("Error while trying to write file");
+        }
+        return UUID.randomUUID();
+    }
+
     /**
      * Basic Player greeting function that runs as soon as the client starts:
      * Player will be greeted and will be choosing his nick here
@@ -170,7 +247,7 @@ public class ZakClient {
      * @throws WrongMessageConversionException, will be thrown if there was an issue casting the messages
      * */
     private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        new Thread(serverHandler).start();
+        if(!crashed) new Thread(serverHandler).start();
         while(!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())){
             Thread.onSpinWait();
         }
@@ -401,8 +478,8 @@ public class ZakClient {
      * @throws ClassNotFoundException
      */
     private static void selectPossibleActions() throws IOException, ClassNotFoundException {
-        System.out.println("What would you like to do:\n");
         printPossibleChoices();
+        System.out.print("What would you like to do: ");
         int action;
         try{
         action = Integer.parseInt(receiveInput());}
@@ -411,6 +488,7 @@ public class ZakClient {
             return;
         }
         clearConsole();
+        System.out.println();
         switch (action){
             case 1:
                 printPlayerField();
@@ -428,7 +506,6 @@ public class ZakClient {
                 writeTextMessage();
                 break;
             case 6:
-                //todo: match updater
                 if(serverHandler.getMessageTurn() != null) genericMessageAssembler();
                 else System.out.println("Wrong input: Input the number associated to the desired action");
                 break;
@@ -590,5 +667,30 @@ public class ZakClient {
     public static ArrayList<Player> getOtherPlayers() {
         return otherPlayers;
     }
+
+    public static ServerHandler getServerHandler() {
+        return serverHandler;
+    }
+
+    public static void setPlayer(Player player) {
+        ZakClient.player = player;
+    }
+
+    public static void setOtherPlayers(ArrayList<Player> otherPlayers) {
+        ZakClient.otherPlayers = otherPlayers;
+    }
+
     public static Player getPlayer(){return  player;}
+
+    public static void setCurrentGameStatus(boolean b) {
+        currentGameStatus = b;
+    }
+
+    public static void setMyTurn(boolean b) {
+        myTurn = b;
+    }
+
+    public static void setClientID(UUID uuid) {
+        clientID = uuid;
+    }
 }
