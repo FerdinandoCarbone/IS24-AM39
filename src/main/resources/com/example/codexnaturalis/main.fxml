@@ -14,4 +14,7 @@
     <top >
         <StructRightController fx:id="struct" />
     </top>
+    <right >
+        <CardDrawableController fx:id="cardDrawable" />
+    </right>
 </BorderPane>

@@ -8,6 +8,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
+
+    @FXML
+    private CardDrawableController cardDrawable;
     @FXML
     private PlayerDeckController playerDeck;
     @FXML
