@@ -50,29 +50,28 @@ public class PlayerDeckController extends HBox {
     }
     public void drawGoldCard() {
         switch (position){
-            case 0: card1.setupCard(DrawingDeck.drawCard(false));
-            case 1: card2.setupCard(DrawingDeck.drawCard(false));
-            case 2: card3.setupCard(DrawingDeck.drawCard(false));
-            case 3: starterCard.setupCard(DrawingDeck.drawCard(false));
+            case 0:
+                card1.setupCard(DrawingDeck.drawCard(false));
+            case 1:
+                card2.setupCard(DrawingDeck.drawCard(false));
+            case 2:
+                card3.setupCard(DrawingDeck.drawCard(false));
+            case 3:
+                starterCard.setupCard(DrawingDeck.drawCard(false));
         }
     }
     public void drawResCard() {
-        switch (position){
-            case 0: card1.setupCard(DrawingDeck.drawCard(true));
-            case 1: card2.setupCard(DrawingDeck.drawCard(true));
-            case 2: card3.setupCard(DrawingDeck.drawCard(true));
-            case 3: starterCard.setupCard(DrawingDeck.drawCard(true));
-        }
+        if(position == 0) card1.setupCard(DrawingDeck.drawCard(true));
+        else if(position == 1) card2.setupCard(DrawingDeck.drawCard(true));
+        else if(position == 2) card3.setupCard(DrawingDeck.drawCard(true));
+        else if(position == 3) starterCard.setupCard(DrawingDeck.drawCard(true));
     }
     public void setEmpty(int pos){
         position=pos;
-        switch (pos){
-            case 0: card1.setupEmptyCard();
-            case 1: card2.setupEmptyCard();
-            case 2: card3.setupEmptyCard();
-            case 3: starterCard.setupEmptyCard();
-        }
-
+        if(pos == 0) card1.setupEmptyCard();
+        else if(pos == 1) card2.setupEmptyCard();
+        else if(pos == 2) card3.setupEmptyCard();
+        else if(pos == 3) starterCard.setupEmptyCard();
     }
 
     public CardController getCard1() {

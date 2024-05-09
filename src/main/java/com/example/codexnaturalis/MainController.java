@@ -22,7 +22,8 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         playerDeck.receiveCards();
-        cardDrawable.showDrawableCards();
+//        cardDrawable.showDrawableCards();
+
         for (int i = 0; i < 4; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
             int finalI = i;
