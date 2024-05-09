@@ -65,7 +65,7 @@ public class ClientHandler extends Thread implements Runnable {
 
     }
     public void broadCastMessageHandler(BroadCastStandardMessage message) {}
-    public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException {
+    public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException, ClassNotFoundException {
         StandardMatchMessage newStatus = ZakServer.match.genericTurn(message);
         System.out.println("currentPlayer:"+newStatus.getClientID());
         if(newStatus instanceof EndMatchMessage){
@@ -121,8 +121,8 @@ class RMIClientHandler extends ClientHandler{
         while(hasToRun){
             try {
                 heartBeat=false;
-                Thread.sleep(5000);
-                if(!heartBeat) throw new ClientAbruptlyDisconnectedException("Client abruptly disconnected: Trying to reconnect...");
+                Thread.sleep(10000);
+                if(!heartBeat) throw new ClientAbruptlyDisconnectedException("Client disconnected: Trying to reconnect...");
             } catch (InterruptedException e) {
                 System.err.println("Thread Sleep issue:" + e.getMessage());
             } catch (ClientAbruptlyDisconnectedException e){
@@ -131,7 +131,7 @@ class RMIClientHandler extends ClientHandler{
                 //todo: reconnection attempt
                 clientDisconnected();
             }
-            //while(!hasToDeliver) Thread.onSpinWait();
+            // Thread.onSpinWait();
         }
     }
 

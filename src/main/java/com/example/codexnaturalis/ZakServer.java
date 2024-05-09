@@ -14,9 +14,14 @@ public class ZakServer {
     static Pair<String,Integer> connectionInfo;
     //static int playerCounter = 1;
     public static void main(String[] args) {
-        int port;
+        int port=8081;
         if(!args[0].isBlank()) {
+            try{
             port = Integer.parseInt(args[0]);
+            } catch(Exception e){
+                System.out.println("An invalid port number was input\nFallback to 8081");
+            }
+
             connectionInfo = new Pair<>("Server", port);
         }
         else{
@@ -27,9 +32,14 @@ public class ZakServer {
 
     }
 
+    /**
+     * As soon as the server starts, this function is called. Function will print its ASCII Art and set up some of its critical components to allow client connections.
+     * The ServerConnectionManager object is initialized, which will handle all communications with clients (sockets and RMI).
+     * A soon as every player is connected match will start
+     */
     private static void serverSetupProcedure() {
         try{
-            serverStart(connectionInfo.getValue());
+            serverStart();
         } catch(Exception e){
             System.err.println("Server Failure: "+e.getMessage());
         }
@@ -41,26 +51,38 @@ public class ZakServer {
         }
     }
 
-    public static void serverStart(int port) throws IOException {
+    /**
+     * Prints ASCII Art and initializes ServerConnectionManager
+     * @throws IOException
+     */
+    public static void serverStart() throws IOException {
         gameStarted = false;
         serverConMan=new ServerConnectionManager(connectionInfo,1099);
         System.out.println(
-                " _____                                                                      _____ \n" +
-                "( ___ )--------------------------------------------------------------------( ___ )\n" +
-                " |   |                                                                      |   | \n" +
-                " |   |   ____          _           _   _       _                   _ _      |   | \n" +
-                " |   |  / ___|___   __| | _____  _| \\ | | __ _| |_ _   _ _ __ __ _| (_)___  |   | \n" +
-                " |   | | |   / _ \\ / _` |/ _ \\ \\/ /  \\| |/ _` | __| | | | '__/ _` | | / __| |   | \n" +
-                " |   | | |__| (_) | (_| |  __/>  <| |\\  | (_| | |_| |_| | | | (_| | | \\__ \\ |   | \n" +
-                " |   |  \\____\\___/ \\__,_|\\___/_/\\_\\_| \\_|\\__,_|\\__|\\__,_|_|  \\__,_|_|_|___/ |   | \n" +
-                " |   | / ___|  ___ _ ____   _____ _ __                                      |   | \n" +
-                " |   | \\___ \\ / _ \\ '__\\ \\ / / _ \\ '__|                                     |   | \n" +
-                " |   |  ___) |  __/ |   \\ V /  __/ |                                        |   | \n" +
-                " |   | |____/ \\___|_|    \\_/ \\___|_|                                        |   | \n" +
-                " |___|                                                                      |___| \n" +
-                "(_____)--------------------------------------------------------------------(_____)");
+                """
+                         _____                                                                      _____\s
+                        ( ___ )--------------------------------------------------------------------( ___ )
+                         |   |                                                                      |   |\s
+                         |   |   ____          _           _   _       _                   _ _      |   |\s
+                         |   |  / ___|___   __| | _____  _| \\ | | __ _| |_ _   _ _ __ __ _| (_)___  |   |\s
+                         |   | | |   / _ \\ / _` |/ _ \\ \\/ /  \\| |/ _` | __| | | | '__/ _` | | / __| |   |\s
+                         |   | | |__| (_) | (_| |  __/>  <| |\\  | (_| | |_| |_| | | | (_| | | \\__ \\ |   |\s
+                         |   |  \\____\\___/ \\__,_|\\___/_/\\_\\_| \\_|\\__,_|\\__|\\__,_|_|  \\__,_|_|_|___/ |   |\s
+                         |   | / ___|  ___ _ ____   _____ _ __                                      |   |\s
+                         |   | \\___ \\ / _ \\ '__\\ \\ / / _ \\ '__|                                     |   |\s
+                         |   |  ___) |  __/ |   \\ V /  __/ |                                        |   |\s
+                         |   | |____/ \\___|_|    \\_/ \\___|_|                                        |   |\s
+                         |___|                                                                      |___|\s
+                        (_____)--------------------------------------------------------------------(_____)""");
         System.out.println("- developed by Team AM39");
     }
+
+    /**
+     * Selects CommonObjective Cards, generates the model object(match) and Calls startingFieldClientSetup(). As soon as every client chooses his secret Objective card and places
+     * their StarterCard, This function sends a Player greeting TextMessage and the game is started by sending a GenericTurnMessage to the first player.
+     * @throws Exception, thrown for a general failure in server. reports to severSetupProcedure or Main.
+     * The Thread stops here in the while(true) so that the person hosting the server can give it some commands
+     */
     public static void matchStart() throws Exception {
         String serverCommand;
         ArrayList<Player> players = new ArrayList<>(serverConMan.getPlayers());
@@ -71,25 +93,32 @@ public class ZakServer {
         welcomePlayer();
         gameStarted = true;
         System.out.println("Match has began");
-        StandardMatchMessage stdmessage = match.chooseRandomFirstPlayer();
-        GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(),stdmessage.getClientID(),match.getCoveredCards(),stdmessage.getPublicCardsNewState(),null); //match loop starts here
-        serverConMan.sendMessage(stdmessage.getClientID(),message);
+        StandardMatchMessage stdMessage = match.chooseRandomFirstPlayer();
+        GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(),stdMessage.getClientID(),match.getCoveredCards(),stdMessage.getPublicCardsNewState(),null); //match loop starts here
+        ServerConnectionManager.sendMessage(stdMessage.getClientID(),message);
         while(true){
             serverCommand = getInput();
             interpretInput(serverCommand);
         }
     }
+
+    /**
+     * Sends a fieldSetupMessage which sends over to all clients the commonObjectiveCards and the Pair of secretObjectiveCards for the player to choose
+     * @throws IOException
+     */
     private static void startingFieldClientSetup() throws IOException{
-        //todo: da spostare in match probabilmente
         BroadCastStartingMessage fieldSetupMessage;
         ArrayList<ObjectiveCard> commonObjectiveCard;
         commonObjectiveCard = DrawingDeck.drawCommonObjective();
         match.setCommonObjectives(commonObjectiveCard);
-        System.out.println("CommonObjectiveCards:");
-        //for(ObjectiveCard oc: commonObjectiveCard) oc.printCardAscii();
         fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(),null,serverConMan.getHashClient(),commonObjectiveCard,match.getTwoSecretObjectiveCards());
         ServerConnectionManager.sendBroadCastMessage(fieldSetupMessage);
     }
+
+    /**
+     * Generates Player greeting TextMessage while sending over to all Players the newly set StarterCards
+     * @throws IOException
+     */
    private static void welcomePlayer() throws IOException {
         String text = "Match is about to start\nPlayers:\n";
         HashMap<UUID,StarterCard> hashStart = new HashMap<>();
@@ -104,10 +133,20 @@ public class ZakServer {
 
 
    }
+
+    /**
+     * stops ClientHandler thread that handles connection with client whose clientID is provided
+     * @param clientID clientID belonging to the client whose clientHandler thread needs to be killed
+     */
     public static void stopThread(UUID clientID){
         //todo: fare le opportune modifiche a match
+        if(serverConMan.getHandlers().values().size()==1) {
+            ServerConnectionManager.setNumPlayers(0);
+            if(ServerConnectionManager.isFirstPlayer())ServerConnectionManager.setFirstPlayer(false);
+        }
         try{
-        serverConMan.getHandlers().get(clientID).setHasToRun(false);}
+        serverConMan.getHandlers().get(clientID).setHasToRun(false);
+        }
         catch (Exception e){
             System.err.println("Unable to stop process:" + e.getMessage());
         }
@@ -116,6 +155,7 @@ public class ZakServer {
             ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
             ServerConnectionManager.hashClient.remove(clientID);
             System.out.println(playerName+ " left the game and was unable to reconnect");
+            System.out.print("Command:");
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -135,7 +175,14 @@ public class ZakServer {
         //scanner.close();
         return input;
     }
-    private static void interpretInput(String serverCommand) throws IOException, NotBoundException {
+
+    /**
+     * Interprets the command given to the server and calls other methods
+     * @param serverCommand the command given to the server
+     * @throws IOException
+     * @throws NotBoundException
+     */
+    private static void interpretInput(String serverCommand) {
         switch(serverCommand.toLowerCase()){
             case "close":
                 System.out.println("Server shutting down");
@@ -172,6 +219,10 @@ public class ZakServer {
         }
     }
 
+    /**
+     * Kicks a player from a match given its clientID
+     * @param clientID : belongs to the user the server needs to kick
+     */
     private static void kick(UUID clientID) {
         try{
             ClientHandler h = serverConMan.getHandlers().get(clientID);

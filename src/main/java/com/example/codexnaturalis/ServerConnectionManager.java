@@ -153,11 +153,23 @@ public class ServerConnectionManager {
         return handlers;
     }
     private boolean connectionCondition(){
-        return hashClient.size() < numPlayers;
+        return hashClient.size() < numPlayers || numPlayers==0;
     }
 
     public int getNumPlayers() {
         return numPlayers;
+    }
+
+    public static void setFirstPlayer(boolean firstPlayer) {
+        ServerConnectionManager.firstPlayer = firstPlayer;
+    }
+
+    public static boolean isFirstPlayer() {
+        return firstPlayer;
+    }
+
+    public static void setNumPlayers(int numPlayers) {
+        ServerConnectionManager.numPlayers = numPlayers;
     }
     /*private static void timeOutThrower(){
         final Duration timeout = Duration.ofSeconds(30);

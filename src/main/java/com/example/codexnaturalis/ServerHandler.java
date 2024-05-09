@@ -17,9 +17,8 @@ public class ServerHandler extends Thread implements Runnable {
     private final UUID clientID;
     private Pair<String,Integer> connectionInfo;
     private GenericTurnMessage messageTurn;
-    private ConnectionManger connMan;
+    private final ConnectionManger connMan;
     private volatile boolean firstBroadCastWasReceived;
-
     public ServerHandler(String clientName, UUID clientID,ConnectionManger connMan){
         this.clientName = clientName;
         this.clientID = clientID;
@@ -28,23 +27,18 @@ public class ServerHandler extends Thread implements Runnable {
         this.firstBroadCastWasReceived=false;
         this.messageTurn=null;
     }
-
     public UUID getClientID() {
         return clientID;
     }
-
     public ConnectionManger getConnMan() {
         return connMan;
     }
-
     public String getClientName() {
         return clientName;
     }
-
     public boolean wasFirstBroadCastReceived() {
         return firstBroadCastWasReceived;
     }
-
     public void setFirstBroadCastWasReceived(boolean firstBroadCastWasReceived) {
         this.firstBroadCastWasReceived = firstBroadCastWasReceived;
     }
@@ -234,11 +228,10 @@ class ServerRMIHandler extends ServerHandler{
 
     @Override
     public void run(){
-        //boolean waiter = false;
         while(true){
             try {
                 if(remoteProxy.callFor(getClientID())) messageReceiver(remoteProxy.whatToCall(getClientID()));
-                Thread.sleep(1500);
+                remoteProxy.keepAlive(getClientID());
             } catch(RemoteException e){
                 System.err.println("ServerRMIHandler: "+e.getMessage());
                 if(tryReconnectToServer()) continue;
@@ -247,7 +240,7 @@ class ServerRMIHandler extends ServerHandler{
             } catch(IOException |WrongMessageConversionException e){
                 System.err.println("IOException: " +e.getMessage() );
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                System.err.println("InterruptedException: " +e.getMessage() );
             }
         }
     }
@@ -287,8 +280,6 @@ class ServerRMIHandler extends ServerHandler{
             default: throw new WrongMessageConversionException("Something went wrong while communicating with the server: "+a.getName()+" is not Handled");
         }
     }
-
-
     @Override
     public void sendMessage(Message message){
         message.setSender(getClientName());
@@ -299,7 +290,7 @@ class ServerRMIHandler extends ServerHandler{
             System.err.println(e.getMessage());
         }
     }
-    private void endOfTheGame(EndMatchMessage message) throws IOException, WrongMessageConversionException {
+    private void endOfTheGame(EndMatchMessage message) throws WrongMessageConversionException {
         winnerDeclaration(message);
         ZakClient.endOfTheGame();
     }

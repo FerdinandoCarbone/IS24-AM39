@@ -6,4 +6,5 @@ class Colors {
     static String YELLOW = "\u001B[33m";
     static String RED = "\u001B[31m";
     static String BLUE = "\u001B[34m";
+    static String PURPLE = "\u001B[35m";
 }

@@ -86,16 +86,93 @@ class GenericTurnMessage extends Message{
         System.out.print(YELLOW + "  [" + (deck.get(index1).getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getBackCorners().get(2).getResourceElement()) + "]" + "[" + (deck.get(index1).getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index1).getBackCorners().get(1).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "  [" + (deck.get(index2).getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getBackCorners().get(2).getResourceElement()) + "]" + "[" + (deck.get(index2).getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (deck.get(index2).getBackCorners().get(1).getResourceElement()) + "]" + RESET);
     }
-    public void printCoveredCards() {
+    public void printCoveredCards() throws ClassNotFoundException {
         System.out.println("HIDDEN CARDS");
-        printCardsSideBySideBack(drawnCard, 0, 1);
+        for(ResourceGoldCard drawn: drawnCard) printCardInBox(drawn,true);
+        /*System.out.println("HiddenCard no box");
+        printCardsSideBySideBack(drawnCard, 0, 1);*/
     }
-    public void printPublicCards(){
+    public void printPublicCards() throws ClassNotFoundException {
         System.out.println("PUBLIC CARDS");
-        printCardsSideBySideFront(cardOnHand, 0, 1);
-        printCardsSideBySideFront(cardOnHand, 2, 3);
+        for(ResourceGoldCard onHand: cardOnHand) printCardInBox(onHand,false);
+        /*printCardsSideBySideFront(cardOnHand, 0, 1);
+        printCardsSideBySideFront(cardOnHand, 2, 3);*/
     }
-
+    public static void printCardInBox(ResourceGoldCard card,boolean isHidden) throws ClassNotFoundException {
+        int width = 29; // Width of the box -- use an odd number greater than 27
+        int height = 6; // Height of the box -- use an even number bigger than 3
+        String whiteSpacer;
+        String leftCorner,rightCorner;
+        whiteSpacer= " ".repeat((width/2)-1);
+        String cardType = (card instanceof GoldCard)? (YELLOW+"GoldCard:"+RESET):(RED+"ResourceCard:"+RESET);
+        String seed = (card.getSeed()).toString();
+        String seedColor = switch (seed) {
+            case "Red" -> RED;
+            case "Purple" -> PURPLE;
+            case "Blue" -> BLUE;
+            case "Green" -> GREEN;
+            default -> RESET;
+        };
+        System.out.println(cardType+GREEN+ "#"+card.getIdCard()+" "+seedColor+seed+RESET);
+        // Print top border
+        System.out.print("+");
+        for (int i = 0; i < width - 2; i++) {
+            System.out.print("-");
+        }
+        System.out.println("+");
+        //Print TopCorners
+        if(isHidden) {
+            leftCorner = "[" + (card.getBackCorners().get(3).isAvailableCorner() ? "1" : "0") + "|" + card.getBackCorners().get(3).getResourceElement() + "]";
+            rightCorner = "[" + (card.getBackCorners().get(0).isAvailableCorner() ? "1" : "0") + "|" + (card.getBackCorners().get(0).getResourceElement()) + "]";
+        }
+        else{
+            leftCorner="[" + (card.getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(3).getResourceElement()) + "]";
+            rightCorner="[" + (card.getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(0).getResourceElement()) + "]";
+        }
+        System.out.print("|"+YELLOW+leftCorner+RESET);
+        for (int i = 0; i < width -(rightCorner.length()+leftCorner.length()+2); i++) {
+            System.out.print(" ");
+        }
+        System.out.println(YELLOW+rightCorner+RESET+"|");
+        // Print sides with CardID
+        for (int i = 1; i < height; i++) {
+            System.out.print("|");
+            System.out.print(whiteSpacer);
+            if(i==height/2&&!isHidden){
+                String tmpWhiteSpacer = " ";
+                Integer z = (Integer)card.getPoints();
+                tmpWhiteSpacer=tmpWhiteSpacer.concat(whiteSpacer);
+                System.out.print(YELLOW +z+RESET);
+                System.out.print(tmpWhiteSpacer.substring(z.toString().length()));
+            }
+            else System.out.print(whiteSpacer+" ");
+            System.out.println("|");
+        }
+        //Print bottom Corners
+        if(isHidden){
+        leftCorner = "[" + (card.getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (card.getBackCorners().get(2).getResourceElement()) + "]";
+        rightCorner = "[" + (card.getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (card.getBackCorners().get(1).getResourceElement()) + "]";
+        }
+        else{
+            leftCorner= "[" + (card.getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(2).getResourceElement()) + "]";
+            rightCorner="[" + (card.getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(1).getResourceElement()) + "]";;
+        }
+        System.out.print("|"+YELLOW+leftCorner+RESET);
+        for (int i = 0; i < width -(rightCorner.length()+leftCorner.length()+2); i++) {
+            System.out.print(" ");
+        }
+        System.out.println(YELLOW+rightCorner+RESET+"|");
+        // Print bottom border
+        System.out.print("+");
+        for (int i = 0; i < width - 2; i++) {
+            System.out.print("-");
+        }
+        System.out.println("+");
+        if (card instanceof GoldCard &&!isHidden) {
+            ((GoldCard) card).printRequirements();
+        }
+        System.out.println();
+    }
 }
 class BroadCastStartingMessage extends Message{
 

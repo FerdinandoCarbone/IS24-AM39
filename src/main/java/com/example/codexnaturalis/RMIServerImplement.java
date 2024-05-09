@@ -66,4 +66,11 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
             System.err.println(e.getMessage());
         }
     }
+
+    @Override
+    public void keepAlive(UUID clientID) throws RemoteException, InterruptedException {
+        RMIClientHandler handler = (RMIClientHandler) ZakServer.serverConMan.getHandlers().get(clientID);
+        handler.setHeartBeat(true);
+        Thread.sleep(1000);
+    }
 }

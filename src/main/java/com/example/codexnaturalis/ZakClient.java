@@ -22,9 +22,15 @@ public class ZakClient {
     private static UUID clientID;
     public static void main(String[] args) {
 
-        Integer port=null;
+        int port=8081;
         String serverAddress=null;
-        if(!args[1].isBlank()) port = Integer.parseInt(args[1]);
+        if(!args[1].isBlank()) {
+            try{
+            port = Integer.parseInt(args[1]);}
+            catch(Exception e){
+                System.out.println("An invalid port number was input\nFallback to 8081");
+            }
+        }
         if(!args[0].isBlank()) serverAddress = args[0];
         else{
             System.err.println("Missing arguments\nMake sure to start the client with Server Address and Port as parameters\ni.e. java Client localhost 8081");
@@ -44,6 +50,17 @@ public class ZakClient {
         }
     }
 
+    /**
+     * As soon as the client starts, this function is called. Function will ask the player the type of connection they would like to use to reach server.
+     * All client's critical components are initialized here such as the UUID, the ServerAddress:Port Pair and moreover the ConnectionManager object which will promptly start the
+     * handshake process and will manage all the reconnection logic of the client
+     * @param serverAddress, the game server address
+     * @param port, the socket port used for a socket connection
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws StupidUserException, will be thrown if user continues to input invalid commands and block other people's game
+     * @throws HandShakeException, will be thrown if there was an issue connecting the client with the server
+     */
     private static void initialClientSetup(String serverAddress,int port) throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
         ConnectionManger connMan = null;
         clientID = UUID.randomUUID();
@@ -53,61 +70,68 @@ public class ZakClient {
         connectionInfo = new Pair<>(serverAddress,port);
         playerNick = playerGreeting();
         int i=0;
-        do{
-            if(i==3) throw new StupidUserException("Too many bad failed attempts: Closing client");
+        do {
+            if (i == 3) throw new StupidUserException("Too many bad failed attempts: Closing client");
             System.out.println("How would you like to connect?");
             System.out.println("0 - Cancel");
             System.out.println("1 - Socket");
             System.out.println("2 - RMI");
-            switch(getIntInput(2,false)){
+            switch (getIntInput(2, false)) {
                 case 0:
                     System.exit(0);
                     break;
                 case 1:
-                    connMan = new ConnectionManger(false,connectionInfo);
+                    connMan = new ConnectionManger(false, connectionInfo);
                     break;
                 case 2:
-                    connMan = new ConnectionManger(true,connectionInfo);
+                    connMan = new ConnectionManger(true, connectionInfo);
                     break;
                 default:
                     i++;
                     System.out.println("Not a valid input: Try again");
             }
-            if (connMan!=null) break;
-        }while(i<=3);
+        } while (connMan == null);
         connMan.connectionSetup();
         connMan.doHandShake();
     }
+    /**
+     * Basic Player greeting function that runs as soon as the client starts:
+     * Player will be greeted and will be choosing his nick here
+     * */
     private static String playerGreeting(){
         //Scanner input = new Scanner(System.in);
         System.out.println("Welcome Player to:");
-        System.out.println("\n" +
-                "\n" +
-                " _____                                                              _____ \n" +
-                "( ___ )------------------------------------------------------------( ___ )\n" +
-                " |   |                                                              |   | \n" +
-                " |   |   .-._   .-._.    .                                          |   | \n" +
-                " |   | ..' (_)`-'        /    `--.  .-.                             |   | \n" +
-                " |   | |      .-._..-../   .-.   \\/                                 |   | \n" +
-                " |   | |    _(   )(   /  ./.-'_  /\\                                 |   | \n" +
-                " |   | `.    )`-'  `-'-..(__.'.-'  `-.                              |   | \n" +
-                " |   |   `--'.-.                                     .              |   | \n" +
-                " |   |         /  |         /                       /    .-.        |   | \n" +
-                " |   |        /\\  | .-. ---/---)  (   ).--..-.     /     `-' .      |   | \n" +
-                " |   |       /  \\ |(  |   /   (    ) /    (  |    /     /   / \\     |   | \n" +
-                " |   |  .-' /    \\| `-'-'/     `--':/      `-'-'_/_.-_.(__./ ._)    |   | \n" +
-                " |   | (__.'      `.                                      /         |   | \n" +
-                " |___|                                                              |___| \n" +
-                "(_____)------------------------------------------------------------(_____)\n" +
-                "\n");
+        System.out.println("""
+
+
+                 _____                                                              _____\s
+                ( ___ )------------------------------------------------------------( ___ )
+                 |   |                                                              |   |\s
+                 |   |   .-._   .-._.    .                                          |   |\s
+                 |   | ..' (_)`-'        /    `--.  .-.                             |   |\s
+                 |   | |      .-._..-../   .-.   \\/                                 |   |\s
+                 |   | |    _(   )(   /  ./.-'_  /\\                                 |   |\s
+                 |   | `.    )`-'  `-'-..(__.'.-'  `-.                              |   |\s
+                 |   |   `--'.-.                                     .              |   |\s
+                 |   |         /  |         /                       /    .-.        |   |\s
+                 |   |        /\\  | .-. ---/---)  (   ).--..-.     /     `-' .      |   |\s
+                 |   |       /  \\ |(  |   /   (    ) /    (  |    /     /   / \\     |   |\s
+                 |   |  .-' /    \\| `-'-'/     `--':/      `-'-'_/_.-_.(__./ ._)    |   |\s
+                 |   | (__.'      `.                                      /         |   |\s
+                 |___|                                                              |___|\s
+                (_____)------------------------------------------------------------(_____)
+
+                """);
         System.out.println("Please enter your nickname:");
-        //return in.nextLine();
         return receiveInput();
-        /*Random rand = new Random();
-        Integer val = rand.nextInt(10);
-        return val.toString();*/
     }
 
+    /**
+     *
+     * @param initialMatchSetupMessage, is a message from server that has required match details in order to start the game
+     *                                  such as own and other players' fields, nicks, points etc
+     * @throws IOException, if something goes wrong while facing the starting card up or down
+     */
     public static void initialMatchSetup(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
         try{
             ObjectiveCard chosenCard;
@@ -118,26 +142,21 @@ public class ZakClient {
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players=initialMatchSetupMessage.getPlayers().values();
             otherPlayers.addAll(players);
-            //todo:otherfields deve essere una hashmap con anche i players
             chosenCard = player.chooseSecretObj(initialMatchSetupMessage.getSecretObjectiveCards(clientID));
             ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
             initialMatchSetupMessage.setSelectedSecret(tmpList);
             System.out.println("How do you want to face the starting card");
             System.out.println("1 - face Up\n2 - face Down");
-            switch(getIntInput(2,false)){
-                case 1:
-                    cardFace=true;
-                    break;
-                case 2:
-                    cardFace=false;
-                    break;
-                default: throw new IOException("There was an error trying to read the string");
-            }
+            cardFace = switch (getIntInput(2, false)) {
+                case 1 -> true;
+                case 2 -> false;
+                default -> throw new IOException("There was an error trying to read the string");
+            };
             initialMatchSetupMessage.setStarterCardFace(cardFace);
             serverHandler.sendMessage(initialMatchSetupMessage);
             player.placeStarterCard(cardFace);
         } catch (WrongPlayerUUIDException e){
-            e.getMessage();
+            System.out.println(e.getMessage());
         } catch (StupidUserException e) {
             throw new RuntimeException(e);
         } finally {
@@ -145,27 +164,39 @@ public class ZakClient {
             currentGameStatus = true;
         }
     }
+    /**
+     * The serverHandler thread is started. This thread will be handling all communication with server. Was this thread to crash for
+     * whatever the reason, the client will try to restart it in order to reconnect with the server.
+     * This function also stops the main thread until the server makes available all needed information to start the game(field,other players,common Objectives etc.)
+     * via the BroadCastMessage.
+     * As soon as the game is started, the user will be able to interact with his own field and other players'
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws WrongMessageConversionException, will be thrown if there was an issue casting the messages
+     * */
     private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         new Thread(serverHandler).start();
         while(!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())){
-            /*try{
-                Thread.sleep(1000);
-            }
-            catch(InterruptedException e){
-                System.out.println(e.getMessage());}*/
             Thread.onSpinWait();
         }
         while(currentGameStatus) selectPossibleActions();
     }
-
-    private static void genericMessageAssembler() throws IOException, WrongMessageConversionException, ClassNotFoundException {
+    /**
+     * Allows player to play his turn. The user will be interacting with the TUI in order to create a
+     * message that will be sent to the server via his ServerComHandler. Player is able to place cards, analyze Field and draw cards
+     * from DrawingDeck from here
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * */
+    private static void genericMessageAssembler() throws IOException, ClassNotFoundException {
         clearConsole();
         ResourceGoldCard placedCard;
         GenericTurnMessage message = serverHandler.getMessageTurn();
         Pair<Integer, Integer> coordinates;
         int row, column;
         boolean face;
-        ResourceGoldCard selectedCard;
+        ResourceGoldCard selectedCard=null;
         if(player.allCornersEmpty(player.getPlayerDeck().getStarterCard())){
             System.out.println("StarterCard:");
             player.getPlayerDeck().getStarterCard().printCard();
@@ -183,7 +214,7 @@ public class ZakClient {
                 continue;
             }
             if(j==1){
-                coordinates = getCoords(false);
+                coordinates = getCoordinates(false);
                 player.fieldAnalysis(coordinates.getKey(), coordinates.getValue());
             }
             else if(j==0) return;
@@ -214,7 +245,7 @@ public class ZakClient {
             break;
         }
         while(true){
-            coordinates = getCoords(true);
+            coordinates = getCoordinates(true);
             row = coordinates.getKey();
             column = coordinates.getValue();
             if (!player.isCardAttachableToSlot(row, column)) {
@@ -229,17 +260,21 @@ public class ZakClient {
         ArrayList<ResourceGoldCard> selectable = new ArrayList<>();
         selectable.addAll(message.getDrawnCard());
         selectable.addAll(message.getCardOnHand());
-        System.out.println("Select a card to draw from public deck: ");
 
         ArrayList<Integer> allIds = new ArrayList<>();
-        allIds.add(message.getDrawnCard().get(0).getIdCard());
+        for(ResourceGoldCard card: selectable) allIds.add(card.getIdCard());
+        /*allIds.add(message.getDrawnCard().get(0).getIdCard());
         allIds.add(message.getDrawnCard().get(1).getIdCard());
         allIds.add(message.getCardOnHand().get(0).getIdCard());
         allIds.add(message.getCardOnHand().get(1).getIdCard());
         allIds.add(message.getCardOnHand().get(2).getIdCard());
-        allIds.add(message.getCardOnHand().get(3).getIdCard());
+        allIds.add(message.getCardOnHand().get(3).getIdCard());*/
         int idSelected = selectCardIdToDrawn(allIds);
-        selectedCard=selectable.get(getCardIndexFromId(idSelected, allIds));
+        for(ResourceGoldCard card: selectable) if(card.getIdCard()==idSelected){
+            selectedCard = card;
+            break;
+        }
+        //selectedCard=selectable.get(getCardIndexFromId(idSelected, allIds));
         player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
         message = new GenericTurnMessage(null,null,new ArrayList<>(Collections.singletonList(selectedCard)),new ArrayList<>(Collections.singletonList(placedCard)),coordinates);
         //todo: update points
@@ -257,6 +292,7 @@ public class ZakClient {
     public static int selectCardIdToDrawn(ArrayList<Integer> ids) {
         Integer choice = null;
         while (true) {
+            System.out.print("Select a card to draw from public deck: ");
             try {
                 choice = Integer.parseInt(receiveInput());
             } catch (Exception e) {
@@ -264,6 +300,7 @@ public class ZakClient {
                 continue;
             }
             if (ids.contains(choice)) break;
+            System.out.println("Invalid input: try again");
         }
         return choice;
     }
@@ -285,7 +322,11 @@ public class ZakClient {
         return pos;
     }
 
-    private static Pair<Integer, Integer> getCoords(boolean mode) {
+    /**
+     * @param mode set false when analyzing field, set true when placing a card
+     * @return Pair of coordinates of a field slot
+     */
+    private static Pair<Integer, Integer> getCoordinates(boolean mode) {
         int fieldSize = player.getPlayerField().getSlots().length;
         Pair<Integer, Integer> coordinates;
         while (true) {
@@ -297,13 +338,13 @@ public class ZakClient {
             coordinates = new Pair<>(row, column);
             if (mode) {
                 if (player.getPlayerField().getSlots()[row][column].isBusySlot()) {
-                    System.out.println("This slot is not available. Select another one");
+                    System.out.println("You cannot place a card in a busy slot. Select another one");
                     continue;
                 }
             }
             else{
                 if (!player.getPlayerField().getSlots()[row][column].isBusySlot()) {
-                    System.out.println("This slot is not available. Select another one");
+                    System.out.println("This slot is empty, you cannot analyze it. Select another one");
                     continue;
                 }
             }
@@ -312,12 +353,20 @@ public class ZakClient {
         return coordinates;
     }
 
+    /**
+     * Will access the other players' fields and current points and will print them
+     */
     private static void printPlayerField() {
         for (Player p : otherPlayers) {
             p.printFieldWithName();
         }
     }
 
+    /**
+     * Advanced Functionality for the project: Basic Chat functionality
+     * that allows users to send messages to everyone or to a specific user
+     * @throws IOException, will be thrown when the Scanner has issues reading the System.in
+     */
     private static void writeTextMessage() throws IOException {
         String recipient;
         String text;
@@ -349,7 +398,14 @@ public class ZakClient {
         }while(true);
     }
 
-    private static void selectPossibleActions() throws IOException, ClassNotFoundException, WrongMessageConversionException {
+    /**
+     * Core TUI element. This component allows the user to interact with their or other players' field, write messages in the chat,
+     * show his own deck.
+     * If myTurn is true will allow the player to play his turn.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private static void selectPossibleActions() throws IOException, ClassNotFoundException {
         System.out.println("What would you like to do:\n");
         printPossibleChoices();
         int action;
@@ -385,38 +441,47 @@ public class ZakClient {
                 System.out.println("Wrong input: Input the number associated to the desired action");
         }
     }
+
+    /**
+     * Prints possible actions the user is capable of doing
+     */
     private static void printPossibleChoices() {
         String choices;
         //if(myTurn) clearConsole();
         if (!myTurn){
             choices =
-                " _____                           _____ \n" +
-                "( ___ )                         ( ___ )\n" +
-                " |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~|   | \n" +
-                " |   | [1] Other Players' Codex  |   | \n" +
-                " |   | [2] Show Objective Cards  |   | \n" +
-                " |   | [3] Show personal deck    |   | \n" +
-                " |   | [4] Show personal Codex   |   | \n" +
-                " |   | [5] Write to chat         |   | \n" +
-                " |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| \n" +
-                "(_____)                         (_____)\n";
+                    """
+                             _____                           _____\s
+                            ( ___ )                         ( ___ )
+                             |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~|   |\s
+                             |   | [1] Other Players' Codex  |   |\s
+                             |   | [2] Show Objective Cards  |   |\s
+                             |   | [3] Show personal deck    |   |\s
+                             |   | [4] Show personal Codex   |   |\s
+                             |   | [5] Write to chat         |   |\s
+                             |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___|\s
+                            (_____)                         (_____)
+                            """;
     }
         else {
             choices =
-                    " _____                           _____ \n" +
-                    "( ___ )                         ( ___ )\n" +
-                    " |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~|   | \n" +
-                    " |   | [1] Other Players' Codex  |   | \n" +
-                    " |   | [2] Show Objective Cards  |   | \n" +
-                    " |   | [3] Show personal deck    |   | \n" +
-                    " |   | [4] Show personal Codex   |   | \n" +
-                    " |   | [5] Write to chat         |   | \n" +
-                    " |   | [6] Play turn             |   | \n" +
-                    " |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| \n" +
-                    "(_____)                         (_____)\n";
+                    """
+                             _____                           _____\s
+                            ( ___ )                         ( ___ )
+                             |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~|   |\s
+                             |   | [1] Other Players' Codex  |   |\s
+                             |   | [2] Show Objective Cards  |   |\s
+                             |   | [3] Show personal deck    |   |\s
+                             |   | [4] Show personal Codex   |   |\s
+                             |   | [5] Write to chat         |   |\s
+                             |   | [6] Play turn             |   |\s
+                             |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___|\s
+                            (_____)                         (_____)
+                            """;
         }
         System.out.println(choices);
     }
+
     public static String receiveInput(){
         Scanner scanner= new Scanner(System.in);
         String input=null;
@@ -430,14 +495,22 @@ public class ZakClient {
         //scanner.close();
         return input;
      }
+
+    /**
+     * Sets myTurn to true if it's the user's turn to play.
+     * Will clear the screen and reprint printPossibleAction()
+     */
     public static void genericTurnMessageHandler() {
         myTurn=true;
-        //todo: Aggiornamento dello stato dei fields dei deck del player
         //System.lineSeparator();
         //clearConsole();
         System.out.println("It's your turn:");
 
     }
+
+    /**
+     * Clears the screen using JVM escape string
+     */
     public static void clearConsole() {
         try {
             final String os = System.getProperty("os.name");
@@ -447,45 +520,54 @@ public class ZakClient {
             else Runtime.getRuntime().exec("clear");*/
 
         } catch ( Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
     public static boolean isCurrentGameStatus() {
         return currentGameStatus;
     }
-    public static void endOfTheGame() throws IOException {
+    public static void endOfTheGame() {
         currentGameStatus=false;
         System.out.println("To start a new game, restart the client");
         System.exit(0);
 
     }
 
+    /**
+     * Handles client disconnection and closes the client.
+     * The client will call this function after 15s of retrying to reconnect to server
+     */
     public static void clientDisconnect() {
         serverHandler.interrupt();
         System.err.println("Disconnected from server: Unable to establish a connection with server");
         System. exit(0);
     }
 
+    /**
+     * @return ServerAddress:Port pair
+     */
     public static Pair<String, Integer> getConnectionInfo() {
         return connectionInfo;
     }
-
-    public static ServerHandler getServerHandler() {
-        return serverHandler;
-    }
-
+    /**
+     * This function is called by the connection manager to set the handler pointer
+     */
     public static void setServerHandler(ServerHandler serverHandler) {
         ZakClient.serverHandler = serverHandler;
     }
-
     public static UUID getClientID() {
         return clientID;
     }
-
     public static String getPlayerNick() {
         return playerNick;
     }
+
+    /**
+     * @param range, If the input number is N, it is considered acceptable if 0<=N<=range
+     * @param type, true: if you want to get an index (number typed - 1), false: if you want to retrieve the actual input number
+     * @return int n typed in by user
+     */
     private static int getIntInput(int range,boolean type){
         Integer thingToParse=null;
         while(true){
@@ -500,7 +582,6 @@ public class ZakClient {
         if(type)return thingToParse -1;
         else return  thingToParse;
     }
-
     public static ArrayList<Player> getOtherPlayers() {
         return otherPlayers;
     }

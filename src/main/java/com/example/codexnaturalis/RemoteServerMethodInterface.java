@@ -18,5 +18,6 @@ public interface RemoteServerMethodInterface extends Remote {
 
     void send(Message message) throws RemoteException;
 
+    void keepAlive(UUID clientID) throws RemoteException, InterruptedException;
 }
 
