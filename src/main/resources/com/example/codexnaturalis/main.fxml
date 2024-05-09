@@ -2,8 +2,9 @@
 <?import javafx.scene.layout.*?>
 <?import com.example.codexnaturalis.PlayerDeckController?>
 <?import com.example.codexnaturalis.StructLeftController?>
-
+<?import com.example.codexnaturalis.CardDrawableController?>
 <?import com.example.codexnaturalis.StructRightController?>
+
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.codexnaturalis.MainController"
