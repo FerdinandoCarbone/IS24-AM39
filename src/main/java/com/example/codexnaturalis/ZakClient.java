@@ -1,17 +1,12 @@
 package com.example.codexnaturalis;
 
-import javafx.scene.text.TextBoundsType;
 import javafx.util.Pair;
-
 import java.io.*;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.*;
 
 public class ZakClient {
 
-    private static Pair<ObjectInputStream,ObjectOutputStream> ioStream;
+    //private static Pair<ObjectInputStream,ObjectOutputStream> ioStream;
     private static Pair<String,Integer> connectionInfo;
     private static ServerHandler serverHandler;
     private static String playerNick;
@@ -489,10 +484,13 @@ public class ZakClient {
             try{
             input = scanner.nextLine();
             }catch (NoSuchElementException e){
-                continue;
+                System.out.println(e.getMessage() + ": Scanner issue");
             }
         }while(Objects.equals(input, "\n") || input==null);
-        //scanner.close();
+        if(input.equalsIgnoreCase("exit")){
+            System.out.println("Quitting client");
+            clientDisconnect();
+        }
         return input;
      }
 
@@ -527,6 +525,10 @@ public class ZakClient {
     public static boolean isCurrentGameStatus() {
         return currentGameStatus;
     }
+
+    /**
+     * Ends game and shuts off client
+     */
     public static void endOfTheGame() {
         currentGameStatus=false;
         System.out.println("To start a new game, restart the client");
@@ -539,7 +541,7 @@ public class ZakClient {
      * The client will call this function after 15s of retrying to reconnect to server
      */
     public static void clientDisconnect() {
-        serverHandler.interrupt();
+        if(serverHandler!=null &&serverHandler.isAlive())serverHandler.interrupt();
         System.err.println("Disconnected from server: Unable to establish a connection with server");
         System. exit(0);
     }
@@ -562,13 +564,16 @@ public class ZakClient {
     public static String getPlayerNick() {
         return playerNick;
     }
-
+    public static void setPlayerNick(String s){
+        playerNick = s;
+    }
     /**
+     * Function that lets you input a number in a specific range and handles all exceptions that Integer.parseInt() doesn't handle
      * @param range, If the input number is N, it is considered acceptable if 0<=N<=range
      * @param type, true: if you want to get an index (number typed - 1), false: if you want to retrieve the actual input number
      * @return int n typed in by user
      */
-    private static int getIntInput(int range,boolean type){
+    public static int getIntInput(int range,boolean type){
         Integer thingToParse=null;
         while(true){
             try {

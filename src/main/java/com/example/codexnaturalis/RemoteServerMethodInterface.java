@@ -11,7 +11,7 @@ public interface RemoteServerMethodInterface extends Remote {
 
     void createLobby(LobbyCreationMessage msg) throws IOException,RemoteException;
 
-    void joinLobby(LobbyCreationMessage lobbyCreationMessage) throws IOException,RemoteException;
+    boolean joinLobby(LobbyCreationMessage lobbyCreationMessage) throws IOException,RemoteException;
 
     boolean callFor(UUID clientID) throws RemoteException;
     Message whatToCall(UUID clientID) throws RemoteException;

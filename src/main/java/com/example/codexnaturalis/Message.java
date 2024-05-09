@@ -20,7 +20,6 @@ public class Message implements Serializable {
     public void setClientID(UUID clientID) {
         this.clientID = clientID;
     }
-
     public UUID getClientID() {
         return clientID;
     }
@@ -98,7 +97,7 @@ class GenericTurnMessage extends Message{
         /*printCardsSideBySideFront(cardOnHand, 0, 1);
         printCardsSideBySideFront(cardOnHand, 2, 3);*/
     }
-    public static void printCardInBox(ResourceGoldCard card,boolean isHidden) throws ClassNotFoundException {
+    public static void printCardInBox(ResourceGoldCard card,boolean isHidden) {
         int width = 29; // Width of the box -- use an odd number greater than 27
         int height = 6; // Height of the box -- use an even number bigger than 3
         String whiteSpacer;

@@ -44,7 +44,7 @@ public class ServerConnectionManager {
         while (!firstPlayer || connectionCondition()) {
             try {
                 acceptSocketRMIConnections(isReconnection);
-            } catch(ClassNotFoundException e){
+            } catch(ClassNotFoundException|InterruptedException e){
                 System.out.println("SERVER failure: " + e.getMessage());
             }
             catch(IOException e){
@@ -54,7 +54,7 @@ public class ServerConnectionManager {
         }
         socketListener.setHasToRun(false);
     }
-    public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketRMIConnections(boolean isReconnection) throws IOException, ClassNotFoundException {
+    public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketRMIConnections(boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
         if(isReconnection) socketListener.setHasToRun(true);
         ObjectOutputStream out;
         ObjectInputStream in;
@@ -81,11 +81,23 @@ public class ServerConnectionManager {
             System.out.println("There will be "+numPlayers+" players");
         }
         else{
+            List<Player> players = getPlayers().stream().toList();
+            Message tmp =new Message("!!++***++!!",null);
+            for(int i=0;i<players.size();i++){
+                System.out.println("OLD NICK: "+clientJoinRequest.getSender());
+                if(players.get(i).getPlayerName().equals(clientJoinRequest.getSender())){
+                    out.writeObject(tmp);
+                    clientJoinRequest = (Message) in.readObject();
+                    System.out.println("New user changed nick to: "+clientJoinRequest.getSender());
+                    i=-1;
+                }
+                System.out.println("i:"+i);
+            }
             handshakeACK = new LobbyCreationMessage(serverName, null, hashClient.size());
             try {
                 out.writeObject(handshakeACK);
             } catch(RuntimeException e){
-                e.getMessage();
+                System.out.println(e.getMessage());
             }
         }
         if(hashClient.size()<=numPlayers && !isReconnection){

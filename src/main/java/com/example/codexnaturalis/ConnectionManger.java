@@ -6,8 +6,10 @@ import java.io.*;
 import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
+import java.util.Objects;
 import java.util.UUID;
 
+import static com.example.codexnaturalis.ZakClient.getIntInput;
 import static com.example.codexnaturalis.ZakClient.receiveInput;
 
 public class ConnectionManger {
@@ -32,7 +34,7 @@ public class ConnectionManger {
         socket=null;
         remoteServerProxy=null;
     }*/
-    public void connectionSetup() throws IOException {
+    public void connectionSetup() {
         if (!(typeOfConnection)) {
             remoteServerProxy=null;
             try {
@@ -93,8 +95,8 @@ public class ConnectionManger {
     }
     private void startHandShake(String playerNick, UUID clientID) throws IOException, HandShakeException, StupidUserException {
         Message handshakeMessage = new Message(playerNick,clientID);
-        LobbyCreationMessage handshakeACK=null;
-        int numOfUsers=0;
+        LobbyCreationMessage handshakeACK;
+        int numOfUsers;
         try{
             if(typeOfConnection) {
                 numOfUsers= remoteServerProxy.getNumOfPlayers();
@@ -102,7 +104,17 @@ public class ConnectionManger {
             }
             else {
                 ioStream.getValue().writeObject(handshakeMessage);
-                handshakeACK = (LobbyCreationMessage) ioStream.getKey().readObject();
+                Message ackMessage = (Message) ioStream.getKey().readObject();
+                while(ackMessage.getClientID()==null&& Objects.equals(ackMessage.getSender(), "!!++***++!!")){
+                    playerNick= nickRetype();
+                    handshakeMessage.setSender(playerNick);
+                    System.out.println("Handshake: "+handshakeMessage.getSender());
+                    handshakeMessage.setClientID(clientID);
+                    ioStream.getValue().reset();
+                    ioStream.getValue().writeObject(handshakeMessage);
+                    ackMessage = (Message) ioStream.getKey().readObject();
+                }
+                handshakeACK = (LobbyCreationMessage) ackMessage;
                 ZakClient.setServerHandler(new ServerSocketHandler(playerNick,clientID,this));
                 numOfUsers=handshakeACK.getNumPlayer();
             }
@@ -111,25 +123,40 @@ public class ConnectionManger {
                     numOfUsers=lobbyCreation();
                     break;
                 case 1,2,3:
-                    if(typeOfConnection) remoteServerProxy.joinLobby(new LobbyCreationMessage(playerNick,clientID,numOfUsers));
+                    if(typeOfConnection) {
+                        while(!remoteServerProxy.joinLobby(new LobbyCreationMessage(playerNick,clientID,numOfUsers))) {
+                                playerNick= nickRetype();
+                        }
+                    }
                     System.out.println("Joined existing match...");
-                    System.out.println("Waiting for everyone to join.");
                     break;
                 default:
                     throw new TooManyPlayersException("Lobby is currently full. Wait for the match to end and try again");
             }
+            System.out.println("Waiting for everyone to join.");
             System.out.println("CurrentPlayers: "+numOfUsers);
         } catch(HandShakeException | ClassNotFoundException e){
             System.err.println("There was an error during Handshake process: "+e.getMessage());
         }
     }
+
+    private String nickRetype() {
+        System.out.println("Username already taken: choose another one");
+        System.out.print("New username: ");
+        String playerNick=receiveInput();
+        System.out.println("NickRetype: "+playerNick);
+        ZakClient.setPlayerNick(playerNick);
+        System.out.println("PlayerNick in client:" +ZakClient.getPlayerNick());
+        return playerNick;
+    }
+
     private int lobbyCreation() throws IOException, HandShakeException, StupidUserException {
         int desiredPlayerCount = 0;
         int i;
         System.out.println("No match found. Creating a new one:\nHow many players will be playing?\nWrite a number between 2 and 4:");
         try{
             for (i = 0; i<3; i++) {
-                desiredPlayerCount = Integer.parseInt(receiveInput());
+                desiredPlayerCount = getIntInput(4,false);
                 if (desiredPlayerCount >= 2 && desiredPlayerCount <= 4) break;
                 System.out.println("Unacceptable value was input.\nWrite a number between 2 and 4: ");
                 if (i == 2) throw new StupidUserException("u stupid bruh");
@@ -137,7 +164,7 @@ public class ConnectionManger {
         } catch (NumberFormatException e){
             throw new StupidUserException("Unacceptable value was input.\nWrite a number between 2 and 4");
         } catch (StupidUserException e) {
-            e.getMessage();
+            System.out.println(e.getMessage());
             throw new HandShakeException("Something went wrong during connection");
         } finally{
             LobbyCreationMessage msg = new LobbyCreationMessage(null,null,0);

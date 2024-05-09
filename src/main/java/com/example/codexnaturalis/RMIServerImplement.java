@@ -23,15 +23,16 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         System.out.println("There will be "+desiredPlayerCount+" players");
         ServerConnectionManager.firstPlayer=true;
         try{
-            joinLobby(msg);
+            joinLobby(msg) ;
         } catch (IOException E){
-
+            System.out.println("Error creating Lobby: "+E.getMessage());
         }
     }
     @Override
-    public void joinLobby(LobbyCreationMessage msg) throws IOException {
+    public boolean joinLobby(LobbyCreationMessage msg) throws IOException {
         UUID clientID = msg.getClientID();
         String sender = msg.getSender();
+        if(!ServerConnectionManager.hashClient.keySet().isEmpty())for(Player p : ServerConnectionManager.hashClient.values()) if(p.getPlayerName().equals(sender)) return false;
         Player player;
         player = new Player(sender,new Token(), new Field(5, 5),clientID);
         ServerConnectionManager.hashClient.put(clientID,player);
@@ -39,6 +40,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         new Thread(handler).start();
         ServerConnectionManager.handlers.put(clientID, handler);
         System.out.println(sender + " joined the server");
+        return true;
     }
     @Override
     public boolean callFor(UUID clientID){
