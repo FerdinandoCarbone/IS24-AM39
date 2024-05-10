@@ -13,9 +13,10 @@
         <PlayerDeckController fx:id="playerDeck" />
     </bottom>
     <top >
-        <StructRightController fx:id="struct" />
+        <HBox >
+            <StructRightController fx:id="struct" />
+            <CardDrawableController fx:id="cardDrawable" />
+        </HBox>
     </top>
-<!--    <right >
-        <CardDrawableController fx:id="cardDrawable" />
-    </right>-->
+
 </BorderPane>

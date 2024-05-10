@@ -52,26 +52,52 @@ public class PlayerDeckController extends HBox {
         switch (position){
             case 0:
                 card1.setupCard(DrawingDeck.drawCard(false));
+                break;
             case 1:
                 card2.setupCard(DrawingDeck.drawCard(false));
+                break;
             case 2:
                 card3.setupCard(DrawingDeck.drawCard(false));
+                break;
             case 3:
                 starterCard.setupCard(DrawingDeck.drawCard(false));
+                break;
         }
     }
     public void drawResCard() {
-        if(position == 0) card1.setupCard(DrawingDeck.drawCard(true));
-        else if(position == 1) card2.setupCard(DrawingDeck.drawCard(true));
-        else if(position == 2) card3.setupCard(DrawingDeck.drawCard(true));
-        else if(position == 3) starterCard.setupCard(DrawingDeck.drawCard(true));
+        switch (position){
+            case 0:
+                card1.setupCard(DrawingDeck.drawCard(true));
+                break;
+            case 1:
+                card2.setupCard(DrawingDeck.drawCard(true));
+                break;
+            case 2:
+                card3.setupCard(DrawingDeck.drawCard(true));
+                break;
+            case 3:
+                starterCard.setupCard(DrawingDeck.drawCard(true));
+                break;
+        }
     }
     public void setEmpty(int pos){
         position=pos;
-        if(pos == 0) card1.setupEmptyCard();
-        else if(pos == 1) card2.setupEmptyCard();
-        else if(pos == 2) card3.setupEmptyCard();
-        else if(pos == 3) starterCard.setupEmptyCard();
+        switch (pos){
+            case 0:
+                card1.setupEmptyCard();
+                break;
+            case 1:
+                card2.setupEmptyCard();
+                break;
+            case 2:
+                card3.setupEmptyCard();
+                break;
+            case 3:
+                starterCard.setupEmptyCard();
+                break;
+            default:
+                throw new RuntimeException();
+        }
     }
 
     public CardController getCard1() {

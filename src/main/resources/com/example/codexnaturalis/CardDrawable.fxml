@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import com.example.codexnaturalis.CardController?>
 
-<fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx"
+<fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml">
     <CardController fx:id="card1"/>
     <CardController fx:id="card2" />

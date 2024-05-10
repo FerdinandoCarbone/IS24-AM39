@@ -5,13 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 import java.util.Objects;
 
-public class CardDrawableController extends VBox {
+public class CardDrawableController extends HBox {
     @FXML
     private CardController card1;
     @FXML
@@ -22,10 +23,11 @@ public class CardDrawableController extends VBox {
     private CardController card4;
 
     public CardDrawableController() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PlayerDeck.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("CardDrawable.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         fxmlLoader.load();
+
     }
 
     public void showDrawableCards() {   //da pescare dalle carte già disposte a terra dei due mazzi
