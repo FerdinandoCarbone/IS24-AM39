@@ -13,10 +13,21 @@ import static com.example.codexnaturalis.Colors.*;
 public class Message implements Serializable {
     private String sender;
     private UUID clientID;
+    private UUID matchID;
     public Message(String sender,UUID clientID){
         this.sender = sender;
         this.clientID = clientID;
+        this.matchID = null;
     }
+
+    public UUID getMatchID() {
+        return matchID;
+    }
+
+    public void setMatchID(UUID matchID) {
+        this.matchID = matchID;
+    }
+
     public void setClientID(UUID clientID) {
         this.clientID = clientID;
     }

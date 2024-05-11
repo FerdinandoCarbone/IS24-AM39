@@ -77,11 +77,12 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     }
 
     @Override
-    public Message reHandShakeRMI() throws RemoteException {
-        return new BroadCastStartingMessage("Server",ZakServer.match.getCurrentPlayerID(),ServerConnectionManager.hashClient,ZakServer.match.getCommonObjectives(),null);
+    public Message reHandShakeRMI(UUID matchID) throws RemoteException {
+        if(!matchID.equals(ZakServer.match.getMatchID())) return new Message("FORBIDDEN",null);
+        else{
+            return new BroadCastStartingMessage("Server",ZakServer.match.getCurrentPlayerID(),ServerConnectionManager.hashClient,ZakServer.match.getCommonObjectives(),null);
+        }
     }
-
-    @Override
     public Message getMessageTurn(UUID clientID) throws RemoteException {
         return new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards(),ZakServer.match.getPublicCards(),null);
     }

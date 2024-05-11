@@ -20,7 +20,7 @@ public interface RemoteServerMethodInterface extends Remote {
 
     void keepAlive(UUID clientID) throws RemoteException, InterruptedException;
 
-    Message reHandShakeRMI() throws RemoteException;
+    Message reHandShakeRMI(UUID matchID) throws RemoteException;
 
     Message getMessageTurn(UUID clientID)throws RemoteException;
 }

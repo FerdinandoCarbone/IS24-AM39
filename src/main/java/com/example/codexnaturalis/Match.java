@@ -13,6 +13,7 @@ public class Match {
     private ArrayList<ResourceGoldCard> publicCards = new ArrayList<>();
     private ArrayList<ResourceGoldCard> coveredCards;
     private int indexCurrentPlayer;
+    private UUID matchID;
 
 
 
@@ -25,6 +26,7 @@ public class Match {
         this.players = players;
         this.scoreTracker = scoreTracker;
         this.coveredCards = new ArrayList<>();
+        this.matchID=UUID.randomUUID();
         coveredCards.add(0, DrawingDeck.drawCard(true));
         coveredCards.add(1, DrawingDeck.drawCard(false));
     }
@@ -831,6 +833,10 @@ public class Match {
 
     public ArrayList<ResourceGoldCard> getPublicCards() {
         return publicCards;
+    }
+
+    public UUID getMatchID() {
+        return matchID;
     }
 }
 

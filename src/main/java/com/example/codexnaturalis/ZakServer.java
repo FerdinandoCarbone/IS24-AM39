@@ -112,6 +112,7 @@ public class ZakServer {
         commonObjectiveCard = DrawingDeck.drawCommonObjective();
         match.setCommonObjectives(commonObjectiveCard);
         fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(),null,serverConMan.getHashClient(),commonObjectiveCard,match.getTwoSecretObjectiveCards());
+        fieldSetupMessage.setMatchID(match.getMatchID());
         ServerConnectionManager.sendBroadCastMessage(fieldSetupMessage);
     }
 

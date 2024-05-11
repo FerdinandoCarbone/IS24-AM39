@@ -1,14 +1,11 @@
 package com.example.codexnaturalis;
 
 import javafx.util.Pair;
-
+import com.example.codexnaturalis.Colors.*;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.Socket;
-import java.rmi.AccessException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
@@ -43,11 +40,13 @@ public class ConnectionManger {
             remoteServerProxy = null;
             try {
                 socket = connectionAttempt();
+                System.out.println(Colors.PURPLE+ "Sono USCITO DA CONNECTION ATTEMPT"+socket+Colors.RESET);
                 InputStream sInStream = socket.getInputStream();
                 OutputStream sOutStream = socket.getOutputStream();
                 ObjectOutputStream out = new ObjectOutputStream(sOutStream);
                 ObjectInputStream in = new ObjectInputStream(sInStream);
                 ioStream = new Pair<>(in, out);
+                System.out.println(Colors.PURPLE+ "Ho generato oIOStreams" +Colors.RESET);
             } catch (HandShakeException | NullPointerException | IOException e) {
                 System.err.println(e.getMessage());
                 return false;
@@ -73,14 +72,16 @@ public class ConnectionManger {
                 if (typeOfConnection) {
                     remoteServerProxy = (RemoteServerMethodInterface) Naming.lookup("rmi://" + serverAddress + "/Server");
                     return null;
-                } else {
+                }
+                else {
                     socket = new Socket(serverAddress, port);
+                    System.out.println(Colors.PURPLE+ "Ho generato il socket"+socket +Colors.RESET);
                     return socket;
                 }
             } catch (IOException | NotBoundException e) {
                 System.err.println("Unable to connect to the server: Trying to reconnect in " + milliseconds / 1000 + "s");
                 retryCount++;
-                if (retryCount >= 3) throw new HandShakeException("Unable to connect to the server: Host may be down");
+                if (retryCount >= 3) throw new HandShakeException();
             }
             try {
                 Thread.sleep(milliseconds); // wait before retrying
@@ -103,6 +104,7 @@ public class ConnectionManger {
 
     private void startHandShake(String playerNick, UUID clientID) throws IOException, HandShakeException, StupidUserException {
         Message handshakeMessage = new Message(playerNick, clientID);
+        handshakeMessage.setMatchID(ZakClient.getMatchID());
         LobbyCreationMessage handshakeACK;
         int numOfUsers;
         try {
@@ -175,7 +177,7 @@ public class ConnectionManger {
             throw new StupidUserException("Unacceptable value was input.\nWrite a number between 2 and 4");
         } catch (StupidUserException e) {
             System.out.println(e.getMessage());
-            throw new HandShakeException("Something went wrong during connection");
+            throw new HandShakeException();
         } finally {
             LobbyCreationMessage msg = new LobbyCreationMessage(null, null, 0);
             msg.setNumPlayer(desiredPlayerCount);
@@ -211,32 +213,61 @@ public class ConnectionManger {
         UUID clientID = ZakClient.getClientID();
         String playerNick = ZakClient.getPlayerNick();
         Message handshakeMessage = new Message(playerNick, clientID);
+        handshakeMessage.setMatchID(ZakClient.getMatchID());
         BroadCastStartingMessage handshakeACKInfo;
-        GenericTurnMessage genericTurnMessage;
+        Message tmpMessage;
         boolean amPlayerInTurn=false;
         try {
             if (typeOfConnection) {
-                handshakeACKInfo = (BroadCastStartingMessage) remoteServerProxy.reHandShakeRMI();
+                tmpMessage = remoteServerProxy.reHandShakeRMI(ZakClient.getMatchID());
+                if(tmpMessage.getSender().equals("FORBIDDEN")){
+                    throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
+                }
+                handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
                 ZakClient.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
                 ZakClient.getServerHandler().setMessageTurn((GenericTurnMessage)remoteServerProxy.getMessageTurn(clientID));
 
-            } else {
-                ioStream.getValue().writeObject(handshakeMessage);
-                handshakeACKInfo = (BroadCastStartingMessage) ioStream.getKey().readObject();
-                ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
-                ZakClient.getServerHandler().setMessageTurn((GenericTurnMessage) ioStream.getKey().readObject());
             }
-            amPlayerInTurn = ZakClient.getClientID().equals(handshakeACKInfo.getClientID());
+            else {
+                System.out.println(Colors.PURPLE+ "Starting Handshake" +Colors.RESET);
+                ioStream.getValue().writeObject(handshakeMessage);
+                System.out.println("Flushing stream");
+                tmpMessage = (Message) ioStream.getKey().readObject();
+                System.out.println(tmpMessage.getClass());
+                if(tmpMessage.getSender().equals("FORBIDDEN")){
+                    throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
+                }
+                handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
+                System.out.println("CASTED");
+                ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
+                //System.out.println(Colors.PURPLE+ "Settato correttamente" +Colors.RESET);
+            }
+            System.out.println(Colors.PURPLE+ "Setting Up field..." +Colors.RESET);
+            System.out.println(Colors.PURPLE+ "Retrieving Current turn info..." +Colors.RESET);
+            amPlayerInTurn = clientID.compareTo(handshakeACKInfo.getClientID()) == 0;
+            System.out.println("MyClientID:"+ clientID+"\n"+"Received:"+handshakeACKInfo.getClientID()+"\n"+"bool:"+amPlayerInTurn);
             ZakClient.setPlayer(handshakeACKInfo.getPlayers().get(getClientID()));
             handshakeACKInfo.getPlayers().remove(getClientID());
             ArrayList<Player> players = new ArrayList<>(handshakeACKInfo.getPlayers().values());
             ZakClient.setOtherPlayers(players);
             ZakClient.getServerHandler().setFirstBroadCastWasReceived(true);
-            setMyTurn(amPlayerInTurn);
-            if(amPlayerInTurn) System.out.println("It's your turn!");
+            if(!typeOfConnection&&amPlayerInTurn){
+                GenericTurnMessage msg= (GenericTurnMessage) ioStream.getKey().readObject();
+                ZakClient.getServerHandler().setMessageTurn(msg);
+            }
             ZakClient.getServerHandler().start();
+            setMyTurn(amPlayerInTurn);
+            //System.out.println("Done!");
+            if(amPlayerInTurn&&typeOfConnection) System.out.println("\nIt's your turn!");
         } catch(Exception e){
             System.out.println("Error while reconnecting after crash: "+e.getMessage());
+            if (e.getClass().equals(NotSameMatchException.class)) {
+                System.out.println("Save data can be deleted: deleting it now...");
+                String filePath = "savedata/" + playerNick + "-matchInfo.cdxn";
+                File file = new File(filePath);
+                boolean deleted = file.delete();
+                if (!deleted) System.out.println("Unable to delete save file");
+            }
             clientDisconnect();
         }
         System.out.println("All players' fields were correctly received");

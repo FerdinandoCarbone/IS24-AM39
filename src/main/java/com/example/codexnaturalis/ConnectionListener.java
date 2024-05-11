@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class ConnectionListener extends Thread implements Runnable{
     ServerConnectionManager serverComMan;
-    boolean hasToRun;
+    public volatile boolean hasToRun;
     public ConnectionListener(ServerConnectionManager serverComMan){
         this.serverComMan = serverComMan;
         hasToRun = true;
@@ -30,13 +30,17 @@ class SocketConnectionListener extends ConnectionListener {
     }
 @Override
     public void run() {
-        while (hasToRun) {
+        while (true) {
             try {
-                sockets.add(serverComMan.getServerSocket().accept());
+                if(!hasToRun) Thread.onSpinWait();
+                startListening();
             } catch (IOException e) {
                 System.err.println("There was an error listening for sockets: "+e.getMessage()+"\nRetrying...");
             }
         }
+    }
+    private void startListening() throws IOException {
+        this.sockets.add(serverComMan.getServerSocket().accept());
     }
 
 }

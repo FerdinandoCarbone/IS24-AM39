@@ -45,11 +45,12 @@ public class ServerHandler extends Thread implements Runnable {
     public void textMessageHandler(TextMessage message) {
         String sender = message.getSender();
         if(Objects.equals(sender, getClientName())) sender="You";
-        System.out.println(sender+": "+message.getTextMessage());
+        System.out.println("\n"+sender+": "+message.getTextMessage());
         if(message.getTextMessage().contains("kicked")) System.exit(0);
         if(!wasFirstBroadCastReceived()) setFirstBroadCastWasReceived(true);
     }
     public void genericTurnMessageHandler(GenericTurnMessage message){
+        System.out.println(Colors.BLUE+"SONO QUI"+Colors.RESET);
         this.messageTurn = message;
         ZakClient.genericTurnMessageHandler();
     }
@@ -134,7 +135,7 @@ class ServerSocketHandler extends ServerHandler {
     }
     @Override
     public void run() {
-        do{
+        while(true){
             try {
                 messageReceiver();
             } catch (ClassNotFoundException | WrongMessageConversionException e) {
@@ -155,7 +156,7 @@ class ServerSocketHandler extends ServerHandler {
                 if(tryReconnectToServer()) continue;
                 clientDisconnected();
             }
-        }while(ZakClient.isCurrentGameStatus());
+        }
     }
 
 
@@ -176,6 +177,7 @@ class ServerSocketHandler extends ServerHandler {
         Message message = (Message) inServer.readObject();
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
+        System.out.println(messageType);
         switch (messageType){
             case "GenericTurnMessage":
                 genericTurnMessageHandler((GenericTurnMessage) message);

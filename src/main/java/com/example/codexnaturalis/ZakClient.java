@@ -16,6 +16,7 @@ public class ZakClient {
     private static volatile boolean currentGameStatus;
     private static boolean myTurn;
     private static UUID clientID;
+    private static UUID matchID;
     public static void main(String[] args) {
 
         int port=8081;
@@ -96,13 +97,13 @@ public class ZakClient {
             }
 
         } while (connMan == null);
-        if(!crashed)writeConnectionTypeOnFile(connectionInt);
+        if(!crashed)appendStringOnFile("ConnectionType:"+(connectionInt==1? "false":"true"));
         connMan.connectionSetup();
         if(!crashed)connMan.doHandShake();
         else connMan.reHandShake();
     }
 
-    public static void writeConnectionTypeOnFile(Integer i) throws IOException {
+    public static void appendStringOnFile(String contentToAppend) throws IOException {
         String fileName = "savedata/"+playerNick + "-matchInfo.cdxn";
         StringBuilder existingContent = new StringBuilder();
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -110,7 +111,6 @@ public class ZakClient {
         while ((line = reader.readLine()) != null) {
             existingContent.append(line).append(System.lineSeparator());
         }
-        String contentToAppend = i==1? "false":"true";
         existingContent.append(contentToAppend).append(System.lineSeparator());
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
         // Write the combined content back to the file
@@ -136,10 +136,16 @@ public class ZakClient {
             while ((line = bufferedReader.readLine()) != null) {
                 content.add(line);
             }
-            newID= UUID.fromString(content.getFirst());
+            newID= UUID.fromString(content.getFirst().replaceFirst("ClientID:",""));
             content.removeFirst();
             crashed = true;
-            connectionType= Objects.equals(content.getFirst(), "true");
+            connectionType= Objects.equals(content.getFirst().replaceFirst("ConnectionType:",""), "true");
+            content.removeFirst();
+            try{
+                matchID = UUID.fromString(content.getFirst().replaceFirst("MatchID:",""));
+            } catch (Exception e){
+                matchID=null;
+            }
             // Close the BufferedReader and FileReader
             bufferedReader.close();
             fileReader.close();
@@ -151,12 +157,14 @@ public class ZakClient {
             FileOutputStream outputStream = new FileOutputStream(fileName);
             newID = UUID.randomUUID();
             // Convert the string content to bytes and write to the file
-            byte[] bytes = newID.toString().getBytes();
+            String myIDString = "ClientID:"+ newID.toString();
+            byte[] bytes = myIDString.getBytes();
             outputStream.write(bytes);
 
             // Close the stream
             outputStream.close();
             crashed = false;
+            matchID=null;
             return newID;
         } catch (FileNotFoundException e){
             System.out.println(e.getMessage());
@@ -209,6 +217,8 @@ public class ZakClient {
             ObjectiveCard chosenCard;
             Collection<Player> players;
             boolean cardFace;
+            matchID = initialMatchSetupMessage.getMatchID();
+            appendStringOnFile("MatchID:"+matchID.toString());
             player = initialMatchSetupMessage.getPlayers().get(clientID);
             if(player == null) throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
             initialMatchSetupMessage.getPlayers().remove(clientID);
@@ -506,7 +516,7 @@ public class ZakClient {
                 writeTextMessage();
                 break;
             case 6:
-                if(serverHandler.getMessageTurn() != null) genericMessageAssembler();
+                if(serverHandler.getMessageTurn() != null&&myTurn) genericMessageAssembler();
                 else System.out.println("Wrong input: Input the number associated to the desired action");
                 break;
             default:
@@ -579,7 +589,8 @@ public class ZakClient {
         myTurn=true;
         //System.lineSeparator();
         //clearConsole();
-        System.out.println("It's your turn:");
+        System.out.println("\nIt's your turn:");
+        System.out.print("What do you want to do? ");
 
     }
 
@@ -690,7 +701,15 @@ public class ZakClient {
         myTurn = b;
     }
 
+    public static boolean isCrashed() {
+        return crashed;
+    }
+
     public static void setClientID(UUID uuid) {
         clientID = uuid;
+    }
+
+    public static UUID getMatchID() {
+        return matchID;
     }
 }

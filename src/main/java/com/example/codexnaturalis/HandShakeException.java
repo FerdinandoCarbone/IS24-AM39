@@ -2,13 +2,13 @@ package com.example.codexnaturalis;
 
 
 public class HandShakeException extends Exception {
-    public HandShakeException(String errorMessage) {
-        super(errorMessage);
+    public HandShakeException() {
+        super();
     }
 }
 class TooManyPlayersException extends HandShakeException {
     public TooManyPlayersException(String errorMessage) {
-        super(errorMessage);
+        super();
     }
 }
 class StupidUserException extends Exception{

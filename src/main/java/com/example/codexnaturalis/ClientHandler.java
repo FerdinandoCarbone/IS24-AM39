@@ -77,7 +77,7 @@ public class ClientHandler extends Thread implements Runnable {
         ArrayList<ResourceGoldCard> publicCards = newStatus.getPublicCardsNewState();
         for(ResourceGoldCard c: coveredCards) System.out.println(Colors.BLUE + c.getIdCard() + Colors.RESET);
         for(ResourceGoldCard c: publicCards) System.out.println(Colors.RED + c.getIdCard() + Colors.RESET);
-        GenericTurnMessage newTurn = new GenericTurnMessage("Server",null,coveredCards,publicCards,null);
+        GenericTurnMessage newTurn = new GenericTurnMessage("Server",newStatus.getNextPlayerId(),coveredCards,publicCards,null);
         newTurn.printCoveredCards();
         newTurn.printPublicCards();
         ServerConnectionManager.sendBroadCastMessage(newStatus);
@@ -129,7 +129,11 @@ class RMIClientHandler extends ClientHandler{
             } catch (ClientAbruptlyDisconnectedException e){
                 System.err.println(e.getMessage());
                 if(tryReconnectToClient()) continue;
-                //todo: reconnection attempt
+                try {
+                    ServerConnectionManager.sendBroadCastMessage(new TextMessage("Server",null,getClientName()+" disconnected from the server and was unable to reconnect","Everyone"));
+                } catch (IOException ex) {
+                    System.err.println("Unable to broadcast disconnection Message");
+                }
                 clientDisconnected();
             }
             // Thread.onSpinWait();
@@ -139,9 +143,9 @@ class RMIClientHandler extends ClientHandler{
     private boolean tryReconnectToClient() {
         for (int i = 0; i < 2; i++) {
             if(heartBeat) return heartBeat;
-            System.err.println("Failed to reconnect: retrying in 5s");
+            System.err.println("Failed to reconnect: retrying in 7s");
             try{
-                Thread.sleep(5000);
+                Thread.sleep(7000);
             } catch(InterruptedException e){
                 System.err.println(e.getMessage());
             }
@@ -234,20 +238,19 @@ class SocketClientHandler extends ClientHandler{
                 else if(!reconnect && !ZakServer.match.getFinalWinners().isEmpty()) clientDisconnected();
             }catch(ClientAbruptlyDisconnectedException e){
                 System.err.println(e.getMessage());
-                if(tryReconnectClient()){
-                    try {
+                try {
+                    if(tryReconnectClient()) {
                         outClient.reset();
-                        sendMessage(new BroadCastStartingMessage("Server",ZakServer.match.getCurrentPlayerID(),ServerConnectionManager.hashClient,ZakServer.match.getCommonObjectives(),null));
                         continue;
-                    } catch (IOException ex) {
-                        System.out.println("Unable to send match status to disconnected player: "+getClientName());
                     }
+                } catch (IOException ex) {
+                    System.out.println("Unable to send match status to disconnected player: "+getClientName());
                 }
                 clientDisconnected();
             }
         }while (hasToRun);
     }
-    private boolean tryReconnectClient(){
+    private boolean tryReconnectClient() throws IOException {
         boolean result=true;
         System.err.println("Trying to re-establish a connection with client:");
         Pair<ObjectInputStream,ObjectOutputStream> oIOstream;
@@ -257,8 +260,8 @@ class SocketClientHandler extends ClientHandler{
                 if (oIOstream == null) {
                     if(i==2)throw new Exception("No socket enabled client was able to connect");
                     else{
-                        System.err.println("Unable to establish a connection - retrying in 5s");
-                        Thread.sleep(5000);
+                        System.err.println("Unable to establish a connection - retrying in 7s");
+                        Thread.sleep(7000);
                         continue;
                     }
                 }
@@ -269,6 +272,7 @@ class SocketClientHandler extends ClientHandler{
 
         } catch (Exception e){
             System.err.println(e.getMessage());
+            ServerConnectionManager.sendBroadCastMessage(new TextMessage("Server",null,getClientName()+" disconnected from the server and was unable to reconnect","Everyone"));
             result = false;
         }
         this.reconnect = !result;

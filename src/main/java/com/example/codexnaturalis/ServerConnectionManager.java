@@ -38,6 +38,14 @@ public class ServerConnectionManager {
         rmiListener = new RMIConnectionListener(this);
         socketListener = new SocketConnectionListener(this);
     }
+
+    /**
+     * Next two methods are strictly tied. rmiListener is always running Thread serving the RMI connected clients,
+     * SocketListener Thread is opened only if there is a socket trying to connect.
+     * Thinking of leaving it open accepting connections and dropping ones not necessary.
+     * As of now it seems to be working fine, so will leave as is
+     * @param isReconnection- if the client is trying to reconnect after a crash or connection issue set true; else set to false
+     */
     public void acceptConnection(boolean isReconnection) {
         rmiListener.start();
         socketListener.start();
@@ -55,7 +63,9 @@ public class ServerConnectionManager {
         socketListener.setHasToRun(false);
     }
     public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketRMIConnections(boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
-        if(isReconnection) socketListener.setHasToRun(true);
+        if(isReconnection){
+            socketListener.setHasToRun(true);
+        }
         ObjectOutputStream out;
         ObjectInputStream in;
         Message clientJoinRequest;
@@ -69,38 +79,78 @@ public class ServerConnectionManager {
         socketListener.sockets.removeFirst();
         in = new ObjectInputStream(clientSocket.getInputStream());
         out = new ObjectOutputStream(clientSocket.getOutputStream());
-        clientJoinRequest = (Message) in.readObject();
+        //clientSocket.setSoTimeout(10000);
+        clientJoinRequest = (Message) in.readObject();//prendo l'handshake Message
         if (!firstPlayer) {
             firstPlayer = true;
             handshakeACK = new LobbyCreationMessage(serverName,null,numPlayers);
             out.writeObject(handshakeACK);
-            //todo: Timeout
             handshakeACK = (LobbyCreationMessage) in.readObject();
             numPlayers = handshakeACK.getNumPlayer();
             //playerCounter = numPlayers;
             System.out.println("There will be "+numPlayers+" players");
         }
         else {
+            boolean isIssueName=false;
             ArrayList<Player> players = new ArrayList<>(getPlayers());
             Message tmp = new Message("!!++***++!!", null);
             for (int i = 0; i < players.size(); i++) {
-                if (players.get(i).getPlayerID().equals(clientJoinRequest.getClientID())) break;
+                /**
+                 * In this code snippet I am managing the reconnection after a crash of the client
+                 * Firstly I am checking whether there is a player with the same ID as the one the reconnecting client has
+                 */
+                if (players.get(i).getPlayerID().equals(clientJoinRequest.getClientID())) {
+                    /**
+                     * here I am checking if the matchID the client and server have match.(If a player disconnected an hour ago and
+                     * the match he was in ended and another one started, the player won't be able to join as he will be kicked/prompted to restart the client)
+                     * Otherwise his reconnection attempt will take place
+                     */
+                    if(clientJoinRequest.getMatchID().equals(ZakServer.match.getMatchID())){
+                        System.out.println(clientJoinRequest.getSender()+ "is trying to reconnect");
+                        break;
+                    }
+                    else if(clientJoinRequest.getMatchID().equals(null)){
+                        //
+                        break;
+                    }
+                    /**
+                     * else the player is kicked and his save file is removed
+                     */
+                    else {
+                        System.out.println(Colors.PURPLE+ "Forbidden" +Colors.RESET);
+                        out.writeObject(new Message("FORBIDDEN",null));
+                        return null;
+                    }
+                }
+                /**
+                 * Checking if the player has submitted an already taken username
+                 * This functionality is Only usable when starting clients on different machines
+                 * or in different directories
+                 */
                 if (players.get(i).getPlayerName().equals(clientJoinRequest.getSender())) {
+                    System.out.println("HERE");
                     out.writeObject(tmp);
                     clientJoinRequest = (Message) in.readObject();
                     i = -1;
                 }
-                //System.out.println("i:"+i);
             }
+            /**
+             * If a new player (with a different ID as ones who are currently connected) tries to connect he will be receiving the number of players
+             * Required for the connection of player after the lobby is created
+             */
             if(!Arrays.stream((players.stream().map(Player::getPlayerID).toArray(UUID[]::new))).toList().contains(clientJoinRequest.getClientID())){
                 handshakeACK = new LobbyCreationMessage(serverName, null, hashClient.size());
                 try {
+                    System.out.println("Sto inviando i dati");
                   out.writeObject(handshakeACK);
                  } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
                 }
             }
         }
+        /**
+         * Code snipped reserved for first time connection with the server, before the match starts
+         */
         if(hashClient.size()<=numPlayers && !isReconnection){
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
@@ -114,10 +164,22 @@ public class ServerConnectionManager {
             handlers.put(clientID, handler);
             return null;
         }
+        /**
+         * If the connection is a reconnection socket information is updated
+         */
         else if(isReconnection){
-            ioStream.getValue().writeObject(new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards(),ZakServer.match.getPublicCards(),null));
+            UUID currPlayerID = ZakServer.match.getCurrentPlayerID();
+            Message bcStart=new BroadCastStartingMessage("Server",currPlayerID,ServerConnectionManager.hashClient,ZakServer.match.getCommonObjectives(),null);
+            out.writeObject(bcStart);
+            System.out.println("Flushing stream");
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
+            System.out.println("Current:"+currPlayerID+"\n"+"Reconnecting player:"+clientID);
+            if(clientID.compareTo(currPlayerID)==0){
+                System.out.println("Sending over GenericTurnMessage");
+                Message msg = new GenericTurnMessage("Server",currPlayerID,ZakServer.match.getCoveredCards(),ZakServer.match.getPublicCards(),null);
+                out.writeObject(msg);
+            }
             hashPlayer.replace(hashClient.get(clientID),clientSocket);
             System.out.println(sender + " rejoined the server");
             return new Pair<>(in,out);
@@ -125,11 +187,23 @@ public class ServerConnectionManager {
         return null;
     }
 
+    /**
+     * Sends message to all ClientHandlers who will manage the communication with client's ServerHandlers and call their specific methods
+     * @param message - message object to be sent
+     * @throws IOException -
+     */
     public static void sendBroadCastMessage(Message message) throws IOException {
         for (ClientHandler handler : handlers.values()) {
             handler.sendMessage(message);
         }
     }
+
+    /**
+     * Ssends a message to a specific ClientHandler given its clientID
+     * @param clientID - Identifier for a specific Client
+     * @param message - message object to send
+     * @throws IOException -
+     */
     public static void sendMessage(UUID clientID,Message message) throws IOException {
         handlers.get(clientID).sendMessage(message);
     }
