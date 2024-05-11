@@ -49,15 +49,16 @@ public class ServerConnectionManager {
     public void acceptConnection(boolean isReconnection) {
         rmiListener.start();
         socketListener.start();
-        while (!firstPlayer || connectionCondition()) {
-            try {
-                acceptSocketRMIConnections(isReconnection);
-            } catch(ClassNotFoundException|InterruptedException e){
-                System.out.println("SERVER failure: " + e.getMessage());
-            }
-            catch(IOException e){
-                System.err.println("SERVER failure: " + e.getMessage());
-                //if (firstPlayer) continue;
+        while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers==0)) {
+            while(connectionCondition()) {
+                try {
+                    acceptSocketRMIConnections(isReconnection);
+                } catch (ClassNotFoundException | InterruptedException e) {
+                    System.out.println("SERVER failure: " + e.getMessage());
+                } catch (IOException e) {
+                    System.err.println("SERVER failure: " + e.getMessage());
+                    //if (firstPlayer) continue;
+                }
             }
         }
         socketListener.setHasToRun(false);
@@ -81,7 +82,7 @@ public class ServerConnectionManager {
         out = new ObjectOutputStream(clientSocket.getOutputStream());
         //clientSocket.setSoTimeout(10000);
         clientJoinRequest = (Message) in.readObject();//prendo l'handshake Message
-        if (!firstPlayer) {
+        if (!firstPlayer&&!isReconnection) {
             firstPlayer = true;
             handshakeACK = new LobbyCreationMessage(serverName,null,numPlayers);
             out.writeObject(handshakeACK);
@@ -91,7 +92,6 @@ public class ServerConnectionManager {
             System.out.println("There will be "+numPlayers+" players");
         }
         else {
-            boolean isIssueName=false;
             ArrayList<Player> players = new ArrayList<>(getPlayers());
             Message tmp = new Message("!!++***++!!", null);
             for (int i = 0; i < players.size(); i++) {
@@ -99,18 +99,18 @@ public class ServerConnectionManager {
                  * In this code snippet I am managing the reconnection after a crash of the client
                  * Firstly I am checking whether there is a player with the same ID as the one the reconnecting client has
                  */
-                if (players.get(i).getPlayerID().equals(clientJoinRequest.getClientID())) {
+                if (players.get(i).getPlayerID().compareTo(clientJoinRequest.getClientID())==0) {
                     /**
                      * here I am checking if the matchID the client and server have match.(If a player disconnected an hour ago and
                      * the match he was in ended and another one started, the player won't be able to join as he will be kicked/prompted to restart the client)
                      * Otherwise his reconnection attempt will take place
                      */
-                    if(clientJoinRequest.getMatchID().equals(ZakServer.match.getMatchID())){
-                        System.out.println(clientJoinRequest.getSender()+ "is trying to reconnect");
+                    if(clientJoinRequest.getMatchID()==null){
+                        //
                         break;
                     }
-                    else if(clientJoinRequest.getMatchID().equals(null)){
-                        //
+                    else if(clientJoinRequest.getMatchID().equals(ZakServer.match.getMatchID())){
+                        System.out.println(clientJoinRequest.getSender()+ "is trying to reconnect");
                         break;
                     }
                     /**
@@ -151,7 +151,8 @@ public class ServerConnectionManager {
         /**
          * Code snipped reserved for first time connection with the server, before the match starts
          */
-        if(hashClient.size()<=numPlayers && !isReconnection){
+        //System.out.println(Thread.currentThread().getName());
+        if(hashClient.size()<=numPlayers && !isReconnection && Thread.currentThread().getName().compareToIgnoreCase("main")==0){
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
             player = new Player(sender,new Token(), new Field(5, 5),clientID);
@@ -168,18 +169,32 @@ public class ServerConnectionManager {
          * If the connection is a reconnection socket information is updated
          */
         else if(isReconnection){
-            UUID currPlayerID = ZakServer.match.getCurrentPlayerID();
-            Message bcStart=new BroadCastStartingMessage("Server",currPlayerID,ServerConnectionManager.hashClient,ZakServer.match.getCommonObjectives(),null);
-            out.writeObject(bcStart);
-            System.out.println("Flushing stream");
+            UUID currPlayerID;
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
-            System.out.println("Current:"+currPlayerID+"\n"+"Reconnecting player:"+clientID);
-            if(clientID.compareTo(currPlayerID)==0){
-                System.out.println("Sending over GenericTurnMessage");
-                Message msg = new GenericTurnMessage("Server",currPlayerID,ZakServer.match.getCoveredCards(),ZakServer.match.getPublicCards(),null);
-                out.writeObject(msg);
+            if(ZakServer.match==null) {
+                currPlayerID= clientID;
+                out.writeObject(new LobbyCreationMessage("MATCHNOTSTARTED",null,getNumPlayers()));
+                return new Pair<>(in,out);
             }
+            else {
+                currPlayerID = ZakServer.match.getCurrentPlayerID();
+                Message bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, ZakServer.match.getCommonObjectives(),ZakServer.match.selectedSecrets);
+                out.writeObject(bcStart);
+                System.out.println("Flushing stream");
+                if(hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()==null){
+                    BroadCastStartingMessage selector=(BroadCastStartingMessage) in.readObject();
+                    ZakServer.match.putBackOtherSecretObjectiveCard(clientID,selector.getSelectedSecret());
+                    ServerConnectionManager.hashClient.get(clientID).placeStarterCard(selector.getStarterCardFace());
+                    handlers.get(clientID).setSecretWasChosen(true);
+                }
+                else if (clientID.compareTo(currPlayerID) == 0) {
+                    System.out.println("Sending over GenericTurnMessage");
+                    Message msg = new GenericTurnMessage("Server", currPlayerID, ZakServer.match.getCoveredCards(), ZakServer.match.getPublicCards(), null);
+                    out.writeObject(msg);
+                }
+            }
+            System.out.println("Current:"+currPlayerID+"\n"+"Reconnecting player:"+clientID);
             hashPlayer.replace(hashClient.get(clientID),clientSocket);
             System.out.println(sender + " rejoined the server");
             return new Pair<>(in,out);
@@ -241,7 +256,11 @@ public class ServerConnectionManager {
         return handlers;
     }
     private boolean connectionCondition(){
-        return hashClient.size() < numPlayers || numPlayers==0;
+        for(ClientHandler h : handlers.values()){
+            if(h instanceof SocketClientHandler && h.getReconnect()) return false;
+        }
+        if(hashClient.size() == numPlayers && numPlayers!=0) return false;
+        return true;
     }
 
     public int getNumPlayers() {

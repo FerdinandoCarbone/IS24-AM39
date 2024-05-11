@@ -11,20 +11,20 @@ public class ZakServer {
     static boolean gameStarted = false;
     static Match match;
     static ServerConnectionManager serverConMan;
-    static Pair<String,Integer> connectionInfo;
+    static Pair<String, Integer> connectionInfo;
+
     //static int playerCounter = 1;
     public static void main(String[] args) {
-        int port=8081;
-        if(!args[0].isBlank()) {
-            try{
-            port = Integer.parseInt(args[0]);
-            } catch(Exception e){
+        int port = 8081;
+        if (!args[0].isBlank()) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (Exception e) {
                 System.out.println("An invalid port number was input\nFallback to 8081");
             }
 
             connectionInfo = new Pair<>("Server", port);
-        }
-        else{
+        } else {
             System.err.println("Cannot start server: Start server with an integer parameter as port");
             System.exit(0);
         }
@@ -38,26 +38,27 @@ public class ZakServer {
      * A soon as every player is connected match will start
      */
     private static void serverSetupProcedure() {
-        try{
+        try {
             serverStart();
-        } catch(Exception e){
-            System.err.println("Server Failure: "+e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Server Failure: " + e.getMessage());
         }
         serverConMan.acceptConnection(false);
-        try{
+        try {
             matchStart();
-        } catch(Exception e){
-            System.err.println("Server Failure: "+e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Server Failure: " + e.getMessage());
         }
     }
 
     /**
      * Prints ASCII Art and initializes ServerConnectionManager
+     *
      * @throws IOException
      */
     public static void serverStart() throws IOException {
         gameStarted = false;
-        serverConMan=new ServerConnectionManager(connectionInfo,1099);
+        serverConMan = new ServerConnectionManager(connectionInfo, 1099);
         System.out.println(
                 """
                          _____                                                                      _____\s
@@ -80,8 +81,9 @@ public class ZakServer {
     /**
      * Selects CommonObjective Cards, generates the model object(match) and Calls startingFieldClientSetup(). As soon as every client chooses his secret Objective card and places
      * their StarterCard, This function sends a Player greeting TextMessage and the game is started by sending a GenericTurnMessage to the first player.
+     *
      * @throws Exception, thrown for a general failure in server. reports to severSetupProcedure or Main.
-     * The Thread stops here in the while(true) so that the person hosting the server can give it some commands
+     *                    The Thread stops here in the while(true) so that the person hosting the server can give it some commands
      */
     public static void matchStart() throws Exception {
         String serverCommand;
@@ -89,14 +91,14 @@ public class ZakServer {
         match = new Match(players, new ScoreTracker());
         startingFieldClientSetup();
         System.out.println("Match is about to start: Waiting for all players to choose a secret objective");
-        while(!match.areAllSecretObjectiveSet()) Thread.onSpinWait();
+        while (!match.areAllSecretObjectiveSet()) Thread.onSpinWait();
         welcomePlayer();
         gameStarted = true;
         System.out.println("Match has began");
         StandardMatchMessage stdMessage = match.chooseRandomFirstPlayer();
-        GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(),stdMessage.getClientID(),match.getCoveredCards(),stdMessage.getPublicCardsNewState(),null); //match loop starts here
-        ServerConnectionManager.sendMessage(stdMessage.getClientID(),message);
-        while(true){
+        GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(), stdMessage.getClientID(), match.getCoveredCards(), stdMessage.getPublicCardsNewState(), null); //match loop starts here
+        ServerConnectionManager.sendMessage(stdMessage.getClientID(), message);
+        while (true) {
             serverCommand = getInput();
             interpretInput(serverCommand);
         }
@@ -104,87 +106,91 @@ public class ZakServer {
 
     /**
      * Sends a fieldSetupMessage which sends over to all clients the commonObjectiveCards and the Pair of secretObjectiveCards for the player to choose
+     *
      * @throws IOException
      */
-    private static void startingFieldClientSetup() throws IOException{
+    private static void startingFieldClientSetup() throws IOException {
         BroadCastStartingMessage fieldSetupMessage;
         ArrayList<ObjectiveCard> commonObjectiveCard;
         commonObjectiveCard = DrawingDeck.drawCommonObjective();
         match.setCommonObjectives(commonObjectiveCard);
-        fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(),null,serverConMan.getHashClient(),commonObjectiveCard,match.getTwoSecretObjectiveCards());
+        fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(), null, serverConMan.getHashClient(), commonObjectiveCard, match.getTwoSecretObjectiveCards());
         fieldSetupMessage.setMatchID(match.getMatchID());
         ServerConnectionManager.sendBroadCastMessage(fieldSetupMessage);
     }
 
     /**
      * Generates Player greeting TextMessage while sending over to all Players the newly set StarterCards
+     *
      * @throws IOException
      */
-   private static void welcomePlayer() throws IOException {
+    private static void welcomePlayer() throws IOException {
         String text = "Match is about to start\nPlayers:\n";
-        HashMap<UUID,StarterCard> hashStart = new HashMap<>();
+        HashMap<UUID, StarterCard> hashStart = new HashMap<>();
         Collection<Player> players = serverConMan.getPlayers();
-        for(Player p: players){
-            hashStart.put(p.getPlayerID(),p.getPlayerDeck().getStarterCard());
+        for (Player p : players) {
+            hashStart.put(p.getPlayerID(), p.getPlayerDeck().getStarterCard());
             System.out.println(hashStart.get(p.getPlayerID()));
-            text=text.concat(p.getPlayerName()+"\n");
+            text = text.concat(p.getPlayerName() + "\n");
         }
-        ServerConnectionManager.sendBroadCastMessage(new TextMessage(connectionInfo.getKey(), null,text,"Everyone"));
-        ServerConnectionManager.sendBroadCastMessage(new BroadCastStandardMessage(connectionInfo.getKey(),null,hashStart));
+        ServerConnectionManager.sendBroadCastMessage(new TextMessage(connectionInfo.getKey(), null, text, "Everyone"));
+        ServerConnectionManager.sendBroadCastMessage(new BroadCastStandardMessage(connectionInfo.getKey(), null, hashStart));
 
 
-   }
+    }
 
     /**
      * stops ClientHandler thread that handles connection with client whose clientID is provided
+     *
      * @param clientID clientID belonging to the client whose clientHandler thread needs to be killed
      */
-    public static void stopThread(UUID clientID){
+    public static void stopThread(UUID clientID) {
         //todo: fare le opportune modifiche a match
-        if(serverConMan.getHandlers().values().size()==1) {
+        if (serverConMan.getHandlers().values().size() == 1) {
             ServerConnectionManager.setNumPlayers(0);
-            if(ServerConnectionManager.isFirstPlayer())ServerConnectionManager.setFirstPlayer(false);
+            if (ServerConnectionManager.isFirstPlayer()) ServerConnectionManager.setFirstPlayer(false);
         }
-        try{
-        serverConMan.getHandlers().get(clientID).setHasToRun(false);
-        }
-        catch (Exception e){
+        try {
+            serverConMan.getHandlers().get(clientID).setHasToRun(false);
+        } catch (Exception e) {
             System.err.println("Unable to stop process:" + e.getMessage());
         }
-        try{
+        try {
             String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
             ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
             ServerConnectionManager.hashClient.remove(clientID);
-            System.out.println(playerName+ " left the game and was unable to reconnect");
+            System.out.println(playerName + " left the game and was unable to reconnect");
             System.out.print("Command:");
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         serverConMan.getHandlers().remove(clientID);
     }
-    private static String getInput(){
-        Scanner scanner= new Scanner(System.in);
-        String input=null;
-        do{
+
+    private static String getInput() {
+        Scanner scanner = new Scanner(System.in);
+        String input = null;
+        do {
             System.out.print("Command: ");
-            try{
+            try {
                 input = scanner.nextLine();
-            }catch (NoSuchElementException e){
+            } catch (NoSuchElementException e) {
                 continue;
             }
-        }while(Objects.equals(input, "\n") || input==null);
+        } while (Objects.equals(input, "\n") || input == null);
         //scanner.close();
         return input;
     }
 
     /**
      * Interprets the command given to the server and calls other methods
+     *
      * @param serverCommand the command given to the server
      * @throws IOException
      * @throws NotBoundException
      */
     private static void interpretInput(String serverCommand) {
-        switch(serverCommand.toLowerCase()){
+        switch (serverCommand.toLowerCase()) {
             case "close":
                 System.out.println("Server shutting down");
                 System.exit(0);
@@ -216,49 +222,52 @@ public class ZakServer {
                 gameStarted = false;
                 serverSetupProcedure();*/
                 break;
-            default: System.out.println("Unknown command");
+            default:
+                System.out.println("Unknown command");
         }
     }
 
     /**
      * Kicks a player from a match given its clientID
+     *
      * @param clientID : belongs to the user the server needs to kick
      */
     private static void kick(UUID clientID) {
-        try{
+        try {
             ClientHandler h = serverConMan.getHandlers().get(clientID);
-            h.sendMessage(new TextMessage("Server",null,h.getClientName() +" has been kicked from server",h.getClientName()));
-            h.setHasToRun(false);}
-        catch (Exception e){
+            h.sendMessage(new TextMessage("Server", null, h.getClientName() + " has been kicked from server", h.getClientName()));
+            h.setHasToRun(false);
+        } catch (Exception e) {
             System.err.println("Unable to stop process:" + e.getMessage());
         }
-        try{
+        try {
             String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
             ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
             ServerConnectionManager.hashClient.remove(clientID);
-            System.out.println(playerName+ " was kicked from server");
-        } catch (Exception e){
+            System.out.println(playerName + " was kicked from server");
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         serverConMan.getHandlers().remove(clientID);
     }
 
-    public static int getNumOfPlayers(){
-       return serverConMan.getNumPlayers();
+    public static int getNumOfPlayers() {
+        return serverConMan.getNumPlayers();
     }
-    private static int getIntInput(int range,boolean type){
-        Integer thingToParse=null;
-        while(true){
+
+    private static int getIntInput(int range, boolean type) {
+        Integer thingToParse = null;
+        while (true) {
             try {
                 thingToParse = Integer.parseInt(getInput());
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.out.println("Invalid input: try again");
                 continue;
             }
-            if(thingToParse<=range && thingToParse>=0) break;
+            if (thingToParse <= range && thingToParse >= 0) break;
         }
-        if(type)return thingToParse -1;
-        else return  thingToParse;
+        if (type) return thingToParse - 1;
+        else return thingToParse;
     }
 
 }

@@ -207,16 +207,14 @@ public class ZakClient {
     }
 
     /**
-     *
+     *This method lets you choose your secret Objective card, and lets you place your starter card face up or down
      * @param initialMatchSetupMessage, is a message from server that has required match details in order to start the game
      *                                  such as own and other players' fields, nicks, points etc
      * @throws IOException, if something goes wrong while facing the starting card up or down
      */
     public static void initialMatchSetup(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
         try{
-            ObjectiveCard chosenCard;
             Collection<Player> players;
-            boolean cardFace;
             matchID = initialMatchSetupMessage.getMatchID();
             appendStringOnFile("MatchID:"+matchID.toString());
             player = initialMatchSetupMessage.getPlayers().get(clientID);
@@ -224,19 +222,9 @@ public class ZakClient {
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players=initialMatchSetupMessage.getPlayers().values();
             otherPlayers.addAll(players);
-            chosenCard = player.chooseSecretObj(initialMatchSetupMessage.getSecretObjectiveCards(clientID));
-            ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
-            initialMatchSetupMessage.setSelectedSecret(tmpList);
-            System.out.println("How do you want to face the starting card");
-            System.out.println("1 - face Up\n2 - face Down");
-            cardFace = switch (getIntInput(2, false)) {
-                case 1 -> true;
-                case 2 -> false;
-                default -> throw new IOException("There was an error trying to read the string");
-            };
-            initialMatchSetupMessage.setStarterCardFace(cardFace);
+            initialMatchSetupMessage = ConnectionManger.secretSelector(initialMatchSetupMessage);
             serverHandler.sendMessage(initialMatchSetupMessage);
-            player.placeStarterCard(cardFace);
+            player.placeStarterCard(initialMatchSetupMessage.getStarterCardFace());
         } catch (WrongPlayerUUIDException e){
             System.out.println(e.getMessage());
         } catch (StupidUserException e) {
@@ -712,4 +700,5 @@ public class ZakClient {
     public static UUID getMatchID() {
         return matchID;
     }
+
 }

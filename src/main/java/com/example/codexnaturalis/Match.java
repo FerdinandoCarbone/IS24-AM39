@@ -5,7 +5,7 @@ import java.util.*;
 public class Match {
     private final ArrayList<Player> players;
     private ArrayList<Player> winners = new ArrayList<>();
-    private ArrayList<Player> finalWinners= new ArrayList<>();
+    private ArrayList<Player> finalWinners = new ArrayList<>();
     protected static HashMap<Player, Integer> hashObjectivePoints = new HashMap<>();
     private final ScoreTracker scoreTracker;
     private boolean isLastCycle = false;
@@ -14,25 +14,27 @@ public class Match {
     private ArrayList<ResourceGoldCard> coveredCards;
     private int indexCurrentPlayer;
     private UUID matchID;
-
+    public HashMap<UUID, ArrayList<ObjectiveCard>> selectedSecrets = new HashMap<>();
 
 
     /**
      * Constructor of Match
-     * @param players: ArrayList of all players in the match
+     *
+     * @param players:      ArrayList of all players in the match
      * @param scoreTracker: score tracker
      */
     public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
         this.players = players;
         this.scoreTracker = scoreTracker;
         this.coveredCards = new ArrayList<>();
-        this.matchID=UUID.randomUUID();
+        this.matchID = UUID.randomUUID();
         coveredCards.add(0, DrawingDeck.drawCard(true));
         coveredCards.add(1, DrawingDeck.drawCard(false));
     }
 
     /**
      * Chooses who will be the first player and updates its firstPlayer attribute
+     *
      * @return Player, first player of the match
      */
     public StandardMatchMessage chooseRandomFirstPlayer() {
@@ -88,7 +90,7 @@ public class Match {
         }
         if (isLastCycle && indexCurrentPlayer == players.size() - 1) {
             lastRoundRoutine();
-            EndMatchMessage endGame=new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
+            EndMatchMessage endGame = new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
             endGame.setFinalWinners(finalWinners);
             return endGame;
         }
@@ -133,7 +135,7 @@ public class Match {
         System.out.println(Colors.GREEN + "--Next player selected, it's" + playerName + "'s turn--" + Colors.RESET);
         /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
          * Infine chiamare lastRoundRoutine*/
-        StandardMatchMessage mex = new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId,  msg.getCardOnHand().getFirst(), msg.getCoordinates());
+        StandardMatchMessage mex = new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId, msg.getCardOnHand().getFirst(), msg.getCoordinates());
         mex.setCurrPlayerPoints(playingPlayer.getScore());
         return mex;
     }
@@ -147,6 +149,7 @@ public class Match {
         }
         return cardToReturn;
     }
+
     private ResourceGoldCard getCoveredCardFromId(int cardId) {
         ResourceGoldCard cardToReturn = null;
         for (ResourceGoldCard publicCard : coveredCards) {
@@ -169,12 +172,19 @@ public class Match {
     }
 
     public HashMap<UUID, ArrayList<ObjectiveCard>> getTwoSecretObjectiveCards() {
-        HashMap<UUID, ArrayList<ObjectiveCard>> hash = new HashMap<>();
+
         for (Player p : players) {
             ArrayList<ObjectiveCard> cards = DrawingDeck.drawTwoObjectiveCards();
-            hash.put(p.getPlayerID(), cards);
+            selectedSecrets.put(p.getPlayerID(), cards);
         }
-        return hash;
+        return selectedSecrets;
+    }
+
+    public void putBackOtherSecretObjectiveCard(UUID clientID, ObjectiveCard cardToKeep) {
+        ObjectiveCard cardToDiscard = null;
+        for (ObjectiveCard c : selectedSecrets.get(clientID)) if (!c.equals(cardToKeep)) cardToDiscard = c;
+        selectedSecrets.get(clientID).remove(cardToDiscard);
+        DrawingDeck.reAddSecretObjectiveCard(cardToDiscard);
     }
 
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
@@ -195,13 +205,14 @@ public class Match {
         } else {
             players.remove(playerToRemove);
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
-            return new notCurrentPlayerDisconnectedMessage(publicCards,  disconnectedPlayerId, playerToRemove.getPlayerName());
+            return new notCurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName());
         }
 
     }
 
     /**
      * Selects the index of the next player to play
+     *
      * @param currentIndex: defines the current index of the current player
      * @return int, defines the index of the next player in line
      */
@@ -212,48 +223,51 @@ public class Match {
         }
         return indiceProssimo;
     }
+
     /**
      * Checks if a player has reached at least 20 points
      */
-    public boolean playerIsWinner(ResourceGoldCard playedCard , Player playingPlayer) {
+    public boolean playerIsWinner(ResourceGoldCard playedCard, Player playingPlayer) {
         boolean winnerFlag = false;
         if (checkPoints(playedCard, playingPlayer) >= 20) {
             winnerFlag = true;
             System.out.println(playingPlayer.getPlayerName() + " ha raggiunto " + playingPlayer.getScore() + " punti!");
         }
-        return  winnerFlag;
+        return winnerFlag;
     }
+
     public int checkPoints(ResourceGoldCard playedCard, Player currentPlayer) {
         int id = playedCard.getIdCard();
         int pts = playedCard.getPoints();
 
-         /** se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
-         if(0<id && id<41){
-             currentPlayer.addScore(pts);
+        /** se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
+        if (0 < id && id < 41) {
+            currentPlayer.addScore(pts);
         }
-         /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
-         else if(40<id && id<81){
+        /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
+        else if (40 < id && id < 81) {
             switch (id) {
                 /** se idCard==41||51||63||71 Feather*/
-                case 41,51,63,71:
-                    currentPlayer.addScore(currentPlayer.getElementsMana()[2]*pts);
-                /** se idCard==42||53||61||73  Ink*/
-                case 42,53,61,73:
-                    currentPlayer.addScore(currentPlayer.getElementsMana()[0]*pts);
-                /** se idCard==43||52||62||72 Papyrus*/
-                case 43,52,62,72:
-                    currentPlayer.addScore(currentPlayer.getElementsMana()[1]*pts);
-                /** se idCard==44||45||46||54||55||56||64||65||66||74||75||76 conta angoli coperti*/
-                case 44,45,46,54,55,56,64,65,66,74,75,76:
-                    currentPlayer.addScore(playedCard.getCoveredCornersWhenPlaced()*pts);
-                /** altrimenti assegna punti*/
+                case 41, 51, 63, 71:
+                    currentPlayer.addScore(currentPlayer.getElementsMana()[2] * pts);
+                    /** se idCard==42||53||61||73  Ink*/
+                case 42, 53, 61, 73:
+                    currentPlayer.addScore(currentPlayer.getElementsMana()[0] * pts);
+                    /** se idCard==43||52||62||72 Papyrus*/
+                case 43, 52, 62, 72:
+                    currentPlayer.addScore(currentPlayer.getElementsMana()[1] * pts);
+                    /** se idCard==44||45||46||54||55||56||64||65||66||74||75||76 conta angoli coperti*/
+                case 44, 45, 46, 54, 55, 56, 64, 65, 66, 74, 75, 76:
+                    currentPlayer.addScore(playedCard.getCoveredCornersWhenPlaced() * pts);
+                    /** altrimenti assegna punti*/
                 default:
                     currentPlayer.addScore(pts);
             }
-         }
-         System.out.println("Il giocatore " + currentPlayer.getPlayerName() + " ha " + currentPlayer.getScore() + " punti dopo questo turno.");
-         return currentPlayer.getScore();
+        }
+        System.out.println("Il giocatore " + currentPlayer.getPlayerName() + " ha " + currentPlayer.getScore() + " punti dopo questo turno.");
+        return currentPlayer.getScore();
     }
+
     /**
      * Last Round Routine
      */
@@ -262,16 +276,20 @@ public class Match {
         declareWinnerOrDraw();
     }
 
-    /** Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo*/
+    /**
+     * Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo
+     */
     private void addObjectiveTotalPoints() {
         int obj = 0;
-            for(Player p: players) {
-               obj = checkExtraPoints(p);
-               p.addScore(obj);
-            }
+        for (Player p : players) {
+            obj = checkExtraPoints(p);
+            p.addScore(obj);
+        }
     }
 
-    /** calculate objective points and add into the array */
+    /**
+     * calculate objective points and add into the array
+     */
     private int calculateObjPoints(Player p, int id) {
         int points = 0;
         if (86 < id && id < 103) {
@@ -326,376 +344,377 @@ public class Match {
                     ResourceGoldCard card;
                     switch (id) {
                         case 87:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
-                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
-                                                ((0<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j-1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j-1].getCardSlot()).getIdCard()<51)) &&
-                                                (i+2<r && 0<j-2) && (s[i+2][j-2].isBusySlot()) &&
-                                                ((0<( s[i+2][j-2].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j-2].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i+2][j-2].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j-2].getCardSlot()).getIdCard()<51))
+                                        if (((0 < id1 && id1 < 11) || (40 < id1 && id1 < 51)) &&
+                                                (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                                ((0 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j - 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j - 1].getCardSlot()).getIdCard() < 51)) &&
+                                                (i + 2 < r && 0 < j - 2) && (s[i + 2][j - 2].isBusySlot()) &&
+                                                ((0 < (s[i + 2][j - 2].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j - 2].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i + 2][j - 2].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j - 2].getCardSlot()).getIdCard() < 51))
                                         ) card.arrangements++;
-                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
-                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
-                                                ((0<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j+1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j+1].getCardSlot()).getIdCard()<51)) &&
-                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
-                                                ((0<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j-1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j-1].getCardSlot()).getIdCard()<51))
+                                        if (((0 < id1 && id1 < 11) || (40 < id1 && id1 < 51)) &&
+                                                (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                                ((0 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j + 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j + 1].getCardSlot()).getIdCard() < 51)) &&
+                                                (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                                ((0 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j - 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j - 1].getCardSlot()).getIdCard() < 51))
                                         ) card.arrangements++;
-                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
-                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
-                                                ((0<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j+1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j+1].getCardSlot()).getIdCard()<51)) &&
-                                                (0<i-2 && j+2<c) && (s[i-2][j+2].isBusySlot()) &&
-                                                ((0<( s[i-2][j+2].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j+2].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-2][j+2].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j+2].getCardSlot()).getIdCard()<51))
+                                        if (((0 < id1 && id1 < 11) || (40 < id1 && id1 < 51)) &&
+                                                (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                                ((0 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j + 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j + 1].getCardSlot()).getIdCard() < 51)) &&
+                                                (0 < i - 2 && j + 2 < c) && (s[i - 2][j + 2].isBusySlot()) &&
+                                                ((0 < (s[i - 2][j + 2].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j + 2].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 2][j + 2].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j + 2].getCardSlot()).getIdCard() < 51))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                         case 88:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
-                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
-                                                ((10<(s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                        (s[i+1][j+1].getCardSlot()).getIdCard()<21)||
-                                                        (50<(s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                                (s[i+1][j+1].getCardSlot()).getIdCard()<61)) &&
-                                                (i+2<r && j+2<c) && (s[i+2][j+2].isBusySlot()) &&
-                                                ((10<(s[i+2][j+2].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j+2].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i+2][j+2].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j+2].getCardSlot()).getIdCard()<61))
+                                        if (((10 < id1 && id1 < 21) || (50 < id1 && id1 < 61)) &&
+                                                (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                                ((10 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j + 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j + 1].getCardSlot()).getIdCard() < 61)) &&
+                                                (i + 2 < r && j + 2 < c) && (s[i + 2][j + 2].isBusySlot()) &&
+                                                ((10 < (s[i + 2][j + 2].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j + 2].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i + 2][j + 2].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j + 2].getCardSlot()).getIdCard() < 61))
                                         ) card.arrangements++;
-                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
-                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
-                                                ((10<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j-1].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j-1].getCardSlot()).getIdCard()<61)) &&
-                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
-                                                ((10<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j+1].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j+1].getCardSlot()).getIdCard()<61))
+                                        if (((10 < id1 && id1 < 21) || (50 < id1 && id1 < 61)) &&
+                                                (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                                ((10 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j - 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j - 1].getCardSlot()).getIdCard() < 61)) &&
+                                                (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                                ((10 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j + 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j + 1].getCardSlot()).getIdCard() < 61))
                                         ) card.arrangements++;
-                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
-                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
-                                                ((10<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j-1].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j-1].getCardSlot()).getIdCard()<61)) &&
-                                                (0<i-2 && 0<j-2) && (s[i-2][j-2].isBusySlot()) &&
-                                                ((10<( s[i-2][j-2].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j-2].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i-2][j-2].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j-2].getCardSlot()).getIdCard()<61))
+                                        if (((10 < id1 && id1 < 21) || (50 < id1 && id1 < 61)) &&
+                                                (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                                ((10 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j - 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j - 1].getCardSlot()).getIdCard() < 61)) &&
+                                                (0 < i - 2 && 0 < j - 2) && (s[i - 2][j - 2].isBusySlot()) &&
+                                                ((10 < (s[i - 2][j - 2].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j - 2].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i - 2][j - 2].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j - 2].getCardSlot()).getIdCard() < 61))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                         case 89:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
-                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
-                                                ((20<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j-1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j-1].getCardSlot()).getIdCard()<71)) &&
-                                                (i+2<r && 0<j-2) && (s[i+2][j-2].isBusySlot()) &&
-                                                ((20<( s[i+2][j-2].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j-2].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i+2][j-2].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j-2].getCardSlot()).getIdCard()<71))
+                                        if (((20 < id1 && id1 < 31) || (60 < id1 && id1 < 71)) &&
+                                                (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                                ((20 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j - 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j - 1].getCardSlot()).getIdCard() < 71)) &&
+                                                (i + 2 < r && 0 < j - 2) && (s[i + 2][j - 2].isBusySlot()) &&
+                                                ((20 < (s[i + 2][j - 2].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j - 2].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i + 2][j - 2].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j - 2].getCardSlot()).getIdCard() < 71))
                                         ) card.arrangements++;
-                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
-                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
-                                                ((20<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j+1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j+1].getCardSlot()).getIdCard()<71)) &&
-                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
-                                                ((20<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j-1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j-1].getCardSlot()).getIdCard()<71))
+                                        if (((20 < id1 && id1 < 31) || (60 < id1 && id1 < 71)) &&
+                                                (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                                ((20 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j + 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j + 1].getCardSlot()).getIdCard() < 71)) &&
+                                                (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                                ((20 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j - 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j - 1].getCardSlot()).getIdCard() < 71))
                                         ) card.arrangements++;
-                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
-                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
-                                                ((20<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j+1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j+1].getCardSlot()).getIdCard()<71)) &&
-                                                (0<i-2 && j+2<c) && (s[i-2][j+2].isBusySlot()) &&
-                                                ((20<( s[i-2][j+2].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j+2].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i-2][j+2].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j+2].getCardSlot()).getIdCard()<71))
+                                        if (((20 < id1 && id1 < 31) || (60 < id1 && id1 < 71)) &&
+                                                (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                                ((20 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j + 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j + 1].getCardSlot()).getIdCard() < 71)) &&
+                                                (0 < i - 2 && j + 2 < c) && (s[i - 2][j + 2].isBusySlot()) &&
+                                                ((20 < (s[i - 2][j + 2].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j + 2].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i - 2][j + 2].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j + 2].getCardSlot()).getIdCard() < 71))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                         case 90:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot()&& !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard") ){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
-                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
-                                                ((30<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j+1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j+1].getCardSlot()).getIdCard()<81)) &&
-                                                (i+2<r && j+2<c) && (s[i+2][j+2].isBusySlot()) &&
-                                                ((30<( s[i+2][j+2].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j+2].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+2][j+2].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j+2].getCardSlot()).getIdCard()<81))
+                                        if (((30 < id1 && id1 < 41) || (70 < id1 && id1 < 81)) &&
+                                                (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                                ((30 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j + 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j + 1].getCardSlot()).getIdCard() < 81)) &&
+                                                (i + 2 < r && j + 2 < c) && (s[i + 2][j + 2].isBusySlot()) &&
+                                                ((30 < (s[i + 2][j + 2].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j + 2].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 2][j + 2].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j + 2].getCardSlot()).getIdCard() < 81))
                                         ) card.arrangements++;
-                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
-                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
-                                                ((30<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j-1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j-1].getCardSlot()).getIdCard()<81)) &&
-                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
-                                                ((30<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j+1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j+1].getCardSlot()).getIdCard()<21))
+                                        if (((30 < id1 && id1 < 41) || (70 < id1 && id1 < 81)) &&
+                                                (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                                ((30 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j - 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j - 1].getCardSlot()).getIdCard() < 81)) &&
+                                                (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                                ((30 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j + 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j + 1].getCardSlot()).getIdCard() < 21))
                                         ) card.arrangements++;
-                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
-                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
-                                                ((30<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j-1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j-1].getCardSlot()).getIdCard()<81)) &&
-                                                (0<i-2 && 0<j-2) && (s[i-2][j-2].isBusySlot()) &&
-                                                ((30<( s[i-2][j-2].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j-2].getCardSlot()).getIdCard()<41)||
-                                                        (70< s[i-2][j-2].getCardSlot().getIdCard() &&
-                                                                ( s[i-2][j-2].getCardSlot()).getIdCard()<81))
+                                        if (((30 < id1 && id1 < 41) || (70 < id1 && id1 < 81)) &&
+                                                (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                                ((30 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j - 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j - 1].getCardSlot()).getIdCard() < 81)) &&
+                                                (0 < i - 2 && 0 < j - 2) && (s[i - 2][j - 2].isBusySlot()) &&
+                                                ((30 < (s[i - 2][j - 2].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j - 2].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < s[i - 2][j - 2].getCardSlot().getIdCard() &&
+                                                                (s[i - 2][j - 2].getCardSlot()).getIdCard() < 81))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                         case 91:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
-                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
-                                                ((0<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j].getCardSlot()).getIdCard()<51)) &&
-                                                (i+3<r && j+1<c) && (s[i+3][j+1].isBusySlot()) &&
-                                                ((10<( s[i+3][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+3][j+1].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i+3][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+3][j+1].getCardSlot()).getIdCard()<61))
+                                        if (((0 < id1 && id1 < 11) || (40 < id1 && id1 < 51)) &&
+                                                (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                                ((0 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j].getCardSlot()).getIdCard() < 51)) &&
+                                                (i + 3 < r && j + 1 < c) && (s[i + 3][j + 1].isBusySlot()) &&
+                                                ((10 < (s[i + 3][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 3][j + 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i + 3][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 3][j + 1].getCardSlot()).getIdCard() < 61))
                                         ) card.arrangements++;
-                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
-                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
-                                                ((0<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j].getCardSlot()).getIdCard()<51)) &&
-                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
-                                                ((10<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j+1].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j+1].getCardSlot()).getIdCard()<61))
+                                        if (((0 < id1 && id1 < 11) || (40 < id1 && id1 < 51)) &&
+                                                (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                                ((0 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j].getCardSlot()).getIdCard() < 51)) &&
+                                                (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                                ((10 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j + 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j + 1].getCardSlot()).getIdCard() < 61))
                                         ) card.arrangements++;
-                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
-                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
-                                                ((0<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j-1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j-1].getCardSlot()).getIdCard()<51)) &&
-                                                (0<i-2) && (s[i-2][j-1].isBusySlot()) &&
-                                                ((0<( s[i-2][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j-1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-2][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j-1].getCardSlot()).getIdCard()<51))
+                                        if (((10 < id1 && id1 < 21) || (50 < id1 && id1 < 61)) &&
+                                                (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                                ((0 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j - 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j - 1].getCardSlot()).getIdCard() < 51)) &&
+                                                (0 < i - 2) && (s[i - 2][j - 1].isBusySlot()) &&
+                                                ((0 < (s[i - 2][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j - 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 2][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j - 1].getCardSlot()).getIdCard() < 51))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                         case 92:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
-                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
-                                                ((10<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j].getCardSlot()).getIdCard()<61)) &&
-                                                (i+3<r && 0<j-1) && (s[i+3][j-1].isBusySlot()) &&
-                                                ((30<( s[i+3][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+3][j-1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+3][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+3][j-1].getCardSlot()).getIdCard()<81))
+                                        if (((10 < id1 && id1 < 21) || (50 < id1 && id1 < 61)) &&
+                                                (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                                ((10 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j].getCardSlot()).getIdCard() < 61)) &&
+                                                (i + 3 < r && 0 < j - 1) && (s[i + 3][j - 1].isBusySlot()) &&
+                                                ((30 < (s[i + 3][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 3][j - 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 3][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 3][j - 1].getCardSlot()).getIdCard() < 81))
                                         ) card.arrangements++;
-                                        if(((10< id1 && id1 <21)||(50< id1 && id1 <61)) &&
-                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
-                                                ((10<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j].getCardSlot()).getIdCard()<61)) &&
-                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
-                                                ((30<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j-1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j-1].getCardSlot()).getIdCard()<81))
+                                        if (((10 < id1 && id1 < 21) || (50 < id1 && id1 < 61)) &&
+                                                (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                                ((10 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j].getCardSlot()).getIdCard() < 61)) &&
+                                                (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                                ((30 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j - 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j - 1].getCardSlot()).getIdCard() < 81))
                                         ) card.arrangements++;
-                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
-                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
-                                                ((10<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j+1].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j+1].getCardSlot()).getIdCard()<61)) &&
-                                                (0<i-3) && (s[i-3][j+1].isBusySlot()) &&
-                                                ((10<( s[i-3][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-3][j+1].getCardSlot()).getIdCard()<21)||
-                                                        (50<( s[i-3][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-3][j+1].getCardSlot()).getIdCard()<61))
+                                        if (((30 < id1 && id1 < 41) || (70 < id1 && id1 < 81)) &&
+                                                (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                                ((10 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j + 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j + 1].getCardSlot()).getIdCard() < 61)) &&
+                                                (0 < i - 3) && (s[i - 3][j + 1].isBusySlot()) &&
+                                                ((10 < (s[i - 3][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 3][j + 1].getCardSlot()).getIdCard() < 21) ||
+                                                        (50 < (s[i - 3][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 3][j + 1].getCardSlot()).getIdCard() < 61))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                         case 93:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((0< id1 && id1 <11)||(40< id1 && id1 <51)) &&
-                                                (i+1<r && 0<j-1) && (s[i+1][j-1].isBusySlot()) &&
-                                                ((20<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j-1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i+1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j-1].getCardSlot()).getIdCard()<71)) &&
-                                                (i+3<r) && (s[i+3][j-1].isBusySlot()) &&
-                                                ((20<( s[i+3][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+3][j-1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i+3][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+3][j-1].getCardSlot()).getIdCard()<71))
+                                        if (((0 < id1 && id1 < 11) || (40 < id1 && id1 < 51)) &&
+                                                (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                                ((20 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j - 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i + 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j - 1].getCardSlot()).getIdCard() < 71)) &&
+                                                (i + 3 < r) && (s[i + 3][j - 1].isBusySlot()) &&
+                                                ((20 < (s[i + 3][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 3][j - 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i + 3][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 3][j - 1].getCardSlot()).getIdCard() < 71))
                                         ) card.arrangements++;
-                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
-                                                (0<i-1 && j+1<c) && (s[i-1][j+1].isBusySlot()) &&
-                                                ((0<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j+1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j+1].getCardSlot()).getIdCard()<51)) &&
-                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
-                                                ((20<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j].getCardSlot()).getIdCard()<71))
+                                        if (((20 < id1 && id1 < 31) || (60 < id1 && id1 < 71)) &&
+                                                (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                                ((0 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j + 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j + 1].getCardSlot()).getIdCard() < 51)) &&
+                                                (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                                ((20 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j].getCardSlot()).getIdCard() < 71))
                                         ) card.arrangements++;
-                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
-                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
-                                                ((20<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j].getCardSlot()).getIdCard()<71)) &&
-                                                (0<i-3 && j+1<c) && (s[i-3][j+1].isBusySlot()) &&
-                                                ((0<( s[i-3][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-3][j+1].getCardSlot()).getIdCard()<11)||
-                                                        (40<( s[i-3][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-3][j+1].getCardSlot()).getIdCard()<51))
+                                        if (((20 < id1 && id1 < 31) || (60 < id1 && id1 < 71)) &&
+                                                (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                                ((20 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j].getCardSlot()).getIdCard() < 71)) &&
+                                                (0 < i - 3 && j + 1 < c) && (s[i - 3][j + 1].isBusySlot()) &&
+                                                ((0 < (s[i - 3][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 3][j + 1].getCardSlot()).getIdCard() < 11) ||
+                                                        (40 < (s[i - 3][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 3][j + 1].getCardSlot()).getIdCard() < 51))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                         case 94:
-                            for (i = 0; i <r ; i++) {
-                                for (j = 0; j <c ; j++) {
-                                    if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
-                                        card =(ResourceGoldCard) s[i][j].getCardSlot();
+                            for (i = 0; i < r; i++) {
+                                for (j = 0; j < c; j++) {
+                                    if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                        card = (ResourceGoldCard) s[i][j].getCardSlot();
                                         int id1 = card.getIdCard();
-                                        if(((20< id1 && id1 <31)||(60< id1 && id1 <71)) &&
-                                                (i+1<r && j+1<c) && (s[i+1][j+1].isBusySlot()) &&
-                                                ((30<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+1][j+1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+1][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+1][j+1].getCardSlot()).getIdCard()<81)) &&
-                                                (i+3<r) && (s[i+3][j+1].isBusySlot()) &&
-                                                ((30<( s[i+3][j+1].getCardSlot()).getIdCard() &&
-                                                        ( s[i+3][j+1].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+3][j+1].getCardSlot()).getIdCard() &&
-                                                                ( s[i+3][j+1].getCardSlot()).getIdCard()<81))
+                                        if (((20 < id1 && id1 < 31) || (60 < id1 && id1 < 71)) &&
+                                                (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                                ((30 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 1][j + 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 1][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 1][j + 1].getCardSlot()).getIdCard() < 81)) &&
+                                                (i + 3 < r) && (s[i + 3][j + 1].isBusySlot()) &&
+                                                ((30 < (s[i + 3][j + 1].getCardSlot()).getIdCard() &&
+                                                        (s[i + 3][j + 1].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 3][j + 1].getCardSlot()).getIdCard() &&
+                                                                (s[i + 3][j + 1].getCardSlot()).getIdCard() < 81))
                                         ) card.arrangements++;
-                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
-                                                (0<i-1 && 0<j-1) && (s[i-1][j-1].isBusySlot()) &&
-                                                ((20<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-1][j-1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i-1][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-1][j-1].getCardSlot()).getIdCard()<71)) &&
-                                                (i+2<r) && (s[i+2][j].isBusySlot()) &&
-                                                ((30<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i+2][j].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i+2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i+2][j].getCardSlot()).getIdCard()<81))
+                                        if (((30 < id1 && id1 < 41) || (70 < id1 && id1 < 81)) &&
+                                                (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                                ((20 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 1][j - 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i - 1][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 1][j - 1].getCardSlot()).getIdCard() < 71)) &&
+                                                (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                                ((30 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i + 2][j].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i + 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i + 2][j].getCardSlot()).getIdCard() < 81))
                                         ) card.arrangements++;
-                                        if(((30< id1 && id1 <41)||(70< id1 && id1 <81)) &&
-                                                (0<i-2) && (s[i-2][j].isBusySlot()) &&
-                                                ((30<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                        ( s[i-2][j].getCardSlot()).getIdCard()<41)||
-                                                        (70<( s[i-2][j].getCardSlot()).getIdCard() &&
-                                                                ( s[i-2][j].getCardSlot()).getIdCard()<81)) &&
-                                                (0<i-3 && 0<j-1) && (s[i-3][j-1].isBusySlot()) &&
-                                                ((20<( s[i-3][j-1].getCardSlot()).getIdCard() &&
-                                                        ( s[i-3][j-1].getCardSlot()).getIdCard()<31)||
-                                                        (60<( s[i-3][j-1].getCardSlot()).getIdCard() &&
-                                                                ( s[i-3][j-1].getCardSlot()).getIdCard()<71))
+                                        if (((30 < id1 && id1 < 41) || (70 < id1 && id1 < 81)) &&
+                                                (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                                ((30 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                        (s[i - 2][j].getCardSlot()).getIdCard() < 41) ||
+                                                        (70 < (s[i - 2][j].getCardSlot()).getIdCard() &&
+                                                                (s[i - 2][j].getCardSlot()).getIdCard() < 81)) &&
+                                                (0 < i - 3 && 0 < j - 1) && (s[i - 3][j - 1].isBusySlot()) &&
+                                                ((20 < (s[i - 3][j - 1].getCardSlot()).getIdCard() &&
+                                                        (s[i - 3][j - 1].getCardSlot()).getIdCard() < 31) ||
+                                                        (60 < (s[i - 3][j - 1].getCardSlot()).getIdCard() &&
+                                                                (s[i - 3][j - 1].getCardSlot()).getIdCard() < 71))
                                         ) card.arrangements++;
                                     }
                                 }
                             }
                     }
 
-                    int arrangedCards=0;
-                    for(i=0; i<r; i++){
-                        for(j=0; j<c; j++) {
-                            if(s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
-                                if (((ResourceGoldCard)s[i][j].getCardSlot()).arrangements != 0)
+                    int arrangedCards = 0;
+                    for (i = 0; i < r; i++) {
+                        for (j = 0; j < c; j++) {
+                            if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                                if (((ResourceGoldCard) s[i][j].getCardSlot()).arrangements != 0)
                                     arrangedCards++;
                             }
                         }
-                    } points=(arrangedCards/3)*3;
+                    }
+                    points = (arrangedCards / 3) * 3;
             }
         }
         return points;
@@ -717,20 +736,20 @@ public class Match {
      * calculate objective points and add into the array
      */
     private int checkExtraPoints(Player p) {
-        int extraPoints=0;
-        int extraCommonPoints=0;
-        int extraPersonalPoints=0;
-        int id=0;
+        int extraPoints = 0;
+        int extraCommonPoints = 0;
+        int extraPersonalPoints = 0;
+        int id = 0;
 
         /** Punti obiettivi personali */
-          id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
-          extraPersonalPoints = calculateObjPoints(p,id);
-          //ferdinando ha detto di rivedere getSecretObjectiveCard perchè da sempre null    !!!!!
+        id = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
+        extraPersonalPoints = calculateObjPoints(p, id);
+        //ferdinando ha detto di rivedere getSecretObjectiveCard perchè da sempre null    !!!!!
 
         /** Punti obiettivi comuni */  // commonObjectives è il vettore che contiene le 2 carte obiettivo comuni
-        for(ObjectiveCard oc : commonObjectives){
+        for (ObjectiveCard oc : commonObjectives) {
             id = oc.getIdCard();
-            extraCommonPoints = extraCommonPoints + calculateObjPoints(p,id);
+            extraCommonPoints = extraCommonPoints + calculateObjPoints(p, id);
         }
 
         /** extraPoints=punti obiettivo personale + punti obiettivi comuni */
@@ -744,13 +763,13 @@ public class Match {
 
     private void declareWinnerOrDraw() {
 
-        int maxScore =0;
+        int maxScore = 0;
         int draw = 0;
         Player playerWin = null;
 
         /** find max points */
-        for(Player p : players){
-            if(p.getScore()> maxScore){
+        for (Player p : players) {
+            if (p.getScore() > maxScore) {
                 maxScore = p.getScore();
                 playerWin = p;
             }
@@ -758,27 +777,27 @@ public class Match {
         winners.add(playerWin);
 
         /** check if a draw exists */
-        for(Player pDraw : players){
-            if(pDraw.getScore()== maxScore && pDraw != playerWin){
+        for (Player pDraw : players) {
+            if (pDraw.getScore() == maxScore && pDraw != playerWin) {
                 draw++;
                 winners.add(pDraw);
             }
         }
 
-        if(draw !=0) drawWinners();
+        if (draw != 0) drawWinners();
         else declareWinners();
     }
 
     private void drawWinners() {
 
-        int MaxObjPoint=0;
-        int objPoint=0;
+        int MaxObjPoint = 0;
+        int objPoint = 0;
         Player playerObjWin = null;
 
         /** find max objective points in winners[] */
-        for(Player p : winners){
+        for (Player p : winners) {
             objPoint = hashObjectivePoints.get(p);
-            if(objPoint > MaxObjPoint){
+            if (objPoint > MaxObjPoint) {
                 MaxObjPoint = objPoint;
                 playerObjWin = p;
             }
@@ -786,21 +805,23 @@ public class Match {
         finalWinners.add(playerObjWin);
 
         /** check if a draw exists */
-        for(Player p : winners){
-            if(hashObjectivePoints.get(p) == MaxObjPoint && p != playerObjWin){
+        for (Player p : winners) {
+            if (hashObjectivePoints.get(p) == MaxObjPoint && p != playerObjWin) {
                 finalWinners.add(p);
             }
         }
         /** print draw winners */
         System.out.println("DRAW BETWEEN: ");
         int s = finalWinners.size();
-        for(int i = 0; i < s; i++){
+        for (int i = 0; i < s; i++) {
             Player p = finalWinners.get(i);
             System.out.println(p.getPlayerName());
         }
     }
 
-    /** print winner */
+    /**
+     * print winner
+     */
     private void declareWinners() {
         finalWinners.removeAll(finalWinners.stream().toList());
         finalWinners.addAll(winners);
@@ -824,7 +845,7 @@ public class Match {
 
     public void setCommonObjectives(ArrayList<ObjectiveCard> commonObjectives) {
         this.commonObjectives = commonObjectives;
-        for(Player p: players) p.setCommonObjCards(commonObjectives);
+        for (Player p : players) p.setCommonObjCards(commonObjectives);
     }
 
     public UUID getCurrentPlayerID() {

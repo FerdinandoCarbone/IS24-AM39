@@ -1,12 +1,13 @@
 package com.example.codexnaturalis;
 
 import javafx.util.Pair;
-import com.example.codexnaturalis.Colors.*;
+
 import java.io.*;
 import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -214,48 +215,112 @@ public class ConnectionManger {
         String playerNick = ZakClient.getPlayerNick();
         Message handshakeMessage = new Message(playerNick, clientID);
         handshakeMessage.setMatchID(ZakClient.getMatchID());
+        //System.out.println(handshakeMessage.getMatchID());
         BroadCastStartingMessage handshakeACKInfo;
         Message tmpMessage;
-        boolean amPlayerInTurn=false;
+        boolean amPlayerInTurn;
         try {
+            /**
+             * If branch reserved for rmi reconnection
+             */
             if (typeOfConnection) {
                 tmpMessage = remoteServerProxy.reHandShakeRMI(ZakClient.getMatchID());
+                ZakClient.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
+                /**
+                 * execution stops here if reconnection with rmi is made in another game the user initially started
+                 */
                 if(tmpMessage.getSender().equals("FORBIDDEN")){
                     throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
                 }
-                handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
-                ZakClient.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
-                ZakClient.getServerHandler().setMessageTurn((GenericTurnMessage)remoteServerProxy.getMessageTurn(clientID));
+                /**
+                 * execution stops here if reconnection with rmi is made before game has started
+                 */
+                else if(tmpMessage.getSender().equals("MATCHNOTSTARTED")){
+                    System.out.println("Welcome back "+ playerNick);
+                    System.out.println("Waiting for other players to join...");
+                    ZakClient.getServerHandler().start();
+                    return;
+                }
+                /**
+                 * reconnecting with rmi in an existing and already running game. Retrieving match info
+                 */
+                else {
+                    handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
+                    ZakClient.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+                }
 
             }
+            /**
+             * If branch reserved for socket reconnection
+             */
             else {
                 System.out.println(Colors.PURPLE+ "Starting Handshake" +Colors.RESET);
                 ioStream.getValue().writeObject(handshakeMessage);
                 System.out.println("Flushing stream");
                 tmpMessage = (Message) ioStream.getKey().readObject();
                 System.out.println(tmpMessage.getClass());
+                ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
+                /**
+                 * execution stops here if reconnection with socket is made in another game the user initially started
+                 */
                 if(tmpMessage.getSender().equals("FORBIDDEN")){
                     throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
                 }
+                /**
+                 * execution stops here if reconnection with socket is made before game has started
+                 */
+                else if(tmpMessage.getSender().equals("MATCHNOTSTARTED")){
+                    LobbyCreationMessage beforeStartReConnectionMessage = (LobbyCreationMessage) tmpMessage;
+                    System.out.println("Welcome back "+ playerNick);
+                    ZakClient.getServerHandler().start();
+                    return;
+                }
+                /**
+                 * Retrieving match information
+                 */
                 handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
                 System.out.println("CASTED");
-                ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
                 //System.out.println(Colors.PURPLE+ "Settato correttamente" +Colors.RESET);
             }
             System.out.println(Colors.PURPLE+ "Setting Up field..." +Colors.RESET);
             System.out.println(Colors.PURPLE+ "Retrieving Current turn info..." +Colors.RESET);
+            /**
+             * True if current reconnecting player has to play after reconnection
+             * */
             amPlayerInTurn = clientID.compareTo(handshakeACKInfo.getClientID()) == 0;
-            System.out.println("MyClientID:"+ clientID+"\n"+"Received:"+handshakeACKInfo.getClientID()+"\n"+"bool:"+amPlayerInTurn);
+            //System.out.println("MyClientID:"+ clientID+"\n"+"Received:"+handshakeACKInfo.getClientID()+"\n"+"bool:"+amPlayerInTurn);
+            /**
+             * InitialMatchSetup after a reconnection. All information is resent from server back to client
+             * */
             ZakClient.setPlayer(handshakeACKInfo.getPlayers().get(getClientID()));
             handshakeACKInfo.getPlayers().remove(getClientID());
             ArrayList<Player> players = new ArrayList<>(handshakeACKInfo.getPlayers().values());
             ZakClient.setOtherPlayers(players);
+            /**
+             * If player disconnected before he was able to set his Starter and secret Objective cards, he will be sent here\
+             * */
+            if(getPlayer().getPlayerDeck().getSecretObjectiveCard()==null){
+                /**For rmi is necessary to restart the handler here, because the heartbeat function lives there*/
+                if(typeOfConnection) ZakClient.getServerHandler().start();
+                handshakeACKInfo=secretSelector(handshakeACKInfo);
+                if(!typeOfConnection)ioStream.getValue().writeObject(handshakeACKInfo);
+                else remoteServerProxy.send(handshakeACKInfo);
+            }
             ZakClient.getServerHandler().setFirstBroadCastWasReceived(true);
+            /**
+             * Socket still needs to retrieve his GenericTurn Message. Here info is retrieved
+             */
             if(!typeOfConnection&&amPlayerInTurn){
                 GenericTurnMessage msg= (GenericTurnMessage) ioStream.getKey().readObject();
                 ZakClient.getServerHandler().setMessageTurn(msg);
             }
-            ZakClient.getServerHandler().start();
+            /**
+            * ServerHandlers are restarted here if needed
+            * */
+            if(!ZakClient.getServerHandler().isAlive()) ZakClient.getServerHandler().start();
+            /**
+             * Current myTurn flag is set here
+             */
             setMyTurn(amPlayerInTurn);
             //System.out.println("Done!");
             if(amPlayerInTurn&&typeOfConnection) System.out.println("\nIt's your turn!");
@@ -272,5 +337,23 @@ public class ConnectionManger {
         }
         System.out.println("All players' fields were correctly received");
         ZakClient.setCurrentGameStatus(true);
+    }
+    /**
+     * Essential piece of code for Client.initialMatchSetup() and reHandshake() methods. Lets you choose your secret objective card and face up or down of starting card
+     * */
+    public static BroadCastStartingMessage secretSelector(BroadCastStartingMessage handshakeACKInfo) throws IOException, StupidUserException {
+        ObjectiveCard chosenCard;
+        chosenCard = ZakClient.getPlayer().chooseSecretObj(handshakeACKInfo.getSecretObjectiveCards(ZakClient.getClientID()));
+        ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
+        handshakeACKInfo.setSelectedSecret(tmpList);
+        System.out.println("How do you want to face the starting card");
+        System.out.println("1 - face Up\n2 - face Down");
+        boolean cardFace = switch (getIntInput(2, false)) {
+            case 1 -> true;
+            case 2 -> false;
+            default -> throw new IOException("There was an error trying to read the string");
+        };
+        handshakeACKInfo.setStarterCardFace(cardFace);
+        return handshakeACKInfo;
     }
 }
