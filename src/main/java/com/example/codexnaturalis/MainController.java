@@ -1,5 +1,6 @@
 package com.example.codexnaturalis;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -15,6 +16,8 @@ import java.util.ResourceBundle;
 public class MainController extends Pane implements Initializable {
     @FXML public CommandBoxController commands;
     @FXML public TextArea textArea;
+    @FXML public Button sendButton;
+    @FXML public Button turnButton;
     @FXML private PlayerDeckController playerDeck;
     @FXML private StructRightController struct;
     private CardController cardToRemove;
@@ -23,6 +26,8 @@ public class MainController extends Pane implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("Carico main");
+        //todo: riattivare quando è il tuo turno
+        turnButton.setDisable(true);
         try {
             playerDeck.receiveCards();
         } catch (IOException e) {
@@ -58,4 +63,11 @@ public class MainController extends Pane implements Initializable {
         textArea.appendText(message);
     }
 
+    public void chatWrite(ActionEvent actionEvent) {
+        //send to clientHandler
+        String s = sendButton.getText();
+    }
+
+    public void genericTurnSender(ActionEvent actionEvent) {
+    }
 }

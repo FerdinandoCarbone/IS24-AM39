@@ -5,7 +5,7 @@
 
 <?import com.example.codexnaturalis.CardController?>
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml">
+            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.codexnaturalis.PlayerDeckController">
     <CardController fx:id="card1"/>
     <CardController fx:id="card2" />
     <CardController fx:id="card3" />

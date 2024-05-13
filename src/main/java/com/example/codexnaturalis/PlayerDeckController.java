@@ -18,8 +18,8 @@ public class PlayerDeckController extends VBox {
     private CardController card2;
     @FXML
     private CardController card3;
-    private CardController starterCard;
-    private CardController secretObjCard;
+    private static CardController starterCard;
+    private static CardController secretObjCard;
 //    @FXML
 //    private Button cardReceiverButton;
 
@@ -55,15 +55,26 @@ public class PlayerDeckController extends VBox {
         return card3;
     }
 
-    public CardController getStarterCard() {
+    public static CardController getStarterCard() {
         return starterCard;
     }
 
-    public CardController getSecretObjCard() {
+    public static CardController getSecretObjCard() {
         return secretObjCard;
     }
 
-//    public Button getCardReceiverButton() {
+    public void setCard1(CardController card1) {
+        this.card1 = card1;
+    }
+
+    public void setCard2(CardController card2) {
+        this.card2 = card2;
+    }
+
+    public void setCard3(CardController card3) {
+        this.card3 = card3;
+    }
+    //    public Button getCardReceiverButton() {
 //        return cardReceiverButton;
 //    }
 }

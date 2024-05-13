@@ -21,4 +21,11 @@ public class CommandBoxController extends TilePane {
         loader.setController(this);
         loader.load();
     }
+    public void switchCodex(){
+
+    }
+    public void switchDeck(){
+        //todo: robe da fare con player deck non con player deck
+        PlayerDeckController.getSecretObjCard();
+    }
 }

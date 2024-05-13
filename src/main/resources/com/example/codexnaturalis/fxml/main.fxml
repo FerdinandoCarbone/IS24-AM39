@@ -32,7 +32,11 @@
                 <PlayerDeckController fx:id="playerDeck"  AnchorPane.rightAnchor="10"/>
                     </ScrollPane>
                     <TextArea fx:id="textArea" editable="false"/>
+                    <HBox>
                 <TextField promptText="Enter your text here"/>
+                        <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand" onAction="#chatWrite"/>
+                    </HBox>
+                    <Button fx:id="turnButton" text="Confirm Turn" mnemonicParsing="false" style="-fx-cursor: hand" onAction="#genericTurnSender"/>
                 </VBox>
             </AnchorPane>
         </right>
