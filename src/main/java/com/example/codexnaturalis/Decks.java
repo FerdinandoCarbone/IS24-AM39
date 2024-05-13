@@ -173,10 +173,10 @@ class PlayerDeck implements Serializable {
          * Setter of secretObjectiveCard
          * @param secretObjectiveCard: secret Objective Card of the player
          */
-        public void removeUnusedSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
+        /*public void removeUnusedSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
             this.secretObjectiveCard.remove(secretObjectiveCard);
             DrawingDeck.reAddSecretObjectiveCard(secretObjectiveCard);
-        }
+        }*/
 
     /**
      * Getter of cards
@@ -203,5 +203,9 @@ class PlayerDeck implements Serializable {
      */
     public ObjectiveCard getSecretObjectiveCard() {
         return secretObjectiveCard;
+    }
+
+    public void setSecretObjectiveCard(ObjectiveCard cardToKeep) {
+        this.secretObjectiveCard = cardToKeep;
     }
 }
