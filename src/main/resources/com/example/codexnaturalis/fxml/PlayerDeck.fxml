@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import com.example.codexnaturalis.CardController?>
+<fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.codexnaturalis.PlayerDeckController">
+    <CardController fx:id="card1"/>
+    <CardController fx:id="card2" />
+    <CardController fx:id="card3" />
+    <!--CardController fx:id="starterCard" />
+    <CardController fx:id="secretObjCard" /!-->
+<!--    <Button fx:id="cardReceiverButton" text="GenCards" minWidth="50.0" maxWidth="50.0" layoutY="-10.0">-->
+<!--    </Button>-->
+
+</fx:root>

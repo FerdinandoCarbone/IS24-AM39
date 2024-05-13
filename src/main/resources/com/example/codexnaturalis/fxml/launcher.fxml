@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.chart.BubbleChart?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.control.ToggleGroup?>
+
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.geometry.Insets?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.codexnaturalis.LauncherController"
+           prefHeight="400.0" prefWidth="600.0">
+    <ImageView>
+        <Image url="@../Assets/LauncherBackground.png"/>
+    </ImageView>
+    <BorderPane>
+        <top>
+            <TextArea fx:id="status" prefRowCount="10" prefColumnCount="40" prefWidth="10"
+                      prefHeight="20" editable="false" style="-fx-background-color: yellow;"/>
+        </top>
+        <bottom>
+            <StackPane>
+                <ImageView fitWidth="400" fitHeight="220">
+                    <Image url="@../Assets/scroll.png"/>
+                </ImageView>
+                <GridPane alignment="center" hgap="50" vgap="20" prefHeight="100" prefWidth="400">
+                    <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <top>
+                            <VBox>
+                                <Label text="Choose a connection type:"/>
+                                <HBox spacing="20">
+                                    <RadioButton fx:id="socketOption" text="Socket" onAction="#handleToggle"/>
+                                    <RadioButton fx:id="rmiOption" text="RMI" onAction="#handleToggle"/>
+                                </HBox>
+                            </VBox>
+                        </top>
+                    </BorderPane>
+                    <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <top>
+                            <VBox>
+                                <Label text="Enter your name:"/>
+                                <HBox>
+                                    <TextField fx:id="textField"/>
+                                    <Button text="Submit" onAction="#handleSubmitButtonAction"/>
+                                </HBox>
+                            </VBox>
+                        </top>
+                    </BorderPane>
+                    <!--BorderPane GridPane.columnIndex="0" GridPane.rowIndex="0"/!-->
+                </GridPane>
+            </StackPane>
+        </bottom>
+
+    </BorderPane>
+</StackPane>

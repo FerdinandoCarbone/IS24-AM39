@@ -1,0 +1,482 @@
+[
+  { "idCard":41,
+    "artRef": ["Assets/Cards/41f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points":1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Wolf"]
+  },
+  { "idCard":42,
+    "artRef": ["Assets/Cards/42f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Leaf"]
+  },
+  { "idCard":43,
+    "artRef": ["Assets/Cards/43f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Papyrus", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Butterfly"]
+  },
+  { "idCard":44,
+    "artRef": ["Assets/Cards/44f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Wolf"]
+  },
+  { "idCard":45,
+    "artRef": ["Assets/Cards/45f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Leaf"]
+  },
+  { "idCard":46,
+    "artRef": ["Assets/Cards/46f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Butterfly"]
+  },
+  { "idCard":47,
+    "artRef": ["Assets/Cards/47f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":48,
+    "artRef": ["Assets/Cards/48f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"Feather", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":49,
+    "artRef": ["Assets/Cards/49f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":50,
+    "artRef": ["Assets/Cards/50f.jpg", "Assets/Cards/RGCB.jpg"],
+    "points": 5,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Red",
+    "requiredResources": ["Mushroom","Mushroom","Mushroom","Mushroom","Mushroom"]
+  },
+  { "idCard":51,
+    "artRef": ["Assets/Cards/51f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Butterfly"]
+  },
+  { "idCard":52,
+    "artRef": ["Assets/Cards/52f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Mushroom"]
+  },
+  { "idCard":53,
+    "artRef": ["Assets/Cards/53f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Wolf"]
+  },
+  { "idCard":54,
+    "artRef": ["Assets/Cards/54f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Butterfly"]
+  },
+  { "idCard":55,
+    "artRef": ["Assets/Cards/55f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Wolf"]
+  },
+  { "idCard":56,
+    "artRef": ["Assets/Cards/56f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Mushroom"]
+  },
+  { "idCard":57,
+    "artRef": ["Assets/Cards/57f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf"]
+  },
+  { "idCard":58,
+    "artRef": ["Assets/Cards/58f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"Papyrus", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf"]
+  },
+  { "idCard":59,
+    "artRef": ["Assets/Cards/59f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf"]
+  },
+  { "idCard":60,
+    "artRef": ["Assets/Cards/60f.jpg", "Assets/Cards/GGCB.jpg"],
+    "points": 5,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Green",
+    "requiredResources": ["Leaf","Leaf","Leaf","Leaf","Leaf"]
+  },
+  { "idCard":61,
+    "artRef": ["Assets/Cards/61f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Ink", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Butterfly"]
+  },
+  { "idCard":62,
+    "artRef": ["Assets/Cards/62f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Leaf"]
+  },
+  { "idCard":63,
+    "artRef": ["Assets/Cards/63f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Mushroom"]
+  },
+  { "idCard":64,
+    "artRef": ["Assets/Cards/64f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Butterfly"]
+  },
+  { "idCard":65,
+    "artRef": ["Assets/Cards/65f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Mushroom"]
+  },
+  { "idCard":66,
+    "artRef": ["Assets/Cards/66f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Leaf"]
+  },
+  { "idCard":67,
+    "artRef": ["Assets/Cards/67f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf"]
+  },
+  { "idCard":68,
+    "artRef": ["Assets/Cards/68f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points":3,
+    "frontCorners": [
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf"]
+  },
+  { "idCard":69,
+    "artRef": ["Assets/Cards/69f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 3,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf"]
+  },
+  { "idCard":70,
+    "artRef": ["Assets/Cards/70f.jpg", "Assets/Cards/BGCB.jpg"],
+    "points": 5,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Blue",
+    "requiredResources": ["Wolf","Wolf","Wolf","Wolf","Wolf"]
+  },
+  { "idCard":71,
+    "artRef": ["Assets/Cards/71f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Leaf"]
+  },
+  { "idCard":72,
+    "artRef": ["Assets/Cards/72f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points": 1,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Wolf"]
+  },
+  { "idCard":73,
+    "artRef": ["Assets/Cards/73f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":1,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"Ink", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Mushroom"]
+  },
+  { "idCard":74,
+    "artRef": ["Assets/Cards/74f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Wolf"]
+  },
+  { "idCard":75,
+    "artRef": ["Assets/Cards/75f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":2,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Leaf"]
+  },
+  { "idCard":76,
+    "artRef": ["Assets/Cards/76f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":2,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Mushroom"]
+  },
+  { "idCard":77,
+    "artRef": ["Assets/Cards/77f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Ink", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly"]
+  },
+  { "idCard":78,
+    "artRef": ["Assets/Cards/78f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":3,
+    "frontCorners": [
+      {"Element":"Papyrus", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly"]
+  },
+  { "idCard":79,
+    "artRef": ["Assets/Cards/79f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":3,
+    "frontCorners": [
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true},
+      {"Element":"Feather", "available": true},
+      {"Element":"empty", "available": false}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly"]
+  },
+  { "idCard":80,
+    "artRef": ["Assets/Cards/80f.jpg", "Assets/Cards/PGCB.jpg"],
+    "points":5,
+    "frontCorners": [
+      {"Element":"empty", "available": true},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": false},
+      {"Element":"empty", "available": true}
+    ],
+    "seed": "Purple",
+    "requiredResources": ["Butterfly","Butterfly","Butterfly","Butterfly","Butterfly"]
+  }
+]

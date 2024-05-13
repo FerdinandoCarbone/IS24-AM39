@@ -17,11 +17,11 @@ class DrawingDeck {
     private static boolean decksAreGenerated = false;
 
     public static void generateDecks() throws IOException {
-        DrawingDeck.totalGoldCard = (ArrayList<GoldCard>) GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/GoldCardDB.json");
-        DrawingDeck.totalResourceCard = (ArrayList<ResourceCard>) ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ResourceCardDB.json");
-        DrawingDeck.totalStartingCards = (ArrayList<StarterCard>) StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/StarterCardDB.json");
-        DrawingDeck.totalObjectiveComboCards = (ArrayList<ObjectiveCardCombo>) ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardDB.json");
-        DrawingDeck.totalObjectiveResourceSetCards = (ArrayList<ObjectiveCardResourceSet>) ObjectiveCardResourceSetDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/ObjectiveCardResourceSetDB.json");
+        DrawingDeck.totalGoldCard = (ArrayList<GoldCard>)GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/GoldCardDB.json");
+        DrawingDeck.totalResourceCard = (ArrayList<ResourceCard>)ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ResourceCardDB.json");
+        DrawingDeck.totalStartingCards = (ArrayList<StarterCard>)StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/StarterCardDB.json");
+        DrawingDeck.totalObjectiveComboCards = (ArrayList<ObjectiveCardCombo>)ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ObjectiveCardDB.json");
+        DrawingDeck.totalObjectiveResourceSetCards = (ArrayList<ObjectiveCardResourceSet>)ObjectiveCardResourceSetDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ObjectiveCardResourceSetDB.json");
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveComboCards);
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
 
@@ -49,17 +49,7 @@ class DrawingDeck {
         }
         return commonObj;
     }
-
-    /*public static ArrayList<ObjectiveCard> drawTwoObjectiveCardsOneSet() {
-
-        ArrayList<ObjectiveCard> cards = new ArrayList<>();
-        cards.add(totalObjectiveCards.get(0));
-        totalObjectiveCards.remove(0);
-        cards.add(totalObjectiveCards.get(1));
-        totalObjectiveCards.remove(1);
-        return cards;
-    }*/
-    public static void reAddSecretObjectiveCard(ObjectiveCard objectiveCard) {
+    public static void reAddSecretObjectiveCard(ObjectiveCard objectiveCard){
         totalObjectiveCards.addLast(objectiveCard);
     }
 
@@ -179,15 +169,14 @@ class PlayerDeck implements Serializable {
         this.starterCard = starterCard;
     }
 
-    /**
-     * Setter of secretObjectiveCard
-     *
-     * @param secretObjectiveCard: secret Objective Card of the player
-     */
-
-    public void setSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
-        this.secretObjectiveCard = secretObjectiveCard;
-    }
+        /**
+         * Setter of secretObjectiveCard
+         * @param secretObjectiveCard: secret Objective Card of the player
+         */
+        public void removeUnusedSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
+            this.secretObjectiveCard.remove(secretObjectiveCard);
+            DrawingDeck.reAddSecretObjectiveCard(secretObjectiveCard);
+        }
 
     /**
      * Getter of cards

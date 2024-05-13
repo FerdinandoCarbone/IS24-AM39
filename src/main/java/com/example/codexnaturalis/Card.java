@@ -20,6 +20,10 @@ public class Card implements Serializable {
     public int getIdCard() {
         return idCard;
     }
+
+    public String[] getArtRef() {
+        return artRef;
+    }
 }
 abstract class NonObjectiveCard extends Card {
 
