@@ -18,27 +18,27 @@ public class PlayerDeckController extends VBox {
     private CardController card2;
     @FXML
     private CardController card3;
-    @FXML
     private CardController starterCard;
-    @FXML
     private CardController secretObjCard;
 //    @FXML
 //    private Button cardReceiverButton;
 
     public PlayerDeckController() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PlayerDeck.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/PlayerDeck.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
-        this.setSpacing(168.0);
+        //this.setSpacing(168.0);
         fxmlLoader.load();
 
 //        cardReceiverButton.setOnAction(event -> receiveCards());
     }
 
-    public void receiveCards() {
+    public void receiveCards() throws IOException {
         card1.setupCard(DrawingDeck.drawCard(true));
         card2.setupCard(DrawingDeck.drawCard(true));
         card3.setupCard(DrawingDeck.drawCard(false));
+        starterCard = new CardController();
+        secretObjCard = new CardController();
         starterCard.setupCard(DrawingDeck.getTotalStartingCards().getFirst());
         secretObjCard.setupCard(DrawingDeck.getTotalObjectiveCards().getFirst());
     }

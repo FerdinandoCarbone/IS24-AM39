@@ -16,7 +16,7 @@ public class CommandBoxController extends TilePane {
     @FXML
     public Button command3;
     public CommandBoxController() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Command.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Command.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         loader.load();

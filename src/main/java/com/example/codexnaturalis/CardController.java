@@ -26,7 +26,7 @@ public class CardController extends Pane {
     private boolean isFront;
 
     public CardController() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Card.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Card.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         loader.load();

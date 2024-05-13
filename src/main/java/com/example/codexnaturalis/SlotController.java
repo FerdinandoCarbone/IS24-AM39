@@ -21,7 +21,7 @@ public class SlotController extends Pane {
     private boolean isEmpty = true;
 
     public SlotController() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Slot.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/Slot.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         fxmlLoader.load();

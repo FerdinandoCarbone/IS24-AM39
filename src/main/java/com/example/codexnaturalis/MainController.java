@@ -3,28 +3,32 @@ package com.example.codexnaturalis;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MainController extends TilePane implements Initializable {
-    @FXML
-    public CommandBoxController commands;
-    @FXML
-    public Button switchCards;
-    @FXML
-    private PlayerDeckController playerDeck;
-    @FXML
-    private StructRightController struct;
+public class MainController extends Pane implements Initializable {
+    @FXML public CommandBoxController commands;
+    @FXML public TextArea textArea;
+    @FXML private PlayerDeckController playerDeck;
+    @FXML private StructRightController struct;
     private CardController cardToRemove;
     private boolean readyToPlace = false;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        playerDeck.receiveCards();
-        for (int i = 0; i < 5; i++) {
+        System.out.println("Carico main");
+        try {
+            playerDeck.receiveCards();
+        } catch (IOException e) {
+            printMessage(e.getMessage());
+        }
+        for (int i = 0; i < 3; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
             tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
                 cardToRemove = tmpCard;
@@ -48,6 +52,10 @@ public class MainController extends TilePane implements Initializable {
                 }
             });
         }
+    }
+
+    private void printMessage(String message) {
+        textArea.appendText(message);
     }
 
 }

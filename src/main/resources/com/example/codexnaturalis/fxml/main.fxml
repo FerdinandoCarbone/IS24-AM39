@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import com.example.codexnaturalis.PlayerDeckController?>
+<?import com.example.codexnaturalis.StructLeftController?>
+
+<?import com.example.codexnaturalis.StructRightController?>
+<?import com.example.codexnaturalis.CommandBoxController?>
+<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.text.TextFlow?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<Pane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.codexnaturalis.MainController"
+      minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
+
+    <BorderPane>
+        <left>
+            <ScrollPane prefWidth="1000" prefHeight="800">
+                <StructRightController fx:id="struct"/>
+            </ScrollPane>
+        </left>
+        <right>
+            <AnchorPane>
+                <VBox>
+                <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100" AnchorPane.rightAnchor="10"/>
+                    <ScrollPane prefWidth="300" prefHeight="525">
+                <PlayerDeckController fx:id="playerDeck"  AnchorPane.rightAnchor="10"/>
+                    </ScrollPane>
+                    <TextArea fx:id="textArea" editable="false"/>
+                <TextField promptText="Enter your text here"/>
+                </VBox>
+            </AnchorPane>
+        </right>
+    </BorderPane>
+</Pane>

@@ -18,7 +18,7 @@ public class StructLeftController extends Pane {
     private SlotController c2;
 
     public StructLeftController() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("StructLeft.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/StructRight.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         fxmlLoader.load();

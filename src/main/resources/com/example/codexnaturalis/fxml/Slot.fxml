@@ -7,6 +7,6 @@
 <fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
     <ImageView fx:id="slotCardView"
                style="-fx-cursor: hand;">
-        <Image url="@Assets/Cards/empty.jpg"/>
+        <Image url="@../Assets/Cards/empty.jpg"/>
     </ImageView>
 </fx:root>
