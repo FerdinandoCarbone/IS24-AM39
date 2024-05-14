@@ -58,7 +58,7 @@ public class Match {
             card.printCardFrontAndBack();
         }
         //TODO: DA ELIMINARE
-        playingPlayer.setScore(20);
+        //playingPlayer.setScore(20);
 
         return new StandardMatchMessage(publicCards, playingPlayer.getPlayerID(), playingPlayer.getPlayerName(), null, null, null);
     }
@@ -728,6 +728,7 @@ public class Match {
                 ++counter;
             }
         }
+        System.out.println(counter);
         return counter == handlersList.size();
     }
 

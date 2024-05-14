@@ -175,6 +175,7 @@ public class ServerConnectionManager {
             if(ZakServer.match==null) {
                 currPlayerID= clientID;
                 out.writeObject(new LobbyCreationMessage("MATCHNOTSTARTED",null,getNumPlayers()));
+                System.out.println(sender + " rejoined the server");
                 return new Pair<>(in,out);
             }
             else {

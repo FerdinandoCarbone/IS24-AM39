@@ -32,8 +32,8 @@ public class CardController extends Pane {
         loader.load();
         isFront = true;
         flipButton.setOnAction(event -> flipCard());
-        HBox hbox = new HBox(cardImageView,flipButton);
-        this.getChildren().add(hbox);
+        /*HBox hbox = new HBox(cardImageView,flipButton);
+        this.getChildren().add(hbox);*/
 
     }
 

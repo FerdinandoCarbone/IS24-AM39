@@ -23,7 +23,7 @@ public class HelloApplication extends Application {
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedLogo.png")));
         stage.getIcons().add(icon);
         stage.setTitle("Codex Naturalis by IS-AM39 - Launcher");
-        stage.setResizable(true);
+        stage.setResizable(false);
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root, Color.BLACK);
         stage.setScene(scene);

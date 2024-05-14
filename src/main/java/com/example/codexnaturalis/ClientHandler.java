@@ -33,8 +33,14 @@ public class ClientHandler extends Thread implements Runnable {
     }
 
     public void clientDisconnected() {
-        //todo: chiamata a match per rimuovere player
-        //todo:ZakServer.match.removeDisconnectedPlayer(getClientID());
+        StandardMatchMessage newTurnStatus = ZakServer.match.removeDisconnectedPlayer(clientID);
+        UUID nextPlayer = newTurnStatus.getNextPlayerId();
+        try{
+            ServerConnectionManager.sendMessage(nextPlayer, new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards() ,ZakServer.match.getPublicCards(),null));
+        }
+        catch(IOException e){
+            System.err.println(e.getMessage()+": Error while sending new Generic turn message ");
+        }
         ZakServer.stopThread(getClientID());
     }
 
@@ -110,11 +116,6 @@ public class ClientHandler extends Thread implements Runnable {
         ZakServer.match.putBackOtherSecretObjectiveCard(clientID, cardToKeep);
         //ArrayList<Player> players = ZakServer.match.getPlayers();
         ServerConnectionManager.hashClient.get(clientID).placeStarterCard(message.getStarterCardFace());
-        /*for(Player p: players){
-            if(p.getPlayerID().equals(getClientID())){
-                p.placeStarterCard(message.getStarterCardFace());
-            }
-        }*/
         this.secretWasChosen = true;
     }
 
@@ -167,7 +168,7 @@ class RMIClientHandler extends ClientHandler {
     }
 
     private boolean tryReconnectToClient() {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             if (heartBeat) return heartBeat;
             System.err.println("Failed to reconnect: retrying in 7s");
             try {

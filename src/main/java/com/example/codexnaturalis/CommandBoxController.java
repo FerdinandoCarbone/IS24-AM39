@@ -9,22 +9,21 @@ import javafx.scene.layout.TilePane;
 import java.io.IOException;
 
 public class CommandBoxController extends TilePane {
-    @FXML
-    public Button command1;
-    @FXML
-    public Button command2;
-    @FXML
-    public Button command3;
+    @FXML public Button command1;
+    @FXML public Button command2;
+    @FXML public Button command3;
     public CommandBoxController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Command.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
+        command1.setOnAction(event->switchCodex());
+        command2.setOnAction(event -> switchDeck());
     }
-    public void switchCodex(){
+    @FXML public void switchCodex(){
 
     }
-    public void switchDeck(){
+    @FXML public void switchDeck(){
         //todo: robe da fare con player deck non con player deck
         PlayerDeckController.getSecretObjCard();
     }

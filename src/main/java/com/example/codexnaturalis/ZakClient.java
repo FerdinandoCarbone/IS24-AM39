@@ -1,13 +1,15 @@
 package com.example.codexnaturalis;
 
+import javafx.application.Application;
 import javafx.util.Pair;
+
 import java.io.*;
 import java.util.*;
 
 public class ZakClient {
 
     private static boolean crashed;
-    private static Pair<String,Integer> connectionInfo;
+    private static Pair<String, Integer> connectionInfo;
     private static boolean connectionType;
     private static ServerHandler serverHandler;
     private static String playerNick;
@@ -17,60 +19,136 @@ public class ZakClient {
     private static boolean myTurn;
     private static UUID clientID;
     private static UUID matchID;
-    public static void main(String[] args) {
+    private static boolean guiSelector;
 
-        int port=8081;
-        String serverAddress=null;
-        if(!args[1].isBlank()) {
-            try{
-            port = Integer.parseInt(args[1]);}
-            catch(Exception e){
-                System.out.println("An invalid port number was input\nFallback to 8081");
+    public static void main(String[] args) {
+        clientStart(args);
+        initialClientSetup();
+        start();
+    }
+
+    /**
+     * Calls basic starting client methods like connection, handshake etc.
+     * Finally calls for gameStart() which starts game loop
+     */
+    public static void start(){
+        try {
+            instanceConManAndHandshake();
+        } catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
+            System.err.println("Client Setup error: " + e.getMessage());
+            if(guiSelector) {
+                LauncherController.alert(e.getMessage());
+                HelloApplication.getStage().close();
             }
-        }
-        if(!args[0].isBlank()) serverAddress = args[0];
-        else{
-            System.err.println("Missing arguments\nMake sure to start the client with Server Address and Port as parameters\ni.e. java Client localhost 8081");
-            System.exit(0);
+            else throw new RuntimeException("Please restart the client and try again");
         }
         try {
-            initialClientSetup(serverAddress,port);
-        }catch(IOException | ClassNotFoundException | StupidUserException | HandShakeException e){
-            System.err.println("Client Setup error: "+e.getMessage());
-            throw new RuntimeException("Please restart the client and try again");
-        }
-        try{
             //clearConsole();
             gameStart();
-        } catch(IOException | ClassNotFoundException | WrongMessageConversionException e){
-            System.err.println("Game Start error: "+e.getMessage());
+        } catch (IOException | ClassNotFoundException | WrongMessageConversionException e) {
+            System.err.println("Game Start error: " + e.getMessage());
+            if(guiSelector) {
+                LauncherController.alert(e.getMessage());
+                HelloApplication.getStage().close();
+            }
+            else throw new RuntimeException("Please restart the client and try again");
+        }
+    }
+    /**
+     * Connection type is chosen by player, then Connection Manager is initialized and Handshake with server are attempted here
+     *
+     * @throws IOException            thrown when unable to write save data on file
+     * @throws ClassNotFoundException thrown if there was an issue converting messages
+     * @throws StupidUserException    thrown when users repeatedly input wrong data
+     * @throws HandShakeException     thrown if there was an issue while doing the handshake
+     */
+    public static void instanceConManAndHandshake() throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
+        ConnectionManger connMan = null;
+        if (!guiSelector) connMan = chooseConnectionType();
+        else connMan = new ConnectionManger(connectionType, connectionInfo);
+        if (!crashed) appendStringOnFile("ConnectionType:" + (!connMan.typeOfConnection ? "false" : "true"));
+        connMan.connectionSetup();
+        connMan.doHandShake();
+        //LauncherController.printStatus("Connection Success","green");
+    }
+
+    /**
+     * As soon as the client starts, this function is called. Initializes connection info and type of playing interface
+     *
+     * @param args arguments passed to the executable
+     */
+    public static void clientStart(String[] args) {
+        int numOfPar = Arrays.stream(args).toList().size();
+        String portStandard = "8081";
+        System.out.println("numOfPar:" + numOfPar + " port:" + portStandard);
+        guiSelector = false;
+        switch (numOfPar) {
+            case 0:
+                System.err.println("Missing arguments\nMake sure to start the client with Server Address and Port as parameters\ni.e. java Client localhost 8081");
+                System.exit(0);
+                break;
+            case 1:
+                System.out.println("No port number was input\nFallback to 8081");
+                connectionInfo = setArgValues(args[0], portStandard);
+                System.out.println("Missing interface argument - Using TUI:");
+                break;
+            case 2:
+                connectionInfo = setArgValues(args[0], args[1]);
+                System.out.println("Missing interface argument - Using TUI:");
+                break;
+            case 3:
+                connectionInfo = setArgValues(args[0], args[1]);
+                if (args[2].equalsIgnoreCase("gui")) {
+                    guiSelector = true;
+                } else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
+                else {
+                    System.out.println("Invalid argument " + args[2] + ": Accepted values are 'gui' or 'tui' " + "\nFallback using TUI");
+                    guiSelector = false;
+                }
+                break;
+            default:
+                throw new RuntimeException("Something went wrong while starting");
         }
     }
 
     /**
-     * As soon as the client starts, this function is called. Function will ask the player the type of connection they would like to use to reach server.
-     * All client's critical components are initialized here such as the UUID, the ServerAddress:Port Pair and moreover the ConnectionManager object which will promptly start the
-     * handshake process and will manage all the reconnection logic of the client
-     * @param serverAddress, the game server address
-     * @param port, the socket port used for a socket connection
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws StupidUserException, will be thrown if user continues to input invalid commands and block other people's game
-     * @throws HandShakeException, will be thrown if there was an issue connecting the client with the server
+     * Initializes connectionInfo pair, required as reference for the server and passes it to clientStart
+     *
+     * @param serverAddress - serverIP
+     * @param port          - Server port
+     * @return connectionInfo pair and passes it to clientStart
      */
-    private static void initialClientSetup(String serverAddress,int port) throws IOException, ClassNotFoundException, StupidUserException, HandShakeException {
-        ConnectionManger connMan = null;
-        int connectionInt=0;
+    private static Pair<String, Integer> setArgValues(String serverAddress, String port) {
+        int connectionPort;
+        try {
+            connectionPort = Integer.parseInt(port);
+        } catch (Exception e) {
+            System.out.println("Invalid argument: port number must be an integer\nFallback to 8081");
+            connectionPort = 8081;
+        }
+        return new Pair<>(serverAddress, connectionPort);
+    }
+
+    /**
+     * Function will ask the player the type of connection they would like to use to reach server.
+     * Some of client's critical components are initialized here such as the UUID and crashed flag
+     */
+    public static int initialClientSetup() {
         crashed = false;
         currentGameStatus = false;
         myTurn = false;
-        otherPlayers= new ArrayList<>();
-        connectionInfo = new Pair<>(serverAddress,port);
-        playerNick = playerGreeting();
-        clientID=uuidGen();
-        int i=0;
+        otherPlayers = new ArrayList<>();
+        if (!guiSelector) playerNick = playerGreeting();
+        return uuidGen();
+
+    }
+
+    public static ConnectionManger chooseConnectionType() throws StupidUserException {
+        ConnectionManger connMan = null;
+        int connectionInt = 0;
+        int i = 0;
         do {
-            if(crashed) {
+            if (crashed) {
                 System.out.println("Reconnecting...");
                 connMan = new ConnectionManger(connectionType, connectionInfo);
                 break;
@@ -95,16 +173,18 @@ public class ZakClient {
                     i++;
                     System.out.println("Not a valid input: Try again");
             }
-
         } while (connMan == null);
-        if(!crashed)appendStringOnFile("ConnectionType:"+(connectionInt==1? "false":"true"));
-        connMan.connectionSetup();
-        if(!crashed)connMan.doHandShake();
-        else connMan.reHandShake();
+        return connMan;
     }
 
+    /**
+     * Save file writer
+     *
+     * @param contentToAppend - String to append inside the save file
+     * @throws IOException - thrown if an error is encountered while writing the save file
+     */
     public static void appendStringOnFile(String contentToAppend) throws IOException {
-        String fileName = "savedata/"+playerNick + "-matchInfo.cdxn";
+        String fileName = "savedata/" + playerNick + "-matchInfo.cdxn";
         StringBuilder existingContent = new StringBuilder();
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line;
@@ -120,70 +200,70 @@ public class ZakClient {
         writer.close();
     }
 
-    public static UUID uuidGen() {
-        String fileName = "savedata/"+playerNick+"-matchInfo.cdxn";
-        ArrayList<String> content=new ArrayList<>();
-        UUID newID=null;
+    /**
+     * Method responsible for initializing the UUID. 'crashed' and 'clientID' in Client are also initialized here, according to what save file reports.
+     *
+     * @return - Returns -1 if no save file was found and was unable to write create a new one, a random new UUID is generated.
+     * Returns 0 if a save file was read correctly and matchID was initialized.
+     * Returns 1 if a new save file is created and a new random UUID was correctly generated
+     */
+    public static int uuidGen() {
+        String fileName = "savedata/" + playerNick + "-matchInfo.cdxn";
+        ArrayList<String> content = new ArrayList<>();
+        UUID newID = null;
         try {
-            // Create a FileReader to read data from the file
             FileReader fileReader = new FileReader(fileName);
-
-            // Wrap the FileReader in a BufferedReader for efficient reading
             BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-            // Read each line from the file and print it
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 content.add(line);
             }
-            newID= UUID.fromString(content.getFirst().replaceFirst("ClientID:",""));
+            newID = UUID.fromString(content.getFirst().replaceFirst("ClientID:", ""));
             content.removeFirst();
             crashed = true;
-            connectionType= Objects.equals(content.getFirst().replaceFirst("ConnectionType:",""), "true");
+            connectionType = Objects.equals(content.getFirst().replaceFirst("ConnectionType:", ""), "true");
             content.removeFirst();
-            try{
-                matchID = UUID.fromString(content.getFirst().replaceFirst("MatchID:",""));
-            } catch (Exception e){
-                matchID=null;
+            try {
+                matchID = UUID.fromString(content.getFirst().replaceFirst("MatchID:", ""));
+            } catch (Exception e) {
+                matchID = null;
             }
             // Close the BufferedReader and FileReader
             bufferedReader.close();
             fileReader.close();
-            return newID;
+            //savefile found
+            clientID = newID;
+            return 1;
         } catch (IOException e) {
             System.out.println("No savefile found - Start as new Player");
         }
         try {
             FileOutputStream outputStream = new FileOutputStream(fileName);
             newID = UUID.randomUUID();
-            // Convert the string content to bytes and write to the file
-            String myIDString = "ClientID:"+ newID.toString();
+            String myIDString = "ClientID:" + newID;
             byte[] bytes = myIDString.getBytes();
             outputStream.write(bytes);
-
-            // Close the stream
             outputStream.close();
             crashed = false;
-            matchID=null;
-            return newID;
-        } catch (FileNotFoundException e){
+            matchID = null;
+            clientID = newID;
+            return 0;
+        } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Error while trying to write file");
         }
-        return UUID.randomUUID();
+        clientID = UUID.randomUUID();
+        return -1;
     }
 
     /**
      * Basic Player greeting function that runs as soon as the client starts:
      * Player will be greeted and will be choosing his nick here
-     * */
-    private static String playerGreeting(){
-        //Scanner input = new Scanner(System.in);
+     */
+    private static String playerGreeting() {
         System.out.println("Welcome Player to:");
         System.out.println("""
-
-
                  _____                                                              _____\s
                 ( ___ )------------------------------------------------------------( ___ )
                  |   |                                                              |   |\s
@@ -207,25 +287,27 @@ public class ZakClient {
     }
 
     /**
-     *This method lets you choose your secret Objective card, and lets you place your starter card face up or down
+     * This method lets you choose your secret Objective card, and lets you place your starter card face up or down
+     *
      * @param initialMatchSetupMessage, is a message from server that has required match details in order to start the game
      *                                  such as own and other players' fields, nicks, points etc
      * @throws IOException, if something goes wrong while facing the starting card up or down
      */
     public static void initialMatchSetup(BroadCastStartingMessage initialMatchSetupMessage) throws IOException {
-        try{
+        try {
             Collection<Player> players;
             matchID = initialMatchSetupMessage.getMatchID();
-            appendStringOnFile("MatchID:"+matchID.toString());
+            appendStringOnFile("MatchID:" + matchID.toString());
             player = initialMatchSetupMessage.getPlayers().get(clientID);
-            if(player == null) throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
+            if (player == null)
+                throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
             initialMatchSetupMessage.getPlayers().remove(clientID);
-            players=initialMatchSetupMessage.getPlayers().values();
+            players = initialMatchSetupMessage.getPlayers().values();
             otherPlayers.addAll(players);
             initialMatchSetupMessage = ConnectionManger.secretSelector(initialMatchSetupMessage);
             serverHandler.sendMessage(initialMatchSetupMessage);
             player.placeStarterCard(initialMatchSetupMessage.getStarterCardFace());
-        } catch (WrongPlayerUUIDException e){
+        } catch (WrongPlayerUUIDException e) {
             System.out.println(e.getMessage());
         } catch (StupidUserException e) {
             throw new RuntimeException(e);
@@ -234,23 +316,27 @@ public class ZakClient {
             currentGameStatus = true;
         }
     }
+
     /**
      * The serverHandler thread is started. This thread will be handling all communication with server. Was this thread to crash for
      * whatever the reason, the client will try to restart it in order to reconnect with the server.
      * This function also stops the main thread until the server makes available all needed information to start the game(field,other players,common Objectives etc.)
      * via the BroadCastMessage.
      * As soon as the game is started, the user will be able to interact with his own field and other players'
+     *
      * @throws IOException
      * @throws ClassNotFoundException
      * @throws WrongMessageConversionException, will be thrown if there was an issue casting the messages
-     * */
-    private static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
-        if(!crashed) new Thread(serverHandler).start();
-        while(!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())){
+     */
+    public static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
+        if (!crashed) new Thread(serverHandler).start();
+        while (!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())) {
             Thread.onSpinWait();
         }
-        while(currentGameStatus) selectPossibleActions();
+        if (guiSelector) LauncherController.loadGameScene();
+        while (currentGameStatus) if (!guiSelector) selectPossibleActions();
     }
+
     /**
      * Allows player to play his turn. The user will be interacting with the TUI in order to create a
      * message that will be sent to the server via his ServerComHandler. Player is able to place cards, analyze Field and draw cards
@@ -258,7 +344,7 @@ public class ZakClient {
      *
      * @throws IOException
      * @throws ClassNotFoundException
-     * */
+     */
     private static void genericMessageAssembler() throws IOException, ClassNotFoundException {
         clearConsole();
         ResourceGoldCard placedCard;
@@ -266,28 +352,27 @@ public class ZakClient {
         Pair<Integer, Integer> coordinates;
         int row, column;
         boolean face;
-        ResourceGoldCard selectedCard=null;
-        if(player.allCornersEmpty(player.getPlayerDeck().getStarterCard())){
+        ResourceGoldCard selectedCard = null;
+        if (player.allCornersEmpty(player.getPlayerDeck().getStarterCard())) {
             System.out.println("StarterCard:");
             player.getPlayerDeck().getStarterCard().printCard();
         }
         ArrayList<ResourceGoldCard> playerDeck = player.getPlayerDeck().getResourceGoldCards();
-        while(true){
+        while (true) {
             player.printFieldWithName();
             System.out.println("What would you like to do?");
             System.out.println("0 - Cancel");
             System.out.println("1 - Analyze field");
             System.out.println("2 - Play a card");
             int j = getIntInput(2, false);
-            if (j != 1 && j != 2 && j!=0) {
+            if (j != 1 && j != 2 && j != 0) {
                 System.out.println("Not a valid input");
                 continue;
             }
-            if(j==1){
+            if (j == 1) {
                 coordinates = getCoordinates(false);
                 player.fieldAnalysis(coordinates.getKey(), coordinates.getValue());
-            }
-            else if(j==0) return;
+            } else if (j == 0) return;
             else break;
         }
         while (true) {
@@ -301,7 +386,7 @@ public class ZakClient {
             }
             break;
         }
-        while (true){
+        while (true) {
             System.out.println("What face would you like to play?");
             System.out.println("1 - Front");
             System.out.println("2 - Back");
@@ -314,7 +399,7 @@ public class ZakClient {
             placedCard.setIsPlacedFront(face);
             break;
         }
-        while(true){
+        while (true) {
             coordinates = getCoordinates(true);
             row = coordinates.getKey();
             column = coordinates.getValue();
@@ -332,7 +417,7 @@ public class ZakClient {
         selectable.addAll(message.getCardOnHand());
 
         ArrayList<Integer> allIds = new ArrayList<>();
-        for(ResourceGoldCard card: selectable) allIds.add(card.getIdCard());
+        for (ResourceGoldCard card : selectable) allIds.add(card.getIdCard());
         /*allIds.add(message.getDrawnCard().get(0).getIdCard());
         allIds.add(message.getDrawnCard().get(1).getIdCard());
         allIds.add(message.getCardOnHand().get(0).getIdCard());
@@ -340,22 +425,24 @@ public class ZakClient {
         allIds.add(message.getCardOnHand().get(2).getIdCard());
         allIds.add(message.getCardOnHand().get(3).getIdCard());*/
         int idSelected = selectCardIdToDrawn(allIds);
-        for(ResourceGoldCard card: selectable) if(card.getIdCard()==idSelected){
-            selectedCard = card;
-            break;
-        }
+        for (ResourceGoldCard card : selectable)
+            if (card.getIdCard() == idSelected) {
+                selectedCard = card;
+                break;
+            }
         //selectedCard=selectable.get(getCardIndexFromId(idSelected, allIds));
         player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
-        message = new GenericTurnMessage(null,null,new ArrayList<>(Collections.singletonList(selectedCard)),new ArrayList<>(Collections.singletonList(placedCard)),coordinates);
+        message = new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCard)), coordinates);
         //todo: update points
         serverHandler.sendMessage(message);
         serverHandler.setMessageTurn(null);
-        myTurn=false;
+        myTurn = false;
         clearConsole();
     }
 
     /**
      * Given an array of card ids, gets input from the player. Input has to be within the values of array
+     *
      * @param ids: arrays from which the player can choose
      * @return int, input of the player
      */
@@ -377,7 +464,8 @@ public class ZakClient {
 
     /**
      * Given an id and an array of ids, returns the position of the id in the array
-     * @param id: id chosen
+     *
+     * @param id:  id chosen
      * @param ids: arrays of all ids
      * @return int, position of id in ids
      */
@@ -400,19 +488,18 @@ public class ZakClient {
         int fieldSize = player.getPlayerField().getSlots().length;
         Pair<Integer, Integer> coordinates;
         while (true) {
-            int row,column;
+            int row, column;
             System.out.println("Select a row:");
             row = getIntInput(fieldSize, false);
             System.out.println("Select a column:");
-            column = getIntInput(fieldSize,false);
+            column = getIntInput(fieldSize, false);
             coordinates = new Pair<>(row, column);
             if (mode) {
                 if (player.getPlayerField().getSlots()[row][column].isBusySlot()) {
                     System.out.println("You cannot place a card in a busy slot. Select another one");
                     continue;
                 }
-            }
-            else{
+            } else {
                 if (!player.getPlayerField().getSlots()[row][column].isBusySlot()) {
                     System.out.println("This slot is empty, you cannot analyze it. Select another one");
                     continue;
@@ -435,43 +522,44 @@ public class ZakClient {
     /**
      * Advanced Functionality for the project: Basic Chat functionality
      * that allows users to send messages to everyone or to a specific user
+     *
      * @throws IOException, will be thrown when the Scanner has issues reading the System.in
      */
     private static void writeTextMessage() throws IOException {
         String recipient;
         String text;
-        HashMap<Integer,Player> recipientChooser=new HashMap<>();
-        int i=1;
+        HashMap<Integer, Player> recipientChooser = new HashMap<>();
+        int i = 1;
         System.out.println("Who do you want to send the message to?");
         System.out.println(0 + " - Cancel");
-        for(Player p: otherPlayers){
-            recipientChooser.put(i,p);
-            System.out.println(i+" - "+p.getPlayerName());
+        for (Player p : otherPlayers) {
+            recipientChooser.put(i, p);
+            System.out.println(i + " - " + p.getPlayerName());
             ++i;
         }
         System.out.println(i + " - Everyone");
-        int counter = recipientChooser.size()+1;
-        do{
-            i=Integer.parseInt(receiveInput());
-            if(i<=counter&&i>0){
+        int counter = recipientChooser.size() + 1;
+        do {
+            i = Integer.parseInt(receiveInput());
+            if (i <= counter && i > 0) {
                 System.out.println("Please input your message:");
                 text = receiveInput();
-                if(i==counter) serverHandler.sendMessage(new TextMessage(playerNick,clientID,text,"Everyone"));
-                else{
+                if (i == counter) serverHandler.sendMessage(new TextMessage(playerNick, clientID, text, "Everyone"));
+                else {
                     recipient = recipientChooser.get(i).getPlayerName();
-                    serverHandler.sendMessage(new TextMessage(playerNick,clientID,text,recipient));
+                    serverHandler.sendMessage(new TextMessage(playerNick, clientID, text, recipient));
                 }
                 break;
-            }
-            else if(i==0) break;
+            } else if (i == 0) break;
             System.out.println("Invalid input: please select a valid option");
-        }while(true);
+        } while (true);
     }
 
     /**
      * Core TUI element. This component allows the user to interact with their or other players' field, write messages in the chat,
      * show his own deck.
      * If myTurn is true will allow the player to play his turn.
+     *
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -479,15 +567,15 @@ public class ZakClient {
         printPossibleChoices();
         System.out.print("What would you like to do: ");
         int action;
-        try{
-        action = Integer.parseInt(receiveInput());}
-        catch(Exception e){
+        try {
+            action = Integer.parseInt(receiveInput());
+        } catch (Exception e) {
             System.out.println("Invalid input: try again");
             return;
         }
         clearConsole();
         System.out.println();
-        switch (action){
+        switch (action) {
             case 1:
                 printPlayerField();
                 break;
@@ -504,7 +592,7 @@ public class ZakClient {
                 writeTextMessage();
                 break;
             case 6:
-                if(serverHandler.getMessageTurn() != null&&myTurn) genericMessageAssembler();
+                if (serverHandler.getMessageTurn() != null && myTurn) genericMessageAssembler();
                 else System.out.println("Wrong input: Input the number associated to the desired action");
                 break;
             default:
@@ -518,7 +606,7 @@ public class ZakClient {
     private static void printPossibleChoices() {
         String choices;
         //if(myTurn) clearConsole();
-        if (!myTurn){
+        if (!myTurn) {
             choices =
                     """
                              _____                           _____\s
@@ -532,8 +620,7 @@ public class ZakClient {
                              |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~|___|\s
                             (_____)                         (_____)
                             """;
-    }
-        else {
+        } else {
             choices =
                     """
                              _____                           _____\s
@@ -552,29 +639,32 @@ public class ZakClient {
         System.out.println(choices);
     }
 
-    public static String receiveInput(){
-        Scanner scanner= new Scanner(System.in);
-        String input=null;
-        do{
-            try{
-            input = scanner.nextLine();
-            }catch (NoSuchElementException e){
+    /**
+     * @return string input from user. Handles all possible exceptions
+     */
+    public static String receiveInput() {
+        Scanner scanner = new Scanner(System.in);
+        String input = null;
+        do {
+            try {
+                input = scanner.nextLine();
+            } catch (NoSuchElementException e) {
                 System.out.println(e.getMessage() + ": Scanner issue");
             }
-        }while(Objects.equals(input, "\n") || input==null);
-        if(input.equalsIgnoreCase("exit")){
+        } while (Objects.equals(input, "\n") || input == null);
+        if (input.equalsIgnoreCase("exit")) {
             System.out.println("Quitting client");
             clientDisconnect();
         }
         return input;
-     }
+    }
 
     /**
      * Sets myTurn to true if it's the user's turn to play.
      * Will clear the screen and reprint printPossibleAction()
      */
     public static void genericTurnMessageHandler() {
-        myTurn=true;
+        myTurn = true;
         //System.lineSeparator();
         //clearConsole();
         System.out.println("\nIt's your turn:");
@@ -593,7 +683,7 @@ public class ZakClient {
             /*if (os.contains("Windows")) Runtime.getRuntime().exec("cls");
             else Runtime.getRuntime().exec("clear");*/
 
-        } catch ( Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
@@ -606,7 +696,7 @@ public class ZakClient {
      * Ends game and shuts off client
      */
     public static void endOfTheGame() {
-        currentGameStatus=false;
+        currentGameStatus = false;
         System.out.println("To start a new game, restart the client");
         System.exit(0);
 
@@ -617,9 +707,9 @@ public class ZakClient {
      * The client will call this function after 15s of retrying to reconnect to server
      */
     public static void clientDisconnect() {
-        if(serverHandler!=null &&serverHandler.isAlive())serverHandler.interrupt();
+        if (serverHandler != null && serverHandler.isAlive()) serverHandler.interrupt();
         System.err.println("Disconnected from server: Unable to establish a connection with server");
-        System. exit(0);
+        System.exit(0);
     }
 
     /**
@@ -628,41 +718,48 @@ public class ZakClient {
     public static Pair<String, Integer> getConnectionInfo() {
         return connectionInfo;
     }
+
     /**
      * This function is called by the connection manager to set the handler pointer
      */
     public static void setServerHandler(ServerHandler serverHandler) {
         ZakClient.serverHandler = serverHandler;
     }
+
     public static UUID getClientID() {
         return clientID;
     }
+
     public static String getPlayerNick() {
         return playerNick;
     }
-    public static void setPlayerNick(String s){
+
+    public static void setPlayerNick(String s) {
         playerNick = s;
     }
+
     /**
      * Function that lets you input a number in a specific range and handles all exceptions that Integer.parseInt() doesn't handle
+     *
      * @param range, If the input number is N, it is considered acceptable if 0<=N<=range
-     * @param type, true: if you want to get an index (number typed - 1), false: if you want to retrieve the actual input number
+     * @param type,  true: if you want to get an index (number typed - 1), false: if you want to retrieve the actual input number
      * @return int n typed in by user
      */
-    public static int getIntInput(int range,boolean type){
-        Integer thingToParse=null;
-        while(true){
+    public static int getIntInput(int range, boolean type) {
+        Integer thingToParse = null;
+        while (true) {
             try {
                 thingToParse = Integer.parseInt(receiveInput());
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.out.println("Invalid input: try again");
                 continue;
             }
-            if(thingToParse<=range && thingToParse>=0) break;
+            if (thingToParse <= range && thingToParse >= 0) break;
         }
-        if(type)return thingToParse -1;
-        else return  thingToParse;
+        if (type) return thingToParse - 1;
+        else return thingToParse;
     }
+
     public static ArrayList<Player> getOtherPlayers() {
         return otherPlayers;
     }
@@ -679,7 +776,9 @@ public class ZakClient {
         ZakClient.otherPlayers = otherPlayers;
     }
 
-    public static Player getPlayer(){return  player;}
+    public static Player getPlayer() {
+        return player;
+    }
 
     public static void setCurrentGameStatus(boolean b) {
         currentGameStatus = b;
@@ -701,4 +800,11 @@ public class ZakClient {
         return matchID;
     }
 
+    public static void setConnectionType(boolean b) {
+        connectionType = b;
+    }
+
+    public static boolean isGuiSelector() {
+        return guiSelector;
+    }
 }

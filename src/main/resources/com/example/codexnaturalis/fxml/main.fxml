@@ -20,23 +20,24 @@
 
     <BorderPane>
         <left>
-            <ScrollPane prefWidth="1000" prefHeight="800">
+            <ScrollPane prefWidth="1000" prefHeight="800" fx:id="fieldScrollPane">
                 <StructRightController fx:id="struct"/>
             </ScrollPane>
         </left>
         <right>
             <AnchorPane>
-                <VBox>
-                <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100" AnchorPane.rightAnchor="10"/>
-                    <ScrollPane prefWidth="300" prefHeight="525">
-                <PlayerDeckController fx:id="playerDeck"  AnchorPane.rightAnchor="10"/>
-                    </ScrollPane>
-                    <TextArea fx:id="textArea" editable="false"/>
-                    <HBox>
-                <TextField promptText="Enter your text here"/>
-                        <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand" onAction="#chatWrite"/>
+                <VBox alignment="CENTER">
+                    <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100" AnchorPane.rightAnchor="10"/>
+                    <PlayerDeckController fx:id="playerDeck"/>
+                    <TextArea fx:id="textArea" text="Notification" editable="false"/>
+                    <HBox spacing="15">
+                        <TextField promptText="Enter your text here"/>
+                        <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"
+                                onAction="#chatWrite"/>
+                        <Button fx:id="turnButton" text="Confirm Turn" mnemonicParsing="false" style="-fx-cursor: hand"
+                                onAction="#genericTurnSender"/>
                     </HBox>
-                    <Button fx:id="turnButton" text="Confirm Turn" mnemonicParsing="false" style="-fx-cursor: hand" onAction="#genericTurnSender"/>
+
                 </VBox>
             </AnchorPane>
         </right>

@@ -1,16 +1,18 @@
 package com.example.codexnaturalis;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController extends Pane implements Initializable {
@@ -18,6 +20,7 @@ public class MainController extends Pane implements Initializable {
     @FXML public TextArea textArea;
     @FXML public Button sendButton;
     @FXML public Button turnButton;
+    @FXML public ScrollPane fieldScrollPane;
     @FXML private PlayerDeckController playerDeck;
     @FXML private StructRightController struct;
     private CardController cardToRemove;
@@ -26,6 +29,9 @@ public class MainController extends Pane implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("Carico main");
+        fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(this::middlePosition);
+        });
         //todo: riattivare quando è il tuo turno
         turnButton.setDisable(true);
         try {
@@ -57,6 +63,19 @@ public class MainController extends Pane implements Initializable {
                 }
             });
         }
+        playerDeck.setPadding(new Insets(25));
+        playerDeck.setSpacing(20);
+    }
+
+    private void middlePosition() {
+        double totalHeight = struct.getHeight();
+        double visibleHeight = fieldScrollPane.getViewportBounds().getHeight();
+        double middlePosition = (totalHeight-visibleHeight) / 2 /totalHeight*1.7;
+        fieldScrollPane.setVvalue(middlePosition);
+        totalHeight = struct.getWidth();
+        visibleHeight = fieldScrollPane.getViewportBounds().getWidth();
+        middlePosition = (totalHeight-visibleHeight) / 2 /totalHeight*1.7;
+        fieldScrollPane.setHvalue(middlePosition);
     }
 
     private void printMessage(String message) {
@@ -69,5 +88,27 @@ public class MainController extends Pane implements Initializable {
     }
 
     public void genericTurnSender(ActionEvent actionEvent) {
+    }
+    public static void alert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Notification");
+        alert.setHeaderText(null); // No header text
+        alert.setContentText(message);
+        alert.showAndWait();
+        alert.close();
+    }
+    public ResourceGoldCard pickCard(){
+        ResourceGoldCard card=null;
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Java", "Java", "Python", "JavaScript");
+        dialog.setTitle("Choice Dialog");
+        dialog.setHeaderText("Select your favorite programming language:");
+        dialog.setContentText("Language:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(language -> {
+            System.out.println("Your favorite programming language: " + language);
+        });
+        dialog.close();
+        return card;
     }
 }

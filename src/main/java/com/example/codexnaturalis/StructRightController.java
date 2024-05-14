@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.util.Pair;
 
 import java.io.IOException;
 
@@ -31,8 +32,10 @@ public class StructRightController extends Pane {
         c1.setLayoutY(cardHeight - cornerHeight);
         c2.setLayoutY(2 * cardHeight - 2 * cornerHeight);
         c2.setLayoutX(cardWidth - cornerWidth);*/
+        //placeCard(PlayerDeckController.getStarterCard());
 
     }
+
 
     private void createGrid() throws IOException {
         slotGrid = new SlotController[value][value];
