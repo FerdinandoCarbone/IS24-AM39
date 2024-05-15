@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import com.example.codexnaturalis.PlayerDeckController?>
+
+<?import com.example.codexnaturalis.FieldController?>
+<?import com.example.codexnaturalis.ZoomPaneController?>
+<?import javafx.scene.control.Button?>
+<?import com.example.codexnaturalis.PortChoiceController?>
+<?import com.example.codexnaturalis.PopPortChoiceController?>
+<Pane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.codexnaturalis.MainController"
+      minWidth="1920.0" maxWidth="1920.0" maxHeight="1080.0" minHeight="1080.0"
+      fx:id="mainPane">
+    <FieldController fx:id="field"/>
+<!--    <ZoomPaneController fx:id="zoomPane"/>-->
+    <PlayerDeckController fx:id="playerDeck" />
+<!--    <Button fx:id="zoomButton" text="Zoom"/>-->
+<!--    <PopPortChoiceController fx:id="portChoice"/>-->
+</Pane>
