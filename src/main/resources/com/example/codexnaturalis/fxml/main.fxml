@@ -30,12 +30,10 @@
                     <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100" AnchorPane.rightAnchor="10"/>
                     <PlayerDeckController fx:id="playerDeck"/>
                     <TextArea fx:id="textArea" text="Notification" editable="false"/>
-                    <HBox spacing="15">
+                    <HBox fx:id="turnBOX" spacing="15">
                         <TextField promptText="Enter your text here"/>
                         <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"
                                 onAction="#chatWrite"/>
-                        <Button fx:id="turnButton" text="Confirm Turn" mnemonicParsing="false" style="-fx-cursor: hand"
-                                onAction="#genericTurnSender"/>
                     </HBox>
 
                 </VBox>

@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 
@@ -17,10 +18,11 @@ import java.util.ResourceBundle;
 
 public class MainController extends Pane implements Initializable {
     @FXML public CommandBoxController commands;
-    @FXML public static TextArea textArea;
+    public static TextArea textArea;
     @FXML public Button sendButton;
-    @FXML public static Button turnButton;
+    public static Button turnButton;
     @FXML public ScrollPane fieldScrollPane;
+    @FXML public HBox turnBOX;
     @FXML private PlayerDeckController playerDeck;
     @FXML private StructRightController struct;
     private CardController cardToRemove;
@@ -33,7 +35,10 @@ public class MainController extends Pane implements Initializable {
             Platform.runLater(this::middlePosition);
         });
         //todo: riattivare quando è il tuo turno
+        turnButton = new Button("Confirm Turn");
         turnButton.setDisable(true);
+        turnButton.setOnAction(event->genericTurnSender());
+        turnBOX.getChildren().add(turnButton);
         try {
             playerDeck.receiveCards();
         } catch (IOException e) {
@@ -87,7 +92,7 @@ public class MainController extends Pane implements Initializable {
         String s = sendButton.getText();
     }
 
-    public void genericTurnSender(ActionEvent actionEvent) {
+    public void genericTurnSender() {
     }
     public static void alert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -114,5 +119,4 @@ public class MainController extends Pane implements Initializable {
     public static void setTurnButton(boolean b){
         turnButton.setDisable(b);
     }
-
 }

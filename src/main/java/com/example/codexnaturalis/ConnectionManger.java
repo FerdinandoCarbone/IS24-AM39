@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.example.codexnaturalis.ZakClient.*;
@@ -478,7 +479,7 @@ public class ConnectionManger {
     /**
      * Essential piece of code for Client.initialMatchSetup() and reHandshake() methods. Lets you choose your secret objective card and face up or down of starting card
      */
-    public static BroadCastStartingMessage secretSelector(BroadCastStartingMessage handshakeACKInfo) throws IOException, StupidUserException {
+    public static BroadCastStartingMessage secretSelector(BroadCastStartingMessage handshakeACKInfo) throws IOException, StupidUserException, InterruptedException {
         ObjectiveCard chosenCard;
         chosenCard = ZakClient.getPlayer().chooseSecretObj(handshakeACKInfo.getSecretObjectiveCards(ZakClient.getClientID()));
         ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
@@ -493,18 +494,21 @@ public class ConnectionManger {
         return handshakeACKInfo;
     }
 
-    private static boolean selectStarterCardFace() throws IOException {
+    private static boolean selectStarterCardFace() throws IOException, InterruptedException {
         AtomicInteger i = new AtomicInteger();
+        Semaphore sem = new Semaphore(0);
         if (ZakClient.isGuiSelector()) {
             StarterCard cardStarter;
             cardStarter = ZakClient.getPlayer().getPlayerDeck().getStarterCard();
             Platform.runLater(() -> {
                 try {
                     i.set(LauncherController.selectAStarterCardDialog(cardStarter, "Select a face:"));
+                    sem.release();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
+            sem.acquire();
         } else {
             i.set(getIntInput(2, false));
         }

@@ -57,13 +57,21 @@ public class ServerHandler extends Thread implements Runnable {
             Platform.runLater(()->{
                 String senderGui=message.getSender();
                 if(Objects.equals(senderGui, getClientName())) senderGui="You";
-                MainController.printMessage(senderGui+": "+message.getTextMessage());
+                LauncherController.alert(senderGui+": "+message.getTextMessage());
             });
         }
         if(message.getTextMessage().contains("kicked")) System.exit(0);
         if(!wasFirstBroadCastReceived()) {
-            if(ZakClient.isGuiSelector())LauncherController.loadGameScene();;
-            setFirstBroadCastWasReceived(true);
+            if(ZakClient.isGuiSelector()) {
+                Platform.runLater(()-> {
+                    try {
+                        LauncherController.loadGameScene();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    setFirstBroadCastWasReceived(true);
+                });
+            }
         }
     }
     public void genericTurnMessageHandler(GenericTurnMessage message){
@@ -156,9 +164,11 @@ class ServerSocketHandler extends ServerHandler {
             try {
                 messageReceiver();
             } catch (ClassNotFoundException | WrongMessageConversionException e) {
+                e.printStackTrace();
                 System.out.println("ServerComHandler error: " + e.getMessage());
 
             } catch(IOException e){
+                e.printStackTrace();
                 System.out.println("ServerComHandler error: " + e.getMessage());
                 try {
                     throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server due to socket degradation: Attempting reconnection");

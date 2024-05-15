@@ -49,13 +49,13 @@ public class SelectableCardController extends Pane {
         this.getChildren().add(hbox);*/
 
     }
-    public static ArrayList<SelectableCardController> toSelectableArraylist(ArrayList<Card> cards) throws IOException {
+    /*public static ArrayList<SelectableCardController> toSelectableArraylist(ArrayList<Card> cards) throws IOException {
         ArrayList<SelectableCardController> selectables = new ArrayList<>();
         for(Card c : cards){
             selectables.add(new SelectableCardController(c));
         }
         return selectables;
-    }
+    }*/
 
     public Card getCard() {
             return card;
@@ -63,6 +63,7 @@ public class SelectableCardController extends Pane {
 
     public void setupCard(Card newCard) {
         card = newCard;
+        System.out.println(card);
         selectButton.setUserData(card.getIdCard());
         frontImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[0])));
         backImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[1])));

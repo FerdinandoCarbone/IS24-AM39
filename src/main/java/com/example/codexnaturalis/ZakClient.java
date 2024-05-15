@@ -1,6 +1,7 @@
 package com.example.codexnaturalis;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.util.Pair;
 
 import java.io.*;
@@ -37,18 +38,20 @@ public class ZakClient {
         } catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
             System.err.println("Client Setup error: " + e.getMessage());
             if (guiSelector) {
-                LauncherController.alert(e.getMessage());
-                HelloApplication.getStage().close();
+                Platform.runLater(()->{
+                    LauncherController.alert(e.getMessage());
+                    HelloApplication.getStage().close();});
             } else throw new RuntimeException("Please restart the client and try again");
         }
         try {
             //clearConsole();
             gameStart();
         } catch (IOException | ClassNotFoundException | WrongMessageConversionException e) {
-            System.err.println("Game Start error "+e.getLocalizedMessage()+": "+e.getMessage());
+            System.err.println("Game Start error " + e.getLocalizedMessage() + ": " + e.getMessage());
             if (guiSelector) {
+                Platform.runLater(()->{
                 LauncherController.alert(e.getMessage());
-                HelloApplication.getStage().close();
+                HelloApplication.getStage().close();});
             } else throw new RuntimeException("Please restart the client and try again");
         }
     }
@@ -313,7 +316,7 @@ public class ZakClient {
             player.placeStarterCard(initialMatchSetupMessage.getStarterCardFace());
         } catch (WrongPlayerUUIDException e) {
             System.out.println(e.getMessage());
-        } catch (StupidUserException e) {
+        } catch (StupidUserException | InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
 
@@ -443,7 +446,11 @@ public class ZakClient {
         serverHandler.sendMessage(message);
         serverHandler.setMessageTurn(null);
         myTurn = false;
-        if (isGuiSelector()) MainController.setTurnButton(true);
+        if (isGuiSelector()) {
+            Platform.runLater(()->{
+                MainController.setTurnButton(true);
+            });
+        }
         clearConsole();
     }
 
@@ -674,7 +681,12 @@ public class ZakClient {
         myTurn = true;
         //System.lineSeparator();
         //clearConsole();
-        MainController.setTurnButton(false);
+        if (isGuiSelector()) {
+
+            Platform.runLater(() -> {
+                MainController.setTurnButton(false);
+            });
+        }
         System.out.println("\nIt's your turn:");
         System.out.print("What do you want to do? ");
 

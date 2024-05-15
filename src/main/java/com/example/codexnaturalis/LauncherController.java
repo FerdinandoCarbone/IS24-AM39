@@ -158,6 +158,7 @@ public class LauncherController extends StackPane implements Initializable {
             }
             printStatus("Attempting connection", "blue");
             ZakClient.start();
+            printStatus("Waiting for everyone to join","blue");
         }
     }
     public static int selectAStarterCardDialog(Card card,String whatToSelect) throws IOException {
@@ -197,8 +198,10 @@ public class LauncherController extends StackPane implements Initializable {
     }
 
     public static Integer selectACardDialog(ArrayList<Card> cards,String whatToSelect) throws IOException {
-        //CompletableFuture<Integer> dialogClosedFuture = new CompletableFuture<>();
-        ArrayList<SelectableCardController> selectables = SelectableCardController.toSelectableArraylist(cards);
+        ArrayList<SelectableCardController> selectables= new ArrayList<>();
+        for(Card card: cards){
+            selectables.add(new SelectableCardController(card));
+        }
         Dialog<Integer> dialog = new Dialog<>();
         ToggleGroup buttonGroup = new ToggleGroup();
         HBox content = new HBox();
