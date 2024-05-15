@@ -17,9 +17,9 @@ import java.util.ResourceBundle;
 
 public class MainController extends Pane implements Initializable {
     @FXML public CommandBoxController commands;
-    @FXML public TextArea textArea;
+    @FXML public static TextArea textArea;
     @FXML public Button sendButton;
-    @FXML public Button turnButton;
+    @FXML public static Button turnButton;
     @FXML public ScrollPane fieldScrollPane;
     @FXML private PlayerDeckController playerDeck;
     @FXML private StructRightController struct;
@@ -78,7 +78,7 @@ public class MainController extends Pane implements Initializable {
         fieldScrollPane.setHvalue(middlePosition);
     }
 
-    private void printMessage(String message) {
+    public static void printMessage(String message) {
         textArea.appendText(message);
     }
 
@@ -111,4 +111,8 @@ public class MainController extends Pane implements Initializable {
         dialog.close();
         return card;
     }
+    public static void setTurnButton(boolean b){
+        turnButton.setDisable(b);
+    }
+
 }

@@ -1,8 +1,14 @@
 package com.example.codexnaturalis;
 
+import javafx.application.Platform;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.example.codexnaturalis.Colors.*;
 
@@ -50,17 +56,18 @@ public class Player implements Serializable {
 
     /**
      * Constructor of the Player class
-     * @param playerName: Defines the player's name
-     * @param token: Defines the player's token
+     *
+     * @param playerName:  Defines the player's name
+     * @param token:       Defines the player's token
      * @param playerField: Defines the player's own field
      */
-    public Player(String playerName, Token token, Field playerField,UUID playerID) throws IOException {
+    public Player(String playerName, Token token, Field playerField, UUID playerID) throws IOException {
         this.playerName = playerName;
         this.token = token;
         this.playerDeck = DrawingDeck.generatePlayerDeck();
         this.playerField = playerField;
-        this.resourceMana = new int[]{0,0,0,0};
-        this.elementsMana = new int[]{0,0,0};
+        this.resourceMana = new int[]{0, 0, 0, 0};
+        this.elementsMana = new int[]{0, 0, 0};
         this.playerID = playerID;
     }
 
@@ -69,12 +76,13 @@ public class Player implements Serializable {
         this.token = token;
         this.playerDeck = DrawingDeck.generatePlayerDeck();
         this.playerField = playerField;
-        this.resourceMana = new int[]{0,0,0,0};
-        this.elementsMana = new int[]{0,0,0};
+        this.resourceMana = new int[]{0, 0, 0, 0};
+        this.elementsMana = new int[]{0, 0, 0};
     }
 
     /**
      * Places the starter card at the center of the player's field
+     *
      * @param isFront: true if the card is faced with if front facing up, otherwise false
      */
     public void placeStarterCard(boolean isFront) {
@@ -107,14 +115,14 @@ public class Player implements Serializable {
     }
 
     public void printManas() {
-        System.out.println(Colors.BLUE + "-----RESOURCES AND MATERIALS------" + Colors.RESET);
-        System.out.println(Colors.BLUE + "Mushroom: " + resourceMana[0] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Leaf: " + resourceMana[1] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Wolf: " + resourceMana[2] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Butterfly: " + resourceMana[3] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Ink: " + elementsMana[0] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Papyrus: " + elementsMana[0] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Feather: " + elementsMana[0] + Colors.RESET);
+        System.out.println(BLUE + "-----RESOURCES AND MATERIALS------" + RESET);
+        System.out.println(BLUE + "Mushroom: " + resourceMana[0] + RESET);
+        System.out.println(BLUE + "Leaf: " + resourceMana[1] + RESET);
+        System.out.println(BLUE + "Wolf: " + resourceMana[2] + RESET);
+        System.out.println(BLUE + "Butterfly: " + resourceMana[3] + RESET);
+        System.out.println(BLUE + "Ink: " + elementsMana[0] + RESET);
+        System.out.println(BLUE + "Papyrus: " + elementsMana[0] + RESET);
+        System.out.println(BLUE + "Feather: " + elementsMana[0] + RESET);
     }
 
     public boolean allCornersEmpty(NonObjectiveCard card) {
@@ -136,23 +144,25 @@ public class Player implements Serializable {
         System.out.println("-------------------------");
         System.out.println(playerName + "'s Codex");
         playerField.printField();
-        System.out.println(playerName+"'s score: "+ score);
+        System.out.println(playerName + "'s score: " + score);
     }
 
     /**
      * Given a row and column, gives the info in that slot
-     * @param row: row to check
+     *
+     * @param row:    row to check
      * @param column: column to check
      */
     public void fieldAnalysis(int row, int column) {
         Field.Slot slotToCheck = getPlayerField().getSlots()[row][column];
         NonObjectiveCard carta = slotToCheck.getCardSlot();
-        System.out.println(Colors.BLUE + "Analysis of card in slot [" + row + "][" + column + "]." + Colors.RESET);
+        System.out.println(BLUE + "Analysis of card in slot [" + row + "][" + column + "]." + RESET);
         carta.printCard();
     }
 
     /**
      * Given a gold card, checks its requirements
+     *
      * @param card: card to check
      * @return boolean, true if requirements are fulfilled, false otherwise
      */
@@ -190,7 +200,8 @@ public class Player implements Serializable {
 
     /**
      * Auxiliary method to check gold card requirements
-     * @param index: index of manas
+     *
+     * @param index:         index of manas
      * @param numberToCheck: number to check
      * @return boolean, true if number to check is enough, false otherwise
      */
@@ -204,7 +215,8 @@ public class Player implements Serializable {
 
     /**
      * Auxiliary method to check gold card requirements
-     * @param index: index of manas
+     *
+     * @param index:         index of manas
      * @param numberToCheck: number to check
      * @return boolean, true if number to check is enough, false otherwise
      */
@@ -263,15 +275,16 @@ public class Player implements Serializable {
                     }
                 }
             }
-        } catch(IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             System.err.println("There was an error placing the card. Try again.");
         }
     }
 
     /**
      * Given a row, column, and a card, it places the said card and removes it from the players deck
-     * @param row: row of the placed card
-     * @param column: column of the placed card
+     *
+     * @param row:         row of the placed card
+     * @param column:      column of the placed card
      * @param cardToPlace: card to place
      * @throws Exception
      */
@@ -292,18 +305,19 @@ public class Player implements Serializable {
     /**
      * Given a card to place in the field, one of its corners, the slot's row and column, updates the corner
      * of the adjacent card
-     * @param cardToPlace: card place on the field
-     * @param selectedRow: Row of the placed card
+     *
+     * @param cardToPlace:    card place on the field
+     * @param selectedRow:    Row of the placed card
      * @param selectedColumn: Column of the placed card
-     * @param corner: corner of the placed card to check
+     * @param corner:         corner of the placed card to check
      * @throws Exception
      */
-    private void updateAdjacentSlots(ResourceGoldCard cardToPlace,int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
+    private void updateAdjacentSlots(ResourceGoldCard cardToPlace, int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
         int rowToCheck = selectedRow + calculateOffSetR(corner);
         int columnToCheck = selectedColumn + calculateOffSetC(corner);
         /* Check if the adjacent slot is busy. If busy update the availability of the adjacent card's corner and
-        * update the availability of the placed card. Also update resourceMana and elementsMana
-        *  */
+         * update the availability of the placed card. Also update resourceMana and elementsMana
+         *  */
         if (playerField.getSlots()[rowToCheck][columnToCheck].isBusySlot()) {
             NonObjectiveCard coveredCard = playerField.getSlots()[rowToCheck][columnToCheck].getCardSlot();
             int coveredCornerIndex = findCornerToPlace(corner);
@@ -317,6 +331,7 @@ public class Player implements Serializable {
 
     /**
      * Given a Corner, analyses its content and updates the player's manas
+     *
      * @param corner: corner to check
      */
 
@@ -334,6 +349,7 @@ public class Player implements Serializable {
 
     /**
      * Given an element or resource, updates the player's manas
+     *
      * @param e: resource or element to add
      */
 
@@ -351,6 +367,7 @@ public class Player implements Serializable {
 
     /**
      * Given a seed, updates the player's manas
+     *
      * @param s: seed or element to add
      */
 
@@ -364,10 +381,9 @@ public class Player implements Serializable {
     }
 
 
-
-
     /**
      * Given a Corner, analyses its content and updates the player's manas
+     *
      * @param corner: corner to check
      */
     private void decreaseResourceElementsMana(Corner corner) {
@@ -384,7 +400,8 @@ public class Player implements Serializable {
 
     /**
      * Checks is a card is attachable to the adjacent slots
-     * @param row: row of placed card
+     *
+     * @param row:    row of placed card
      * @param column: column of placed card
      * @return boolean, true if card can be placed, false otherwise
      */
@@ -426,6 +443,7 @@ public class Player implements Serializable {
     /**
      * Let A be a card on the field, the player wants to place card B over one if A's corners. Finds which one of
      * B's corners will be updated
+     *
      * @param cornerOfPlacedCard: integer defining A's corner where B will be placed (UR[0], BR[1], BL[2], UL[3])
      * @return int, defines B's corner that will be later updated (UR[0], BR[1], BL[2], UL[3])
      */
@@ -438,8 +456,10 @@ public class Player implements Serializable {
             default -> -1;
         };
     }
+
     /**
      * Calculates the row where the new card will be placed based on the card that's already on the player's field
+     *
      * @param corner: integer defining the corner of the card already on the field (UR[0], BR[1], BL[2], UL[3])
      * @return int, defines the row offset of the card that will be placed
      */
@@ -459,6 +479,7 @@ public class Player implements Serializable {
 
     /**
      * Calculates the column where the new card will be placed based on the card that's already on the player's field
+     *
      * @param corner: integer defining the corner of the card already on the field (UR[0], BR[1], BL[2], UL[3])
      * @return int, defines the column offset of the card that will be placed
      */
@@ -478,6 +499,7 @@ public class Player implements Serializable {
 
     /**
      * Adds points to the player score
+     *
      * @param points: points to be added
      */
     public void addScore(int points) {
@@ -486,7 +508,8 @@ public class Player implements Serializable {
 
     /**
      * Adds number of resources available to the player
-     * @param mana: number of resources to be added
+     *
+     * @param mana:  number of resources to be added
      * @param index: type of Resource
      */
     public void addResourceMana(int mana, int index) {
@@ -495,41 +518,71 @@ public class Player implements Serializable {
 
     /**
      * Adds number of elements available to the player
-     * @param mana: number of elements to be added
+     *
+     * @param mana:  number of elements to be added
      * @param index: type of Element
      */
     public void addElementsMana(int mana, int index) {
         elementsMana[index] += mana;
     }
     //SETTERS AND GETTERS
+
     /**
      * Given an array list of cards, allow the player to choose one
+     *
      * @param cards: cards form which the player will choose
      * @return ObjectiveCard, chosen from the player
      * @throws StupidUserException
      */
     public ObjectiveCard chooseSecretObj(ArrayList<ObjectiveCard> cards) throws StupidUserException {
-        System.out.println("Choose a secret objective card: ");
-        int i=1;
-        int choice;
+        int i = 1;
+        AtomicInteger choice = new AtomicInteger();
         while (true) {
-            for (ObjectiveCard c : cards) {
-                System.out.println(i + ": ");
-                c.printObjectiveCard();
-                i++;
-            }
-            try{
-                choice = Integer.parseInt(ZakClient.receiveInput());
-            } catch (Exception e){
+
+            try {
+                if (ZakClient.isGuiSelector()) {
+                    choice.set(showDialogAndWait(cards));
+                } else {
+                    for (ObjectiveCard c : cards) {
+                        System.out.println(i + ": ");
+                        c.printObjectiveCard();
+                        i++;
+                    }
+                    choice.set(Integer.parseInt(ZakClient.receiveInput()));
+                }
+            } catch (Exception e) {
                 System.out.println("Invalid input: try again");
+                if (ZakClient.isGuiSelector()) {
+
+                    LauncherController.alert("Invalid input: try again");
+                }
                 continue;
             }
-            if(choice>=1 && choice<=2) break;
-            else if(choice==3)throw new StupidUserException("Too many wrong input were given");
+            if (choice.get() >= 1 && choice.get() <= 2) break;
+            else if (choice.get() == 3) throw new StupidUserException("Too many wrong input were given");
         }
-        playerDeck.setSecretObjectiveCard(cards.get(choice-1));
-        return cards.get(choice-1);
+        playerDeck.setSecretObjectiveCard(cards.get(choice.get() - 1));
+        return cards.get(choice.get() - 1);
     }
+
+    private int showDialogAndWait(ArrayList<ObjectiveCard> cards) throws InterruptedException {
+        ArrayList<Card> basicCards = new ArrayList<>(cards);
+        Semaphore sem=new Semaphore(0);
+        AtomicReference<Integer> selected = new AtomicReference<>(0);
+            Platform.runLater(() -> {
+                try {
+                   int chosenCard= LauncherController.selectACardDialog(basicCards, "Please select a secret Objective cards");
+                    if (chosenCard == cards.get(1).getIdCard()) selected.set(2);
+                    else if(chosenCard == cards.get(0).getIdCard()) selected.set(1);
+                } catch (IOException e) {
+                    selected.set(0);
+                }
+                sem.release();
+            });
+            sem.acquire();
+        return selected.get();
+    }
+
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
@@ -550,7 +603,9 @@ public class Player implements Serializable {
         return playerField;
     }
 
-    public void setScore(int score) {this.score = score;}
+    public void setScore(int score) {
+        this.score = score;
+    }
 
     public int getScore() {
         return score;

@@ -31,29 +31,28 @@ public class ZakClient {
      * Calls basic starting client methods like connection, handshake etc.
      * Finally calls for gameStart() which starts game loop
      */
-    public static void start(){
+    public static void start() {
         try {
             instanceConManAndHandshake();
         } catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
             System.err.println("Client Setup error: " + e.getMessage());
-            if(guiSelector) {
+            if (guiSelector) {
                 LauncherController.alert(e.getMessage());
                 HelloApplication.getStage().close();
-            }
-            else throw new RuntimeException("Please restart the client and try again");
+            } else throw new RuntimeException("Please restart the client and try again");
         }
         try {
             //clearConsole();
             gameStart();
         } catch (IOException | ClassNotFoundException | WrongMessageConversionException e) {
-            System.err.println("Game Start error: " + e.getMessage());
-            if(guiSelector) {
+            System.err.println("Game Start error "+e.getLocalizedMessage()+": "+e.getMessage());
+            if (guiSelector) {
                 LauncherController.alert(e.getMessage());
                 HelloApplication.getStage().close();
-            }
-            else throw new RuntimeException("Please restart the client and try again");
+            } else throw new RuntimeException("Please restart the client and try again");
         }
     }
+
     /**
      * Connection type is chosen by player, then Connection Manager is initialized and Handshake with server are attempted here
      *
@@ -238,18 +237,23 @@ public class ZakClient {
             System.out.println("No savefile found - Start as new Player");
         }
         try {
-            FileOutputStream outputStream = new FileOutputStream(fileName);
-            newID = UUID.randomUUID();
-            String myIDString = "ClientID:" + newID;
-            byte[] bytes = myIDString.getBytes();
-            outputStream.write(bytes);
-            outputStream.close();
-            crashed = false;
-            matchID = null;
-            clientID = newID;
-            return 0;
+            File directory = new File("savedata");
+            if (!directory.exists()) directory.mkdir();
+            else if (directory.exists()) {
+                FileOutputStream outputStream = new FileOutputStream(fileName);
+                newID = UUID.randomUUID();
+                String myIDString = "ClientID:" + newID;
+                byte[] bytes = myIDString.getBytes();
+                outputStream.write(bytes);
+                outputStream.close();
+                crashed = false;
+                matchID = null;
+                clientID = newID;
+                return 0;
+            } else throw new FileNotFoundException("Cannot create directory");
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
+            HelloApplication.getStage().close();
         } catch (IOException e) {
             System.out.println("Error while trying to write file");
         }
@@ -312,6 +316,7 @@ public class ZakClient {
         } catch (StupidUserException e) {
             throw new RuntimeException(e);
         } finally {
+
             System.out.println("All players' fields were correctly received");
             currentGameStatus = true;
         }
@@ -330,11 +335,12 @@ public class ZakClient {
      */
     public static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
         if (!crashed) new Thread(serverHandler).start();
-        while (!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())) {
-            Thread.onSpinWait();
+        if (!isGuiSelector()) {
+            while (!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())) {
+                Thread.onSpinWait();
+            }
+            while (currentGameStatus) if (!guiSelector) selectPossibleActions();
         }
-        if (guiSelector) LauncherController.loadGameScene();
-        while (currentGameStatus) if (!guiSelector) selectPossibleActions();
     }
 
     /**
@@ -437,6 +443,7 @@ public class ZakClient {
         serverHandler.sendMessage(message);
         serverHandler.setMessageTurn(null);
         myTurn = false;
+        if (isGuiSelector()) MainController.setTurnButton(true);
         clearConsole();
     }
 
@@ -667,6 +674,7 @@ public class ZakClient {
         myTurn = true;
         //System.lineSeparator();
         //clearConsole();
+        MainController.setTurnButton(false);
         System.out.println("\nIt's your turn:");
         System.out.print("What do you want to do? ");
 

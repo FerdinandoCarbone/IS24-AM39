@@ -6,14 +6,19 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -122,39 +127,108 @@ public class LauncherController extends StackPane implements Initializable {
         alert.setHeaderText(null); // No header text
         alert.setContentText(message);
         alert.showAndWait();
-        alert.close();
+        //alert.show();
     }
 
-public void handleSubmitButtonAction() {
-    status.clear();
-    String input = textField.getText();
-    if (typeOfConnection == null) {
-        printStatus("Select a connection type", "red");
-    }
-    else if (input == null || input.isEmpty()) {
-        printStatus("Invalid player nickname: please type another one and retry", "red");
-    }
-    else {
-        String[] args = new String[]{"localhost", "8081", "gui"};
-        ZakClient.setPlayerNick(input);
-        ZakClient.clientStart(args);
-        clientSetupState = ZakClient.initialClientSetup();
-        printStatus("Submitted", "green");
-        switch (clientSetupState) {
-            case 0:
-                ZakClient.setConnectionType(typeOfConnection);
-                printStatus("No save file found - Start as new Player", "green");
-                break;
-            case -1:
-                ZakClient.setConnectionType(typeOfConnection);
-                printStatus("No save file found and unable to save - Start as new Player", "yellow");
-                break;
-            case 1:
-                printStatus("Fallback to the previous' match connection type:", "yellow");
-                break;
+    public void handleSubmitButtonAction() {
+        status.clear();
+        String input = textField.getText();
+        if (typeOfConnection == null) {
+            printStatus("Select a connection type", "red");
+        } else if (input == null || input.isEmpty()) {
+            printStatus("Invalid player nickname: please type another one and retry", "red");
+        } else {
+            String[] args = new String[]{"localhost", "8081", "gui"};
+            ZakClient.setPlayerNick(input);
+            ZakClient.clientStart(args);
+            clientSetupState = ZakClient.initialClientSetup();
+            printStatus("Submitted", "green");
+            switch (clientSetupState) {
+                case 0:
+                    ZakClient.setConnectionType(typeOfConnection);
+                    printStatus("No save file found - Start as new Player", "green");
+                    break;
+                case -1:
+                    ZakClient.setConnectionType(typeOfConnection);
+                    printStatus("No save file found and unable to save - Start as new Player", "yellow");
+                    break;
+                case 1:
+                    printStatus("Fallback to the previous' match connection type:", "yellow");
+                    break;
+            }
+            printStatus("Attempting connection", "blue");
+            ZakClient.start();
         }
-        printStatus("Attempting connection", "blue");
-        ZakClient.start();
     }
-}
+    public static int selectAStarterCardDialog(Card card,String whatToSelect) throws IOException {
+        SelectableCardController selectableFront = new SelectableCardController(card,true);
+        SelectableCardController selectableRear = new SelectableCardController(card,false);
+        ArrayList<SelectableCardController> selectables = new ArrayList<>();
+        selectables.add(selectableFront);
+        selectables.add(selectableRear);
+        Dialog<String> dialog = new Dialog<>();
+        ToggleGroup buttonGroup = new ToggleGroup();
+        HBox content = new HBox();
+        for(SelectableCardController s: selectables){
+            s.selectButton.setToggleGroup(buttonGroup);
+        }
+        ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.setTitle(whatToSelect);
+        content.getChildren().addAll(selectables);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType);
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                RadioButton selectedRadioButton = (RadioButton) buttonGroup.getSelectedToggle();
+                if (selectedRadioButton != null) {
+                    return selectedRadioButton.getUserData().toString();
+                }
+            }
+            return null;
+        });
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            String selectedOption = result.get();
+            System.out.println("Selected Option: " + selectedOption);
+            return Integer.parseInt(selectedOption);
+        } else {
+            return -1;
+        }
+    }
+
+    public static Integer selectACardDialog(ArrayList<Card> cards,String whatToSelect) throws IOException {
+        //CompletableFuture<Integer> dialogClosedFuture = new CompletableFuture<>();
+        ArrayList<SelectableCardController> selectables = SelectableCardController.toSelectableArraylist(cards);
+        Dialog<Integer> dialog = new Dialog<>();
+        ToggleGroup buttonGroup = new ToggleGroup();
+        HBox content = new HBox();
+        for(SelectableCardController s: selectables){
+            s.selectButton.setToggleGroup(buttonGroup);
+        }
+        ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.setTitle(whatToSelect);
+        content.getChildren().addAll(selectables);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType);
+        System.out.println("test");
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                RadioButton selectedRadioButton = (RadioButton) buttonGroup.getSelectedToggle();
+                if (selectedRadioButton != null) {
+                    return (Integer) selectedRadioButton.getUserData();
+                }
+            }
+            return null;
+        });
+        Optional<Integer> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            Integer selectedOption = result.get();
+            //dialogClosedFuture.complete(selectedOption);
+            System.out.println("Selected Option: " + selectedOption);
+            return selectedOption;
+        } else {
+            //dialogClosedFuture.complete(0);
+            return 0; // Restituisci il valore selezionato
+        }
+    }
 }

@@ -327,9 +327,53 @@ class GoldCard extends ResourceGoldCard {
         System.out.println("Objective Card #" + getIdCard());
         System.out.println("Points: " + getPoints());
         printCardAscii();
+        System.out.println("Choose a secret objective card: ");
     }
     private void printCardAscii(){
-        System.out.print(asciiArt);
+        String s = colorCorrector(asciiArt);
+        System.out.println(s);
+    }
+
+    private String colorCorrector(String s) {
+        String correctedString="";
+        String z;
+        String color;
+        /*ArrayList<Integer> redIndexes = new ArrayList<>();
+        ArrayList<Integer> blueIndexes = new ArrayList<>();
+        ArrayList<Integer> greenIndexes = new ArrayList<>();
+        ArrayList<Integer> purpleIndexes = new ArrayList<>();
+        ArrayList<Integer> inkIndexes = new ArrayList<>();
+        ArrayList<Integer> scrollIndexes = new ArrayList<>();
+        ArrayList<Integer> featherIndexes = new ArrayList<>();
+
+        StringBuilder sb = new StringBuilder(correctedString);*/
+        for (int i = 0; i < s.length(); i++) {
+            z = String.valueOf(s.charAt(i));
+            color = Colors.RESET;
+            if(s.charAt(i)=='|' || s.charAt(i)=='+'||s.charAt(i)=='-' || s.charAt(i)==' '){
+                correctedString=correctedString.concat(z);
+                continue;
+            }
+            else if (s.charAt(i) == 'M' || s.charAt(i) == 'R') {
+                color=Colors.RED;
+            } else if (s.charAt(i) == 'L' || s.charAt(i) == 'G') {
+                color=Colors.GREEN;
+            } else if (s.charAt(i) == 'W'||(s.charAt(i) == 'B'&& this instanceof ObjectiveCardCombo)) {
+                color=Colors.BLUE;
+            } else if (s.charAt(i) == 'P'||(s.charAt(i) == 'B'&& this instanceof ObjectiveCardResourceSet)) {
+                color=Colors.PURPLE;
+            } else if (s.charAt(i) == 'I') {
+                color=Colors.BLACK_BG;
+            } else if (s.charAt(i) == 'S') {
+                color=Colors.YELLOW;
+            }
+            else if (s.charAt(i) == 'F'){
+                color = Colors.WHITE_BG;
+                z=Colors.BLACK+z;
+            }
+            correctedString=correctedString.concat(color+z+Colors.RESET);
+        }
+        return correctedString;
     }
 
     /**

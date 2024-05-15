@@ -1,5 +1,6 @@
 package com.example.codexnaturalis;
 
+import javafx.application.Platform;
 import javafx.util.Pair;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.example.codexnaturalis.ZakClient.*;
 
@@ -65,6 +67,7 @@ public class ConnectionManger {
 
     /**
      * attempts connection with server
+     *
      * @return socket if a socket connection is attempted, null if rmi connection
      * @throws HandShakeException thrown if an issue was encountered
      */
@@ -77,14 +80,12 @@ public class ConnectionManger {
                 if (typeOfConnection) {
                     remoteServerProxy = (RemoteServerMethodInterface) Naming.lookup("rmi://" + serverAddress + "/Server");
                     return null;
-                }
-                else {
+                } else {
                     socket = new Socket(serverAddress, port);
                     System.out.println(Colors.PURPLE + "Ho generato il socket" + socket + Colors.RESET);
                     return socket;
                 }
-            }
-            catch (IOException | NotBoundException e) {
+            } catch (IOException | NotBoundException e) {
                 System.err.println("Unable to connect to the server: Trying to reconnect in " + milliseconds / 1000 + "s");
                 retryCount++;
                 if (retryCount >= 3) throw new HandShakeException();
@@ -130,9 +131,9 @@ public class ConnectionManger {
                 numOfUsers = remoteServerProxy.getNumOfPlayers();
                 ZakClient.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
             }
-            lobbyCreatorCaller(playerNick,clientID,numOfUsers);
+            lobbyCreatorCaller(playerNick, clientID, numOfUsers);
             System.out.println("Waiting for everyone to join.");
-            if(isGuiSelector()) LauncherController.alert("Waiting for everyone to join.");
+            if (isGuiSelector()) LauncherController.alert("Waiting for everyone to join.");
         } catch (HandShakeException e) {
             System.err.println("There was an error during Handshake process: " + e.getMessage());
         }
@@ -140,8 +141,9 @@ public class ConnectionManger {
 
     /**
      * calls lobbyCreation() if first player is connecting
+     *
      * @param numOfUsers number of users returned by the server
-     * @throws IOException thrown by sockets if they have issues sending/receiving messages
+     * @throws IOException         thrown by sockets if they have issues sending/receiving messages
      * @throws HandShakeException  thrown if issues are encountered during handshake
      * @throws StupidUserException thrown when user input invalid info multiple times
      */
@@ -157,12 +159,11 @@ public class ConnectionManger {
                         playerNick = nickRetype();
                     }
                 }
-                if(!isGuiSelector()) {
+                if (!isGuiSelector()) {
                     System.out.println("Joined existing match...");
                     System.out.println("CurrentPlayers: " + numOfUsers);
-                }
-                else{
-                    LauncherController.alert("Joined existing match..."+"\nCurrentPlayers: " + numOfUsers);
+                } else {
+                    LauncherController.alert("Joined existing match..." + "\nCurrentPlayers: " + numOfUsers);
                 }
                 break;
             default:
@@ -266,20 +267,19 @@ public class ConnectionManger {
      */
     private int inputNumberOfDesiredPlayer() throws StupidUserException {
         int desiredPlayerCount = 0;
-        int i =0;
+        int i = 0;
         String warningMessage = "No match found. Creating a new one:\nHow many players will be playing?\nWrite a number between 2 and 4:";
 
-        while(true) {
+        while (true) {
             if (!ZakClient.isGuiSelector()) {
                 if (i > 0) System.out.println("Write a number between 2 and 4: ");
                 desiredPlayerCount = getIntInput(4, false);
-            }
-            else {
+            } else {
                 desiredPlayerCount = LauncherController.askIntInputToUser(warningMessage, "Number of players:");
             }
             if (desiredPlayerCount >= 2 && desiredPlayerCount <= 4) break;
             System.out.println("Unacceptable value was input");
-            warningMessage=warningMessage.replaceFirst("No match found. Creating a new one:\nHow many players will be playing?", "Unacceptable value was input");
+            warningMessage = warningMessage.replaceFirst("No match found. Creating a new one:\nHow many players will be playing?", "Unacceptable value was input");
             if (i == 2) throw new StupidUserException("u stupid bruh");
             i++;
         }
@@ -309,7 +309,7 @@ public class ConnectionManger {
         //client join request after crash
         Message handshakeMessage = new Message(playerNick, clientID);
         handshakeMessage.setMatchID(ZakClient.getMatchID());
-        BroadCastStartingMessage handshakeACKInfo=null;
+        BroadCastStartingMessage handshakeACKInfo = null;
         Message tmpMessage;
         boolean amPlayerInTurn;
         try {
@@ -322,14 +322,14 @@ public class ConnectionManger {
                 /*
                  * execution stops here if reconnection with rmi is made in another game the user initially started
                  */
-                if(tmpMessage.getSender().equals("FORBIDDEN")){
+                if (tmpMessage.getSender().equals("FORBIDDEN")) {
                     throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
                 }
                 /*
                  * execution stops here if reconnection with rmi is made before game has started
                  */
-                else if(tmpMessage.getSender().equals("MATCHNOTSTARTED")){
-                    System.out.println("Welcome back "+ playerNick);
+                else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
+                    System.out.println("Welcome back " + playerNick);
                     System.out.println("Waiting for other players to join...");
                     ZakClient.getServerHandler().start();
                     return;
@@ -394,7 +394,7 @@ public class ConnectionManger {
             if (getPlayer().getPlayerDeck().getSecretObjectiveCard() == null) {
                 /*For rmi is necessary to restart the handler here, because the heartbeat function lives there*/
                 if (typeOfConnection) ZakClient.getServerHandler().start();
-                handshakeACKInfo=secretSelector(handshakeACKInfo);
+                handshakeACKInfo = secretSelector(handshakeACKInfo);
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
             }
@@ -415,13 +415,12 @@ public class ConnectionManger {
              */
             setMyTurn(amPlayerInTurn);
             //System.out.println("Done!");
-            if(isGuiSelector())LauncherController.loadGameScene();
+            if (isGuiSelector()) LauncherController.loadGameScene();
             if (amPlayerInTurn && typeOfConnection) {
-                if(isGuiSelector()) MainController.alert("It's your turn");
+                if (isGuiSelector()) MainController.alert("It's your turn");
                 else System.out.println("\nIt's your turn!");
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Error while reconnecting after crash: " + e.getMessage());
             if (e.getClass().equals(NotSameMatchException.class)) {
                 System.out.println("Save data can be deleted: deleting it now...");
@@ -432,18 +431,19 @@ public class ConnectionManger {
             }
             clientDisconnect();
         }
-        if(isGuiSelector()) MainController.alert("All players' fields were correctly received");
+        if (isGuiSelector()) MainController.alert("All players' fields were correctly received");
         else System.out.println("All players' fields were correctly received");
         ZakClient.setCurrentGameStatus(true);
     }
 
     /**
      * During reconnection, if user was using a rmi this function will be called
+     *
      * @return a pair containing a message and a boolean retrieved from server
      * @throws NotSameMatchException thrown if server is currently playing a different match to the one the player is trying to reconnect
-     * @throws RemoteException thrown when rmi fails to return requested messages
+     * @throws RemoteException       thrown when rmi fails to return requested messages
      */
-    private Pair<Boolean,Message> rmiReconnect(Message handshakeMessage) throws NotSameMatchException, RemoteException {
+    private Pair<Boolean, Message> rmiReconnect(Message handshakeMessage) throws NotSameMatchException, RemoteException {
         BroadCastStartingMessage handshakeACKInfo;
         Message tmpMessage;
         String playerNick = handshakeMessage.getSender();
@@ -463,7 +463,7 @@ public class ConnectionManger {
             System.out.println("Welcome back " + playerNick);
             System.out.println("Waiting for other players to join...");
             ZakClient.getServerHandler().start();
-            return new Pair<>(false,tmpMessage);
+            return new Pair<>(false, tmpMessage);
         }
         /*
          * reconnecting with rmi in an existing and already running game. Retrieving match info
@@ -472,7 +472,7 @@ public class ConnectionManger {
             handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
             ZakClient.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
         }
-        return new Pair<>(true,handshakeACKInfo);
+        return new Pair<>(true, handshakeACKInfo);
     }
 
     /**
@@ -483,14 +483,35 @@ public class ConnectionManger {
         chosenCard = ZakClient.getPlayer().chooseSecretObj(handshakeACKInfo.getSecretObjectiveCards(ZakClient.getClientID()));
         ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
         handshakeACKInfo.setSelectedSecret(tmpList);
+        //todo PRINT StarterCard?
+        ZakClient.getPlayer().getPlayerDeck().getStarterCard().printCardFrontAndBack();
+        //if (ZakClient.isGuiSelector());
         System.out.println("How do you want to face the starting card");
         System.out.println("1 - face Up\n2 - face Down");
-        boolean cardFace = switch (getIntInput(2, false)) {
+        boolean cardFace = selectStarterCardFace();
+        handshakeACKInfo.setStarterCardFace(cardFace);
+        return handshakeACKInfo;
+    }
+
+    private static boolean selectStarterCardFace() throws IOException {
+        AtomicInteger i = new AtomicInteger();
+        if (ZakClient.isGuiSelector()) {
+            StarterCard cardStarter;
+            cardStarter = ZakClient.getPlayer().getPlayerDeck().getStarterCard();
+            Platform.runLater(() -> {
+                try {
+                    i.set(LauncherController.selectAStarterCardDialog(cardStarter, "Select a face:"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } else {
+            i.set(getIntInput(2, false));
+        }
+        return switch (i.get()) {
             case 1 -> true;
             case 2 -> false;
             default -> throw new IOException("There was an error trying to read the string");
         };
-        handshakeACKInfo.setStarterCardFace(cardFace);
-        return handshakeACKInfo;
     }
 }

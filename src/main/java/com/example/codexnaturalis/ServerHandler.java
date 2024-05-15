@@ -1,5 +1,6 @@
 package com.example.codexnaturalis;
 
+import javafx.application.Platform;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -11,9 +12,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 public class ServerHandler extends Thread implements Runnable {
     private final String clientName;
+    private static final CountDownLatch dialogClosedLatch = new CountDownLatch(1);
     private final UUID clientID;
     private Pair<String,Integer> connectionInfo;
     private GenericTurnMessage messageTurn;
@@ -26,6 +29,10 @@ public class ServerHandler extends Thread implements Runnable {
         this.connectionInfo = ZakClient.getConnectionInfo();
         this.firstBroadCastWasReceived=false;
         this.messageTurn=null;
+    }
+
+    public static CountDownLatch getDialogClosedLatch() {
+        return dialogClosedLatch;
     }
     public UUID getClientID() {
         return clientID;
@@ -42,12 +49,22 @@ public class ServerHandler extends Thread implements Runnable {
     public void setFirstBroadCastWasReceived(boolean firstBroadCastWasReceived) {
         this.firstBroadCastWasReceived = firstBroadCastWasReceived;
     }
-    public void textMessageHandler(TextMessage message) {
+    public void textMessageHandler(TextMessage message) throws IOException {
         String sender = message.getSender();
         if(Objects.equals(sender, getClientName())) sender="You";
         System.out.println("\n"+sender+": "+message.getTextMessage());
+        if(ZakClient.isGuiSelector()){
+            Platform.runLater(()->{
+                String senderGui=message.getSender();
+                if(Objects.equals(senderGui, getClientName())) senderGui="You";
+                MainController.printMessage(senderGui+": "+message.getTextMessage());
+            });
+        }
         if(message.getTextMessage().contains("kicked")) System.exit(0);
-        if(!wasFirstBroadCastReceived()) setFirstBroadCastWasReceived(true);
+        if(!wasFirstBroadCastReceived()) {
+            if(ZakClient.isGuiSelector())LauncherController.loadGameScene();;
+            setFirstBroadCastWasReceived(true);
+        }
     }
     public void genericTurnMessageHandler(GenericTurnMessage message){
         System.out.println(Colors.BLUE+"SONO QUI"+Colors.RESET);
