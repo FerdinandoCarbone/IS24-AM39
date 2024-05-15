@@ -2,11 +2,7 @@ package com.example.codexnaturalis;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 
@@ -30,6 +26,7 @@ public class PlayerDeckController extends HBox {
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
         fxmlLoader.load();
+
 
 //        cardReceiverButton.setOnAction(event -> receiveCards());
     }

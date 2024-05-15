@@ -14,7 +14,6 @@ public class HelloApplication extends Application {
         DrawingDeck.generateDecks();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("main.fxml"));
         @SuppressWarnings("unused")
-        AppController controller = fxmlLoader.getController();
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
         stage.setTitle("Hello!");

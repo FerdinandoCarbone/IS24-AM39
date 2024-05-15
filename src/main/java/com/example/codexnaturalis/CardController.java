@@ -5,18 +5,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+
 import java.io.IOException;
 import java.util.Objects;
 
 public class CardController extends Pane {
     @FXML
     private Button flipButton;
-    @FXML
-    private Button switchResourceButton;
-    @FXML
-    private Button switchGoldButton;
+//    @FXML
+//    private Button switchResourceButton;
+//    @FXML
+//    private Button switchGoldButton;
     @FXML
     private ImageView cardImageView;
     private Image frontImage;
@@ -32,6 +32,11 @@ public class CardController extends Pane {
 
         isFront = true;
         flipButton.setOnAction(event -> flipCard());
+        cardImageView.setFitHeight(CardDim.cardHeight*2);
+        cardImageView.setFitWidth(CardDim.cardWidth*2);
+        flipButton.setLayoutX(CardDim.cardWidth-CardDim.cornerWidth);
+        flipButton.setLayoutY(CardDim.cornerHeight);
+//        flipButton.setGraphic();
     }
 
     public void setupCard(Card newCard) {

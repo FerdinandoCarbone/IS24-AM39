@@ -6,7 +6,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
+<?import javafx.scene.text.Text?>
+<fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml">
-
+    <Label fx:id="label"/>
+    <TextField fx:id="textField"/>
 </fx:root>
