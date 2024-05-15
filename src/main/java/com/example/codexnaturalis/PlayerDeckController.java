@@ -9,17 +9,16 @@ import java.io.IOException;
 public class PlayerDeckController extends HBox {
 
     @FXML
-    private CardController card1;
+    private ResourceGoldCardController card1;
     @FXML
-    private CardController card2;
+    private ResourceGoldCardController card2;
     @FXML
-    private CardController card3;
+    private ResourceGoldCardController card3;
     @FXML
-    private CardController starterCard;
+    private StarterCardController starterCard;
     @FXML
-    private CardController secretObjCard;
-//    @FXML
-//    private Button cardReceiverButton;
+    private ObjectiveCardController secretObjCard;
+    private final double deckHeight;
 
     public PlayerDeckController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PlayerDeck.fxml"));
@@ -27,8 +26,8 @@ public class PlayerDeckController extends HBox {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
-
-//        cardReceiverButton.setOnAction(event -> receiveCards());
+        this.setStyle("-fx-background-color: #aaaaaa; -fx-background-radius: 10");
+        deckHeight = card1.getCardHeight();
     }
 
     public void receiveCards() {
@@ -39,27 +38,27 @@ public class PlayerDeckController extends HBox {
         secretObjCard.setupCard(DrawingDeck.getTotalObjectiveCards().getFirst());
     }
 
-    public CardController getCard1() {
+    public ResourceGoldCardController getCard1() {
         return card1;
     }
 
-    public CardController getCard2() {
+    public ResourceGoldCardController getCard2() {
         return card2;
     }
 
-    public CardController getCard3() {
+    public ResourceGoldCardController getCard3() {
         return card3;
     }
 
-    public CardController getStarterCard() {
+    public StarterCardController getStarterCard() {
         return starterCard;
     }
 
-    public CardController getSecretObjCard() {
+    public ObjectiveCardController getSecretObjCard() {
         return secretObjCard;
     }
 
-//    public Button getCardReceiverButton() {
-//        return cardReceiverButton;
-//    }
+    public double getDeckHeight() {
+        return deckHeight;
+    }
 }

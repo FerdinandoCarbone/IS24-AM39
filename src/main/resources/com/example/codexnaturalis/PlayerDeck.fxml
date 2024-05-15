@@ -3,15 +3,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import com.example.codexnaturalis.CardController?>
+<?import com.example.codexnaturalis.ResourceGoldCardController?>
+<?import com.example.codexnaturalis.StarterCardController?>
+<?import com.example.codexnaturalis.ObjectiveCardController?>
 <fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml">
-    <CardController fx:id="card1"/>
-    <CardController fx:id="card2" />
-    <CardController fx:id="card3" />
-    <CardController fx:id="starterCard" />
-    <CardController fx:id="secretObjCard" />
-<!--    <Button fx:id="cardReceiverButton" text="GenCards" minWidth="50.0" maxWidth="50.0" layoutY="-10.0">-->
-<!--    </Button>-->
+         xmlns:fx="http://javafx.com/fxml">
+    <ResourceGoldCardController fx:id="card1"/>
+    <ResourceGoldCardController fx:id="card2" />
+    <ResourceGoldCardController fx:id="card3" />
+    <StarterCardController fx:id="starterCard" />
+    <ObjectiveCardController fx:id="secretObjCard" />
 
 </fx:root>

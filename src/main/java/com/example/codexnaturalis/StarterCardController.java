@@ -10,21 +10,19 @@ import javafx.scene.layout.Pane;
 import java.io.IOException;
 import java.util.Objects;
 
-public class CardController extends Pane {
+public class StarterCardController extends Pane {
     @FXML
     private Button flipButton;
-//    @FXML
-//    private Button switchResourceButton;
-//    @FXML
-//    private Button switchGoldButton;
     @FXML
     private ImageView cardImageView;
     private Image frontImage;
     private Image backImage;
-    private Card card;
+    private StarterCard card;
     private boolean isFront;
+    private final double cardHeight = CardDim.cardHeight*1.5;
+    private final double cardWidth = CardDim.cardWidth*1.5;
 
-    public CardController() throws IOException {
+    public StarterCardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Card.fxml"));
         loader.setRoot(this);
         loader.setController(this);
@@ -32,14 +30,13 @@ public class CardController extends Pane {
 
         isFront = true;
         flipButton.setOnAction(event -> flipCard());
-        cardImageView.setFitHeight(CardDim.cardHeight*2);
-        cardImageView.setFitWidth(CardDim.cardWidth*2);
+        cardImageView.setFitHeight(cardHeight);
+        cardImageView.setFitWidth(cardWidth);
         flipButton.setLayoutX(CardDim.cardWidth-CardDim.cornerWidth);
         flipButton.setLayoutY(CardDim.cornerHeight);
-//        flipButton.setGraphic();
     }
 
-    public void setupCard(Card newCard) {
+    public void setupCard(StarterCard newCard) {
         card = newCard;
         frontImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[0])));
         backImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[1])));
@@ -64,7 +61,7 @@ public class CardController extends Pane {
         }
     }
 
-    public void setCard(ResourceGoldCard card) {
+    public void setCard(StarterCard card) {
         this.card = card;
     }
 
@@ -76,7 +73,15 @@ public class CardController extends Pane {
         return isFront;
     }
 
-    public Card getCard() {
+    public StarterCard getCard() {
         return card;
+    }
+
+    public double getCardHeight() {
+        return cardHeight;
+    }
+
+    public double getCardWidth() {
+        return cardWidth;
     }
 }

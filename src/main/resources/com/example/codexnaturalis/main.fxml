@@ -12,9 +12,9 @@
       fx:controller="com.example.codexnaturalis.MainController"
       minWidth="1920.0" maxWidth="1920.0" maxHeight="1080.0" minHeight="1080.0"
       fx:id="mainPane">
-<!--    <FieldController fx:id="field"/>-->
+    <FieldController fx:id="field"/>
 <!--    <ZoomPaneController fx:id="zoomPane"/>-->
-<!--    <PlayerDeckController fx:id="playerDeck" />-->
+    <PlayerDeckController fx:id="playerDeck" />
 <!--    <Button fx:id="zoomButton" text="Zoom"/>-->
-    <PopPortChoiceController fx:id="portChoice"/>
+<!--    <PopPortChoiceController fx:id="portChoice"/>-->
 </Pane>

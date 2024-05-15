@@ -6,6 +6,7 @@ import javafx.scene.Cursor;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -17,7 +18,8 @@ public class SlotController extends Pane {
 
     @FXML
     ImageView slotCardView = null;
-    int pos;
+    NonObjectiveCard card = null;
+    Pair<Integer, Integer> coords;
     private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
     private boolean isEmpty = true;
     private boolean isCenter = false;
@@ -50,12 +52,8 @@ public class SlotController extends Pane {
         isEmpty = empty;
     }
 
-    public void setPos(int pos) {
-        this.pos = pos;
-    }
-
-    public int getPos() {
-        return pos;
+    public void setCoords(Pair<Integer, Integer> coords) {
+        this.coords = coords;
     }
 
     public void setCenter(boolean center) {
@@ -64,5 +62,9 @@ public class SlotController extends Pane {
 
     public boolean isCenter() {
         return isCenter;
+    }
+
+    public Pair<Integer, Integer> getCoords() {
+        return coords;
     }
 }

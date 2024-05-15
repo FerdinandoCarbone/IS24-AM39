@@ -3,8 +3,10 @@ package com.example.codexnaturalis;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
+import javafx.util.Pair;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static com.example.codexnaturalis.CardDim.*;
@@ -12,11 +14,10 @@ import static com.example.codexnaturalis.CardDim.*;
 public class FieldController extends Pane {
 
     SlotController centerSlot;
-    final int numSlot = 2;
-    final double totalHeight = 2*numSlot*(deltaHeight) + cardHeight;
-    final double totalWidth = 2*numSlot*(deltaWidth) + cardWidth;
-    private double scaleValue = 1.0;
-    private final double zoomFactor = 1.1;
+    final int fieldSize = 5;
+    final double totalHeight = 2* fieldSize *(deltaHeight) + cardHeight;
+    final double totalWidth = 2* fieldSize *(deltaWidth) + cardWidth;
+    private HashMap<Pair<Integer, Integer>, Integer> fieldMap = new HashMap<>();
 
     public FieldController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Field.fxml"));
@@ -24,26 +25,31 @@ public class FieldController extends Pane {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
-        int cardPos = 0;
         System.out.println("CREATING FIELD...");
-        for (int r = 0; r <= 2* numSlot; r++) {
-            boolean extraCard = false;
-            for (int offSetC = 0, counterC = 0; offSetC < numSlot; offSetC++, counterC++) {
+        int childIndex = 0;
+        for (int r = 0; r < fieldSize; r++) {
+            boolean dispariFlag = false;
+            for (int c = 0, offsetC = 0; c < fieldSize; c += 2, offsetC++, childIndex++) {
                 SlotController newSlot = new SlotController();
-                newSlot.setPos(cardPos);
-                cardPos++;
-                newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
-                if (r %2 == 0) {
-                    newSlot.setLayoutX(counterC *(2*deltaWidth));
-                    if (!extraCard) {
-                        offSetC--;
-                        extraCard = true;
-                    }
+                if (r % 2 == 0) {
+                    Pair<Integer, Integer> cords = new Pair<>(r, c);
+                    newSlot.setCoords(cords);
+                    fieldMap.put(cords, childIndex);
+                    newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
+                    newSlot.setLayoutX(offsetC * (2*deltaWidth));
                 } else {
-                    newSlot.setLayoutX((deltaWidth) + (counterC *(2*deltaWidth)));
+                    if (!dispariFlag) {
+                        c++;
+                        dispariFlag = true;
+                    }
+                    Pair<Integer, Integer> cords = new Pair<>(r, c);
+                    newSlot.setCoords(cords);
+                    fieldMap.put(cords, childIndex);
+                    newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
+                    newSlot.setLayoutX((deltaWidth) + (offsetC * (2*deltaWidth)));
                 }
                 this.getChildren().add(newSlot);
-                if (r == numSlot && counterC == numSlot /2) {
+                if (r == fieldSize/2 && c == fieldSize/2) {
                     newSlot.setSlotCardView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/center.jpg"))));
                     centerSlot = newSlot;
                     centerSlot.setEmpty(true);
@@ -51,11 +57,40 @@ public class FieldController extends Pane {
                 }
             }
         }
+
         centerSlot.toFront();
+
+
+//        for (int r = 0; r <= 2* fieldSize; r++) {
+//            boolean extraCard = false;
+//            for (int offSetC = 0, counterC = 0; offSetC < fieldSize; offSetC++, counterC++) {
+//                SlotController newSlot = new SlotController();
+//                newSlot.setPos(cardPos);
+//                cardPos++;
+//                newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
+//                if (r %2 == 0) {
+//                    newSlot.setLayoutX(counterC *(2*deltaWidth));
+//                    if (!extraCard) {
+//                        offSetC--;
+//                        extraCard = true;
+//                    }
+//                } else {
+//                    newSlot.setLayoutX((deltaWidth) + (counterC *(2*deltaWidth)));
+//                }
+//                this.getChildren().add(newSlot);
+//                if (r == fieldSize && counterC == fieldSize /2) {
+//                    newSlot.setSlotCardView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/center.jpg"))));
+//                    centerSlot = newSlot;
+//                    centerSlot.setEmpty(true);
+//                    centerSlot.setCenter(true);
+//                }
+//            }
+//        }
+//        centerSlot.toFront();
     }
 
-    public int getNumSlot() {
-        return numSlot;
+    public int getFieldSize() {
+        return fieldSize;
     }
 
     public double getTotalHeight() {
