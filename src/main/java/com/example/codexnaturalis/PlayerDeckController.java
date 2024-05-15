@@ -26,18 +26,9 @@ public class PlayerDeckController extends HBox {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
-        this.setStyle("-fx-background-color: #aaaaaa; -fx-background-radius: 10");
+        this.setStyle("-fx-background-color: #aff; -fx-background-radius: 10");
         deckHeight = card1.getCardHeight();
     }
-
-    public void receiveCards() {
-        card1.setupCard(DrawingDeck.drawCard(true));
-        card2.setupCard(DrawingDeck.drawCard(true));
-        card3.setupCard(DrawingDeck.drawCard(false));
-        starterCard.setupCard(DrawingDeck.getTotalStartingCards().getFirst());
-        secretObjCard.setupCard(DrawingDeck.getTotalObjectiveCards().getFirst());
-    }
-
     public ResourceGoldCardController getCard1() {
         return card1;
     }

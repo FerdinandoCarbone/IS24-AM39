@@ -11,7 +11,6 @@ import java.io.IOException;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        DrawingDeck.generateDecks();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("main.fxml"));
         @SuppressWarnings("unused")
         final Parent root = fxmlLoader.load();

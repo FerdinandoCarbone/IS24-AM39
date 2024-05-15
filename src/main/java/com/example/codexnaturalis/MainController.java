@@ -25,7 +25,7 @@ public class MainController implements Initializable {
 //    @FXML
 //    PopPortChoiceController portChoice;
 
-    private final Player player = new Player("Pippo", new Token(), new Field(5, 5), UUID.randomUUID());
+    private Player player;
 
     private ResourceGoldCardController cardToRemove;
     private boolean readyToPlace = false;
@@ -40,7 +40,7 @@ public class MainController implements Initializable {
         playerDeck.getCard2().setupCard(player.getPlayerDeck().getResourceGoldCards().get(1));
         playerDeck.getCard3().setupCard(player.getPlayerDeck().getResourceGoldCards().get(2));
         playerDeck.getStarterCard().setupCard(player.getPlayerDeck().getStarterCard());
-        playerDeck.getSecretObjCard().setupCard(player.getPlayerDeck().getSecretObjectiveCard());
+//        playerDeck.getSecretObjCard().setupCard(player.getPlayerDeck().getSecretObjectiveCard());
     }
 
     public void setupRGCEvents() {
@@ -64,6 +64,11 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            player = new Player("Pippo", new Token(Token.Color.Blue), new Field(GlobalVars.matrixSize, GlobalVars.matrixSize), UUID.randomUUID());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         setupPlayerDeck();
         setupRGCEvents();
         setupStarterEvent();
@@ -117,31 +122,38 @@ public class MainController implements Initializable {
     }
 
     private void placeCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
-        player.getPlayerField().printField();
-        if (slotToPlace.isEmpty()) {
-            slotToPlace.setSlotCardView(cardToRemove.getShownImage());
-            playerDeck.getChildren().remove(cardToRemove);
-            readyToPlace = false;
-            slotToPlace.toFront();
-            //Getting row of field
-            int row = slotToPlace.getCoords().getKey();
-            int col = slotToPlace.getCoords().getValue();
-            player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
-            player.getPlayerField().printField();
-        } else {
-            System.out.println("SLOT GIA' OCCUPATO");
+        player.printFieldWithName();
+        int row = slotToPlace.getCoords().getKey();
+        int col = slotToPlace.getCoords().getValue();
+        if (player.isCardAttachableToSlot(row, col)) {
+            if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
+                if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
+                    return;
+                }
+            }
+            if (slotToPlace.isEmpty()) {
+                slotToPlace.setSlotCardView(cardToRemove.getShownImage());
+                playerDeck.getChildren().remove(cardToRemove);
+                readyToPlace = false;
+                slotToPlace.toFront();
+                //Getting row of field
+                player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
+                player.printFieldWithName();
+            } else {
+                System.out.println("SLOT GIA' OCCUPATO");
+            }
         }
     }
 
     private void placeStarterCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
-        player.getPlayerField().printField();
+        player.printFieldWithName();
         if (slotToPlace.isEmpty()) {
             slotToPlace.setSlotCardView(playerDeck.getStarterCard().getShownImage());
             playerDeck.getChildren().remove(playerDeck.getStarterCard());
             readyToPlace = false;
             slotToPlace.toFront();
             player.placeStarterCard(true);
-            player.getPlayerField().printField();
+            player.printFieldWithName();
         } else {
             System.out.println("SLOT GIA' OCCUPATO");
         }

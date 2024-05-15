@@ -11,8 +11,8 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.example.codexnaturalis.CardDim.cardHeight;
-import static com.example.codexnaturalis.CardDim.cardWidth;
+import static com.example.codexnaturalis.GlobalVars.cardHeight;
+import static com.example.codexnaturalis.GlobalVars.cardWidth;
 
 public class SlotController extends Pane {
 

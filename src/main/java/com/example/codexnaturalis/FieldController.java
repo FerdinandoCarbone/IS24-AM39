@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static com.example.codexnaturalis.CardDim.*;
+import static com.example.codexnaturalis.GlobalVars.*;
 
 public class FieldController extends Pane {
 
     SlotController centerSlot;
-    final int fieldSize = 5;
+    final int fieldSize = matrixSize;
     final double totalHeight = 2* fieldSize *(deltaHeight) + cardHeight;
     final double totalWidth = 2* fieldSize *(deltaWidth) + cardWidth;
     private HashMap<Pair<Integer, Integer>, Integer> fieldMap = new HashMap<>();
@@ -35,7 +35,7 @@ public class FieldController extends Pane {
                     Pair<Integer, Integer> cords = new Pair<>(r, c);
                     newSlot.setCoords(cords);
                     fieldMap.put(cords, childIndex);
-                    newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
+                    newSlot.setLayoutY(r *(GlobalVars.cardHeight - GlobalVars.cornerHeight));
                     newSlot.setLayoutX(offsetC * (2*deltaWidth));
                 } else {
                     if (!dispariFlag) {
@@ -45,7 +45,7 @@ public class FieldController extends Pane {
                     Pair<Integer, Integer> cords = new Pair<>(r, c);
                     newSlot.setCoords(cords);
                     fieldMap.put(cords, childIndex);
-                    newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
+                    newSlot.setLayoutY(r *(GlobalVars.cardHeight - GlobalVars.cornerHeight));
                     newSlot.setLayoutX((deltaWidth) + (offsetC * (2*deltaWidth)));
                 }
                 this.getChildren().add(newSlot);
@@ -67,7 +67,7 @@ public class FieldController extends Pane {
 //                SlotController newSlot = new SlotController();
 //                newSlot.setPos(cardPos);
 //                cardPos++;
-//                newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
+//                newSlot.setLayoutY(r *(GlobalVars.cardHeight - GlobalVars.cornerHeight));
 //                if (r %2 == 0) {
 //                    newSlot.setLayoutX(counterC *(2*deltaWidth));
 //                    if (!extraCard) {

@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.example.codexnaturalis.CardDim.*;
+import static com.example.codexnaturalis.GlobalVars.*;
 
 public class ZoomPaneController extends Pane {
 

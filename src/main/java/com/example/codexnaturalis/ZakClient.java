@@ -295,7 +295,7 @@ public class ZakClient {
             player.printManas();
             System.out.println("What card would you like to place? ");
             placedCard = playerDeck.get(getIntInput(playerDeck.size(), true));
-            if (placedCard.getIdCard() > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
+            if (placedCard.getIdCard() > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard) && placedCard.isPlacedFront()) {
                 System.out.println("You do not possess enough materials or resources to place this card: choose another one");
                 continue;
             }

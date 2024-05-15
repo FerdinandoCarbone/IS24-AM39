@@ -156,7 +156,6 @@ class PlayerDeck implements Serializable {
     private ObjectiveCard secretObjectiveCard;
 
     public PlayerDeck(ArrayList<ResourceGoldCard> resourceGoldCards, StarterCard starterCard) {
-
         this.resourceGoldCards = resourceGoldCards;
         this.starterCard = starterCard;
         this.secretObjectiveCard = null;

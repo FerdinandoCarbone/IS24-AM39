@@ -113,8 +113,8 @@ public class Player implements Serializable {
         System.out.println(Colors.BLUE + "Wolf: " + resourceMana[2] + Colors.RESET);
         System.out.println(Colors.BLUE + "Butterfly: " + resourceMana[3] + Colors.RESET);
         System.out.println(Colors.BLUE + "Ink: " + elementsMana[0] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Papyrus: " + elementsMana[0] + Colors.RESET);
-        System.out.println(Colors.BLUE + "Feather: " + elementsMana[0] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Papyrus: " + elementsMana[1] + Colors.RESET);
+        System.out.println(Colors.BLUE + "Feather: " + elementsMana[2] + Colors.RESET);
     }
 
     public boolean allCornersEmpty(NonObjectiveCard card) {
@@ -137,6 +137,7 @@ public class Player implements Serializable {
         System.out.println(playerName + "'s Codex");
         playerField.printField();
         System.out.println(playerName+"'s score: "+ score);
+        printManas();
     }
 
     /**
@@ -220,7 +221,12 @@ public class Player implements Serializable {
     public void placeCard(int row, int column, ResourceGoldCard cardToPlace) {
         playerField.getSlots()[row][column].setCardSlot(cardToPlace);
         playerField.getSlots()[row][column].setBusySlot(true);
-        increaseResourceElementsMana(cardToPlace.getSeed());
+        if (!cardToPlace.isPlacedFront()) {
+            System.out.println("Placing the card face down");
+            increaseResourceElementsMana(cardToPlace.getSeed());
+        } else {
+            System.out.println("Placing the card face up");
+        }
         try {
             //Check the corners of the placed card and add them to the manas
             for (int i = 0; i < 4; i++) {
@@ -280,6 +286,12 @@ public class Player implements Serializable {
         if (!isCardAttachableToSlot(row, column)) {
             System.out.println(RED + "--[ERROR IN Player.placeCardAndRemoveFromDeck, CARD NOT PLACEBLE]--" + RESET);
             return;
+        }
+        if (cardToPlace instanceof GoldCard && cardToPlace.isPlacedFront()) {
+            if (!requirementsAreFulfilled((GoldCard) cardToPlace)) {
+                System.out.println(RED + "--[ERRORE IN Player.placeCardAndRemoveFromDeck, CARD NOT PLACEBLE]--" + RESET);
+                return;
+            }
         }
         //Place the card on the field
         placeCard(row, column, cardToPlace);

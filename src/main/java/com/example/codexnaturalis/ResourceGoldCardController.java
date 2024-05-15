@@ -19,8 +19,8 @@ public class ResourceGoldCardController extends Pane {
     private Image backImage;
     private ResourceGoldCard card;
     private boolean isFront;
-    private final double cardHeight = CardDim.cardHeight * 1.5;
-    private final double cardWidth = CardDim.cardWidth * 1.5;
+    private final double cardHeight = GlobalVars.cardHeight * 1.5;
+    private final double cardWidth = GlobalVars.cardWidth * 1.5;
 
     public ResourceGoldCardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Card.fxml"));
@@ -32,8 +32,8 @@ public class ResourceGoldCardController extends Pane {
         flipButton.setOnAction(event -> flipCard());
         cardImageView.setFitHeight(cardHeight);
         cardImageView.setFitWidth(cardWidth);
-        flipButton.setLayoutX(CardDim.cardWidth - CardDim.cornerWidth);
-        flipButton.setLayoutY(CardDim.cornerHeight);
+        flipButton.setLayoutX(GlobalVars.cardWidth - GlobalVars.cornerWidth);
+        flipButton.setLayoutY(GlobalVars.cornerHeight);
 //        flipButton.setGraphic();
     }
 
@@ -52,6 +52,7 @@ public class ResourceGoldCardController extends Pane {
             cardImageView.setImage(frontImage);
             isFront = true;
         }
+        card.setIsPlacedFront(isFront);
     }
 
     public Image getShownImage() {
