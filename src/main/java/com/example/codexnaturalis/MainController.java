@@ -19,6 +19,8 @@ public class MainController implements Initializable {
     private StructRightController struct2, struct3, struct4;
     private CardController cardToRemove;
     private CardController cardToTake;
+    @FXML
+    private TabelloneController table;
     private boolean readyToPlace = false;
     private int pos = 0;
 

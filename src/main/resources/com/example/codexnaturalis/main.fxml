@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Tab?>
 
 <?import javafx.scene.text.Text?>
+<?import com.example.codexnaturalis.TabelloneController?>
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
@@ -42,9 +43,9 @@
         </Tab>
         <Tab text = "Giocatore 3">
             <content>
-                <HBox >
+                <Pane >
                     <StructRightController fx:id="struct3" />
-                </HBox>
+                </Pane>
             </content>
         </Tab>
         <Tab text = "Giocatore 4">
@@ -52,6 +53,13 @@
                 <HBox >
                     <StructRightController fx:id="struct4" />
                 </HBox>
+            </content>
+        </Tab>
+        <Tab text = "Tabellone">
+            <content>
+                <Pane >
+                    <TabelloneController fx:id="table" />
+                </Pane>
             </content>
         </Tab>
     </tabs>
