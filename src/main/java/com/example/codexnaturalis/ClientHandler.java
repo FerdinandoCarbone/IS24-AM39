@@ -36,6 +36,15 @@ public class ClientHandler extends Thread implements Runnable {
         if(ZakServer.match!=null) {
             StandardMatchMessage newTurnStatus = ZakServer.match.removeDisconnectedPlayer(clientID);
             UUID nextPlayer = newTurnStatus.getNextPlayerId();
+            try{
+                //custom use of sender and nextplayerID: used to identify the winner
+                if(newTurnStatus.getClientID().compareTo(UUID.fromString("WINNER"))==0){
+                    ServerConnectionManager.sendBroadCastMessage(new TextMessage("Server:",null,"only you in the match","Everyone"));
+                    ServerConnectionManager.sendMessage(nextPlayer,new EndMatchMessage(null,null,newTurnStatus.getSender(),null,null,null));
+                }
+            } catch(IOException e){
+                throw new RuntimeException("Error while sending winning message");
+            }
             try {
                 ServerConnectionManager.sendMessage(nextPlayer, new GenericTurnMessage("Server", null, ZakServer.match.getCoveredCards(), ZakServer.match.getPublicCards(), null));
             } catch (IOException e) {
@@ -148,8 +157,9 @@ class RMIClientHandler extends ClientHandler {
     public void run() {
         while (hasToRun) {
             try {
+                if(getSecretWasChosen()){
                 heartBeat = false;
-                Thread.sleep(10000);
+                Thread.sleep(10000);}
                 if (!heartBeat)
                     throw new ClientAbruptlyDisconnectedException("Client " + getClientName() + " disconnected: Trying to reconnect...");
             } catch (InterruptedException e) {

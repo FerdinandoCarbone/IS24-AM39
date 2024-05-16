@@ -39,7 +39,8 @@ public class ZakClient {
     public static void start() {
         try {
             instanceConManAndHandshake();
-        } catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
+        }
+        catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
             System.err.println("Client Setup error: " + e.getMessage());
             if (guiSelector) {
                 Platform.runLater(() -> {
@@ -400,7 +401,7 @@ public class ZakClient {
             while (!(currentGameStatus && serverHandler.wasFirstBroadCastReceived())) {
                 Thread.onSpinWait();
             }
-            while (currentGameStatus) if (!guiSelector) selectPossibleActions();
+            while (currentGameStatus) selectPossibleActions();
         }
     }
 

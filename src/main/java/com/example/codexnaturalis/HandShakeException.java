@@ -5,6 +5,9 @@ public class HandShakeException extends Exception {
     public HandShakeException() {
         super();
     }
+    public HandShakeException(String s){
+        super(s);
+    }
 }
 class TooManyPlayersException extends HandShakeException {
     public TooManyPlayersException(String errorMessage) {

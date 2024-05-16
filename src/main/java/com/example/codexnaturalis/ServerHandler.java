@@ -305,6 +305,7 @@ class ServerRMIHandler extends ServerHandler{
     private void messageReceiver(Message message) throws WrongMessageConversionException, IOException, InterruptedException {
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
+        System.out.println(messageType);
         switch (messageType){
             case "GenericTurnMessage":
                 genericTurnMessageHandler((GenericTurnMessage) message);

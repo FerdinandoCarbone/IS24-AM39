@@ -54,7 +54,8 @@ public class ConnectionManger {
                 System.err.println(e.getMessage());
                 return false;
             }
-        } else {
+        }
+        else {
             socket = null;
             try {
                 connectionAttempt();
@@ -107,7 +108,7 @@ public class ConnectionManger {
         String playerNick = ZakClient.getPlayerNick();
         try {
             if (isCrashed()) reHandShake(playerNick, clientID);
-            else startHandShake(playerNick, clientID);
+            else  startHandShake(playerNick, clientID);
         } catch (StupidUserException | IOException | HandShakeException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
@@ -177,7 +178,7 @@ public class ConnectionManger {
      * @param clientID   clientID
      * @return returns desired number of players for the match, initially input by lobby creator player
      */
-    private int socketHandshakeInit(String playerNick, UUID clientID) {
+    private int socketHandshakeInit(String playerNick, UUID clientID) throws HandShakeException {
         //server listens for this message in order to attempt a new connection
         Message handshakeMessage = new Message(playerNick, clientID);
         //used to identify which game the user was initially in. In case of a reconnection the value is not null else it is
@@ -201,9 +202,9 @@ public class ConnectionManger {
             handshakeACK = (LobbyCreationMessage) ackMessage;
             ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Something went wrong during socket handshake process");
+           // System.out.println();
+            throw new HandShakeException("Something went wrong during handshake process: "+e.getMessage());
         }
-        assert handshakeACK != null;
         return handshakeACK.getNumPlayer();
     }
 
@@ -212,14 +213,22 @@ public class ConnectionManger {
      *
      * @return new player nickname and sets it as such
      */
-    private String nickRetype() {
+    private String nickRetype() throws IOException {
         String playerNick;
         System.out.println("Username already taken: choose another one");
         System.out.print("New username: ");
         if (!isGuiSelector()) playerNick = receiveInput();
-        else
-            playerNick = LauncherController.askStringInputToUser("Username already taken: choose another one", "New username: ");
+        else playerNick = LauncherController.askStringInputToUser("Username already taken: choose another one", "New username: ");
         System.out.println("NickRetype: " + playerNick);
+        // File (or directory) with old name
+        File file = new File("savedata/"+getPlayerNick()+"-matchinfo.cdxn");
+        // File (or directory) with new name
+        File file2 = new File("savedata/"+playerNick+"-matchinfo.cdxn");
+        if (file2.exists())
+            return getPlayerNick();
+        if (!file.renameTo(file2)) {
+            throw new IOException("Encountered problems while changing player nickname");
+        }
         ZakClient.setPlayerNick(playerNick);
         /*ZakClient.setClientID(ZakClient.uuidGen());
         writeConnectionTypeOnFile(typeOfConnection?2:1);*/
@@ -304,8 +313,12 @@ public class ConnectionManger {
     }
 
     /**
-     * Reconnection method that handles reconnections after a client crash, socket pipes brakes and other connections issues
+     * Reconnection method that handles reconnections after a client crash, socket pipes brakes and other connections issues.
+     * Wrote this @4am (did not sleep because I had issues with synchronization and resetting the socket graph)...
+     * I would really love to make it smaller and more modular, but I am too scared to touch it, because it works... fully commented though.
+     * Apologies to whoever will be trying to read it, and good luck debugging it!
      */
+    //todo: Divide this
     public void reHandShake(String playerNick, UUID clientID) {
         //client join request after crash
         Message handshakeMessage = new Message(playerNick, clientID);
@@ -494,6 +507,12 @@ public class ConnectionManger {
         return handshakeACKInfo;
     }
 
+    /**
+     * StarterCard face selector
+     * @return returns true if starterCard faces up, false if faces down
+     * @throws IOException thrown if an invalid input is made
+     * @throws InterruptedException thrown if semaphore can't acquire thread
+     */
     private static boolean selectStarterCardFace() throws IOException, InterruptedException {
         AtomicInteger i = new AtomicInteger();
         Semaphore sem = new Semaphore(0);
