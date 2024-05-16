@@ -45,12 +45,13 @@ public class MainController extends Pane implements Initializable {
         comboBox=new ComboBox<>();
         comboBox.setPromptText("Select recipient Player");
         for(Player p: ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
+        comboBox.getItems().add("Everyone");
         turnButton = new Button("Confirm Turn");
         turnButton.setDisable(true);
         turnButton.setOnAction(event->genericTurnSender());
-        turnBOX.getChildren().addAll(comboBox,turnButton);
+        turnBOX.getChildren().add(1,comboBox);
+        turnBOX.getChildren().add(turnButton);
 
-        comboBox.getItems().add("Everyone");
         try {
             playerDeck.receiveCards();
         } catch (IOException e) {
@@ -137,6 +138,8 @@ public class MainController extends Pane implements Initializable {
         turnButton.setDisable(b);
     }
     public static void updateOtherPlayers(){
+        comboBox.getItems().removeAll();
         for(Player p: ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
+        comboBox.getItems().add("Everyone");
     }
 }
