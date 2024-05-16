@@ -15,14 +15,23 @@ public class MainController implements Initializable {
     private PlayerDeckController playerDeck;
     @FXML
     private StructRightController struct;
+    @FXML
+    private StructRightController struct2, struct3, struct4;
     private CardController cardToRemove;
+    private CardController cardToTake;
     private boolean readyToPlace = false;
     private int pos = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+
+
         playerDeck.receiveCards();
         cardDrawable.showDrawableCards();
+
+        cardDrawable.getDrawGoldButton().setOnAction(event -> playerDeck.drawGoldCard());
+        cardDrawable.getDrawResButton().setOnAction(event -> playerDeck.drawResCard());
 
         for (int i = 0; i < 4; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
@@ -40,7 +49,6 @@ public class MainController implements Initializable {
                     if (tmpSlot.isEmpty()) {
                         tmpSlot.setSlotCardView(cardToRemove.getShownImage());
                         if(pos==3) playerDeck.getChildren().remove(cardToRemove);
-                        //playerDeck.getChildren().remove(cardToRemove);
                         playerDeck.setEmpty(pos);
                         readyToPlace = false;
                         tmpSlot.toFront();
@@ -50,6 +58,29 @@ public class MainController implements Initializable {
                 } else {
                     System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
                 }
+            });
+        }
+
+        //mazzo drawable
+        for (int i = 0; i < 4; i++) {
+            CardController tmpCard = (CardController) cardDrawable.getChildren().get(i);
+            int finalI = i;
+            tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
+                cardToTake = tmpCard;
+                //playerDeck.drawGoldCardFromTable(finalI);
+                ResourceGoldCard cardX = (ResourceGoldCard) cardToTake.getCard();
+                switch (pos){
+                    case 0:
+                        playerDeck.getCard1().setupCard(cardX);
+                        break;
+                    case 1:
+                        playerDeck.getCard2().setupCard(cardX);
+                        break;
+                    case 2:
+                        playerDeck.getCard3().setupCard(cardX);
+                        break;
+                }
+                cardDrawable.restore(finalI);
             });
         }
     }

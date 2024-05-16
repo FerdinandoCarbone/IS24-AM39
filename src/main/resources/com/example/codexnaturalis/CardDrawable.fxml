@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
 <?import com.example.codexnaturalis.CardController?>
 
-<fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
+<fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml">
-    <CardController fx:id="card1"/>
-    <CardController fx:id="card2" />
-    <CardController fx:id="card3" />
-    <CardController fx:id="card4" />
+    <CardController fx:id="cardR1" layoutX="180.0" layoutY="150.0"/>
+    <CardController fx:id="cardR2" layoutX="180.0" layoutY="0.0"/>
+    <CardController fx:id="cardG1" layoutX="0.0" layoutY="150.0"/>
+    <CardController fx:id="cardG2" layoutX="0.0" layoutY="0.0"/>
+
+    <Button fx:id="drawGoldButton" text="Gold" layoutX="70.0" layoutY="300.0">
+    </Button>
+    <Button fx:id="drawResButton" text="Resource" layoutX="235.0" layoutY="300.0">
+    </Button>
 
 </fx:root>

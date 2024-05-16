@@ -5,18 +5,74 @@
 <?import com.example.codexnaturalis.CardDrawableController?>
 <?import com.example.codexnaturalis.StructRightController?>
 
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+
+<?import javafx.scene.text.Text?>
+<TabPane xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.example.codexnaturalis.MainController"
+         minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0"
+         tabClosingPolicy="UNAVAILABLE">
+    <tabs>
+        <Tab text = "Giocatore 1">
+            <content>
+                <BorderPane xmlns="http://javafx.com/javafx"
+                            xmlns:fx="http://javafx.com/fxml"
+                            minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
+                    <bottom>
+                        <PlayerDeckController fx:id="playerDeck"  />
+                    </bottom>
+                    <top >
+                        <HBox >
+                            <StructRightController fx:id="struct"  maxHeight="60.0"/>
+                            <CardDrawableController fx:id="cardDrawable" />
+                        </HBox>
+                    </top>
+
+                </BorderPane>
+            </content>
+        </Tab>
+        <Tab text = "Giocatore 2">
+            <content>
+                <HBox >
+                    <StructRightController fx:id="struct2" />
+                </HBox>
+            </content>
+        </Tab>
+        <Tab text = "Giocatore 3">
+            <content>
+                <HBox >
+                    <StructRightController fx:id="struct3" />
+                </HBox>
+            </content>
+        </Tab>
+        <Tab text = "Giocatore 4">
+            <content>
+                <HBox >
+                    <StructRightController fx:id="struct4" />
+                </HBox>
+            </content>
+        </Tab>
+    </tabs>
+</TabPane>
+
+
+
+<!--
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.codexnaturalis.MainController"
             minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
-    <bottom>
-        <PlayerDeckController fx:id="playerDeck" />
-    </bottom>
-    <top >
-        <HBox >
-            <StructRightController fx:id="struct" />
-            <CardDrawableController fx:id="cardDrawable" />
-        </HBox>
-    </top>
+<bottom>
+    <PlayerDeckController fx:id="playerDeck" />
+</bottom>
+<top >
+    <HBox >
+        <StructRightController fx:id="struct" />
+        <CardDrawableController fx:id="cardDrawable" />
+    </HBox>
+</top>
 
 </BorderPane>
+        -->

@@ -12,15 +12,20 @@ import javafx.scene.layout.Pane;
 import java.io.IOException;
 import java.util.Objects;
 
-public class CardDrawableController extends HBox {
+public class CardDrawableController extends Pane {
     @FXML
-    private CardController card1;
+    private Button drawGoldButton;
     @FXML
-    private CardController card2;
+    private Button drawResButton;
     @FXML
-    private CardController card3;
+    private CardController cardR1;
     @FXML
-    private CardController card4;
+    private CardController cardR2;
+    @FXML
+    private CardController cardG1;
+    @FXML
+    private CardController cardG2;
+
 
     public CardDrawableController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("CardDrawable.fxml"));
@@ -31,25 +36,48 @@ public class CardDrawableController extends HBox {
     }
 
     public void showDrawableCards() {   //da pescare dalle carte già disposte a terra dei due mazzi
-        card1.setupCard(DrawingDeck.drawCard(true));
-        card2.setupCard(DrawingDeck.drawCard(true));
-        card3.setupCard(DrawingDeck.drawCard(false));
-        card4.setupCard(DrawingDeck.drawCard(false));
+        cardR1.setupCard(DrawingDeck.drawCard(true));
+        cardR2.setupCard(DrawingDeck.drawCard(true));
+        cardG1.setupCard(DrawingDeck.drawCard(false));
+        cardG2.setupCard(DrawingDeck.drawCard(false));
     }
 
+    public void restore(int p){
+        switch (p){
+            case 2:
+                cardG1.setupCard(DrawingDeck.drawCard(false));
+                break;
+            case 3:
+                cardG2.setupCard(DrawingDeck.drawCard(false));
+                break;
+            case 0:
+                cardR1.setupCard(DrawingDeck.drawCard(true));
+                break;
+            case 1:
+                cardR2.setupCard(DrawingDeck.drawCard(true));
+                break;
+        }
+    }
+
+
+
     public CardController getCard1() {
-        return card1;
+        return cardR1;
     }
 
     public CardController getCard2() {
-        return card2;
+        return cardR2;
     }
 
     public CardController getCard3() {
-        return card3;
+        return cardG1;
     }
 
     public CardController getCard4() {
-        return card4;
+        return cardG2;
     }
+
+    public Button getDrawGoldButton() { return drawGoldButton; }
+
+    public Button getDrawResButton() { return drawResButton; }
 }

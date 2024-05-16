@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,7 +18,11 @@ public class HelloApplication extends Application {
         AppController controller = fxmlLoader.getController();
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root);
-        stage.setTitle("Hello!");
+
+        //Image icon = new Image("Assets/Cards/empty.jpg");
+        //stage.getIcons().add(icon);
+        //stage.setFullScreen(true);
+        stage.setTitle("Codex Naturalis!");
         stage.setScene(scene);
         stage.show();
     }

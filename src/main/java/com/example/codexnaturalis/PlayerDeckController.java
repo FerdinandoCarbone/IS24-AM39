@@ -24,10 +24,6 @@ public class PlayerDeckController extends HBox {
     @FXML
     private CardController secretObjCard;
     private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
-    @FXML
-    private Button drawGoldButton;
-    @FXML
-    private Button drawResButton;
     private int position = 0 ;
 
 
@@ -37,8 +33,6 @@ public class PlayerDeckController extends HBox {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
-        drawGoldButton.setOnAction(event -> drawGoldCard());
-        drawResButton.setOnAction(event -> drawResCard());
     }
 
     public void receiveCards() {
@@ -80,6 +74,19 @@ public class PlayerDeckController extends HBox {
                 break;
         }
     }
+    /*public void drawGoldCardFromTable(int p){
+        switch (p){
+            case 0:
+                card1.setupCard(DrawingDeck.drawCard(true));
+                break;
+            case 1:
+                card2.setupCard(DrawingDeck.drawCard(true));
+                break;
+            case 2:
+                card3.setupCard(DrawingDeck.drawCard(true));
+                break;
+        }
+    }*/
     public void setEmpty(int pos){
         position=pos;
         switch (pos){
