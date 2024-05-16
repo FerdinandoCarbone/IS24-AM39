@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -11,6 +12,7 @@ public class MainController implements Initializable {
 
     @FXML
     private CardDrawableController cardDrawable;
+
     @FXML
     private PlayerDeckController playerDeck;
     @FXML
@@ -34,6 +36,10 @@ public class MainController implements Initializable {
 
         cardDrawable.getDrawGoldButton().setOnAction(event -> playerDeck.drawGoldCard());
         cardDrawable.getDrawResButton().setOnAction(event -> playerDeck.drawResCard());
+
+        cardDrawable.getDeckGoldController().getChooseButton().setOnAction(event -> playerDeck.drawGoldCard());
+        cardDrawable.getDeckResController().getChooseButton().setOnAction(event -> playerDeck.drawResCard());
+
 
         for (int i = 0; i < 4; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);

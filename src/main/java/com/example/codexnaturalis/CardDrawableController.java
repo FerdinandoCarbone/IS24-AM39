@@ -25,6 +25,8 @@ public class CardDrawableController extends Pane {
     private CardController cardG1;
     @FXML
     private CardController cardG2;
+    @FXML
+    private DecksController deckGoldController, deckResController;
 
 
     public CardDrawableController() throws IOException {
@@ -33,9 +35,11 @@ public class CardDrawableController extends Pane {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
+        deckResController.setupCard(DrawingDeck.drawCard(true));
+        deckGoldController.setupCard(DrawingDeck.drawCard(false));
     }
 
-    public void showDrawableCards() {   //da pescare dalle carte già disposte a terra dei due mazzi
+    public void showDrawableCards() {
         cardR1.setupCard(DrawingDeck.drawCard(true));
         cardR2.setupCard(DrawingDeck.drawCard(true));
         cardG1.setupCard(DrawingDeck.drawCard(false));
@@ -80,4 +84,8 @@ public class CardDrawableController extends Pane {
     public Button getDrawGoldButton() { return drawGoldButton; }
 
     public Button getDrawResButton() { return drawResButton; }
+
+    public DecksController getDeckGoldController() { return deckGoldController; }
+
+    public DecksController getDeckResController() { return deckResController; }
 }
