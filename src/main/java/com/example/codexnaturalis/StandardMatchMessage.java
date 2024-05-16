@@ -63,6 +63,7 @@ class EndMatchMessage extends StandardMatchMessage{
 
 class CurrentPlayerDisconnectedMessage extends StandardMatchMessage{
 
+
     public CurrentPlayerDisconnectedMessage(ArrayList<ResourceGoldCard> publicCardsNewState, UUID currentPlayerId, String playerName, UUID nextPlayerId) {
         super(publicCardsNewState, currentPlayerId, playerName, nextPlayerId, null, null);
     }
