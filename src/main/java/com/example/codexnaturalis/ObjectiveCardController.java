@@ -19,8 +19,8 @@ public class ObjectiveCardController extends Pane {
     private Image backImage;
     private ObjectiveCard card;
     private boolean isFront;
-    private final double cardHeight = GlobalVars.cardHeight*1.5;
-    private final double cardWidth = GlobalVars.cardWidth*1.5;
+    private final double cardHeight = GlobalVars.cardHeight*3;
+    private final double cardWidth = GlobalVars.cardWidth*3;
 
     public ObjectiveCardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Card.fxml"));

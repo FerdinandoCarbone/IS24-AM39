@@ -15,8 +15,8 @@ public class FieldController extends Pane {
 
     SlotController centerSlot;
     final int fieldSize = matrixSize;
-    final double totalHeight = 2* fieldSize *(deltaHeight) + cardHeight;
-    final double totalWidth = 2* fieldSize *(deltaWidth) + cardWidth;
+    final double totalHeight = fieldSize *(deltaHeight) + cardHeight;
+    final double totalWidth = fieldSize *(deltaWidth) + cardWidth;
     private HashMap<Pair<Integer, Integer>, Integer> fieldMap = new HashMap<>();
 
     public FieldController() throws IOException {
@@ -57,36 +57,7 @@ public class FieldController extends Pane {
                 }
             }
         }
-
         centerSlot.toFront();
-
-
-//        for (int r = 0; r <= 2* fieldSize; r++) {
-//            boolean extraCard = false;
-//            for (int offSetC = 0, counterC = 0; offSetC < fieldSize; offSetC++, counterC++) {
-//                SlotController newSlot = new SlotController();
-//                newSlot.setPos(cardPos);
-//                cardPos++;
-//                newSlot.setLayoutY(r *(GlobalVars.cardHeight - GlobalVars.cornerHeight));
-//                if (r %2 == 0) {
-//                    newSlot.setLayoutX(counterC *(2*deltaWidth));
-//                    if (!extraCard) {
-//                        offSetC--;
-//                        extraCard = true;
-//                    }
-//                } else {
-//                    newSlot.setLayoutX((deltaWidth) + (counterC *(2*deltaWidth)));
-//                }
-//                this.getChildren().add(newSlot);
-//                if (r == fieldSize && counterC == fieldSize /2) {
-//                    newSlot.setSlotCardView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/center.jpg"))));
-//                    centerSlot = newSlot;
-//                    centerSlot.setEmpty(true);
-//                    centerSlot.setCenter(true);
-//                }
-//            }
-//        }
-//        centerSlot.toFront();
     }
 
     public int getFieldSize() {

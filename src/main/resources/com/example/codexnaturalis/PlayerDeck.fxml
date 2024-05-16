@@ -6,12 +6,12 @@
 <?import com.example.codexnaturalis.ResourceGoldCardController?>
 <?import com.example.codexnaturalis.StarterCardController?>
 <?import com.example.codexnaturalis.ObjectiveCardController?>
-<fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
+<fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml">
     <ResourceGoldCardController fx:id="card1"/>
     <ResourceGoldCardController fx:id="card2" />
     <ResourceGoldCardController fx:id="card3" />
     <StarterCardController fx:id="starterCard" />
-    <ObjectiveCardController fx:id="secretObjCard" />
+<!--    <ObjectiveCardController fx:id="secretObjCard" />-->
 
 </fx:root>

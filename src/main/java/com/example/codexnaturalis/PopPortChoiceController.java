@@ -27,7 +27,7 @@ public class PopPortChoiceController extends Pane {
 
         final Stage popupStage = new Stage();
         popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.setTitle("FUNZIONA");
+        popupStage.setTitle("Network window");
 
         Pane popupPane = new Pane();
         popupPane.getChildren().add(new PortChoiceController());

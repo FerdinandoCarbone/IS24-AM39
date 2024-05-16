@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import com.example.codexnaturalis.SlotController?>
+<?import com.example.codexnaturalis.ResourceGoldCardController?>
+<fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml">
+    <ImageView fx:id="img1"/>
+    <ImageView fx:id="img2"/>
+    <ImageView fx:id="img3"/>
+    <ImageView fx:id="img4"/>
+    <ImageView fx:id="public1"/>
+    <ImageView fx:id="public2"/>
+
+</fx:root>

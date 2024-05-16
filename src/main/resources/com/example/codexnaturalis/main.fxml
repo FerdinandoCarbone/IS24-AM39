@@ -7,14 +7,19 @@
 <?import javafx.scene.control.Button?>
 <?import com.example.codexnaturalis.PortChoiceController?>
 <?import com.example.codexnaturalis.PopPortChoiceController?>
+<?import com.example.codexnaturalis.ResourceDeckController?>
+<?import com.example.codexnaturalis.GoldDeckController?>
+<?import com.example.codexnaturalis.ObjectiveDeckController?>
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.codexnaturalis.MainController"
       minWidth="1920.0" maxWidth="1920.0" maxHeight="1080.0" minHeight="1080.0"
       fx:id="mainPane">
     <FieldController fx:id="field"/>
-<!--    <ZoomPaneController fx:id="zoomPane"/>-->
     <PlayerDeckController fx:id="playerDeck" />
-<!--    <Button fx:id="zoomButton" text="Zoom"/>-->
-<!--    <PopPortChoiceController fx:id="portChoice"/>-->
+    <ResourceDeckController fx:id="resourceDeck"/>
+    <GoldDeckController fx:id="goldDeck"/>
+    <ObjectiveDeckController fx:id="objectiveDeck"/>
+    <Button fx:id="nextTurnButton"/>
+    <Button fx:id="drawCardButton"/>
 </Pane>

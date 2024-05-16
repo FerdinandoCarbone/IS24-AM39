@@ -115,6 +115,7 @@ public class Player implements Serializable {
         System.out.println(Colors.BLUE + "Ink: " + elementsMana[0] + Colors.RESET);
         System.out.println(Colors.BLUE + "Papyrus: " + elementsMana[1] + Colors.RESET);
         System.out.println(Colors.BLUE + "Feather: " + elementsMana[2] + Colors.RESET);
+        System.out.println(Colors.BLUE + playerName+"'s score: "+ score + Colors.RESET);
     }
 
     public boolean allCornersEmpty(NonObjectiveCard card) {
@@ -225,6 +226,7 @@ public class Player implements Serializable {
             System.out.println("Placing the card face down");
             increaseResourceElementsMana(cardToPlace.getSeed());
         } else {
+            score += cardToPlace.getPoints();
             System.out.println("Placing the card face up");
         }
         try {
@@ -407,7 +409,7 @@ public class Player implements Serializable {
         for (int i = 0; i < 4; i++) {
             int rowToCheck = row + calculateOffSetR(i);
             int columnToCheck = column + calculateOffSetC(i);
-            System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
+//            System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
             if (rowToCheck < 0 || rowToCheck >= fieldSize || columnToCheck < 0 || columnToCheck >= fieldSize) {
                 System.out.println(RED + "--Slot [" + rowToCheck + "][" + columnToCheck + "] not available--" + RESET);
                 notBusyCounter++;

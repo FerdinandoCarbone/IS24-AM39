@@ -12,15 +12,13 @@ import java.util.Objects;
 
 public class StarterCardController extends Pane {
     @FXML
-    private Button flipButton;
-    @FXML
     private ImageView cardImageView;
     private Image frontImage;
     private Image backImage;
     private StarterCard card;
     private boolean isFront;
-    private final double cardHeight = GlobalVars.cardHeight*1.5;
-    private final double cardWidth = GlobalVars.cardWidth*1.5;
+    private final double cardHeight = GlobalVars.cardHeight*3;
+    private final double cardWidth = GlobalVars.cardWidth*3;
 
     public StarterCardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Card.fxml"));
@@ -29,16 +27,12 @@ public class StarterCardController extends Pane {
         loader.load();
 
         isFront = true;
-        flipButton.setOnAction(event -> flipCard());
         cardImageView.setFitHeight(cardHeight);
         cardImageView.setFitWidth(cardWidth);
-        flipButton.setLayoutX(GlobalVars.cardWidth- GlobalVars.cornerWidth);
-        flipButton.setLayoutY(GlobalVars.cornerHeight);
     }
 
     public void setupCard(StarterCard newCard) {
         card = newCard;
-        System.out.println("Setting up card");
         frontImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[0])));
         backImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[1])));
         cardImageView.setImage(isFront ? frontImage : backImage);
