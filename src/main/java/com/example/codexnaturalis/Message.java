@@ -232,10 +232,19 @@ class BroadCastStandardMessage extends Message{
 class TextMessage extends Message{
     private String textMessage;
     private String recipient;
+    private String disconnectedClient;
     public TextMessage(String sender, UUID ClientID, String textMex, String recipient) {
         super(sender, ClientID);
         this.textMessage = textMex;
         this.recipient = recipient;
+        this.disconnectedClient=null;
+    }
+    public void setDisconnectedClient(String s){
+        this.disconnectedClient = s;
+    }
+
+    public String getDisconnectedClient() {
+        return disconnectedClient;
     }
 
     public String getRecipient() {

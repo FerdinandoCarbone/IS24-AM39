@@ -1,11 +1,15 @@
 package com.example.codexnaturalis;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.util.Pair;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ZakClient {
 
@@ -38,9 +42,10 @@ public class ZakClient {
         } catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
             System.err.println("Client Setup error: " + e.getMessage());
             if (guiSelector) {
-                Platform.runLater(()->{
+                Platform.runLater(() -> {
                     LauncherController.alert(e.getMessage());
-                    HelloApplication.getStage().close();});
+                    HelloApplication.getStage().close();
+                });
             } else throw new RuntimeException("Please restart the client and try again");
         }
         try {
@@ -49,9 +54,10 @@ public class ZakClient {
         } catch (IOException | ClassNotFoundException | WrongMessageConversionException e) {
             System.err.println("Game Start error " + e.getLocalizedMessage() + ": " + e.getMessage());
             if (guiSelector) {
-                Platform.runLater(()->{
-                LauncherController.alert(e.getMessage());
-                HelloApplication.getStage().close();});
+                Platform.runLater(() -> {
+                    LauncherController.alert(e.getMessage());
+                    HelloApplication.getStage().close();
+                });
             } else throw new RuntimeException("Please restart the client and try again");
         }
     }
@@ -145,6 +151,13 @@ public class ZakClient {
 
     }
 
+    /**
+     * Instantiates a new connection manger for the client
+     *
+     * @return connection Manager instance
+     * @throws StupidUserException thrown if user input invalid data multiple times
+     */
+
     public static ConnectionManger chooseConnectionType() throws StupidUserException {
         ConnectionManger connMan = null;
         int connectionInt = 0;
@@ -214,6 +227,10 @@ public class ZakClient {
         ArrayList<String> content = new ArrayList<>();
         UUID newID = null;
         try {
+            File newDir = new File("savedata");
+            if (!newDir.exists()) {
+                throw new FileNotFoundException("Unable to find the save data dir");
+            }
             FileReader fileReader = new FileReader(fileName);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
@@ -240,9 +257,19 @@ public class ZakClient {
             System.out.println("No savefile found - Start as new Player");
         }
         try {
-            File directory = new File("savedata");
-            if (!directory.exists()) directory.mkdir();
-            else if (directory.exists()) {
+            Path directory = Paths.get("savedata");
+            if (Files.notExists(directory)) {
+                Files.createDirectory(directory);
+                switch (Files.exists(directory) ? 1 : 2) {
+                    case 1:
+                        System.out.println("here");
+                        break;
+                    case 2:
+                        if (!playWithoutReconnectionQuestion())
+                            throw new FileNotFoundException("Cannot create directory");
+                        break;
+                }
+            } else{
                 FileOutputStream outputStream = new FileOutputStream(fileName);
                 newID = UUID.randomUUID();
                 String myIDString = "ClientID:" + newID;
@@ -253,15 +280,46 @@ public class ZakClient {
                 matchID = null;
                 clientID = newID;
                 return 0;
-            } else throw new FileNotFoundException("Cannot create directory");
+            }
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
-            HelloApplication.getStage().close();
+            Platform.runLater(() -> HelloApplication.getStage().close());
         } catch (IOException e) {
             System.out.println("Error while trying to write file");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         clientID = UUID.randomUUID();
         return -1;
+    }
+
+    /**
+     * Asks user if he wants to play without saving/ability to reconnect
+     * @return true if yes, false if no
+     * @throws InterruptedException if semaphore is unable to acquire thread
+     */
+    private static boolean playWithoutReconnectionQuestion() throws InterruptedException {
+        Semaphore sem = new Semaphore(0);
+        AtomicReference<String> response = new AtomicReference<>();
+        response.set("no");
+        while (true) {
+            if (isGuiSelector()) {
+                Platform.runLater(()->{
+                    response.set(LauncherController.askStringInputToUser("Unable to create the savefile dir:", "Do you want to play anyway without the possibility of reconnection? (yes or no)").toLowerCase());
+                    sem.release();
+                });
+                sem.acquire();
+            } else {
+                System.out.println("Unable to create the savefile dir:\nDo you want to play anyway without the possibility of reconnection?");
+                response.set(receiveInput().toLowerCase());
+            }
+            if(!(response.get().equals("no")||response.get().equals("yes"))){
+                if(isGuiSelector()) Platform.runLater(()->LauncherController.alert("Invalid Input"));
+                else System.out.println("Invalid Input");
+            }
+            else break;;
+        }
+        return response.get().equals("yes");
     }
 
     /**
@@ -447,7 +505,7 @@ public class ZakClient {
         serverHandler.setMessageTurn(null);
         myTurn = false;
         if (isGuiSelector()) {
-            Platform.runLater(()->{
+            Platform.runLater(() -> {
                 MainController.setTurnButton(true);
             });
         }

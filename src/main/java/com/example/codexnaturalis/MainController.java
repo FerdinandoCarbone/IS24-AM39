@@ -10,6 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
@@ -17,12 +18,15 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController extends Pane implements Initializable {
-    @FXML public CommandBoxController commands;
     public static TextArea textArea;
-    @FXML public Button sendButton;
     public static Button turnButton;
+    public static ComboBox comboBox;
+    @FXML public CommandBoxController commands;
+    @FXML public Button sendButton;
     @FXML public ScrollPane fieldScrollPane;
     @FXML public HBox turnBOX;
+    @FXML public TextField textField;
+    @FXML public VBox vbox;
     @FXML private PlayerDeckController playerDeck;
     @FXML private StructRightController struct;
     private CardController cardToRemove;
@@ -35,10 +39,18 @@ public class MainController extends Pane implements Initializable {
             Platform.runLater(this::middlePosition);
         });
         //todo: riattivare quando è il tuo turno
+        textArea = new TextArea("Notification");
+        textArea.setEditable(false);
+        vbox.getChildren().add(2,textArea);
+        comboBox=new ComboBox<>();
+        comboBox.setPromptText("Select recipient Player");
+        for(Player p: ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
         turnButton = new Button("Confirm Turn");
         turnButton.setDisable(true);
         turnButton.setOnAction(event->genericTurnSender());
-        turnBOX.getChildren().add(turnButton);
+        turnBOX.getChildren().addAll(comboBox,turnButton);
+
+        comboBox.getItems().add("Everyone");
         try {
             playerDeck.receiveCards();
         } catch (IOException e) {
@@ -87,9 +99,14 @@ public class MainController extends Pane implements Initializable {
         textArea.appendText(message);
     }
 
-    public void chatWrite(ActionEvent actionEvent) {
+    public void chatWrite(ActionEvent actionEvent) throws IOException {
         //send to clientHandler
-        String s = sendButton.getText();
+        String s = textField.getText();
+        String recipient = (String) comboBox.getSelectionModel().getSelectedItem();
+        TextMessage text = new TextMessage(ZakClient.getPlayerNick(),ZakClient.getClientID(),s,recipient);
+        if(!text.getRecipient().equals("Everyone"))printMessage("\nYou to "+text.getRecipient()+": "+text.getTextMessage());
+        ZakClient.getServerHandler().sendMessage(new TextMessage(ZakClient.getPlayerNick(),ZakClient.getClientID(),s,recipient));
+        textField.setText("");
     }
 
     public void genericTurnSender() {
@@ -118,5 +135,8 @@ public class MainController extends Pane implements Initializable {
     }
     public static void setTurnButton(boolean b){
         turnButton.setDisable(b);
+    }
+    public static void updateOtherPlayers(){
+        for(Player p: ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
     }
 }

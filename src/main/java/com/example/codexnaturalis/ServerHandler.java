@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerHandler extends Thread implements Runnable {
     private final String clientName;
@@ -49,31 +51,49 @@ public class ServerHandler extends Thread implements Runnable {
     public void setFirstBroadCastWasReceived(boolean firstBroadCastWasReceived) {
         this.firstBroadCastWasReceived = firstBroadCastWasReceived;
     }
-    public void textMessageHandler(TextMessage message) throws IOException {
-        String sender = message.getSender();
-        if(Objects.equals(sender, getClientName())) sender="You";
-        System.out.println("\n"+sender+": "+message.getTextMessage());
+    public void textMessageHandler(TextMessage message) throws IOException, InterruptedException {
+        AtomicReference<String> sender = new AtomicReference<>();
+        sender.set(message.getSender());
+        if(message.getDisconnectedClient()!=null) updateOtherPlayers(message);
+        if(Objects.equals(sender.get(), getClientName())) sender.set("You");
         if(ZakClient.isGuiSelector()){
-            Platform.runLater(()->{
-                String senderGui=message.getSender();
-                if(Objects.equals(senderGui, getClientName())) senderGui="You";
-                LauncherController.alert(senderGui+": "+message.getTextMessage());
-            });
-        }
-        if(message.getTextMessage().contains("kicked")) System.exit(0);
-        if(!wasFirstBroadCastReceived()) {
-            if(ZakClient.isGuiSelector()) {
+            Semaphore sam = new Semaphore(0);
+            if(!wasFirstBroadCastReceived()) {
                 Platform.runLater(()-> {
                     try {
+                        LauncherController.alert(sender.get()+": "+message.getTextMessage());
                         LauncherController.loadGameScene();
+                        sam.release();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    setFirstBroadCastWasReceived(true);
+                });
+                sam.acquire();
+                setFirstBroadCastWasReceived(true);
+            }
+            else{
+                Platform.runLater(()->{
+                    MainController.printMessage("\n"+sender.get()+": "+message.getTextMessage());
                 });
             }
         }
+        else{
+            if(!wasFirstBroadCastReceived()) {
+                setFirstBroadCastWasReceived(true);
+            }
+            System.out.println("\n"+sender.get()+": "+message.getTextMessage());
+        }
+        if(message.getTextMessage().contains("kicked")) System.exit(0);
+
     }
+
+    private void updateOtherPlayers(TextMessage message) {
+        String disconnectedPlayer= message.getDisconnectedClient();
+        ArrayList<Player> otherPlayers = ZakClient.getOtherPlayers();
+        for(Player p: otherPlayers) if(p.getPlayerName().equals(disconnectedPlayer)) ZakClient.getOtherPlayers().remove(p);
+        MainController.updateOtherPlayers();
+    }
+
     public void genericTurnMessageHandler(GenericTurnMessage message){
         System.out.println(Colors.BLUE+"SONO QUI"+Colors.RESET);
         this.messageTurn = message;
@@ -176,6 +196,8 @@ class ServerSocketHandler extends ServerHandler {
                     if(tryReconnectToServer()) continue;
                     clientDisconnected();
                 }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
             try{
                 if(socket.isClosed() && ZakClient.isCurrentGameStatus()) throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server: Attempting reconnection");
@@ -200,7 +222,7 @@ class ServerSocketHandler extends ServerHandler {
         return result;
     }
 
-    private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException {
+    private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException, InterruptedException {
         Message message = (Message) inServer.readObject();
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
@@ -280,7 +302,7 @@ class ServerRMIHandler extends ServerHandler{
         }
         return result;
     }
-    private void messageReceiver(Message message) throws WrongMessageConversionException, IOException {
+    private void messageReceiver(Message message) throws WrongMessageConversionException, IOException, InterruptedException {
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
         switch (messageType){

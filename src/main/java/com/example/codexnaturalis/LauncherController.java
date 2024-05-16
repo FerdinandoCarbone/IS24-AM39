@@ -112,6 +112,7 @@ public class LauncherController extends StackPane implements Initializable {
         stage.setTitle("Codex Naturalis by IS-AM39 - Game");
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root, Color.LIGHTGRAY);
+        stage.setResizable(true);
         stage.setScene(scene);
     }
 

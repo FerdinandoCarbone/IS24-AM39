@@ -13,6 +13,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ComboBox?>
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.codexnaturalis.MainController"
@@ -26,12 +27,11 @@
         </left>
         <right>
             <AnchorPane>
-                <VBox alignment="CENTER">
+                <VBox fx:id="vbox" alignment="CENTER">
                     <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100" AnchorPane.rightAnchor="10"/>
                     <PlayerDeckController fx:id="playerDeck"/>
-                    <TextArea fx:id="textArea" text="Notification" editable="false"/>
                     <HBox fx:id="turnBOX" spacing="15">
-                        <TextField promptText="Enter your text here"/>
+                        <TextField fx:id="textField" promptText="Enter your chat text here"/>
                         <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"
                                 onAction="#chatWrite"/>
                     </HBox>

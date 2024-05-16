@@ -33,13 +33,14 @@ public class ClientHandler extends Thread implements Runnable {
     }
 
     public void clientDisconnected() {
-        StandardMatchMessage newTurnStatus = ZakServer.match.removeDisconnectedPlayer(clientID);
-        UUID nextPlayer = newTurnStatus.getNextPlayerId();
-        try{
-            ServerConnectionManager.sendMessage(nextPlayer, new GenericTurnMessage("Server",null,ZakServer.match.getCoveredCards() ,ZakServer.match.getPublicCards(),null));
-        }
-        catch(IOException e){
-            System.err.println(e.getMessage()+": Error while sending new Generic turn message ");
+        if(ZakServer.match!=null) {
+            StandardMatchMessage newTurnStatus = ZakServer.match.removeDisconnectedPlayer(clientID);
+            UUID nextPlayer = newTurnStatus.getNextPlayerId();
+            try {
+                ServerConnectionManager.sendMessage(nextPlayer, new GenericTurnMessage("Server", null, ZakServer.match.getCoveredCards(), ZakServer.match.getPublicCards(), null));
+            } catch (IOException e) {
+                System.err.println(e.getMessage() + ": Error while sending new Generic turn message ");
+            }
         }
         ZakServer.stopThread(getClientID());
     }
@@ -157,7 +158,9 @@ class RMIClientHandler extends ClientHandler {
                 System.err.println(e.getMessage());
                 if (tryReconnectToClient()) continue;
                 try {
-                    ServerConnectionManager.sendBroadCastMessage(new TextMessage("Server", null, getClientName() + " disconnected from the server and was unable to reconnect", "Everyone"));
+                    TextMessage disconnectionNotify = new TextMessage("Server", null, getClientName() + " disconnected from the server and was unable to reconnect", "Everyone");
+                    disconnectionNotify.setDisconnectedClient(getClientName());
+                    ServerConnectionManager.sendBroadCastMessage(disconnectionNotify);
                 } catch (IOException ex) {
                     System.err.println("Unable to broadcast disconnection Message");
                 }
