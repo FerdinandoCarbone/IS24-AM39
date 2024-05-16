@@ -34,11 +34,8 @@ public class MainController implements Initializable {
         playerDeck.receiveCards();
         cardDrawable.showDrawableCards();
 
-        cardDrawable.getDrawGoldButton().setOnAction(event -> playerDeck.drawGoldCard());
-        cardDrawable.getDrawResButton().setOnAction(event -> playerDeck.drawResCard());
-
-        cardDrawable.getDeckGoldController().getChooseButton().setOnAction(event -> playerDeck.drawGoldCard());
-        cardDrawable.getDeckResController().getChooseButton().setOnAction(event -> playerDeck.drawResCard());
+        cardDrawable.getDeckGoldController().getChooseButton().setOnAction(event -> playerDeck.drawGoldCard(cardDrawable));
+        cardDrawable.getDeckResController().getChooseButton().setOnAction(event -> playerDeck.drawResCard(cardDrawable));
 
 
         for (int i = 0; i < 4; i++) {
@@ -75,7 +72,6 @@ public class MainController implements Initializable {
             int finalI = i;
             tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
                 cardToTake = tmpCard;
-                //playerDeck.drawGoldCardFromTable(finalI);
                 ResourceGoldCard cardX = (ResourceGoldCard) cardToTake.getCard();
                 switch (pos){
                     case 0:

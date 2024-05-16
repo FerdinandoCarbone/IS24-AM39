@@ -42,51 +42,45 @@ public class PlayerDeckController extends HBox {
         starterCard.setupCard(DrawingDeck.getTotalStartingCards().getFirst());
         secretObjCard.setupCard(DrawingDeck.getTotalObjectiveCards().getFirst());
     }
-    public void drawGoldCard() {
+    public void drawGoldCard(CardDrawableController cardDrawable) { //TO DO: non le prendo dal mazzo random, ma dalla carta che è girata in DecksController
+        ResourceGoldCard CardX = (ResourceGoldCard) cardDrawable.getDeckGoldController().getCard();
         switch (position){
             case 0:
-                card1.setupCard(DrawingDeck.drawCard(false));
+                card1.setupCard(CardX);
+
                 break;
             case 1:
-                card2.setupCard(DrawingDeck.drawCard(false));
+                card2.setupCard(CardX);
                 break;
             case 2:
-                card3.setupCard(DrawingDeck.drawCard(false));
+                card3.setupCard(CardX);
                 break;
             case 3:
-                starterCard.setupCard(DrawingDeck.drawCard(false));
+                starterCard.setupCard(CardX);
                 break;
         }
+        cardDrawable.redraw(false);
     }
-    public void drawResCard() {
+    public void drawResCard(CardDrawableController cardDrawable) { //TO DO: non le prendo dal mazzo random, ma dalla carta che è girata in DecksController
+        ResourceGoldCard CardX = (ResourceGoldCard) cardDrawable.getDeckResController().getCard();
         switch (position){
             case 0:
-                card1.setupCard(DrawingDeck.drawCard(true));
+                card1.setupCard(CardX);
+
                 break;
             case 1:
-                card2.setupCard(DrawingDeck.drawCard(true));
+                card2.setupCard(CardX);
                 break;
             case 2:
-                card3.setupCard(DrawingDeck.drawCard(true));
+                card3.setupCard(CardX);
                 break;
             case 3:
-                starterCard.setupCard(DrawingDeck.drawCard(true));
+                starterCard.setupCard(CardX);
                 break;
         }
+        cardDrawable.redraw(true);
     }
-    /*public void drawGoldCardFromTable(int p){
-        switch (p){
-            case 0:
-                card1.setupCard(DrawingDeck.drawCard(true));
-                break;
-            case 1:
-                card2.setupCard(DrawingDeck.drawCard(true));
-                break;
-            case 2:
-                card3.setupCard(DrawingDeck.drawCard(true));
-                break;
-        }
-    }*/
+
     public void setEmpty(int pos){
         position=pos;
         switch (pos){

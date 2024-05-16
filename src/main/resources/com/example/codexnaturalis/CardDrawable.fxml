@@ -12,12 +12,8 @@
     <CardController fx:id="cardG1" layoutX="0.0" layoutY="150.0"/>
     <CardController fx:id="cardG2" layoutX="0.0" layoutY="0.0"/>
 
-    <DecksController fx:id="deckGoldController" layoutX="0.0" layoutY="400.0" />
-    <DecksController fx:id="deckResController" layoutX="180.0" layoutY="400.0" />
+    <DecksController fx:id="deckGoldController" layoutX="0.0" layoutY="300.0" />
+    <DecksController fx:id="deckResController" layoutX="180.0" layoutY="300.0" />
 
-    <Button fx:id="drawGoldButton" text="Gold" layoutX="70.0" layoutY="300.0">
-    </Button>
-    <Button fx:id="drawResButton" text="Resource" layoutX="235.0" layoutY="300.0">
-    </Button>
 
 </fx:root>

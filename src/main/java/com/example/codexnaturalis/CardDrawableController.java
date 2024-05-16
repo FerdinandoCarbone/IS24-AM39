@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class CardDrawableController extends Pane {
-    @FXML
-    private Button drawGoldButton;
-    @FXML
-    private Button drawResButton;
+
     @FXML
     private CardController cardR1;
     @FXML
@@ -46,21 +43,30 @@ public class CardDrawableController extends Pane {
         cardG2.setupCard(DrawingDeck.drawCard(false));
     }
 
-    public void restore(int p){
+    public void restore(int p){ //TO DO: restore deve prendere la carta da quella del mazzo coperto, e quella del mazzo coperto deve fare una ReDraw
         switch (p){
             case 2:
-                cardG1.setupCard(DrawingDeck.drawCard(false));
+                cardG1.setupCard(deckGoldController.getCard());
+                redraw(false);
                 break;
             case 3:
-                cardG2.setupCard(DrawingDeck.drawCard(false));
+                cardG2.setupCard(deckGoldController.getCard());
+                redraw(false);
                 break;
             case 0:
-                cardR1.setupCard(DrawingDeck.drawCard(true));
+                cardR1.setupCard(deckResController.getCard());
+                redraw(true);
                 break;
             case 1:
-                cardR2.setupCard(DrawingDeck.drawCard(true));
+                cardR2.setupCard(deckResController.getCard());
+                redraw(true);
                 break;
         }
+    }
+
+    public void redraw(boolean res){
+        if (res) deckResController.setupCard(DrawingDeck.drawCard(res));
+        else deckGoldController.setupCard(DrawingDeck.drawCard(res));
     }
 
 
@@ -81,9 +87,6 @@ public class CardDrawableController extends Pane {
         return cardG2;
     }
 
-    public Button getDrawGoldButton() { return drawGoldButton; }
-
-    public Button getDrawResButton() { return drawResButton; }
 
     public DecksController getDeckGoldController() { return deckGoldController; }
 
