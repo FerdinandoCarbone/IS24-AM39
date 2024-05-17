@@ -20,7 +20,7 @@ public class SlotController extends Pane {
     ImageView slotCardView = null;
     NonObjectiveCard card = null;
     Pair<Integer, Integer> coords;
-    private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
+    private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/empty.png")));
     private boolean isEmpty = true;
     private boolean isCenter = false;
 

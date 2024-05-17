@@ -43,7 +43,7 @@ public class PlayerDeckController extends Pane {
 
     public void resetCard(int childIndex) {
         ResourceGoldCardController cardToReset = (ResourceGoldCardController) this.getChildren().get(childIndex);
-        Image emptyImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg")));
+        Image emptyImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/empty.png")));
         cardToReset.getCardImageView().setImage(emptyImage);
         cardToReset.setFrontImage(emptyImage);
         cardToReset.setBackImage(emptyImage);

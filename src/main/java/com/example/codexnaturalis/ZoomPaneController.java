@@ -38,7 +38,7 @@ public class ZoomPaneController extends Pane {
             ImageView tmpImg = (ImageView) this.getChildren().get(i);
             tmpImg.setFitHeight(cardHeight*resizer);
             tmpImg.setFitWidth(cardWidth*resizer);
-            tmpImg.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/empty.jpg"))));
+            tmpImg.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/empty.png"))));
         }
 
         c1.setLayoutX(resizer*2*deltaWidth);

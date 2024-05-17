@@ -50,7 +50,7 @@ public class FieldController extends Pane {
                 }
                 this.getChildren().add(newSlot);
                 if (r == fieldSize/2 && c == fieldSize/2) {
-                    newSlot.setSlotCardView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/center.jpg"))));
+                    newSlot.setSlotCardView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/center.png"))));
                     centerSlot = newSlot;
                     centerSlot.setEmpty(true);
                     centerSlot.setCenter(true);

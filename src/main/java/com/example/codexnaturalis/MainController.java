@@ -238,14 +238,14 @@ public class MainController implements Initializable {
     }
 
     private void placeStarterCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
-        player.printFieldWithName();
+        player.printManas();
         if (slotToPlace.isEmpty()) {
             slotToPlace.setSlotCardView(playerDeck.getStarterCard().getShownImage());
             playerDeck.getChildren().remove(playerDeck.getStarterCard());
             readyToPlace = false;
             slotToPlace.toFront();
             player.placeStarterCard(true);
-            player.printFieldWithName();
+            player.printManas();
         } else {
             System.out.println("SLOT GIA' OCCUPATO");
         }
