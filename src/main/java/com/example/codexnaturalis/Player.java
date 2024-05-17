@@ -538,7 +538,6 @@ public class Player implements Serializable {
         int i = 1;
         AtomicInteger choice = new AtomicInteger();
         while (true) {
-
             try {
                 if (ZakClient.isGuiSelector()) {
                     choice.set(showDialogAndWait(cards));
@@ -568,10 +567,10 @@ public class Player implements Serializable {
     private int showDialogAndWait(ArrayList<ObjectiveCard> cards) throws InterruptedException {
         ArrayList<Card> basicCards = new ArrayList<>(cards);
         Semaphore sem=new Semaphore(0);
-        AtomicReference<Integer> selected = new AtomicReference<>(0);
+        AtomicReference<Integer> selected = new AtomicReference<>(-1);
             Platform.runLater(() -> {
                 try {
-                   int chosenCard= LauncherController.selectACardDialog(basicCards, "Please select a secret Objective cards");
+                   int chosenCard= LauncherController.selectACardDialog(basicCards, "Please select a secret Objective card");
                     if (chosenCard == cards.get(1).getIdCard()) selected.set(2);
                     else if(chosenCard == cards.get(0).getIdCard()) selected.set(1);
                 } catch (IOException e) {
@@ -582,22 +581,25 @@ public class Player implements Serializable {
             sem.acquire();
         return selected.get();
     }
-public ArrayList<CardController> cardsToGUI() throws IOException {
+ /*   public ArrayList<Card> cardsToGUI() throws IOException {
         ArrayList<Card> tmp = new ArrayList<>();
         tmp.addAll(playerDeck.getResourceGoldCards());
         tmp.add(playerDeck.getStarterCard());
         tmp.addAll(commonObjCards);
         tmp.add(playerDeck.getSecretObjectiveCard());
         ArrayList<CardController> rtrnTmp= new ArrayList<>();
-        for(Card card:tmp) rtrnTmp.add(new CardController(card));
         return rtrnTmp;
-}
+    }*/
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
 
     public void setCommonObjCards(ArrayList<ObjectiveCard> cards) {
         this.commonObjCards = cards;
+    }
+
+    public ArrayList<ObjectiveCard> getCommonObjCards() {
+        return commonObjCards;
     }
 
     public String getPlayerName() {

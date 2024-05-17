@@ -31,6 +31,7 @@ public class PlayerDeckController extends VBox {
         //this.setSpacing(168.0);
         fxmlLoader.load();
         objCards = new ArrayList<>();
+        starterCard = new CardController();
 
 //        cardReceiverButton.setOnAction(event -> receiveCards());
     }

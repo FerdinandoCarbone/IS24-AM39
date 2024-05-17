@@ -25,17 +25,25 @@ public class CardController extends Pane {
     private Card card;
     private boolean isFront;
 
-    public CardController(Card cardGui) throws IOException {
+    public CardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Card.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
-        setupCard(cardGui);
         isFront = true;
         flipButton.setOnAction(event -> flipCard());
 
     }
+public CardController(Card card) throws IOException {
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Card.fxml"));
+    loader.setRoot(this);
+    loader.setController(this);
+    loader.load();
+    setupCard(card);
+    isFront = true;
+    flipButton.setOnAction(event -> flipCard());
 
+}
     public void setupCard(Card newCard) {
         card = newCard;
         frontImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[0])));

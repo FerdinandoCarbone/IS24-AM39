@@ -119,6 +119,7 @@ public class ZakClient extends Application{
                     guiSelector = true;
                     //todo:ENTRYPOINT JAVAFXGUI
                     launch();
+                    System.exit(0);
                     /*try{
                         //todo: REMOVE IN FINAL BUILD AND CHANGE PATH
                         //ProcessBuilder processBuilderCompile = new ProcessBuilder("javac","-d","out/dev/HelloApp","src/main/java/com/example/codexnaturalis/HelloApplication.java");

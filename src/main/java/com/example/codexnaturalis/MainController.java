@@ -9,7 +9,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
@@ -22,14 +21,22 @@ public class MainController extends Pane implements Initializable {
     public static TextArea textArea;
     public static Button turnButton;
     public static ComboBox comboBox;
-    @FXML public CommandBoxController commands;
-    @FXML public Button sendButton;
-    @FXML public ScrollPane fieldScrollPane;
-    @FXML public HBox turnBOX;
-    @FXML public TextField textField;
-    @FXML public VBox vbox;
-    @FXML private PlayerDeckController playerDeck;
-    @FXML private StructRightController struct;
+    @FXML
+    public CommandBoxController commands;
+    @FXML
+    public Button sendButton;
+    @FXML
+    public ScrollPane fieldScrollPane;
+    @FXML
+    public HBox turnBOX;
+    @FXML
+    public TextField textField;
+    @FXML
+    public VBox vbox;
+    @FXML
+    private PlayerDeckController playerDeck;
+    @FXML
+    private StructRightController struct;
     private CardController cardToRemove;
     private boolean readyToPlace = false;
 
@@ -42,22 +49,17 @@ public class MainController extends Pane implements Initializable {
         });
         textArea = new TextArea("Notification");
         textArea.setEditable(false);
-        vbox.getChildren().add(2,textArea);
-        comboBox=new ComboBox<>();
+        vbox.getChildren().add(2, textArea);
+        comboBox = new ComboBox<>();
         comboBox.setPromptText("Select recipient Player");
-        for(Player p: ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
+        for (Player p : ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
         comboBox.getItems().add("Everyone");
         turnButton = new Button("Confirm Turn");
         turnButton.setDisable(true);
-        turnButton.setOnAction(event->genericTurnSender());
-        turnBOX.getChildren().add(1,comboBox);
+        turnButton.setOnAction(event -> genericTurnSender());
+        turnBOX.getChildren().add(1, comboBox);
         turnBOX.getChildren().add(turnButton);
-
-        try {
-            ZakClient.getPlayer().cardsToGUI();
-        } catch (IOException e) {
-            printMessage(e.getMessage());
-        }
+        cardsFromModel();
         for (int i = 0; i < 3; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
             tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
@@ -86,14 +88,34 @@ public class MainController extends Pane implements Initializable {
         playerDeck.setSpacing(20);
     }
 
+    private void cardsFromModel() {
+        ArrayList<ResourceGoldCard> rgCards = ZakClient.getPlayer().getPlayerDeck().getResourceGoldCards();
+        ArrayList<ObjectiveCard> objCards = ZakClient.getPlayer().getCommonObjCards();
+        objCards.add(ZakClient.getPlayer().getPlayerDeck().getSecretObjectiveCard());
+        playerDeck.getCard1().setupCard(rgCards.get(0));
+        playerDeck.getCard2().setupCard(rgCards.get(1));
+        playerDeck.getCard3().setupCard(rgCards.get(2));
+        try {
+            playerDeck.getObjCards().add(new CardController(objCards.get(0)));
+            playerDeck.getObjCards().add(new CardController(objCards.get(1)));
+            playerDeck.getObjCards().add(new CardController(objCards.get(2)));
+        } catch(IOException e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException();
+        }
+        playerDeck.getStarterCard().setupCard(ZakClient.getPlayer().getPlayerDeck().getStarterCard());
+
+
+    }
+
     private void middlePosition() {
         double totalHeight = struct.getHeight();
         double visibleHeight = fieldScrollPane.getViewportBounds().getHeight();
-        double middlePosition = (totalHeight-visibleHeight) / 2 /totalHeight*1.7;
+        double middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
         fieldScrollPane.setVvalue(middlePosition);
         totalHeight = struct.getWidth();
         visibleHeight = fieldScrollPane.getViewportBounds().getWidth();
-        middlePosition = (totalHeight-visibleHeight) / 2 /totalHeight*1.7;
+        middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
         fieldScrollPane.setHvalue(middlePosition);
     }
 
@@ -105,14 +127,16 @@ public class MainController extends Pane implements Initializable {
         //send to clientHandler
         String s = textField.getText();
         String recipient = (String) comboBox.getSelectionModel().getSelectedItem();
-        TextMessage text = new TextMessage(ZakClient.getPlayerNick(),ZakClient.getClientID(),s,recipient);
-        if(!text.getRecipient().equals("Everyone"))printMessage("\nYou to "+text.getRecipient()+": "+text.getTextMessage());
-        ZakClient.getServerHandler().sendMessage(new TextMessage(ZakClient.getPlayerNick(),ZakClient.getClientID(),s,recipient));
+        TextMessage text = new TextMessage(ZakClient.getPlayerNick(), ZakClient.getClientID(), s, recipient);
+        if (!text.getRecipient().equals("Everyone"))
+            printMessage("\nYou to " + text.getRecipient() + ": " + text.getTextMessage());
+        ZakClient.getServerHandler().sendMessage(new TextMessage(ZakClient.getPlayerNick(), ZakClient.getClientID(), s, recipient));
         textField.setText("");
     }
 
     public void genericTurnSender() {
     }
+
     public static void alert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Notification");
@@ -121,8 +145,9 @@ public class MainController extends Pane implements Initializable {
         alert.showAndWait();
         alert.close();
     }
-    public ResourceGoldCard pickCard(){
-        ResourceGoldCard card=null;
+
+    public ResourceGoldCard pickCard() {
+        ResourceGoldCard card = null;
         ChoiceDialog<String> dialog = new ChoiceDialog<>("Java", "Java", "Python", "JavaScript");
         dialog.setTitle("Choice Dialog");
         dialog.setHeaderText("Select your favorite programming language:");
@@ -135,12 +160,14 @@ public class MainController extends Pane implements Initializable {
         dialog.close();
         return card;
     }
-    public static void setTurnButton(boolean b){
+
+    public static void setTurnButton(boolean b) {
         turnButton.setDisable(b);
     }
-    public static void updateOtherPlayers(){
+
+    public static void updateOtherPlayers() {
         comboBox.getItems().removeAll();
-        for(Player p: ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
+        for (Player p : ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
         comboBox.getItems().add("Everyone");
     }
 }
