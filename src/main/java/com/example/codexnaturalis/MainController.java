@@ -14,10 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
@@ -217,7 +214,7 @@ public class MainController extends TabPane implements Initializable {
             });
         }
         int starterFace = player.getPlayerDeck().getStarterCard().isPlacedFront()?0:1;
-        Image starter = new Image(player.getPlayerDeck().getStarterCard().getArtRef()[starterFace]);
+        Image starter = new Image(Objects.requireNonNull(getClass().getResourceAsStream(player.getPlayerDeck().getStarterCard().getArtRef()[starterFace])));
         field.centerSlot.setSlotCardView(starter);
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
         readyToPlace = false;
