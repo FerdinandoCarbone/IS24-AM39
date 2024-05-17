@@ -10,15 +10,13 @@ import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class PlayerDeckController extends VBox {
 
-    @FXML
-    private CardController card1;
-    @FXML
-    private CardController card2;
-    @FXML
-    private CardController card3;
+    @FXML private ResourceGoldCardController card1;
+    @FXML private ResourceGoldCardController card2;
+    @FXML private ResourceGoldCardController card3;
     private CardController starterCard;
     private ArrayList<CardController> objCards;
 //    @FXML
@@ -39,16 +37,23 @@ public class PlayerDeckController extends VBox {
     public void setNotPlayableCards(CardController starterCard,ArrayList<CardController> objectiveCards) throws IOException {
         this.starterCard = starterCard;
     }
-
-    public CardController getCard1() {
+    public void resetCard(int childIndex) {
+        ResourceGoldCardController cardToReset = (ResourceGoldCardController) this.getChildren().get(childIndex);
+        Image emptyImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/empty.png")));
+        cardToReset.getCardImageView().setImage(emptyImage);
+        cardToReset.setFrontImage(emptyImage);
+        cardToReset.setBackImage(emptyImage);
+        cardToReset.setCard(null);
+    }
+    public ResourceGoldCardController getCard1() {
         return card1;
     }
 
-    public CardController getCard2() {
+    public ResourceGoldCardController getCard2() {
         return card2;
     }
 
-    public CardController getCard3() {
+    public ResourceGoldCardController getCard3() {
         return card3;
     }
 
@@ -68,15 +73,15 @@ public class PlayerDeckController extends VBox {
         common.add(objCards.get(1));
         return common;
     }
-    public void setCard1(CardController card1) {
+    public void setCard1(ResourceGoldCardController card1) {
         this.card1 = card1;
     }
 
-    public void setCard2(CardController card2) {
+    public void setCard2(ResourceGoldCardController card2) {
         this.card2 = card2;
     }
 
-    public void setCard3(CardController card3) {
+    public void setCard3(ResourceGoldCardController card3) {
         this.card3 = card3;
     }
     //    public Button getCardReceiverButton() {

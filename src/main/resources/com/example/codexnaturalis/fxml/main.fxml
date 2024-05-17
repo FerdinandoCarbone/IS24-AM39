@@ -18,6 +18,7 @@
 <?import javafx.scene.control.Tab?>
 <?import com.example.codexnaturalis.TabelloneController?>
 
+<?import com.example.codexnaturalis.FieldController?>
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
@@ -26,7 +27,7 @@
             <BorderPane>
                 <left>
                     <ScrollPane prefWidth="1000" prefHeight="800" fx:id="fieldScrollPane">
-                        <StructRightController fx:id="struct"/>
+                        <FieldController fx:id="field"/>
                     </ScrollPane>
                 </left>
                 <right>
@@ -48,17 +49,17 @@
         </Tab>
         <Tab fx:id="tab1" disable="true" text="Player 2">
             <HBox>
-                <StructRightController fx:id="struct2"/>
+                <FieldController fx:id="field2"/>
             </HBox>
         </Tab>
         <Tab fx:id="tab2" disable="true" text="Player 3">
             <Pane>
-                <StructRightController fx:id="struct3"/>
+                <FieldController fx:id="field3"/>
             </Pane>
         </Tab>
         <Tab fx:id="tab3" disable="true" text="Player 4">
             <HBox>
-                <StructRightController fx:id="struct4"/>
+                <FieldController fx:id="field4"/>
             </HBox>
         </Tab>
         <Tab text="Score Tracker">

@@ -6,6 +6,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -21,57 +23,42 @@ public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
     public static Button turnButton;
     public static ComboBox comboBox;
+    private boolean cardPlaced;
+    private int deckChildIndex;
+    private Player player;
+    private ResourceGoldCardController cardToRemove;
     @FXML public CommandBoxController commands;
     @FXML public Button sendButton;
     @FXML public ScrollPane fieldScrollPane;
     @FXML public HBox turnBOX;
     @FXML public TextField textField;
     @FXML public VBox vbox;
-    @FXML public StructRightController struct2;
-    @FXML public StructRightController struct3;
-    @FXML public StructRightController struct4;
+    @FXML public FieldController field2;
+    @FXML public FieldController field3;
+    @FXML public FieldController field4;
     @FXML public TabelloneController table;
     @FXML private Tab tab1;
     @FXML private Tab tab2;
     @FXML private Tab tab3;
     @FXML private PlayerDeckController playerDeck;
-    @FXML private StructRightController struct;
-    private CardController cardToRemove;
-    private boolean readyToPlace = false;
+    @FXML private FieldController field;
+    private boolean readyToPlace;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("Carico main");
+        cardPlaced=false;
+        readyToPlace = false;
+        cardToRemove=null;
+        System.out.println("Loading...");
         fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::middlePosition);
         });
         viewSetup();
+        setupFieldSlots();
         cardsFromModel();
-        for (int i = 0; i < 3; i++) {
-            CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
-            tmpCard.setOnMouseClicked((MouseEvent mouseEvent) -> {
-                cardToRemove = tmpCard;
-                readyToPlace = true;
-            });
-        }
-        for (int i = 0; i < struct.getChildren().size(); i++) {
-            SlotController tmpSlot = (SlotController) struct.getChildren().get(i);
-            tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
-                if (readyToPlace) {
-                    if (tmpSlot.isEmpty()) {
-                        tmpSlot.setSlotCardView(cardToRemove.getShownImage());
-                        playerDeck.getChildren().remove(cardToRemove);
-                        readyToPlace = false;
-                        tmpSlot.toFront();
-                    } else {
-                        System.out.println("SLOT GIA' OCCUPATO");
-                    }
-                } else {
-                    System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
-                }
-            });
-        }
+        setupRGCEvents();
+
         playerDeck.setPadding(new Insets(25));
         playerDeck.setSpacing(20);
     }
@@ -99,11 +86,38 @@ public class MainController extends TabPane implements Initializable {
             tabMan.put(playerName,tabs[i]);
         }
     }
-
+    private void setupRGCEvents() {
+        playerDeck.getCard1().setOnMouseClicked((MouseEvent event) -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                playerDeck.getCard1().flipCard();
+            }
+            selectRGCFromDeck(playerDeck.getCard1());
+        });
+        playerDeck.getCard2().setOnMouseClicked((MouseEvent event) -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                playerDeck.getCard2().flipCard();
+            }
+            selectRGCFromDeck(playerDeck.getCard2());
+        });
+        playerDeck.getCard3().setOnMouseClicked((MouseEvent event) -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                playerDeck.getCard3().flipCard();
+            }
+            selectRGCFromDeck(playerDeck.getCard3());
+        });
+    }
+    private void selectRGCFromDeck(ResourceGoldCardController card) {
+        if (!cardPlaced) {
+            cardToRemove = card;
+            deckChildIndex = playerDeck.getChildren().indexOf(card);
+            readyToPlace = true;
+        }
+    }
     private void cardsFromModel() {
-        ArrayList<ResourceGoldCard> rgCards = ZakClient.getPlayer().getPlayerDeck().getResourceGoldCards();
-        ArrayList<ObjectiveCard> objCards = ZakClient.getPlayer().getCommonObjCards();
-        objCards.add(ZakClient.getPlayer().getPlayerDeck().getSecretObjectiveCard());
+        player = ZakClient.getPlayer();
+        ArrayList<ResourceGoldCard> rgCards = player.getPlayerDeck().getResourceGoldCards();
+        ArrayList<ObjectiveCard> objCards = player.getCommonObjCards();
+        objCards.add(player.getPlayerDeck().getSecretObjectiveCard());
         playerDeck.getCard1().setupCard(rgCards.get(0));
         playerDeck.getCard2().setupCard(rgCards.get(1));
         playerDeck.getCard3().setupCard(rgCards.get(2));
@@ -116,17 +130,17 @@ public class MainController extends TabPane implements Initializable {
             System.out.println(e.getMessage());
             throw new RuntimeException();
         }
-        playerDeck.getStarterCard().setupCard(ZakClient.getPlayer().getPlayerDeck().getStarterCard());
+        playerDeck.getStarterCard().setupCard(player.getPlayerDeck().getStarterCard());
 
 
     }
 
     private void middlePosition() {
-        double totalHeight = struct.getHeight();
+        double totalHeight = field.getHeight();
         double visibleHeight = fieldScrollPane.getViewportBounds().getHeight();
         double middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
         fieldScrollPane.setVvalue(middlePosition);
-        totalHeight = struct.getWidth();
+        totalHeight = field.getWidth();
         visibleHeight = fieldScrollPane.getViewportBounds().getWidth();
         middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
         fieldScrollPane.setHvalue(middlePosition);
@@ -182,5 +196,63 @@ public class MainController extends TabPane implements Initializable {
         comboBox.getItems().removeAll();
         for (Player p : ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
         comboBox.getItems().add("Everyone");
+    }
+    private void setupFieldSlots() {
+        for (int i = 0; i < field.getChildren().size(); i++) {
+            SlotController tmpSlot = (SlotController) field.getChildren().get(i);
+            tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
+                if (cardPlaced) {
+                    System.out.println("CARD ALREADY PLACED IN THIS TURN");
+                } else {
+                    if (readyToPlace) {
+                        try {
+                            placeCardAndRemoveFromDeck(tmpSlot);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
+                    }
+                }
+            });
+        }
+        int starterFace = player.getPlayerDeck().getStarterCard().isPlacedFront()?0:1;
+        Image starter = new Image(player.getPlayerDeck().getStarterCard().getArtRef()[starterFace]);
+        field.centerSlot.setSlotCardView(starter);
+        playerDeck.getChildren().remove(playerDeck.getStarterCard());
+        readyToPlace = false;
+        field.centerSlot.toFront();
+        player.printManas();
+    }
+    private void placeCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
+        if (cardToRemove.getCard() == null) {
+            System.out.println("EMPTY CARD NOT PLACEBLE");
+        } else {
+            if (!cardPlaced) {
+                int row = slotToPlace.getCoords().getKey();
+                int col = slotToPlace.getCoords().getValue();
+                if (player.isCardAttachableToSlot(row, col)) {
+                    if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
+                        if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
+                            return;
+                        }
+                    }
+                    if (slotToPlace.isEmpty()) {
+                        slotToPlace.setSlotCardView(cardToRemove.getShownImage());
+                        readyToPlace = false;
+                        cardPlaced = true;
+                        slotToPlace.toFront();
+                        //Getting row of field
+                        player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
+                        playerDeck.resetCard(deckChildIndex);
+                        player.printManas();
+                    } else {
+                        System.out.println("SLOT GIA' OCCUPATO");
+                    }
+                }
+            } else {
+                System.out.println("CARD HAS ALREADY BEEN PLACED IN THIS TURN");
+            }
+        }
     }
 }

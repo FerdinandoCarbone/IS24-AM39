@@ -5,49 +5,36 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 import java.util.Objects;
 
-public class CardController extends Pane {
-    @FXML
-    private Button flipButton;
-    @FXML
-    private Button switchResourceButton;
-    @FXML
-    private Button switchGoldButton;
+public class ResourceGoldCardController extends Pane {
     @FXML
     private ImageView cardImageView;
     private Image frontImage;
     private Image backImage;
-    private Card card;
+    private ResourceGoldCard card;
     private boolean isFront;
+    private final double cardHeight = CardDim.cardHeight * 3;
+    private final double cardWidth = CardDim.cardWidth * 3;
 
-    public CardController() throws IOException {
+    public ResourceGoldCardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Card.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
-        isFront = true;
-        flipButton.setOnAction(event -> flipCard());
 
+        isFront = true;
+        cardImageView.setFitHeight(cardHeight);
+        cardImageView.setFitWidth(cardWidth);
+//        flipButton.setGraphic();
     }
 
-    public CardController(Card card) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Card.fxml"));
-        loader.setRoot(this);
-        loader.setController(this);
-        loader.load();
-        setupCard(card);
-        isFront = true;
-        flipButton.setOnAction(event -> flipCard());
-
-    }
-
-    public void setupCard(Card newCard) {
+    public void setupCard(ResourceGoldCard newCard) {
         card = newCard;
         frontImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[0])));
         backImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[1])));
@@ -62,6 +49,19 @@ public class CardController extends Pane {
             cardImageView.setImage(frontImage);
             isFront = true;
         }
+        card.setIsPlacedFront(isFront);
+    }
+
+    public void setFrontImage(Image frontImage) {
+        this.frontImage = frontImage;
+    }
+
+    public void setBackImage(Image backImage) {
+        this.backImage = backImage;
+    }
+
+    public void setCard(ResourceGoldCard card) {
+        this.card = card;
     }
 
     public Image getShownImage() {
@@ -72,10 +72,6 @@ public class CardController extends Pane {
         }
     }
 
-    public void setCard(ResourceGoldCard card) {
-        this.card = card;
-    }
-
     public ImageView getCardImageView() {
         return cardImageView;
     }
@@ -84,7 +80,16 @@ public class CardController extends Pane {
         return isFront;
     }
 
-    public Card getCard() {
+    public ResourceGoldCard getCard() {
         return card;
     }
+
+    public double getCardHeight() {
+        return cardHeight;
+    }
+
+    public double getCardWidth() {
+        return cardWidth;
+    }
+
 }
