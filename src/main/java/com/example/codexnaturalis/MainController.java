@@ -244,7 +244,7 @@ public class MainController implements Initializable {
             playerDeck.getChildren().remove(playerDeck.getStarterCard());
             readyToPlace = false;
             slotToPlace.toFront();
-            player.placeStarterCard(true);
+            player.placeStarterCard(playerDeck.getStarterCard().isFront());
             player.printManas();
         } else {
             System.out.println("SLOT GIA' OCCUPATO");
