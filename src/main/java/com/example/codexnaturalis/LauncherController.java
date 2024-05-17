@@ -107,8 +107,8 @@ public class LauncherController extends StackPane implements Initializable {
     }
 
     public static void loadGameScene() throws IOException {
-        Stage stage = HelloApplication.getStage();
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("fxml/main.fxml"));
+        Stage stage = ZakClient.getStage();
+        FXMLLoader fxmlLoader = new FXMLLoader(ZakClient.class.getResource("fxml/main.fxml"));
         stage.setTitle("Codex Naturalis by IS-AM39 - Game");
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root, Color.LIGHTGRAY);
@@ -139,9 +139,9 @@ public class LauncherController extends StackPane implements Initializable {
         } else if (input == null || input.isEmpty()) {
             printStatus("Invalid player nickname: please type another one and retry", "red");
         } else {
-            String[] args = new String[]{"localhost", "8081", "gui"};
+            //String[] args = new String[]{"localhost", "8081", "gui"};
             ZakClient.setPlayerNick(input);
-            ZakClient.clientStart(args);
+            //ZakClient.clientStart(args);
             clientSetupState = ZakClient.initialClientSetup();
             printStatus("Submitted", "green");
             switch (clientSetupState) {

@@ -1,3 +1,6 @@
+###########DA CHIEDERE AL PROF 21/05/2024 #######################
+COME AVVIARE IL PROCESSO DI HELLOAPPLICATION DA ZAKCLIENT
+
 Divisione Compiti
     1.	Implementazione del Ciclo (Zakaria, Ferdinando)
         a.	Check di quanti client ci sono

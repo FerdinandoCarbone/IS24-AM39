@@ -37,8 +37,8 @@ public class ClientHandler extends Thread implements Runnable {
             StandardMatchMessage newTurnStatus = ZakServer.match.removeDisconnectedPlayer(clientID);
             UUID nextPlayer = newTurnStatus.getNextPlayerId();
             try{
-                //custom use of sender and nextplayerID: used to identify the winner
-                if(newTurnStatus.getClientID().compareTo(UUID.fromString("WINNER"))==0){
+                //custom use of sender: used to identify the winner
+                if(newTurnStatus.getClientID()==null){
                     ServerConnectionManager.sendBroadCastMessage(new TextMessage("Server:",null,"only you in the match","Everyone"));
                     ServerConnectionManager.sendMessage(nextPlayer,new EndMatchMessage(null,null,newTurnStatus.getSender(),null,null,null));
                 }

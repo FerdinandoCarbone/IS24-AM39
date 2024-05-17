@@ -201,9 +201,9 @@ public class Match {
             System.out.println(Colors.GREEN + "--" + nextPlayer.getPlayerName() + " is the next player--" + Colors.RESET);
             players.remove(playerToRemove);
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
-            //Se rimane solo un giocatore allora invio un messaggio con uno UUID univoco di convenzione indicante la presenza di un solo giocatore
+            //Se rimane solo un giocatore allora invio un messaggio con uno UUID null di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
-                return new CurrentPlayerDisconnectedMessage(publicCards, CardDim.onePlayerRemaining, players.getFirst().getPlayerName(), players.getFirst().getPlayerID());
+                return new CurrentPlayerDisconnectedMessage(publicCards, null, players.getFirst().getPlayerName(), players.getFirst().getPlayerID());
             }
             return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName(), nextPlayerId);
         } else {
@@ -211,7 +211,7 @@ public class Match {
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID univoco di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
-                return new CurrentPlayerDisconnectedMessage(publicCards, CardDim.onePlayerRemaining, players.getFirst().getPlayerName(), players.getFirst().getPlayerID());
+                return new CurrentPlayerDisconnectedMessage(publicCards, null, players.getFirst().getPlayerName(), players.getFirst().getPlayerID());
             }
             return new notCurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName());
         }

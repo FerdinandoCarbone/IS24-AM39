@@ -1,6 +1,13 @@
 package com.example.codexnaturalis;
 
+import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 
 import java.io.*;
@@ -11,7 +18,7 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ZakClient {
+public class ZakClient extends Application{
 
     private static boolean crashed;
     private static Pair<String, Integer> connectionInfo;
@@ -25,6 +32,7 @@ public class ZakClient {
     private static UUID clientID;
     private static UUID matchID;
     private static boolean guiSelector;
+    private static Stage stage;
 
     public static void main(String[] args) {
         clientStart(args);
@@ -45,7 +53,7 @@ public class ZakClient {
             if (guiSelector) {
                 Platform.runLater(() -> {
                     LauncherController.alert(e.getMessage());
-                    HelloApplication.getStage().close();
+                    stage.close();
                 });
             } else throw new RuntimeException("Please restart the client and try again");
         }
@@ -57,7 +65,7 @@ public class ZakClient {
             if (guiSelector) {
                 Platform.runLater(() -> {
                     LauncherController.alert(e.getMessage());
-                    HelloApplication.getStage().close();
+                    stage.close();
                 });
             } else throw new RuntimeException("Please restart the client and try again");
         }
@@ -109,6 +117,28 @@ public class ZakClient {
                 connectionInfo = setArgValues(args[0], args[1]);
                 if (args[2].equalsIgnoreCase("gui")) {
                     guiSelector = true;
+                    //todo:ENTRYPOINT JAVAFXGUI
+                    launch();
+                    /*try{
+                        //todo: REMOVE IN FINAL BUILD AND CHANGE PATH
+                        //ProcessBuilder processBuilderCompile = new ProcessBuilder("javac","-d","out/dev/HelloApp","src/main/java/com/example/codexnaturalis/HelloApplication.java");
+                        //processBuilderCompile.start().waitFor();
+                        //todo: REMOVE IN FINAL BUILD AND CHANGE PATH
+                        ProcessBuilder processBuilder = new ProcessBuilder("java","-cp",System.getProperty("java.class.path"),"com.example.codexnaturalis.HelloApplication");
+                        processBuilder.inheritIO();
+                        //processBuilder.redirectErrorStream(true);
+                        Process process = processBuilder.start();
+                        int exitCode = process.waitFor();
+                        System.out.println(exitCode);
+                        if(exitCode==0) System.exit(exitCode);
+                        else throw new IOException("An error was encountered starting the GUI: fallback to TUI");
+                    } catch(IOException e){
+                        System.err.println(e.getMessage());
+                        e.printStackTrace();
+                        guiSelector=false;
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }*/
                 } else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
                 else {
                     System.out.println("Invalid argument " + args[2] + ": Accepted values are 'gui' or 'tui' " + "\nFallback using TUI");
@@ -284,7 +314,7 @@ public class ZakClient {
             }
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
-            Platform.runLater(() -> HelloApplication.getStage().close());
+            Platform.runLater(() -> stage.close());
         } catch (IOException e) {
             System.out.println("Error while trying to write file");
         } catch (InterruptedException e) {
@@ -885,5 +915,23 @@ public class ZakClient {
 
     public static boolean isGuiSelector() {
         return guiSelector;
+    }
+
+    @Override
+    public void start(Stage stageStart) throws Exception {
+        DrawingDeck.generateDecks();
+        stage=stageStart;
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/launcher.fxml"));
+        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedLogo.png")));
+        stage.getIcons().add(icon);
+        stage.setTitle("Codex Naturalis by IS-AM39 - Launcher");
+        stage.setResizable(false);
+        final Parent root = fxmlLoader.load();
+        final Scene scene = new Scene(root, Color.BLACK);
+        stage.setScene(scene);
+        stage.show();
+    }
+    public static Stage getStage(){
+        return stage;
     }
 }

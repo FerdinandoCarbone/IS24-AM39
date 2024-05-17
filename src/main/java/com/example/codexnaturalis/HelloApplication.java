@@ -11,14 +11,12 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 
-public class HelloApplication extends Application {
+/*public class HelloApplication extends Application {
     private static Stage stage;
     @Override
     public void start(Stage stageStart) throws IOException {
         DrawingDeck.generateDecks();
         stage=stageStart;
-        // actual loader FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("fxml/launcher.fxml"));
-        //debug loader
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("fxml/launcher.fxml"));
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedLogo.png")));
         stage.getIcons().add(icon);
@@ -29,11 +27,8 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
     }
+    public static void main(String[]args) {
+        launch();
+    }
 
-    public static void main(String[] args) {
-        HelloApplication.launch();
-    }
-    public static Stage getStage(){
-        return stage;
-    }
-}
+}*/
