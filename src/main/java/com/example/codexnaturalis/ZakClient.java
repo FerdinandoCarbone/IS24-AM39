@@ -33,8 +33,10 @@ public class ZakClient extends Application{
     private static UUID matchID;
     private static boolean guiSelector;
     private static Stage stage;
+    private static Semaphore sem;
 
     public static void main(String[] args) {
+        sem=new Semaphore(0);
         clientStart(args);
         initialClientSetup();
         start();
@@ -404,6 +406,7 @@ public class ZakClient extends Application{
             initialMatchSetupMessage = ConnectionManger.secretSelector(initialMatchSetupMessage);
             serverHandler.sendMessage(initialMatchSetupMessage);
             player.placeStarterCard(initialMatchSetupMessage.getStarterCardFace());
+            sem.release();
         } catch (WrongPlayerUUIDException e) {
             System.out.println(e.getMessage());
         } catch (StupidUserException | InterruptedException e) {
@@ -916,6 +919,10 @@ public class ZakClient extends Application{
 
     public static boolean isGuiSelector() {
         return guiSelector;
+    }
+
+    public static Semaphore getSem() {
+        return sem;
     }
 
     @Override

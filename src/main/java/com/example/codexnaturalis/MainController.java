@@ -10,10 +10,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-
 import java.io.IOException;
 import java.net.URL;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
@@ -23,14 +21,10 @@ public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
     public static Button turnButton;
     public static ComboBox comboBox;
-    @FXML
-    public CommandBoxController commands;
-    @FXML
-    public Button sendButton;
-    @FXML
-    public ScrollPane fieldScrollPane;
-    @FXML
-    public HBox turnBOX;
+    @FXML public CommandBoxController commands;
+    @FXML public Button sendButton;
+    @FXML public ScrollPane fieldScrollPane;
+    @FXML public HBox turnBOX;
     @FXML public TextField textField;
     @FXML public VBox vbox;
     @FXML public StructRightController struct2;
@@ -114,10 +108,11 @@ public class MainController extends TabPane implements Initializable {
         playerDeck.getCard2().setupCard(rgCards.get(1));
         playerDeck.getCard3().setupCard(rgCards.get(2));
         try {
+            ZakClient.getSem().acquire();
             playerDeck.getObjCards().add(new CardController(objCards.get(0)));
             playerDeck.getObjCards().add(new CardController(objCards.get(1)));
             playerDeck.getObjCards().add(new CardController(objCards.get(2)));
-        } catch(IOException e){
+        } catch(IOException | InterruptedException e){
             System.out.println(e.getMessage());
             throw new RuntimeException();
         }

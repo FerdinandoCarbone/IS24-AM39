@@ -17,6 +17,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 <?import com.example.codexnaturalis.TabelloneController?>
+
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
