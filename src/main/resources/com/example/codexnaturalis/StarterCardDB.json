@@ -1,6 +1,6 @@
 [
   { "idCard":81,
-    "artRef": ["Assets/Cards/81f.jpg", "Assets/Cards/81b.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners81f.png", "Assets/RoundedCards/RoundedCorners81b.png"],
     "frontCorners": [
       {"Element":"Leaf", "available": true},
       {"Element":"Wolf", "available": true},
@@ -16,7 +16,7 @@
     "backCenter": ["Butterfly"]
   },
   { "idCard":82,
-    "artRef": ["Assets/Cards/82f.jpg", "Assets/Cards/82b.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners82f.png", "Assets/RoundedCards/RoundedCorners82b.png"],
     "frontCorners": [
       {"Element":"Wolf", "available": true},
       {"Element":"Butterfly", "available": true},
@@ -32,7 +32,7 @@
     "backCenter": ["Mushroom"]
   },
   { "idCard":83,
-    "artRef": ["Assets/Cards/83f.jpg", "Assets/Cards/83b.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners83f.png", "Assets/RoundedCards/RoundedCorners83b.png"],
     "frontCorners": [
       {"Element":"Wolf", "available": true},
       {"Element":"Leaf", "available": true},
@@ -48,7 +48,7 @@
     "backCenter": ["Leaf","Mushroom"]
   },
   { "idCard":84,
-    "artRef": ["Assets/Cards/84f.jpg", "Assets/Cards/84b.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners84f.png", "Assets/RoundedCards/RoundedCorners84b.png"],
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
       {"Element":"Mushroom", "available": true},
@@ -65,7 +65,7 @@
     "backCenter": ["Wolf","Butterfly"]
   },
   { "idCard":85,
-    "artRef": ["Assets/Cards/85f.jpg", "Assets/Cards/85b.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners85f.png", "Assets/RoundedCards/RoundedCorners85b.png"],
     "frontCorners": [
       {"Element":"Mushroom", "available": true},
       {"Element":"Wolf", "available": true},
@@ -81,7 +81,7 @@
     "backCenter": ["Wolf","Butterfly","Leaf"]
   },
   { "idCard":86,
-    "artRef": ["Assets/Cards/86f.jpg", "Assets/Cards/86b.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners86f.png", "Assets/RoundedCards/RoundedCorners86b.png"],
     "frontCorners": [
       {"Element":"Wolf", "available": true},
       {"Element":"Butterfly", "available": true},

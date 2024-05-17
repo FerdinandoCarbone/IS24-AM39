@@ -36,10 +36,10 @@ public class GoldDeckController extends Pane {
             tmp.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);\n");
             tmp.setLayoutY(offset*i);
         }
-        img1.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/RGCB.jpg"))));
-        img2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/PGCB.jpg"))));
-        img3.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/GGCB.jpg"))));
-        img4.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/BGCB.jpg"))));
+        img1.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners41b.png"))));
+        img2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners51b.png"))));
+        img3.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners61b.png"))));
+        img4.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners71b.png"))));
     }
     private void setupPublicsStyle() {
         for (int i = 4; i < this.getChildren().size(); i++) {

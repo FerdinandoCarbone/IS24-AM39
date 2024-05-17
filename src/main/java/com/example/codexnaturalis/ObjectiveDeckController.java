@@ -26,7 +26,7 @@ public class ObjectiveDeckController extends Pane {
     private int offset = 5;
     private double height = GlobalVars.cardHeight*2;
     private double width = GlobalVars.cardWidth*2;
-    Image emptyImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/OCB.jpg")));
+    Image emptyImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners101b.png")));
 
     public ObjectiveDeckController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ObjectiveDeck.fxml"));

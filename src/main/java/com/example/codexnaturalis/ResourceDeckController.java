@@ -36,10 +36,10 @@ public class ResourceDeckController extends Pane {
             tmp.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 0);\n");
             tmp.setLayoutY(offset*i);
         }
-        img1.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/RRCB.jpg"))));
-        img2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/PRCB.jpg"))));
-        img3.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/GRCB.jpg"))));
-        img4.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/Cards/BRCB.jpg"))));
+        img1.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners1b.png"))));
+        img2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners11b.png"))));
+        img3.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners21b.png"))));
+        img4.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/RoundedCorners31b.png"))));
     }
     private void setupPublicsStyle() {
         for (int i = 4; i < this.getChildren().size(); i++) {

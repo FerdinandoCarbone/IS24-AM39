@@ -1,6 +1,6 @@
 [
   { "idCard": 1,
-    "artRef": ["Assets/RoundedCards/RoundedCorners1f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners1f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -11,7 +11,7 @@
     "seed": "Red"
   },
   { "idCard": 2,
-    "artRef": ["Assets/RoundedCards/RoundedCorners2f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners2f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Mushroom", "available": true},
@@ -22,7 +22,7 @@
     "seed": "Red"
   },
   { "idCard": 3,
-    "artRef": ["Assets/RoundedCards/RoundedCorners3f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners3f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -33,7 +33,7 @@
     "seed": "Red"
   },
   { "idCard": 4,
-    "artRef": ["Assets/RoundedCards/RoundedCorners4f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners4f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Mushroom", "available": true},
@@ -44,7 +44,7 @@
     "seed": "Red"
   },
   { "idCard": 5,
-    "artRef": ["Assets/RoundedCards/RoundedCorners5f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners5f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Feather", "available": true},
@@ -55,7 +55,7 @@
     "seed": "Red"
   },
   { "idCard": 6,
-    "artRef": ["Assets/RoundedCards/RoundedCorners6f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners6f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Mushroom", "available": true},
@@ -66,7 +66,7 @@
     "seed": "Red"
   },
   { "idCard": 7,
-    "artRef": ["Assets/RoundedCards/RoundedCorners7f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners7f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
@@ -77,7 +77,7 @@
     "seed": "Red"
   },
   { "idCard": 8,
-    "artRef": ["Assets/RoundedCards/RoundedCorners8f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners8f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"Mushroom", "available": true},
@@ -88,7 +88,7 @@
     "seed": "Red"
   },
   { "idCard": 9,
-    "artRef": ["Assets/RoundedCards/RoundedCorners9f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners9f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -99,7 +99,7 @@
     "seed": "Red"
   },
   { "idCard":10,
-    "artRef": ["Assets/RoundedCards/RoundedCorners10f.png", "Assets/Cards/RRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners10f.png", "Assets/RoundedCards/RoundedCorners1b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -110,7 +110,7 @@
     "seed": "Red"
   },
   { "idCard":11,
-    "artRef": ["Assets/RoundedCards/RoundedCorners11f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners11f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -121,7 +121,7 @@
     "seed": "Green"
   },
   { "idCard":12,
-    "artRef": ["Assets/RoundedCards/RoundedCorners12f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners12f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Leaf", "available": true},
@@ -132,7 +132,7 @@
     "seed": "Green"
   },
   { "idCard":13,
-    "artRef": ["Assets/RoundedCards/RoundedCorners13f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners13f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -143,7 +143,7 @@
     "seed": "Green"
   },
   { "idCard":14,
-    "artRef": ["Assets/RoundedCards/RoundedCorners14f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners14f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Leaf", "available": true},
@@ -154,7 +154,7 @@
     "seed": "Green"
   },
   { "idCard":15,
-    "artRef": ["Assets/RoundedCards/RoundedCorners15f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners15f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
@@ -165,7 +165,7 @@
     "seed": "Green"
   },
   { "idCard":16,
-    "artRef": ["Assets/RoundedCards/RoundedCorners16f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners16f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Leaf", "available": true},
@@ -176,7 +176,7 @@
     "seed": "Green"
   },
   { "idCard":17,
-    "artRef": ["Assets/RoundedCards/RoundedCorners17f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners17f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -187,7 +187,7 @@
     "seed": "Green"
   },
   { "idCard":18,
-    "artRef": ["Assets/RoundedCards/RoundedCorners18f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners18f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -198,7 +198,7 @@
     "seed": "Green"
   },
   { "idCard":19,
-    "artRef": ["Assets/RoundedCards/RoundedCorners19f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners19f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -209,7 +209,7 @@
     "seed": "Green"
   },
   { "idCard":20,
-    "artRef": ["Assets/RoundedCards/RoundedCorners20f.png", "Assets/Cards/GRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners20f.png", "Assets/RoundedCards/RoundedCorners11b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"Leaf", "available": true},
@@ -220,7 +220,7 @@
     "seed": "Green"
   },
   { "idCard":21,
-    "artRef": ["Assets/RoundedCards/RoundedCorners21f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners21f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Wolf", "available": true},
@@ -231,7 +231,7 @@
     "seed": "Blue"
   },
   { "idCard":22,
-    "artRef": ["Assets/RoundedCards/RoundedCorners22f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners22f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -242,7 +242,7 @@
     "seed": "Blue"
   },
   { "idCard":23,
-    "artRef": ["Assets/RoundedCards/RoundedCorners23f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners23f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -253,7 +253,7 @@
     "seed": "Blue"
   },
   { "idCard":24,
-    "artRef": ["Assets/RoundedCards/RoundedCorners24f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners24f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Wolf", "available": true},
@@ -264,7 +264,7 @@
     "seed": "Blue"
   },
   { "idCard":25,
-    "artRef": ["Assets/RoundedCards/RoundedCorners25f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners25f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
@@ -275,7 +275,7 @@
     "seed": "Blue"
   },
   { "idCard":26,
-    "artRef": ["Assets/RoundedCards/RoundedCorners26f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners26f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Wolf", "available": true},
@@ -286,7 +286,7 @@
     "seed": "Blue"
   },
   { "idCard":27,
-    "artRef": ["Assets/RoundedCards/RoundedCorners27f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners27f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -297,7 +297,7 @@
     "seed": "Blue"
   },
   { "idCard":28,
-    "artRef": ["Assets/RoundedCards/RoundedCorners28f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners28f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -308,7 +308,7 @@
     "seed": "Blue"
   },
   { "idCard":29,
-    "artRef": ["Assets/RoundedCards/RoundedCorners29f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners29f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -319,7 +319,7 @@
     "seed": "Blue"
   },
   { "idCard":30,
-    "artRef": ["Assets/RoundedCards/RoundedCorners30f.png", "Assets/Cards/BRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners30f.png", "Assets/RoundedCards/RoundedCorners21b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"Wolf", "available": true},
@@ -330,7 +330,7 @@
     "seed": "Blue"
   },
   { "idCard":31,
-    "artRef": ["Assets/RoundedCards/RoundedCorners31f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners31f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
@@ -341,7 +341,7 @@
     "seed": "Purple"
   },
   { "idCard":32,
-    "artRef": ["Assets/RoundedCards/RoundedCorners32f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners32f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -352,7 +352,7 @@
     "seed": "Purple"
   },
   { "idCard":33,
-    "artRef": ["Assets/RoundedCards/RoundedCorners33f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners33f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -363,7 +363,7 @@
     "seed": "Purple"
   },
   { "idCard":34,
-    "artRef": ["Assets/RoundedCards/RoundedCorners34f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners34f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
@@ -374,7 +374,7 @@
     "seed": "Purple"
   },
   { "idCard":35,
-    "artRef": ["Assets/RoundedCards/RoundedCorners35f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners35f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Feather", "available": true},
@@ -385,7 +385,7 @@
     "seed": "Purple"
   },
   { "idCard":36,
-    "artRef": ["Assets/RoundedCards/RoundedCorners36f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners36f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
@@ -396,7 +396,7 @@
     "seed": "Purple"
   },
   { "idCard":37,
-    "artRef": ["Assets/RoundedCards/RoundedCorners37f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners37f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 0,
     "frontCorners": [
       {"Element":"Leaf", "available": true},
@@ -407,7 +407,7 @@
     "seed": "Purple"
   },
   { "idCard":38,
-    "artRef": ["Assets/RoundedCards/RoundedCorners38f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners38f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": false},
@@ -418,7 +418,7 @@
     "seed": "Purple"
   },
   { "idCard":39,
-    "artRef": ["Assets/RoundedCards/RoundedCorners39f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners39f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points": 1,
     "frontCorners": [
       {"Element":"empty", "available": true},
@@ -429,7 +429,7 @@
     "seed": "Purple"
   },
   { "idCard":40,
-    "artRef": ["Assets/RoundedCards/RoundedCorners40f.png", "Assets/Cards/PRCB.jpg"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners40f.png", "Assets/RoundedCards/RoundedCorners31b.png"],
     "points":1,
     "frontCorners": [
       {"Element":"Butterfly", "available": true},
