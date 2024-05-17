@@ -54,8 +54,7 @@ public class ConnectionManger {
                 System.err.println(e.getMessage());
                 return false;
             }
-        }
-        else {
+        } else {
             socket = null;
             try {
                 connectionAttempt();
@@ -108,7 +107,7 @@ public class ConnectionManger {
         String playerNick = ZakClient.getPlayerNick();
         try {
             if (isCrashed()) reHandShake(playerNick, clientID);
-            else  startHandShake(playerNick, clientID);
+            else startHandShake(playerNick, clientID);
         } catch (StupidUserException | IOException | HandShakeException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
@@ -202,8 +201,8 @@ public class ConnectionManger {
             handshakeACK = (LobbyCreationMessage) ackMessage;
             ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
         } catch (IOException | ClassNotFoundException e) {
-           // System.out.println();
-            throw new HandShakeException("Something went wrong during handshake process: "+e.getMessage());
+            // System.out.println();
+            throw new HandShakeException("Something went wrong during handshake process: " + e.getMessage());
         }
         return handshakeACK.getNumPlayer();
     }
@@ -218,12 +217,13 @@ public class ConnectionManger {
         System.out.println("Username already taken: choose another one");
         System.out.print("New username: ");
         if (!isGuiSelector()) playerNick = receiveInput();
-        else playerNick = LauncherController.askStringInputToUser("Username already taken: choose another one", "New username: ");
+        else
+            playerNick = LauncherController.askStringInputToUser("Username already taken: choose another one", "New username: ");
         System.out.println("NickRetype: " + playerNick);
         // File (or directory) with old name
-        File file = new File("savedata/"+getPlayerNick()+"-matchinfo.cdxn");
+        File file = new File("savedata/" + getPlayerNick() + "-matchinfo.cdxn");
         // File (or directory) with new name
-        File file2 = new File("savedata/"+playerNick+"-matchinfo.cdxn");
+        File file2 = new File("savedata/" + playerNick + "-matchinfo.cdxn");
         if (file2.exists())
             return getPlayerNick();
         if (!file.renameTo(file2)) {
@@ -494,6 +494,8 @@ public class ConnectionManger {
      */
     public static BroadCastStartingMessage secretSelector(BroadCastStartingMessage handshakeACKInfo) throws IOException, StupidUserException, InterruptedException {
         ObjectiveCard chosenCard;
+       /* Semaphore sam = new Semaphore(0);
+        if(isGuiSelector()) sam.acquire();*/
         chosenCard = ZakClient.getPlayer().chooseSecretObj(handshakeACKInfo.getSecretObjectiveCards(ZakClient.getClientID()));
         ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
         handshakeACKInfo.setSelectedSecret(tmpList);
@@ -509,8 +511,9 @@ public class ConnectionManger {
 
     /**
      * StarterCard face selector
+     *
      * @return returns true if starterCard faces up, false if faces down
-     * @throws IOException thrown if an invalid input is made
+     * @throws IOException          thrown if an invalid input is made
      * @throws InterruptedException thrown if semaphore can't acquire thread
      */
     private static boolean selectStarterCardFace() throws IOException, InterruptedException {

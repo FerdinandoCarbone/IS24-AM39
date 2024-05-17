@@ -127,8 +127,8 @@ public class LauncherController extends StackPane implements Initializable {
         alert.setTitle("Notification");
         alert.setHeaderText(null); // No header text
         alert.setContentText(message);
-        alert.showAndWait();
-        //alert.show();
+        //alert.showAndWait();
+        alert.show();
     }
 
     public void handleSubmitButtonAction() {

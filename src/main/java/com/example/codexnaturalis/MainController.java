@@ -47,11 +47,18 @@ public class MainController extends TabPane implements Initializable {
         cardPlaced=false;
         readyToPlace = false;
         cardToRemove=null;
-        player = ZakClient.getPlayer();
         System.out.println("Loading...");
         fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::middlePosition);
         });
+        try{
+        ZakClient.getSem().acquire();
+        }
+        catch(Exception e ){
+            throw new RuntimeException();
+        }
+        player = ZakClient.getPlayer();
+
         viewSetup();
         setupFieldSlots();
         cardsFromModel();

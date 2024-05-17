@@ -398,6 +398,7 @@ public class ZakClient extends Application{
             matchID = initialMatchSetupMessage.getMatchID();
             appendStringOnFile("MatchID:" + matchID.toString());
             player = initialMatchSetupMessage.getPlayers().get(clientID);
+            if(isGuiSelector())sem.release();
             if (player == null)
                 throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
             initialMatchSetupMessage.getPlayers().remove(clientID);
