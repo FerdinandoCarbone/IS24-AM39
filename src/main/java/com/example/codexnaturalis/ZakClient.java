@@ -404,6 +404,7 @@ public class ZakClient extends Application{
             players = initialMatchSetupMessage.getPlayers().values();
             otherPlayers.addAll(players);
             initialMatchSetupMessage = ConnectionManger.secretSelector(initialMatchSetupMessage);
+            if(isGuiSelector()) sem.release();
             serverHandler.sendMessage(initialMatchSetupMessage);
             player.placeStarterCard(initialMatchSetupMessage.getStarterCardFace());
             if(isGuiSelector()) sem.release();

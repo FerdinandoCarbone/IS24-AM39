@@ -40,7 +40,7 @@ public class ClientHandler extends Thread implements Runnable {
                 //custom use of sender: used to identify the winner
                 if(newTurnStatus.getClientID()==null){
                     ServerConnectionManager.sendBroadCastMessage(new TextMessage("Server:",null,"only you in the match","Everyone"));
-                    ServerConnectionManager.sendMessage(nextPlayer,new EndMatchMessage(null,null,newTurnStatus.getSender(),null,null,null));
+                    ServerConnectionManager.sendBroadCastMessage((new EndMatchMessage(null,null,newTurnStatus.getSender(),null,null,null)));
                 }
             } catch(IOException e){
                 throw new RuntimeException("Error while sending winning message");
