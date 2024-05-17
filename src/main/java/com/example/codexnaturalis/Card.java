@@ -20,6 +20,7 @@ public class Card implements Serializable {
     public int getIdCard() {
         return idCard;
     }
+
 }
 abstract class NonObjectiveCard extends Card {
 
@@ -125,6 +126,7 @@ abstract class NonObjectiveCard extends Card {
         this.isPlacedFront = isPlacedFront;
     }
 
+
 }
 /**
  * StarterCard: SubClass of NonObjectiveCard
@@ -157,6 +159,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     private Seed seed;
     protected int coveredCornersWhenPlaced = 0;
     protected int arrangements=0;
+    private boolean isArrangeable = true;
     //private ResourceElement backCentreResource;
     public enum ResourceElement{
         Mushroom,
@@ -226,9 +229,19 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     public int getCoveredCornersWhenPlaced() {
         return coveredCornersWhenPlaced;
     }
-
+    public void setSeed(Seed seed) {
+        this.seed = seed;
+    }
     public Seed getSeed() {
         return seed;
+    }
+
+    public int getArrangements() {
+        return arrangements;
+    }
+    public boolean getIsArrangeable(){return isArrangeable;}
+    public void setIsArrangeable(boolean isArrangeable) {
+        this.isArrangeable = isArrangeable;
     }
 }
 /**

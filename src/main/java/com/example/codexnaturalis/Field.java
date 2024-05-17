@@ -75,6 +75,15 @@ public class Field implements Serializable {
         }
 
         /**
+         * Getter of CardSlot
+         * @return ResourceGoldCard contained in the busySlot
+         */
+        public ResourceGoldCard getRGCardSlot() {
+            return (ResourceGoldCard) cardSlot;
+        }
+
+
+        /**
          * Setter of busySlot
          * @param busySlot: defines whether the slot is busy or not
          */

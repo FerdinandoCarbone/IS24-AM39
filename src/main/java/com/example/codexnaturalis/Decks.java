@@ -153,7 +153,7 @@ class PlayerDeck implements Serializable {
     /**
      * secretObjectiveCard: secret Objective Card of the player
      */
-    private ObjectiveCard secretObjectiveCard;
+    private static ObjectiveCard secretObjectiveCard;
 
     public PlayerDeck(ArrayList<ResourceGoldCard> resourceGoldCards, StarterCard starterCard) {
 
@@ -185,9 +185,7 @@ class PlayerDeck implements Serializable {
      * @param secretObjectiveCard: secret Objective Card of the player
      */
 
-    public void setSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {
-        this.secretObjectiveCard = secretObjectiveCard;
-    }
+    public void setSecretObjectiveCard(ObjectiveCard secretObjectiveCard) {this.secretObjectiveCard = secretObjectiveCard;}
 
     /**
      * Getter of cards
@@ -212,7 +210,7 @@ class PlayerDeck implements Serializable {
      *
      * @return secret Objective Card of the player
      */
-    public ObjectiveCard getSecretObjectiveCard() {
+    public static ObjectiveCard getSecretObjectiveCard() {
         return secretObjectiveCard;
     }
 }

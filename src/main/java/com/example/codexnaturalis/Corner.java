@@ -44,4 +44,12 @@ public class Corner implements Serializable {
     public ResourceGoldCard.ResourceElement getResourceElement() {
         return resourceElement;
     }
+
+    /**
+     * Setter of ResourceElement
+     * @param resourceElement: defines the element or the resource on the corner
+     */
+    public void setResourceElement(ResourceGoldCard.ResourceElement resourceElement) {
+        this.resourceElement = resourceElement;
+    }
 }
