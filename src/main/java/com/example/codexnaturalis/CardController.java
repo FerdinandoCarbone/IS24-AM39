@@ -13,14 +13,8 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class CardController extends Pane {
-    @FXML
-    private Button flipButton;
-    @FXML
-    private Button switchResourceButton;
-    @FXML
-    private Button switchGoldButton;
-    @FXML
-    private ImageView cardImageView;
+    //@FXML private Button flipButton;
+    @FXML private ImageView cardImageView;
     private Image frontImage;
     private Image backImage;
     private Card card;
@@ -32,7 +26,7 @@ public class CardController extends Pane {
         loader.setController(this);
         loader.load();
         isFront = true;
-        flipButton.setOnAction(event -> flipCard());
+        //flipButton.setOnAction(event -> flipCard());
 
     }
 
@@ -43,7 +37,7 @@ public class CardController extends Pane {
         loader.load();
         setupCard(card);
         isFront = true;
-        flipButton.setOnAction(event -> flipCard());
+        //flipButton.setOnAction(event -> flipCard());
 
     }
 

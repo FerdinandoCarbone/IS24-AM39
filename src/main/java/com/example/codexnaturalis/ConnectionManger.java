@@ -135,7 +135,7 @@ public class ConnectionManger {
             }
             lobbyCreatorCaller(playerNick, clientID, numOfUsers);
             System.out.println("Waiting for everyone to join.");
-            if (isGuiSelector()) LauncherController.alert("Waiting for everyone to join.");
+            //if (isGuiSelector()) LauncherController.alert("Waiting for everyone to join.");
         } catch (HandShakeException e) {
             System.err.println("There was an error during Handshake process: " + e.getMessage());
         }

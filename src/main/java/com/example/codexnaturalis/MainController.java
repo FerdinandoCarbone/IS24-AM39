@@ -50,6 +50,7 @@ public class MainController extends TabPane implements Initializable {
         cardPlaced=false;
         readyToPlace = false;
         cardToRemove=null;
+        player = ZakClient.getPlayer();
         System.out.println("Loading...");
         fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::middlePosition);
@@ -114,7 +115,6 @@ public class MainController extends TabPane implements Initializable {
         }
     }
     private void cardsFromModel() {
-        player = ZakClient.getPlayer();
         ArrayList<ResourceGoldCard> rgCards = player.getPlayerDeck().getResourceGoldCards();
         ArrayList<ObjectiveCard> objCards = player.getCommonObjCards();
         objCards.add(player.getPlayerDeck().getSecretObjectiveCard());
