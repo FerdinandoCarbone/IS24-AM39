@@ -201,6 +201,8 @@ public class LauncherController extends StackPane implements Initializable {
     public static Integer selectACardDialog(ArrayList<Card> cards,String whatToSelect) throws IOException {
         ArrayList<SelectableCardController> selectables= new ArrayList<>();
         for(Card card: cards){
+            System.out.println(card.getArtRef()[0]);
+            System.out.println(card.getArtRef()[1]);
             selectables.add(new SelectableCardController(card));
         }
         Dialog<Integer> dialog = new Dialog<>();
