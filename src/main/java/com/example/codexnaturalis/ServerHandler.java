@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerHandler extends Thread implements Runnable {
     private final String clientName;
+    private Semaphore samvise;
     private static final CountDownLatch dialogClosedLatch = new CountDownLatch(1);
     private final UUID clientID;
     private Pair<String,Integer> connectionInfo;
@@ -31,10 +32,11 @@ public class ServerHandler extends Thread implements Runnable {
         this.connectionInfo = ZakClient.getConnectionInfo();
         this.firstBroadCastWasReceived=false;
         this.messageTurn=null;
+        this.samvise = new Semaphore(0);
     }
 
-    public static CountDownLatch getDialogClosedLatch() {
-        return dialogClosedLatch;
+    public Semaphore getSemaphore() {
+        return samvise;
     }
     public UUID getClientID() {
         return clientID;

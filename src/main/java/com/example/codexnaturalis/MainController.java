@@ -13,11 +13,13 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class MainController extends Pane implements Initializable {
+public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
     public static Button turnButton;
     public static ComboBox comboBox;
@@ -29,14 +31,17 @@ public class MainController extends Pane implements Initializable {
     public ScrollPane fieldScrollPane;
     @FXML
     public HBox turnBOX;
-    @FXML
-    public TextField textField;
-    @FXML
-    public VBox vbox;
-    @FXML
-    private PlayerDeckController playerDeck;
-    @FXML
-    private StructRightController struct;
+    @FXML public TextField textField;
+    @FXML public VBox vbox;
+    @FXML public StructRightController struct2;
+    @FXML public StructRightController struct3;
+    @FXML public StructRightController struct4;
+    @FXML public TabelloneController table;
+    @FXML private Tab tab1;
+    @FXML private Tab tab2;
+    @FXML private Tab tab3;
+    @FXML private PlayerDeckController playerDeck;
+    @FXML private StructRightController struct;
     private CardController cardToRemove;
     private boolean readyToPlace = false;
 
@@ -47,18 +52,7 @@ public class MainController extends Pane implements Initializable {
         fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::middlePosition);
         });
-        textArea = new TextArea("Notification");
-        textArea.setEditable(false);
-        vbox.getChildren().add(2, textArea);
-        comboBox = new ComboBox<>();
-        comboBox.setPromptText("Select recipient Player");
-        for (Player p : ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
-        comboBox.getItems().add("Everyone");
-        turnButton = new Button("Confirm Turn");
-        turnButton.setDisable(true);
-        turnButton.setOnAction(event -> genericTurnSender());
-        turnBOX.getChildren().add(1, comboBox);
-        turnBOX.getChildren().add(turnButton);
+        viewSetup();
         cardsFromModel();
         for (int i = 0; i < 3; i++) {
             CardController tmpCard = (CardController) playerDeck.getChildren().get(i);
@@ -86,6 +80,30 @@ public class MainController extends Pane implements Initializable {
         }
         playerDeck.setPadding(new Insets(25));
         playerDeck.setSpacing(20);
+    }
+
+    private void viewSetup() {
+        textArea = new TextArea("Notification");
+        textArea.setEditable(false);
+        vbox.getChildren().add(2, textArea);
+        comboBox = new ComboBox<>();
+        comboBox.setPromptText("Select recipient Player");
+        comboBox.getItems().add("Everyone");
+        turnButton = new Button("Confirm Turn");
+        turnButton.setDisable(true);
+        turnButton.setOnAction(event -> genericTurnSender());
+        turnBOX.getChildren().add(1, comboBox);
+        turnBOX.getChildren().add(turnButton);
+        ArrayList<Player> others = ZakClient.getOtherPlayers();
+        Tab[] tabs = new Tab[]{tab1,tab2,tab3};
+        HashMap<String, Tab> tabMan =new HashMap<>();
+        for (int i = 0; i < others.size() ; i++) {
+            String playerName = others.get(i).getPlayerName();
+            comboBox.getItems().add(playerName);
+            tabs[i].setText(playerName);
+            tabs[i].setDisable(false);
+            tabMan.put(playerName,tabs[i]);
+        }
     }
 
     private void cardsFromModel() {

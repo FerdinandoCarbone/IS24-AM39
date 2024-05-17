@@ -14,30 +14,55 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ComboBox?>
-<Pane xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.codexnaturalis.MainController"
-      minWidth="1440.0" maxWidth="1440.0" maxHeight="810.0" minHeight="810.0">
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import com.example.codexnaturalis.TabelloneController?>
+<TabPane xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.example.codexnaturalis.MainController"
+         minWidth="1920.0" maxWidth="1920" maxHeight="1080" minHeight="1080">
+        <Tab text="Your playing Field:">
+            <BorderPane>
+                <left>
+                    <ScrollPane prefWidth="1000" prefHeight="800" fx:id="fieldScrollPane">
+                        <StructRightController fx:id="struct"/>
+                    </ScrollPane>
+                </left>
+                <right>
+                    <AnchorPane>
+                        <VBox fx:id="vbox" alignment="CENTER">
+                            <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100"
+                                                  AnchorPane.rightAnchor="10"/>
+                            <PlayerDeckController fx:id="playerDeck"/>
+                            <HBox fx:id="turnBOX" spacing="15">
+                                <TextField fx:id="textField" promptText="Enter your chat text here"/>
+                                <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"
+                                        onAction="#chatWrite"/>
+                            </HBox>
 
-    <BorderPane>
-        <left>
-            <ScrollPane prefWidth="1000" prefHeight="800" fx:id="fieldScrollPane">
-                <StructRightController fx:id="struct"/>
-            </ScrollPane>
-        </left>
-        <right>
-            <AnchorPane>
-                <VBox fx:id="vbox" alignment="CENTER">
-                    <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100" AnchorPane.rightAnchor="10"/>
-                    <PlayerDeckController fx:id="playerDeck"/>
-                    <HBox fx:id="turnBOX" spacing="15">
-                        <TextField fx:id="textField" promptText="Enter your chat text here"/>
-                        <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"
-                                onAction="#chatWrite"/>
-                    </HBox>
-
-                </VBox>
-            </AnchorPane>
-        </right>
-    </BorderPane>
-</Pane>
+                        </VBox>
+                    </AnchorPane>
+                </right>
+            </BorderPane>
+        </Tab>
+        <Tab fx:id="tab1" disable="true" text="Player 2">
+            <HBox>
+                <StructRightController fx:id="struct2"/>
+            </HBox>
+        </Tab>
+        <Tab fx:id="tab2" disable="true" text="Player 3">
+            <Pane>
+                <StructRightController fx:id="struct3"/>
+            </Pane>
+        </Tab>
+        <Tab fx:id="tab3" disable="true" text="Player 4">
+            <HBox>
+                <StructRightController fx:id="struct4"/>
+            </HBox>
+        </Tab>
+        <Tab text="Score Tracker">
+            <Pane>
+                <TabelloneController fx:id="table"/>
+            </Pane>
+        </Tab>
+</TabPane>
