@@ -38,8 +38,6 @@ public class MainController implements Initializable {
     private final Player player = new Player("Pippo", new Token(Token.Color.Blue), new Field(GlobalVars.matrixSize, GlobalVars.matrixSize), UUID.randomUUID());
     private ResourceGoldCardController cardToRemove;
     private boolean readyToPlace = false;
-    private boolean starterPlaced = false;
-    private boolean starterSelected = false;
     private final double edgeMinDistance = 25;
     private final double bottomEdgeToDeck = 100;
     private final double fieldToDeck = GlobalVars.cardWidth;
@@ -73,16 +71,6 @@ public class MainController implements Initializable {
             selectRGCFromDeck(playerDeck.getCard3());
         });
     }
-    private void setupStarterEvent() {
-        playerDeck.getStarterCard().setOnMouseClicked((MouseEvent event) -> {
-            if (event.getButton() == MouseButton.SECONDARY) {
-                playerDeck.getStarterCard().flipCard();
-            }
-            readyToPlace = true;
-            starterSelected = true;
-            System.out.println("CARTA STARTER SELEZIONATA");
-        });
-    }
     private void setupDecks() {
         for (int i = 0; i < resourceDeck.getChildren().size(); i++) {
             resourceDeck.getChildren().get(i).setCursor(Cursor.HAND);
@@ -100,39 +88,21 @@ public class MainController implements Initializable {
         for (int i = 0; i < field.getChildren().size(); i++) {
             SlotController tmpSlot = (SlotController) field.getChildren().get(i);
             tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
-                if (starterPlaced) {
-                    if (cardPlaced) {
-                        System.out.println("CARD ALREADY PLACED IN THIS TURN");
-                    } else {
-                        if (readyToPlace) {
-                            try {
-                                placeCardAndRemoveFromDeck(tmpSlot);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        } else {
-                            System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
-                        }
-                    }
+                if (cardPlaced) {
+                    System.out.println("CARD ALREADY PLACED IN THIS TURN");
                 } else {
-                    System.out.println("ATTENZIONE, METTERE PRIMA LA CARTA STARTER");
+                    if (readyToPlace) {
+                        try {
+                            placeCardAndRemoveFromDeck(tmpSlot);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
+                    }
                 }
             });
         }
-    }
-    private void setupCenterFieldSlot() {
-        field.centerSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
-            if (starterSelected) {
-                try {
-                    placeStarterCardAndRemoveFromDeck(field.centerSlot);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                starterPlaced = true;
-            } else {
-                System.out.println("SELEZIONE PRIMA LA CARTA STARTER DAL DECK");
-            }
-        });
     }
     private void setupNextTurnButton() {
         nextTurnButton.setOnMouseClicked((MouseEvent event) -> {
@@ -160,10 +130,8 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupPlayerDeck();
         setupRGCEvents();
-        setupStarterEvent();
         setupDecks();
         setupFieldSlots();
-        setupCenterFieldSlot();
         setupNextTurnButton();
         setupDrawCardButton();
 
@@ -191,17 +159,21 @@ public class MainController implements Initializable {
         drawCardButton.setLayoutX(edgeMinDistance + playerDeck.getContainerWidth() + edgeMinDistance);
         drawCardButton.setLayoutY(1080 - bottomEdgeToDeck - 3*edgeMinDistance);
         drawCardButton.setText("Draw Card");
+
+        field.centerSlot.setSlotCardView(playerDeck.getStarterCard().getShownImage());
+        playerDeck.getChildren().remove(playerDeck.getStarterCard());
+        readyToPlace = false;
+        field.centerSlot.toFront();
+        player.placeStarterCard(playerDeck.getStarterCard().isFront());
+        player.printManas();
+
     }
 
     private void selectRGCFromDeck(ResourceGoldCardController card) {
-        if (starterPlaced) {
-            if (!cardPlaced) {
-                cardToRemove = card;
-                deckChildIndex = playerDeck.getChildren().indexOf(card);
-                readyToPlace = true;
-            }
-        } else {
-            System.out.println("SELEZIONE PRIMA LA CARTA STARTER");
+        if (!cardPlaced) {
+            cardToRemove = card;
+            deckChildIndex = playerDeck.getChildren().indexOf(card);
+            readyToPlace = true;
         }
     }
 
@@ -234,20 +206,6 @@ public class MainController implements Initializable {
             } else {
                 System.out.println("CARD HAS ALREADY BEEN PLACED IN THIS TURN");
             }
-        }
-    }
-
-    private void placeStarterCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
-        player.printManas();
-        if (slotToPlace.isEmpty()) {
-            slotToPlace.setSlotCardView(playerDeck.getStarterCard().getShownImage());
-            playerDeck.getChildren().remove(playerDeck.getStarterCard());
-            readyToPlace = false;
-            slotToPlace.toFront();
-            player.placeStarterCard(playerDeck.getStarterCard().isFront());
-            player.printManas();
-        } else {
-            System.out.println("SLOT GIA' OCCUPATO");
         }
     }
 
