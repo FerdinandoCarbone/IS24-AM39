@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -32,13 +33,13 @@ public class MainController extends Pane implements Initializable {
     private CardController cardToRemove;
     private boolean readyToPlace = false;
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("Carico main");
         fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::middlePosition);
         });
-        //todo: riattivare quando è il tuo turno
         textArea = new TextArea("Notification");
         textArea.setEditable(false);
         vbox.getChildren().add(2,textArea);
@@ -53,7 +54,7 @@ public class MainController extends Pane implements Initializable {
         turnBOX.getChildren().add(turnButton);
 
         try {
-            playerDeck.receiveCards();
+            ZakClient.getPlayer().cardsToGUI();
         } catch (IOException e) {
             printMessage(e.getMessage());
         }

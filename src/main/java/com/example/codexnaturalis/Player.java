@@ -582,7 +582,16 @@ public class Player implements Serializable {
             sem.acquire();
         return selected.get();
     }
-
+public ArrayList<CardController> cardsToGUI() throws IOException {
+        ArrayList<Card> tmp = new ArrayList<>();
+        tmp.addAll(playerDeck.getResourceGoldCards());
+        tmp.add(playerDeck.getStarterCard());
+        tmp.addAll(commonObjCards);
+        tmp.add(playerDeck.getSecretObjectiveCard());
+        ArrayList<CardController> rtrnTmp= new ArrayList<>();
+        for(Card card:tmp) rtrnTmp.add(new CardController(card));
+        return rtrnTmp;
+}
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }

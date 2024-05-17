@@ -91,9 +91,7 @@ public class ServerHandler extends Thread implements Runnable {
         String disconnectedPlayer= message.getDisconnectedClient();
         ArrayList<Player> otherPlayers = ZakClient.getOtherPlayers();
         for(Player p: otherPlayers) if(p.getPlayerName().equals(disconnectedPlayer)) ZakClient.getOtherPlayers().remove(p);
-        Platform.runLater(()->{
-            MainController.updateOtherPlayers();
-        });
+        Platform.runLater(MainController::updateOtherPlayers);
     }
 
     public void genericTurnMessageHandler(GenericTurnMessage message){

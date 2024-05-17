@@ -25,11 +25,12 @@ public class CardController extends Pane {
     private Card card;
     private boolean isFront;
 
-    public CardController() throws IOException {
+    public CardController(Card cardGui) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Card.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
+        setupCard(cardGui);
         isFront = true;
         flipButton.setOnAction(event -> flipCard());
 

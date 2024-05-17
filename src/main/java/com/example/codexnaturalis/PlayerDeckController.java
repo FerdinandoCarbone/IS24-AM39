@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PlayerDeckController extends VBox {
 
@@ -18,8 +19,8 @@ public class PlayerDeckController extends VBox {
     private CardController card2;
     @FXML
     private CardController card3;
-    private static CardController starterCard;
-    private static CardController secretObjCard;
+    private CardController starterCard;
+    private ArrayList<CardController> objCards;
 //    @FXML
 //    private Button cardReceiverButton;
 
@@ -29,18 +30,13 @@ public class PlayerDeckController extends VBox {
         fxmlLoader.setController(this);
         //this.setSpacing(168.0);
         fxmlLoader.load();
+        objCards = new ArrayList<>();
 
 //        cardReceiverButton.setOnAction(event -> receiveCards());
     }
 
-    public void receiveCards() throws IOException {
-        card1.setupCard(DrawingDeck.drawCard(true));
-        card2.setupCard(DrawingDeck.drawCard(true));
-        card3.setupCard(DrawingDeck.drawCard(false));
-        starterCard = new CardController();
-        secretObjCard = new CardController();
-        starterCard.setupCard(DrawingDeck.getTotalStartingCards().getFirst());
-        secretObjCard.setupCard(DrawingDeck.getTotalObjectiveCards().getFirst());
+    public void setNotPlayableCards(CardController starterCard,ArrayList<CardController> objectiveCards) throws IOException {
+        this.starterCard = starterCard;
     }
 
     public CardController getCard1() {
@@ -55,14 +51,22 @@ public class PlayerDeckController extends VBox {
         return card3;
     }
 
-    public static CardController getStarterCard() {
+    public  CardController getStarterCard() {
         return starterCard;
     }
 
-    public static CardController getSecretObjCard() {
-        return secretObjCard;
+    public  ArrayList<CardController> getObjCards() {
+        return objCards;
     }
-
+    public CardController getSecretObjCard(){
+        return objCards.getLast();
+    }
+    public ArrayList<CardController> getCommonObj(){
+        ArrayList<CardController> common=new ArrayList<>();
+        common.add(objCards.get(0));
+        common.add(objCards.get(1));
+        return common;
+    }
     public void setCard1(CardController card1) {
         this.card1 = card1;
     }

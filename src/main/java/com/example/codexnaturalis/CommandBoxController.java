@@ -25,6 +25,6 @@ public class CommandBoxController extends TilePane {
     }
     @FXML public void switchDeck(){
         //todo: robe da fare con player deck non con player deck
-        PlayerDeckController.getSecretObjCard();
+        //PlayerDeckController.getSecretObjCard();
     }
 }
