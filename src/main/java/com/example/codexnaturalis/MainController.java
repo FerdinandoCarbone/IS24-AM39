@@ -110,7 +110,7 @@ public class MainController extends TabPane implements Initializable {
             int middleSlot = CardDim.matrixSize/2;
             if(ZakClient.isCrashed()) field = FieldController.rebuildField(fieldControllers[i],others.get(i));
             else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
-            System.out.println("CARTA STARTER PIAZZATA IN [" + middleSlot + "][" + middleSlot + "] CON INDICE " + field.getFieldMap().get(new Pair<>(middleSlot, middleSlot)));
+            System.out.println("Carta starter di " + others.get(i).getPlayerName() + " piazzata di " + (others.get(i).getPlayerDeck().getStarterCard().isPlacedFront() ? "Fronte" : "Retro"));
         }
     }
 
@@ -345,6 +345,7 @@ public class MainController extends TabPane implements Initializable {
                                     return;
                                 }
                             }
+                            System.out.println("PIAZZATA CARTA #" + cardToRemove.getCard().getIdCard());
                             slotToPlace.setSlotCardView(cardToRemove.getShownImage());
                             readyToPlace = false;
                             cardPlaced = true;
