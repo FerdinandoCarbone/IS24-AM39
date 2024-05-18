@@ -310,6 +310,9 @@ public class Player implements Serializable {
         for (int i = 0; i < 4; i++) {
             decreaseResourceElementsMana(cardToUndo.getCorners().get(i));
         }
+        if (!cardToUndo.isPlacedFront()) {
+            decreaseResourceElementsMana(cardToUndo.getSeed());
+        }
         if (row != 0 && row != (playerField.getR() - 1) && column != 0 && column != (playerField.getC() - 1)) {
             for (int i = 0; i < 4; i++) {
                 updateAdjacentSlotsUndo(cardToUndo, row, column, i);
@@ -463,6 +466,18 @@ public class Player implements Serializable {
             case Feather -> elementsMana[2]--;
         }
     }
+
+    private void decreaseResourceElementsMana(Seed s) {
+        switch (s) {
+            case Red -> resourceMana[0]--;
+            case Green -> resourceMana[1]--;
+            case Blue -> resourceMana[2]--;
+            case Purple -> resourceMana[3]--;
+        }
+    }
+
+
+
 
     /**
      * Checks is a card is attachable to the adjacent slots
