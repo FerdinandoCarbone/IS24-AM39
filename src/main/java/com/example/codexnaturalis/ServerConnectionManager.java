@@ -4,8 +4,12 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
@@ -25,6 +29,7 @@ public class ServerConnectionManager {
     static ServerSocket serverSocket;
     static RemoteServerMethodInterface remoteServerSkeleton;
 
+
     public ServerConnectionManager(Pair<String,Integer> connectionInfo,int rmiPort) throws IOException {
         this.rmiPort = rmiPort;
         hashPlayer = new HashMap<>();
@@ -35,8 +40,13 @@ public class ServerConnectionManager {
         serverSocket=new ServerSocket(port);
         firstPlayer = false;
         numPlayers = 0;
-        rmiListener = new RMIConnectionListener(this);
+        //rmiListener = new RMIConnectionListener(this);
         socketListener = new SocketConnectionListener(this);
+
+        ////////TEST
+        remoteServerSkeleton = new RMIServerImplement();
+        LocateRegistry.createRegistry(getRmiPort());
+        Naming.rebind(ServerConnectionManager.getServerName(), remoteServerSkeleton);
     }
 
     /**
@@ -46,8 +56,8 @@ public class ServerConnectionManager {
      * As of now it seems to be working fine, so will leave as is
      * @param isReconnection- if the client is trying to reconnect after a crash or connection issue set true; else set to false
      */
-    public void acceptConnection(boolean isReconnection) {
-        rmiListener.start();
+    public void acceptConnection(boolean isReconnection) throws RemoteException, MalformedURLException {
+        //rmiListener.start();
         socketListener.start();
         while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers==0)) {
             while(connectionCondition()) {

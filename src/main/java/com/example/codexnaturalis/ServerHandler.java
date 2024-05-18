@@ -63,7 +63,7 @@ public class ServerHandler extends Thread implements Runnable {
             if(!wasFirstBroadCastReceived()) {
                 Platform.runLater(()-> {
                     try {
-                        LauncherController.alert(sender.get()+": "+message.getTextMessage());
+                        LauncherController.alert(sender.get()+": "+message.getTextMessage(),true);
                         LauncherController.loadGameScene();
                         sam.release();
                     } catch (IOException e) {

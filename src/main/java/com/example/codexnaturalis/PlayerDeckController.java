@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class PlayerDeckController extends VBox {
@@ -83,6 +84,10 @@ public class PlayerDeckController extends VBox {
 
     public void setCard3(ResourceGoldCardController card3) {
         this.card3 = card3;
+    }
+    public ArrayList<ResourceGoldCardController> getAllPlayableDeck(){
+        ResourceGoldCardController[] pCards = new ResourceGoldCardController[]{card1, card2, card3};
+        return new ArrayList<>(Arrays.stream(pCards).toList());
     }
     //    public Button getCardReceiverButton() {
 //        return cardReceiverButton;

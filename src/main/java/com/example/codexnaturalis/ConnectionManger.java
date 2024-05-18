@@ -164,7 +164,7 @@ public class ConnectionManger {
                     System.out.println("Joined existing match...");
                     System.out.println("CurrentPlayers: " + numOfUsers);
                 } else {
-                    LauncherController.alert("Joined existing match..." + "\nCurrentPlayers: " + numOfUsers);
+                    LauncherController.alert("Joined existing match..." + "\nCurrentPlayers: " + numOfUsers,true);
                 }
                 break;
             default:

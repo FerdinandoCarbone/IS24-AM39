@@ -122,13 +122,13 @@ public class LauncherController extends StackPane implements Initializable {
         status.setStyle("-fx-text-fill: " + color + ";");
     }
 
-    public static void alert(String message) {
+    public static void alert(String message,boolean wait) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Notification");
         alert.setHeaderText(null); // No header text
         alert.setContentText(message);
-        //alert.showAndWait();
-        alert.show();
+        if(wait)alert.showAndWait();
+        else alert.show();
     }
 
     public void handleSubmitButtonAction() {

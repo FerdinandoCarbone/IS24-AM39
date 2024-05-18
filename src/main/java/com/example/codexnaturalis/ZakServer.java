@@ -3,8 +3,10 @@ package com.example.codexnaturalis;
 import javafx.util.Pair;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.*;
 
 public class ZakServer {
@@ -14,7 +16,7 @@ public class ZakServer {
     static Pair<String, Integer> connectionInfo;
 
     //static int playerCounter = 1;
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException, MalformedURLException {
         int port = 8081;
         if (!args[0].isBlank()) {
             try {
@@ -37,7 +39,7 @@ public class ZakServer {
      * The ServerConnectionManager object is initialized, which will handle all communications with clients (sockets and RMI).
      * A soon as every player is connected match will start
      */
-    private static void serverSetupProcedure() {
+    private static void serverSetupProcedure() throws RemoteException, MalformedURLException {
         try {
             serverStart();
         } catch (Exception e) {

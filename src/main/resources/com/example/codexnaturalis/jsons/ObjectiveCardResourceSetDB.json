@@ -1,24 +1,24 @@
 [
   { "idCard":95,
-    "artRef": ["Assets/RoundedCards/RoundedCorners95f.png", "Assets/RoundedCards/OCB.png"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners95f.png", "Assets/RoundedCards/RoundedCorners101b.png"],
     "points":2,
     "asciiArt":"+----------------------+\n|          2           |\n|                      |\n|          M           |\n|       M     M        |\n|                      |\n|                      |\n+----------------------+",
     "requiredMaterials": ["Mushroom","Mushroom","Mushroom"]
   },
   { "idCard":96,
-    "artRef": ["Assets/RoundedCards/RoundedCorners96f.png", "Assets/RoundedCards/OCB.png"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners96f.png", "Assets/RoundedCards/RoundedCorners101b.png"],
     "points":2,
     "asciiArt":"+----------------------+\n|          2           |\n|                      |\n|          L           |\n|       L     L        |\n|                      |\n|                      |\n+----------------------+",
     "requiredMaterials": ["Leaf","Leaf","Leaf"]
   },
   { "idCard":97,
-    "artRef": ["Assets/RoundedCards/RoundedCorners97f.png", "Assets/RoundedCards/OCB.png"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners97f.png", "Assets/RoundedCards/RoundedCorners101b.png"],
     "points":2,
     "asciiArt": "+----------------------+\n|          2           |\n|                      |\n|          W           |\n|       W     W        |\n|                      |\n|                      |\n+----------------------+",
     "requiredMaterials": ["Wolf","Wolf","Wolf"]
   },
   { "idCard":98,
-    "artRef": ["Assets/RoundedCards/RoundedCorners98f.png", "Assets/RoundedCards/OCB.png"],
+    "artRef": ["Assets/RoundedCards/RoundedCorners98f.png", "Assets/RoundedCards/RoundedCorners101b.png"],
     "points":2,
     "asciiArt": "+----------------------+\n|          2           |\n|                      |\n|          B           |\n|       B     B        |\n|                      |\n|                      |\n+----------------------+",
     "requiredMaterials": ["Butterfly","Butterfly","Butterfly"]

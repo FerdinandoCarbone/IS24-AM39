@@ -73,7 +73,7 @@ public class MainController extends TabPane implements Initializable {
         textArea = new TextArea("Notification");
         textArea.setEditable(false);
         vbox.getChildren().add(2, textArea);
-        commands.command3.setOnAction(event -> resetMove());
+        commands.command3.setOnAction(this::resetMove);
         comboBox = new ComboBox<>();
         comboBox.setPromptText("Select recipient Player");
         comboBox.getItems().add("Everyone");
@@ -120,7 +120,7 @@ public class MainController extends TabPane implements Initializable {
             readyToPlace = true;
         }
     }
-    public void resetMove(){
+    public void resetMove(ActionEvent event){
         SlotController slotToReset = (SlotController) field.getChildren().get(field.getFieldMap().get(lastCoords));
         for(ResourceGoldCardController card : playerDeck.getAllPlayableDeck()) if(card.getCard()==null) card.setupCard((ResourceGoldCard) slotToReset.card);
         slotToReset.setEmpty(true);
@@ -258,6 +258,7 @@ public class MainController extends TabPane implements Initializable {
                         readyToPlace = false;
                         cardPlaced = true;
                         slotToPlace.toFront();
+                        slotToPlace.card=cardToRemove.getCard();
                         //Getting row of field
                         player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
                         playerDeck.resetCard(deckChildIndex);

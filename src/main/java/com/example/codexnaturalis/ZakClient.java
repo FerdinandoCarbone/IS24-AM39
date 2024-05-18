@@ -54,7 +54,7 @@ public class ZakClient extends Application{
             System.err.println("Client Setup error: " + e.getMessage());
             if (guiSelector) {
                 Platform.runLater(() -> {
-                    LauncherController.alert(e.getMessage());
+                    LauncherController.alert(e.getMessage(),true);
                     stage.close();
                 });
             } else throw new RuntimeException("Please restart the client and try again");
@@ -66,7 +66,7 @@ public class ZakClient extends Application{
             System.err.println("Game Start error " + e.getLocalizedMessage() + ": " + e.getMessage());
             if (guiSelector) {
                 Platform.runLater(() -> {
-                    LauncherController.alert(e.getMessage());
+                    LauncherController.alert(e.getMessage(),true);
                     stage.close();
                 });
             } else throw new RuntimeException("Please restart the client and try again");
@@ -348,7 +348,7 @@ public class ZakClient extends Application{
                 response.set(receiveInput().toLowerCase());
             }
             if(!(response.get().equals("no")||response.get().equals("yes"))){
-                if(isGuiSelector()) Platform.runLater(()->LauncherController.alert("Invalid Input"));
+                if(isGuiSelector()) Platform.runLater(()->LauncherController.alert("Invalid Input",false));
                 else System.out.println("Invalid Input");
             }
             else break;;

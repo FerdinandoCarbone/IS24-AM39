@@ -67,4 +67,5 @@ public class SlotController extends Pane {
     public Pair<Integer, Integer> getCoords() {
         return coords;
     }
+
 }

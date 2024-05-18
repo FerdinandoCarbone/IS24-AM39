@@ -553,7 +553,7 @@ public class Player implements Serializable {
                 System.out.println("Invalid input: try again");
                 if (ZakClient.isGuiSelector()) {
 
-                    LauncherController.alert("Invalid input: try again");
+                    LauncherController.alert("Invalid input: try again",false);
                 }
                 continue;
             }

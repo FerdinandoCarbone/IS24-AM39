@@ -71,4 +71,8 @@ public class FieldController extends Pane {
     public double getTotalWidth() {
         return totalWidth;
     }
+
+    public HashMap<Pair<Integer, Integer>, Integer> getFieldMap() {
+        return fieldMap;
+    }
 }
