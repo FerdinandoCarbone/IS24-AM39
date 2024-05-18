@@ -50,8 +50,8 @@ public class SlotController extends Pane {
 
     public void setEmpty(boolean empty) {
         isEmpty = empty;
+        if(empty) slotCardView.setImage(emptyImage);
     }
-
     public void setCoords(Pair<Integer, Integer> coords) {
         this.coords = coords;
     }
