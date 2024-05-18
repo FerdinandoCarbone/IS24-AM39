@@ -412,6 +412,7 @@ public class ConnectionManger {
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
             }
+            if(ZakClient.isCrashed()) ZakClient.getSem().release();
             ZakClient.getServerHandler().setFirstBroadCastWasReceived(true);
             /*
              * Socket still needs to retrieve his GenericTurn Message. Here info is retrieved
@@ -429,9 +430,14 @@ public class ConnectionManger {
              */
             setMyTurn(amPlayerInTurn);
             //System.out.println("Done!");
-            if (isGuiSelector()) LauncherController.loadGameScene();
+            if (isGuiSelector()) {
+                ZakClient.getSem().release();
+                LauncherController.loadGameScene();
+            }
             if (amPlayerInTurn && typeOfConnection) {
-                if (isGuiSelector()) MainController.alert("It's your turn");
+                if (isGuiSelector()) {
+                    MainController.alert("It's your turn");
+                }
                 else System.out.println("\nIt's your turn!");
             }
         } catch (Exception e) {

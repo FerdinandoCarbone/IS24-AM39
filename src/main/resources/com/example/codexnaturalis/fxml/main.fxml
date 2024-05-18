@@ -22,7 +22,7 @@
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
-         minWidth="1920.0" maxWidth="1920" maxHeight="1080" minHeight="1080">
+         minWidth="1040.0" maxWidth="700" maxHeight="1040" minHeight="700">
         <Tab text="Your playing Field:">
             <BorderPane>
                 <left>

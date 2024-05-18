@@ -12,8 +12,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
-import jdk.swing.interop.SwingInterOpUtils;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -102,6 +100,7 @@ public class MainController extends TabPane implements Initializable {
         Tab[] tabs = new Tab[]{tab1, tab2, tab3};
         FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
         tabMan = new HashMap<>();
+        if(ZakClient.isCrashed()) field = FieldController.rebuildField(field,player);
         for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
             comboBox.getItems().add(playerName);
@@ -109,7 +108,8 @@ public class MainController extends TabPane implements Initializable {
             tabs[i].setDisable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
             int middleSlot = CardDim.matrixSize/2;
-            fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
+            if(ZakClient.isCrashed()) field = FieldController.rebuildField(fieldControllers[i],others.get(i));
+            else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
             System.out.println("CARTA STARTER PIAZZATA IN [" + middleSlot + "][" + middleSlot + "] CON INDICE " + field.getFieldMap().get(new Pair<>(middleSlot, middleSlot)));
         }
     }
@@ -213,16 +213,22 @@ public class MainController extends TabPane implements Initializable {
         GenericTurnMessage message = ZakClient.getServerHandler().getMessageTurn();
         ResourceGoldCardController newCardPos = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
         try {
+            message.printCoveredCards();
+            message.printPublicCards();
             ResourceGoldCard selectedCard;
             do {
                 selectedCard = pickCard(message);
             } while (selectedCard == null);
+            ZakClient.getServerHandler().setMessageTurn(null);
+            System.out.println("CARDSELECTED: "+selectedCard.getIdCard());
             newCardPos.setupCard(selectedCard);
+            player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
             ZakClient.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(cardToRemove.getCard())), lastUsedSlot.coords));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
         turnButton.setDisable(true);
+        ZakClient.setMyTurn(false);
         cardPlaced = false;
         readyToPlace = false;
         lastUsedSlot = null;

@@ -330,9 +330,6 @@ class SocketClientHandler extends ClientHandler {
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.", "");
         switch (messageType) {
-            case "Message":
-                resilience(message);
-                break;
             case "GenericTurnMessage":
                 genericTurnMessageHandler((GenericTurnMessage) message);
                 break;
@@ -353,10 +350,6 @@ class SocketClientHandler extends ClientHandler {
         }
     }
 
-    private void resilience(Message message) {
-
-    }
-
     @Override
     public boolean getReconnect() {
         return this.reconnect;
@@ -375,5 +368,7 @@ class SocketClientHandler extends ClientHandler {
             message.setSender(getClientName());
         }
         outClient.writeObject(message);
+        outClient.flush();
+        outClient.reset();
     }
 }

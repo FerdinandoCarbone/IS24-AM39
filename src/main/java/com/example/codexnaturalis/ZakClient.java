@@ -541,11 +541,11 @@ public class ZakClient extends Application{
         serverHandler.sendMessage(message);
         serverHandler.setMessageTurn(null);
         myTurn = false;
-        if (isGuiSelector()) {
+        /*if (isGuiSelector()) {
             Platform.runLater(() -> {
                 MainController.setTurnButton(true);
             });
-        }
+        }*/
         clearConsole();
     }
 

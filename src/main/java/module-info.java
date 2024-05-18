@@ -5,7 +5,7 @@ module com.example.codexnaturalis {
     requires org.controlsfx.controls;
     requires com.fasterxml.jackson.databind;
     requires java.rmi;
-    requires jdk.unsupported.desktop;
+    //requires jdk.unsupported.desktop;
 
     opens com.example.codexnaturalis to javafx.fxml,com.fasterxml.jackson.databind;
     exports com.example.codexnaturalis;

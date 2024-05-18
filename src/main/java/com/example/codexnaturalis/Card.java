@@ -316,7 +316,6 @@ class GoldCard extends ResourceGoldCard {
  * ObjectiveCard: SubClass of Card
  * Extra Fields: points
  */
-//TODO: DA METTERE ASTRATTA
  class ObjectiveCard extends Card {
      private int points;
      private String asciiArt;

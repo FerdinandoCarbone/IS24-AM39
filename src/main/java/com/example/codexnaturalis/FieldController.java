@@ -17,7 +17,7 @@ public class FieldController extends Pane {
     final int fieldSize = matrixSize;
     final double totalHeight = fieldSize *(deltaHeight) + cardHeight;
     final double totalWidth = fieldSize *(deltaWidth) + cardWidth;
-    private final HashMap<Pair<Integer, Integer>, SlotController> fieldMap = new HashMap<>();
+    private HashMap<Pair<Integer, Integer>, SlotController> fieldMap = new HashMap<>();
 
     public FieldController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/Field.fxml"));
@@ -57,6 +57,12 @@ public class FieldController extends Pane {
             }
         }
         centerSlot.toFront();
+    }
+
+    public static FieldController rebuildField(FieldController field,Player player) {
+        //Field.Slot[] codex = player.getPlayerField().getSlots();
+        //for
+        return field;
     }
 
     public void fillField(int row, int column, NonObjectiveCard cardToPlace) {

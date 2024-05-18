@@ -131,10 +131,10 @@ public class ServerHandler extends Thread implements Runnable {
         UUID oldPlayer= newStatus.getClientID();
         System.out.println("Updating game status" + oldPlayer+" Points: "+ newStatus.getCurrPlayerPoints());
         ResourceGoldCard placedCard= newStatus.getPlacedCard();
-        Pair<Integer,Integer> coords= newStatus.getCoords();
-        ArrayList<Player> players = ZakClient.getOtherPlayers();
+        Pair<Integer,Integer> coords = newStatus.getCoords();
         if(getClientID().equals(oldPlayer))ZakClient.getPlayer().setScore(newStatus.getCurrPlayerPoints());
         else {
+            ArrayList<Player> players = ZakClient.getOtherPlayers();
             for (Player p : players) {
                 if (p.getPlayerID().equals(oldPlayer)) {
                     System.out.println("Player found:");
@@ -263,6 +263,8 @@ class ServerSocketHandler extends ServerHandler {
         message.setSender(getClientName());
         message.setClientID(getClientID());
         outServer.writeObject(message);
+        outServer.flush();
+        outServer.reset();
     }
 
     private void endOfTheGame(EndMatchMessage message) throws IOException, WrongMessageConversionException {
