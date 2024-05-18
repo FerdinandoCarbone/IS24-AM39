@@ -19,7 +19,9 @@ public class CommandBoxController extends TilePane {
         loader.load();
         command1.setOnAction(event->switchCodex());
         command2.setOnAction(event -> switchDeck());
+
     }
+
     @FXML public void switchCodex(){
 
     }

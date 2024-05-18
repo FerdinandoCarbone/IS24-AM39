@@ -12,6 +12,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -23,6 +25,7 @@ public class MainController extends TabPane implements Initializable {
     private boolean cardPlaced;
     private int deckChildIndex;
     private Player player;
+    private Pair<Integer,Integer> lastCoords;
     private ResourceGoldCardController cardToRemove;
     @FXML public CommandBoxController commands;
     @FXML public Button sendButton;
@@ -58,12 +61,10 @@ public class MainController extends TabPane implements Initializable {
             throw new RuntimeException();
         }
         player = ZakClient.getPlayer();
-
         viewSetup();
         setupFieldSlots();
         cardsFromModel();
         setupRGCEvents();
-
         playerDeck.setPadding(new Insets(25));
         playerDeck.setSpacing(20);
     }
@@ -72,6 +73,7 @@ public class MainController extends TabPane implements Initializable {
         textArea = new TextArea("Notification");
         textArea.setEditable(false);
         vbox.getChildren().add(2, textArea);
+        commands.command3.setOnAction(event -> resetMove());
         comboBox = new ComboBox<>();
         comboBox.setPromptText("Select recipient Player");
         comboBox.getItems().add("Everyone");
@@ -118,6 +120,15 @@ public class MainController extends TabPane implements Initializable {
             readyToPlace = true;
         }
     }
+    public void resetMove(){
+        SlotController slotToReset = (SlotController) field.getChildren().get(field.getFieldMap().get(lastCoords));
+        for(ResourceGoldCardController card : playerDeck.getAllPlayableDeck()) if(card.getCard()==null) card.setupCard((ResourceGoldCard) slotToReset.card);
+        slotToReset.setEmpty(true);
+        lastCoords = null;
+        cardPlaced=false;
+        readyToPlace =true;
+    }
+
     private void cardsFromModel() {
         ArrayList<ResourceGoldCard> rgCards = player.getPlayerDeck().getResourceGoldCards();
         ArrayList<ObjectiveCard> objCards = player.getCommonObjCards();
@@ -235,6 +246,7 @@ public class MainController extends TabPane implements Initializable {
             if (!cardPlaced) {
                 int row = slotToPlace.getCoords().getKey();
                 int col = slotToPlace.getCoords().getValue();
+                lastCoords = slotToPlace.coords;
                 if (player.isCardAttachableToSlot(row, col)) {
                     if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
                         if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
