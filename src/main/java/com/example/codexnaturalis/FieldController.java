@@ -67,6 +67,8 @@ public class FieldController extends Pane {
         correspondingSlot.setSlotCardView(img);
     }
 
+
+
     public int getFieldSize() {
         return fieldSize;
     }
@@ -77,5 +79,9 @@ public class FieldController extends Pane {
 
     public double getTotalWidth() {
         return totalWidth;
+    }
+
+    public HashMap<Pair<Integer, Integer>, Integer> getFieldMap() {
+        return fieldMap;
     }
 }

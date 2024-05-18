@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.net.URL;
@@ -34,6 +35,7 @@ public class MainController implements Initializable {
     private Button nextTurnButton;
     @FXML
     private Button drawCardButton;
+    private Pair<Integer,Integer> lastCoords;
 
     private final Player player = new Player("Pippo", new Token(Token.Color.Blue), new Field(GlobalVars.matrixSize, GlobalVars.matrixSize), UUID.randomUUID());
     private ResourceGoldCardController cardToRemove;
@@ -104,22 +106,40 @@ public class MainController implements Initializable {
             });
         }
     }
+//    private void setupNextTurnButton() {
+//        nextTurnButton.setOnMouseClicked((MouseEvent event) -> {
+//            if (!cardPlaced || !cardDrawn) {
+//                if (!cardPlaced) {
+//                    System.out.println("CARD STILL NEEDS TO BE PLACED IN THIS TURN");
+//                }
+//                if (!cardDrawn) {
+//                    System.out.println("CARD STILL NEEDS TO BE DRAWN IN THIS TURN");
+//                }
+//            } else {
+//                System.out.println("NEXT TURN TRIGGERED");
+//                cardPlaced = false;
+//                cardDrawn = false;
+//            }
+//        });
+//    }
     private void setupNextTurnButton() {
         nextTurnButton.setOnMouseClicked((MouseEvent event) -> {
-            if (!cardPlaced || !cardDrawn) {
-                if (!cardPlaced) {
-                    System.out.println("CARD STILL NEEDS TO BE PLACED IN THIS TURN");
-                }
-                if (!cardDrawn) {
-                    System.out.println("CARD STILL NEEDS TO BE DRAWN IN THIS TURN");
-                }
-            } else {
-                System.out.println("NEXT TURN TRIGGERED");
+            if(cardPlaced) {
+                //retrieves last used slot
+                System.out.println("LASTCOORDS: "+ lastCoords);
+                SlotController slotToReset = (SlotController) field.getChildren().get(field.getFieldMap().get(lastCoords));
+                ResourceGoldCardController tmp = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
+                tmp.setupCard((ResourceGoldCard) slotToReset.card);
+//            for (ResourceGoldCardController card : playerDeck.getAllPlayableDeck())
+//                if (card.getCard() == null) card.setupCard((ResourceGoldCard) slotToReset.card);
+                slotToReset.setEmpty(true);
+                lastCoords = null;
                 cardPlaced = false;
-                cardDrawn = false;
+                readyToPlace = false;
             }
         });
     }
+
     private void setupDrawCardButton() {
         drawCardButton.setOnMouseClicked((MouseEvent event) -> {
             publicCardDrawCheck();
@@ -184,6 +204,7 @@ public class MainController implements Initializable {
             if (!cardPlaced) {
                 int row = slotToPlace.getCoords().getKey();
                 int col = slotToPlace.getCoords().getValue();
+                lastCoords = slotToPlace.getCoords();
                 if (player.isCardAttachableToSlot(row, col)) {
                     if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
                         if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
@@ -195,6 +216,8 @@ public class MainController implements Initializable {
                         readyToPlace = false;
                         cardPlaced = true;
                         slotToPlace.toFront();
+                        slotToPlace.card = cardToRemove.getCard();
+                        System.out.println(field.getFieldMap().get(lastCoords));
                         //Getting row of field
                         player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
                         playerDeck.resetCard(deckChildIndex);
@@ -208,6 +231,8 @@ public class MainController implements Initializable {
             }
         }
     }
+
+
 
     private void publicCardDrawCheck() {
         if (!cardPlaced) {

@@ -60,6 +60,15 @@ abstract class NonObjectiveCard extends Card {
         getCorners().get(cornerIndex).setAvailableCorner(false);
     }
 
+    public void updateCornerToFree(int cornerIndex) throws IndexOutOfBoundsException {
+        if (cornerIndex < 0 || cornerIndex > 3) {
+            throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
+        }
+
+        getCorners().get(cornerIndex).setAvailableCorner(true);
+    }
+
+
     /**
      * Printa a console gli angoli frontali della carta
      */
@@ -171,6 +180,10 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         Papyrus,
         Feather,
         empty
+    }
+
+    public void setCoveredCornersWhenPlaced(int coveredCornersWhenPlaced) {
+        this.coveredCornersWhenPlaced = coveredCornersWhenPlaced;
     }
 
     public ResourceGoldCard(int idCard, String[] artRef, ArrayList<Corner> frontCorners, int points, Seed seed) {

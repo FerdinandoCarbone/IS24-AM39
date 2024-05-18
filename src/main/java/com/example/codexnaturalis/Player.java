@@ -303,6 +303,56 @@ public class Player implements Serializable {
 
     }
 
+    public void undoMove(int row, int column, int deckChildIndex) {
+        Field.Slot slotToUndo = playerField.getSlots()[row][column];
+        ResourceGoldCard cardToUndo = (ResourceGoldCard) slotToUndo.getCardSlot();
+        playerDeck.getResourceGoldCards().add(deckChildIndex, cardToUndo);
+        for (int i = 0; i < 4; i++) {
+            decreaseResourceElementsMana(cardToUndo.getCorners().get(i));
+        }
+        if (row != 0 && row != (playerField.getR() - 1) && column != 0 && column != (playerField.getC() - 1)) {
+            for (int i = 0; i < 4; i++) {
+                updateAdjacentSlotsUndo(cardToUndo, row, column, i);
+            }
+        } else {
+            if (row == 0) {
+                if (column != 0 && column != (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
+                } else if (column == (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
+                } else if (column == 0) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
+                }
+            } else if (row == (playerField.getR() - 1)) {
+                if (column != 0 && column != (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
+                } else if (column == (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
+                } else if (column == 0) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
+                }
+            } else if (column == 0) {
+                if (row != playerField.getR() - 1) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
+                }
+            } else if (column == (playerField.getC() - 1)) {
+                if (row != playerField.getR() - 1) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
+                }
+            }
+        }
+
+        System.out.println("MOVE UNDONE: HERE ARE THE CHANGES");
+        printManas();
+
+        slotToUndo.setBusySlot(false);
+        slotToUndo.setCardSlot(null);
+    }
+
     /**
      * Given a card to place in the field, one of its corners, the slot's row and column, updates the corner
      * of the adjacent card
@@ -328,6 +378,24 @@ public class Player implements Serializable {
             cardToPlace.coveredCornersWhenPlaced++;
         }
     }
+
+    private void updateAdjacentSlotsUndo(ResourceGoldCard cardToUndo,int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
+        int rowToCheck = selectedRow + calculateOffSetR(corner);
+        int columnToCheck = selectedColumn + calculateOffSetC(corner);
+        /* Check if the adjacent slot is busy. If busy update the availability of the adjacent card's corner and
+         * update the availability of the placed card. Also update resourceMana and elementsMana
+         *  */
+        if (playerField.getSlots()[rowToCheck][columnToCheck].isBusySlot()) {
+            NonObjectiveCard coveredCard = playerField.getSlots()[rowToCheck][columnToCheck].getCardSlot();
+            int coveredCornerIndex = findCornerToPlace(corner);
+            Corner coveredCorner = coveredCard.getCorners().get(coveredCornerIndex);
+            increaseResourceElementsMana(coveredCorner);
+            cardToUndo.updateCornerToFree(corner);
+            coveredCard.updateCornerToFree(coveredCornerIndex);
+            cardToUndo.setCoveredCornersWhenPlaced(0);
+        }
+    }
+
 
     /**
      * Given a Corner, analyses its content and updates the player's manas
