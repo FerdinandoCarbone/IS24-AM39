@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -130,11 +131,17 @@ public class MainController extends TabPane implements Initializable {
     }
 
     private void selectRGCFromDeck(ResourceGoldCardController card) {
-        if (!cardPlaced) {
-            System.out.println("Sto copiando in cardToRemove: " + card.getCard());
-            cardToRemove = card;
-            deckChildIndex = playerDeck.getChildren().indexOf(card);
-            readyToPlace = true;
+        if (card.getCard() == null) {
+            System.out.println("EMPTY CARD, CAN'T DO MUCH WITH IT");
+        } else {
+            if (!cardPlaced) {
+                System.out.println("CARD #" + card.getCard().getIdCard() + " SELECTED FROM DECK");
+                cardToRemove = card;
+                deckChildIndex = playerDeck.getChildren().indexOf(card);
+                readyToPlace = true;
+            } else {
+                System.out.println("CARD ALREADY PLACED IN THIS TURN");
+            }
         }
     }
 
@@ -148,6 +155,8 @@ public class MainController extends TabPane implements Initializable {
             cardPlaced = false;
             readyToPlace = false;
             lastUsedSlot = null;
+        } else {
+            System.out.println("NO CARD PLACED YET");
         }
     }
 
@@ -289,6 +298,7 @@ public class MainController extends TabPane implements Initializable {
         for (int i = 0; i < field.getChildren().size(); i++) {
             SlotController tmpSlot = (SlotController) field.getChildren().get(i);
             tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
+                System.out.println("SLOT CLICKED");
                 if (cardPlaced) {
                     System.out.println("CARD ALREADY PLACED IN THIS TURN");
                 } else {
@@ -308,45 +318,48 @@ public class MainController extends TabPane implements Initializable {
         Image starter = new Image(Objects.requireNonNull(getClass().getResourceAsStream(player.getPlayerDeck().getStarterCard().getArtRef()[starterFace])));
         field.centerSlot.setSlotCardView(starter);
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
-        readyToPlace = false;
         field.centerSlot.toFront();
         player.printManas();
     }
 
     private void placeCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
-        if (cardToRemove.getCard() == null) {
-            System.out.println("EMPTY CARD NOT PLACEBLE");
-        } else {
-            if (!cardPlaced) {
-                int row = slotToPlace.getCoords().getKey();
-                int col = slotToPlace.getCoords().getValue();
-                //System.out.println("CENTER SLOT: "+field.centerSlot.coords+"\nSelected Slot: "+lastCoords);
-                if (player.isCardAttachableToSlot(row, col)) {
-                    if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
-                        if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
-                            return;
+        if (readyToPlace) {
+            if (cardToRemove.getCard() != null) {
+                if (!cardPlaced) {
+                    int row = slotToPlace.getCoords().getKey();
+                    int col = slotToPlace.getCoords().getValue();
+                    if (player.isCardAttachableToSlot(row, col)) {
+                        if (slotToPlace.isEmpty()) {
+                            if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
+                                if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
+                                    System.out.println("REQUIREMENTS FOR GOLD CARD NOT FULFILLED");
+                                    return;
+                                }
+                            }
+                            slotToPlace.setSlotCardView(cardToRemove.getShownImage());
+                            readyToPlace = false;
+                            cardPlaced = true;
+                            slotToPlace.toFront();
+                            slotToPlace.setEmpty(false);
+                            slotToPlace.card = cardToRemove.getCard();
+                            lastUsedSlot = slotToPlace;
+                            player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
+                            playerDeck.resetCard(deckChildIndex);
+                            player.printManas();
+                        } else {
+                            System.out.println("SLOT GIA' OCCUPATO");
                         }
-                    }
-                    if (slotToPlace.isEmpty()) {
-                        slotToPlace.setSlotCardView(cardToRemove.getShownImage());
-                        readyToPlace = false;
-                        cardPlaced = true;
-                        slotToPlace.toFront();
-                        System.out.println(cardToRemove.getCard());
-                        slotToPlace.card = cardToRemove.getCard();
-                        System.out.println(slotToPlace.card);
-                        lastUsedSlot = slotToPlace;
-                        //Getting row of field
-                        player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
-                        playerDeck.resetCard(deckChildIndex);
-                        player.printManas();
                     } else {
-                        System.out.println("SLOT GIA' OCCUPATO");
+                        System.out.println("CARD IS NOT ATTACHABLE TO THIS SLOT");
                     }
+                } else {
+                    System.out.println("CARD HAS ALREADY BEEN PLACED IN THIS TURN");
                 }
             } else {
-                System.out.println("CARD HAS ALREADY BEEN PLACED IN THIS TURN");
+                System.out.println("EMPTY CARD NOT PLACEBLE");
             }
+        } else {
+            System.out.println("NO CARD SELECTED FROM DECK.");
         }
     }
 

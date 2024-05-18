@@ -119,7 +119,7 @@ public class Match {
             coveredCards.remove(tmpCard);
             System.out.println(Colors.GREEN + "--Card #" + tmpCard.getIdCard() + " removed from covered cards--" + Colors.RESET);
             ResourceGoldCard replacementCard = DrawingDeck.drawCard(isResourceCard);
-            coveredCards.add(isResourceCard ? 0 : 1, DrawingDeck.drawCard(isResourceCard));
+            coveredCards.add(isResourceCard ? 0 : 1, replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to covered cards--" + Colors.RESET);
         }
         System.out.println(Colors.GREEN + "--Card added--" + Colors.RESET);
