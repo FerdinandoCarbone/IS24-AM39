@@ -17,7 +17,7 @@ public class FieldController extends Pane {
     final int fieldSize = matrixSize;
     final double totalHeight = fieldSize *(deltaHeight) + cardHeight;
     final double totalWidth = fieldSize *(deltaWidth) + cardWidth;
-    private HashMap<Pair<Integer, Integer>, Integer> fieldMap = new HashMap<>();
+    private final HashMap<Pair<Integer, Integer>, SlotController> fieldMap = new HashMap<>();
 
     public FieldController() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/Field.fxml"));
@@ -26,15 +26,14 @@ public class FieldController extends Pane {
         fxmlLoader.load();
 
         System.out.println("CREATING FIELD...");
-        int childIndex = 0;
         for (int r = 0; r < fieldSize; r++) {
             boolean dispariFlag = false;
-            for (int c = 0, offsetC = 0; c < fieldSize; c += 2, offsetC++, childIndex++) {
+            for (int c = 0, offsetC = 0; c < fieldSize; c += 2, offsetC++) {
                 SlotController newSlot = new SlotController();
                 if (r % 2 == 0) {
                     Pair<Integer, Integer> cords = new Pair<>(r, c);
                     newSlot.setCoords(cords);
-                    fieldMap.put(cords, childIndex);
+                    fieldMap.put(cords, newSlot);
                     newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
                     newSlot.setLayoutX(offsetC * (2*deltaWidth));
                 } else {
@@ -44,7 +43,7 @@ public class FieldController extends Pane {
                     }
                     Pair<Integer, Integer> cords = new Pair<>(r, c);
                     newSlot.setCoords(cords);
-                    fieldMap.put(cords, childIndex);
+                    fieldMap.put(cords, newSlot);
                     newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
                     newSlot.setLayoutX((deltaWidth) + (offsetC * (2*deltaWidth)));
                 }
@@ -62,8 +61,7 @@ public class FieldController extends Pane {
 
     public void fillField(int row, int column, NonObjectiveCard cardToPlace) {
         Image img = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream(cardToPlace.getArtRef()[cardToPlace.isPlacedFront() ? 0 : 1])));
-        int correspondingChildIndex = fieldMap.get(new Pair<>(row, column));
-        SlotController correspondingSlot = (SlotController) this.getChildren().get(correspondingChildIndex);
+        SlotController correspondingSlot = fieldMap.get(new Pair<>(row, column));
         correspondingSlot.setSlotCardView(img);
     }
     public int getFieldSize() {
@@ -78,7 +76,7 @@ public class FieldController extends Pane {
         return totalWidth;
     }
 
-    public HashMap<Pair<Integer, Integer>, Integer> getFieldMap() {
+    public HashMap<Pair<Integer, Integer>, SlotController> getFieldMap() {
         return fieldMap;
     }
 }

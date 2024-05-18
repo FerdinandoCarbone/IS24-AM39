@@ -108,7 +108,9 @@ public class MainController extends TabPane implements Initializable {
             tabs[i].setText(playerName);
             tabs[i].setDisable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
-            fieldControllers[i].fillField(CardDim.matrixSize / 2, CardDim.matrixSize / 2, others.get(i).getPlayerDeck().getStarterCard());
+            int middleSlot = CardDim.matrixSize/2;
+            fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
+            System.out.println("CARTA STARTER PIAZZATA IN [" + middleSlot + "][" + middleSlot + "] CON INDICE " + field.getFieldMap().get(new Pair<>(middleSlot, middleSlot)));
         }
     }
 
@@ -319,6 +321,7 @@ public class MainController extends TabPane implements Initializable {
         field.centerSlot.setSlotCardView(starter);
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
         field.centerSlot.toFront();
+        field.centerSlot.setEmpty(false);
         player.printManas();
     }
 
