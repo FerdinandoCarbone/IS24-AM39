@@ -59,6 +59,14 @@ abstract class NonObjectiveCard extends Card {
 
         getCorners().get(cornerIndex).setAvailableCorner(false);
     }
+    public void updateCornerToFree(int cornerIndex) throws IndexOutOfBoundsException {
+        if (cornerIndex < 0 || cornerIndex > 3) {
+            throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
+        }
+
+        getCorners().get(cornerIndex).setAvailableCorner(true);
+    }
+
 
     /**
      * Printa a console gli angoli frontali della carta
@@ -208,6 +216,9 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         System.out.println(YELLOW + "Points given: " + points + RESET);
     }
 
+    public void setCoveredCornersWhenPlaced(int coveredCornersWhenPlaced) {
+        this.coveredCornersWhenPlaced = coveredCornersWhenPlaced;
+    }
     /**
      * Printa a console gli angoli dietro della carta
      */

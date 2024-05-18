@@ -10,13 +10,13 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
@@ -25,40 +25,54 @@ public class MainController extends TabPane implements Initializable {
     private boolean cardPlaced;
     private int deckChildIndex;
     private Player player;
-    private Pair<Integer,Integer> lastCoords;
+    private static HashMap<String, Pair<Tab, FieldController>> tabMan;
     private SlotController lastUsedSlot;
     private ResourceGoldCardController cardToRemove;
-    @FXML public CommandBoxController commands;
-    @FXML public Button sendButton;
-    @FXML public ScrollPane fieldScrollPane;
-    @FXML public HBox turnBOX;
-    @FXML public TextField textField;
-    @FXML public VBox vbox;
-    @FXML public FieldController field2;
-    @FXML public FieldController field3;
-    @FXML public FieldController field4;
-    @FXML public TabelloneController table;
-    @FXML private Tab tab1;
-    @FXML private Tab tab2;
-    @FXML private Tab tab3;
-    @FXML private PlayerDeckController playerDeck;
-    @FXML private FieldController field;
+    @FXML
+    public CommandBoxController commands;
+    @FXML
+    public Button sendButton;
+    @FXML
+    public ScrollPane fieldScrollPane;
+    @FXML
+    public HBox turnBOX;
+    @FXML
+    public TextField textField;
+    @FXML
+    public VBox vbox;
+    @FXML
+    public FieldController field2;
+    @FXML
+    public FieldController field3;
+    @FXML
+    public FieldController field4;
+    @FXML
+    public TabelloneController table;
+    @FXML
+    private Tab tab1;
+    @FXML
+    private Tab tab2;
+    @FXML
+    private Tab tab3;
+    @FXML
+    private PlayerDeckController playerDeck;
+    @FXML
+    private FieldController field;
     private boolean readyToPlace;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        cardPlaced=false;
+        cardPlaced = false;
         readyToPlace = false;
-        cardToRemove=null;
+        cardToRemove = null;
         System.out.println("Loading...");
         fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::middlePosition);
         });
-        try{
-        ZakClient.getSem().acquire();
-        }
-        catch(Exception e ){
+        try {
+            ZakClient.getSem().acquire();
+        } catch (Exception e) {
             throw new RuntimeException();
         }
         player = ZakClient.getPlayer();
@@ -84,54 +98,56 @@ public class MainController extends TabPane implements Initializable {
         turnBOX.getChildren().add(1, comboBox);
         turnBOX.getChildren().add(turnButton);
         ArrayList<Player> others = ZakClient.getOtherPlayers();
-        Tab[] tabs = new Tab[]{tab1,tab2,tab3};
-        HashMap<String, Tab> tabMan =new HashMap<>();
-        for (int i = 0; i < others.size() ; i++) {
+        Tab[] tabs = new Tab[]{tab1, tab2, tab3};
+        FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
+        tabMan = new HashMap<>();
+        for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
             comboBox.getItems().add(playerName);
             tabs[i].setText(playerName);
             tabs[i].setDisable(false);
-            tabMan.put(playerName,tabs[i]);
+            tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
+            fieldControllers[i].fillField(CardDim.matrixSize / 2, CardDim.matrixSize / 2, others.get(i).getPlayerDeck().getStarterCard());
         }
     }
+
     private void setupRGCEvents() {
         playerDeck.getCard1().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard1().flipCard();
-            }
-            else if(event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard1());
+            } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard1());
         });
         playerDeck.getCard2().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard2().flipCard();
-            }
-            else if(event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard2());
+            } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard2());
         });
         playerDeck.getCard3().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard3().flipCard();
-            }
-            else if(event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard3());
+            } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard3());
         });
     }
+
     private void selectRGCFromDeck(ResourceGoldCardController card) {
         if (!cardPlaced) {
-            System.out.println("Sto copiando in cardToRemove: "+ card.getCard());
+            System.out.println("Sto copiando in cardToRemove: " + card.getCard());
             cardToRemove = card;
             deckChildIndex = playerDeck.getChildren().indexOf(card);
             readyToPlace = true;
         }
     }
-    public void resetMove(ActionEvent event){
-        if(cardPlaced) {
+
+    public void resetMove(ActionEvent event) {
+        if (cardPlaced) {
             lastUsedSlot.toBack();
             ResourceGoldCardController tmp = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
             tmp.setupCard((ResourceGoldCard) lastUsedSlot.card);
             lastUsedSlot.setEmpty(true);
-            player.;
+            player.undoMove(lastUsedSlot.coords.getKey(), lastUsedSlot.coords.getValue(), deckChildIndex);
             cardPlaced = false;
             readyToPlace = false;
-            lastUsedSlot=null;
+            lastUsedSlot = null;
         }
     }
 
@@ -147,7 +163,7 @@ public class MainController extends TabPane implements Initializable {
             playerDeck.getObjCards().add(new CardController(objCards.get(0)));
             playerDeck.getObjCards().add(new CardController(objCards.get(1)));
             playerDeck.getObjCards().add(new CardController(objCards.get(2)));
-        } catch(IOException | InterruptedException e){
+        } catch (IOException | InterruptedException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException();
         }
@@ -183,6 +199,23 @@ public class MainController extends TabPane implements Initializable {
     }
 
     public void genericTurnSender() {
+        GenericTurnMessage message = ZakClient.getServerHandler().getMessageTurn();
+        ResourceGoldCardController newCardPos = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
+        try {
+            ResourceGoldCard selectedCard;
+            do {
+                selectedCard = pickCard(message);
+            } while (selectedCard == null);
+            newCardPos.setupCard(selectedCard);
+            ZakClient.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(cardToRemove.getCard())), lastUsedSlot.coords));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        turnButton.setDisable(true);
+        cardPlaced = false;
+        readyToPlace = false;
+        lastUsedSlot = null;
+        cardToRemove = null;
     }
 
     public static void alert(String message) {
@@ -194,19 +227,52 @@ public class MainController extends TabPane implements Initializable {
         alert.close();
     }
 
-    public ResourceGoldCard pickCard() {
-        ResourceGoldCard card = null;
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("Java", "Java", "Python", "JavaScript");
-        dialog.setTitle("Choice Dialog");
-        dialog.setHeaderText("Select your favorite programming language:");
-        dialog.setContentText("Language:");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(language -> {
-            System.out.println("Your favorite programming language: " + language);
+    public ResourceGoldCard pickCard(GenericTurnMessage message) throws IOException {
+        AtomicReference<ResourceGoldCard> card = new AtomicReference<>();
+        ArrayList<ResourceGoldCard> selectables = new ArrayList<>();
+        HashMap<Integer, ResourceGoldCard> cardPicker = new HashMap<>();
+        ArrayList<SelectableCardController> drawingCards = new ArrayList<>();
+        selectables.addAll(message.getDrawnCard());
+        selectables.addAll(message.getCardOnHand());
+        for (ResourceGoldCard selectableCard : selectables) {
+            cardPicker.put(selectableCard.getIdCard(), selectableCard);
+            drawingCards.add(new SelectableCardController(selectableCard, message.getCardOnHand().contains(selectableCard)));
+        }
+        Dialog<ResourceGoldCard> dialog = new Dialog<>();
+        ToggleGroup buttonGroup = new ToggleGroup();
+        HBox cardsHidden = new HBox();
+        HBox cardsPublic = new HBox();
+        VBox verticalContent = new VBox();
+        for (SelectableCardController s : drawingCards) {
+            s.selectButton.setToggleGroup(buttonGroup);
+        }
+        ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.setTitle("Please draw a card from deck:");
+        cardsHidden.getChildren().addAll(drawingCards.subList(0, 2));
+        cardsPublic.getChildren().addAll(drawingCards.subList(2, 6));
+        verticalContent.getChildren().addAll(cardsHidden, cardsPublic);
+        dialog.getDialogPane().setContent(verticalContent);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType);
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                RadioButton selectedRadioButton = (RadioButton) buttonGroup.getSelectedToggle();
+                if (selectedRadioButton != null) {
+                    Integer cardId = (Integer) selectedRadioButton.getUserData();
+                    return cardPicker.get(cardId);
+                }
+            }
+            return null;
         });
-        dialog.close();
-        return card;
+        Optional<ResourceGoldCard> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            ResourceGoldCard selectedOption = result.get();
+            card.set(result.get());
+            //dialogClosedFuture.complete(selectedOption);
+            System.out.println("Selected Option: " + selectedOption);
+            return selectedOption;
+        } else {
+            throw new RuntimeException("Clicked confirm");
+        }
     }
 
     public static void setTurnButton(boolean b) {
@@ -218,6 +284,7 @@ public class MainController extends TabPane implements Initializable {
         for (Player p : ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
         comboBox.getItems().add("Everyone");
     }
+
     private void setupFieldSlots() {
         for (int i = 0; i < field.getChildren().size(); i++) {
             SlotController tmpSlot = (SlotController) field.getChildren().get(i);
@@ -237,7 +304,7 @@ public class MainController extends TabPane implements Initializable {
                 }
             });
         }
-        int starterFace = player.getPlayerDeck().getStarterCard().isPlacedFront()?0:1;
+        int starterFace = player.getPlayerDeck().getStarterCard().isPlacedFront() ? 0 : 1;
         Image starter = new Image(Objects.requireNonNull(getClass().getResourceAsStream(player.getPlayerDeck().getStarterCard().getArtRef()[starterFace])));
         field.centerSlot.setSlotCardView(starter);
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
@@ -245,6 +312,7 @@ public class MainController extends TabPane implements Initializable {
         field.centerSlot.toFront();
         player.printManas();
     }
+
     private void placeCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
         if (cardToRemove.getCard() == null) {
             System.out.println("EMPTY CARD NOT PLACEBLE");
@@ -252,8 +320,7 @@ public class MainController extends TabPane implements Initializable {
             if (!cardPlaced) {
                 int row = slotToPlace.getCoords().getKey();
                 int col = slotToPlace.getCoords().getValue();
-                lastCoords = slotToPlace.coords;
-                System.out.println("CENTER SLOT: "+field.centerSlot.coords+"\nSelected Slot: "+lastCoords);
+                //System.out.println("CENTER SLOT: "+field.centerSlot.coords+"\nSelected Slot: "+lastCoords);
                 if (player.isCardAttachableToSlot(row, col)) {
                     if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
                         if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
@@ -266,7 +333,7 @@ public class MainController extends TabPane implements Initializable {
                         cardPlaced = true;
                         slotToPlace.toFront();
                         System.out.println(cardToRemove.getCard());
-                        slotToPlace.card=cardToRemove.getCard();
+                        slotToPlace.card = cardToRemove.getCard();
                         System.out.println(slotToPlace.card);
                         lastUsedSlot = slotToPlace;
                         //Getting row of field
@@ -281,5 +348,9 @@ public class MainController extends TabPane implements Initializable {
                 System.out.println("CARD HAS ALREADY BEEN PLACED IN THIS TURN");
             }
         }
+    }
+
+    public static HashMap<String, Pair<Tab, FieldController>> getTabMan() {
+        return tabMan;
     }
 }

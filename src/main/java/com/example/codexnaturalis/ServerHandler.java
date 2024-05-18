@@ -1,6 +1,7 @@
 package com.example.codexnaturalis;
 
 import javafx.application.Platform;
+import javafx.scene.image.Image;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -139,6 +140,10 @@ public class ServerHandler extends Thread implements Runnable {
                     System.out.println("Player found:");
                     p.placeCard(coords.getKey(), coords.getValue(), placedCard);
                     p.setScore(newStatus.getCurrPlayerPoints());
+                    if(ZakClient.isGuiSelector()){
+                        Platform.runLater(()->{
+                        MainController.getTabMan().get(p.getPlayerName()).getValue().fillField(coords.getKey(), coords.getValue(),placedCard);});
+                    }
                     break;
                 }
             }

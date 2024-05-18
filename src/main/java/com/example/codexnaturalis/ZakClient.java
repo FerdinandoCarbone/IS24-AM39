@@ -783,6 +783,7 @@ public class ZakClient extends Application{
             });
         }
         System.out.println("\nIt's your turn:");
+        if(isGuiSelector()) Platform.runLater(()->MainController.alert("It's your turn"));
         System.out.print("What do you want to do? ");
 
     }

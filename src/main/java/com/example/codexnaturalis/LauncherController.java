@@ -216,7 +216,6 @@ public class LauncherController extends StackPane implements Initializable {
         content.getChildren().addAll(selectables);
         dialog.getDialogPane().setContent(content);
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType);
-        System.out.println("test");
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
                 RadioButton selectedRadioButton = (RadioButton) buttonGroup.getSelectedToggle();

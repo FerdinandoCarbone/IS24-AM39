@@ -35,6 +35,7 @@ public class SelectableCardController extends Pane {
         loader.setController(this);
         loader.load();
         card = cardToSelect;
+        if(card instanceof StarterCard){
         if(bool){
             frontImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[0])));
             selectButton.setUserData(1);
@@ -44,6 +45,18 @@ public class SelectableCardController extends Pane {
             backImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[1])));
             selectButton.setUserData(2);
             cardImageView.setImage(backImage);
+        }
+        }
+        else{
+            selectButton.setUserData(card.getIdCard());
+            if(bool){
+                frontImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[0])));
+                cardImageView.setImage(frontImage);
+            }
+            else {
+                backImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(card.getArtRef()[1])));
+                cardImageView.setImage(backImage);
+            }
         }
         /*HBox hbox = new HBox(cardImageView,flipButton);
         this.getChildren().add(hbox);*/
