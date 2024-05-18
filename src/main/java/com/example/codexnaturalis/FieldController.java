@@ -60,6 +60,13 @@ public class FieldController extends Pane {
         centerSlot.toFront();
     }
 
+    public void fillField(int row, int column, ResourceGoldCard cardToPlace) {
+        Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(cardToPlace.getArtRef()[cardToPlace.isPlacedFront() ? 0 : 1])));
+        int correspondingChildIndex = fieldMap.get(new Pair<>(row, column));
+        SlotController correspondingSlot = (SlotController) this.getChildren().get(correspondingChildIndex);
+        correspondingSlot.setSlotCardView(img);
+    }
+
     public int getFieldSize() {
         return fieldSize;
     }
