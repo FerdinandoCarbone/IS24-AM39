@@ -26,6 +26,7 @@ public class MainController extends TabPane implements Initializable {
     private int deckChildIndex;
     private Player player;
     private Pair<Integer,Integer> lastCoords;
+    private SlotController lastUsedSlot;
     private ResourceGoldCardController cardToRemove;
     @FXML public CommandBoxController commands;
     @FXML public Button sendButton;
@@ -98,35 +99,40 @@ public class MainController extends TabPane implements Initializable {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard1().flipCard();
             }
-            selectRGCFromDeck(playerDeck.getCard1());
+            else if(event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard1());
         });
         playerDeck.getCard2().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard2().flipCard();
             }
-            selectRGCFromDeck(playerDeck.getCard2());
+            else if(event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard2());
         });
         playerDeck.getCard3().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard3().flipCard();
             }
-            selectRGCFromDeck(playerDeck.getCard3());
+            else if(event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard3());
         });
     }
     private void selectRGCFromDeck(ResourceGoldCardController card) {
         if (!cardPlaced) {
+            System.out.println("Sto copiando in cardToRemove: "+ card.getCard());
             cardToRemove = card;
             deckChildIndex = playerDeck.getChildren().indexOf(card);
             readyToPlace = true;
         }
     }
     public void resetMove(ActionEvent event){
-        SlotController slotToReset = (SlotController) field.getChildren().get(field.getFieldMap().get(lastCoords));
-        for(ResourceGoldCardController card : playerDeck.getAllPlayableDeck()) if(card.getCard()==null) card.setupCard((ResourceGoldCard) slotToReset.card);
-        slotToReset.setEmpty(true);
-        lastCoords = null;
-        cardPlaced=false;
-        readyToPlace =true;
+        if(cardPlaced) {
+            lastUsedSlot.toBack();
+            ResourceGoldCardController tmp = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
+            tmp.setupCard((ResourceGoldCard) lastUsedSlot.card);
+            lastUsedSlot.setEmpty(true);
+            player.;
+            cardPlaced = false;
+            readyToPlace = false;
+            lastUsedSlot=null;
+        }
     }
 
     private void cardsFromModel() {
@@ -247,6 +253,7 @@ public class MainController extends TabPane implements Initializable {
                 int row = slotToPlace.getCoords().getKey();
                 int col = slotToPlace.getCoords().getValue();
                 lastCoords = slotToPlace.coords;
+                System.out.println("CENTER SLOT: "+field.centerSlot.coords+"\nSelected Slot: "+lastCoords);
                 if (player.isCardAttachableToSlot(row, col)) {
                     if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
                         if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
@@ -258,7 +265,10 @@ public class MainController extends TabPane implements Initializable {
                         readyToPlace = false;
                         cardPlaced = true;
                         slotToPlace.toFront();
+                        System.out.println(cardToRemove.getCard());
                         slotToPlace.card=cardToRemove.getCard();
+                        System.out.println(slotToPlace.card);
+                        lastUsedSlot = slotToPlace;
                         //Getting row of field
                         player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
                         playerDeck.resetCard(deckChildIndex);
