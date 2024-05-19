@@ -20,6 +20,7 @@ public class Player implements Serializable {
      * Defines the player's name
      */
     private String playerName;
+
     /**
      * Defines the player's token
      */

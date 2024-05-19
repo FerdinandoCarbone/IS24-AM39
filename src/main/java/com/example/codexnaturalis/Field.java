@@ -29,7 +29,7 @@ public class Field implements Serializable {
     public void printField() {
         for (int i = 0; i < getR(); i++) {
             for (int j = 0; j < getC(); j++) {
-                System.out.print("[" + (getSlots()[i][j].isBusySlot()? "1" : "0") + "]");
+                System.out.print("[" + (getSlots()[i][j].isBusySlot() ? (getSlots()[i][j].getCardSlot().isPlacedFront()? "1" : "0") : "-") + "]");
             }
             System.out.println();
         }

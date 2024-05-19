@@ -98,7 +98,6 @@ public class ServerHandler extends Thread implements Runnable {
     }
 
     public void genericTurnMessageHandler(GenericTurnMessage message){
-        System.out.println(Colors.BLUE+"SONO QUI"+Colors.RESET);
         this.messageTurn = message;
         ZakClient.genericTurnMessageHandler();
     }
