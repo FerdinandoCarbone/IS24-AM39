@@ -123,6 +123,7 @@ public class Player implements Serializable {
         System.out.println(BLUE + "Ink: " + elementsMana[0] + RESET);
         System.out.println(BLUE + "Papyrus: " + elementsMana[1] + RESET);
         System.out.println(BLUE + "Feather: " + elementsMana[2] + RESET);
+        System.out.println(BLUE + "Points: " + score + RESET);
     }
 
     public boolean allCornersEmpty(NonObjectiveCard card) {
@@ -607,6 +608,9 @@ public class Player implements Serializable {
      Field.Slot slotToUndo = playerField.getSlots()[row][column];
      ResourceGoldCard cardToUndo = (ResourceGoldCard) slotToUndo.getCardSlot();
      playerDeck.getResourceGoldCards().add(deckChildIndex, cardToUndo);
+     if (cardToUndo.isPlacedFront()) {
+         score -= cardToUndo.getPoints();
+     }
      for (int i = 0; i < 4; i++) {
          decreaseResourceElementsMana(cardToUndo.getCorners().get(i));
      }

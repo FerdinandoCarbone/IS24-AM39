@@ -27,6 +27,7 @@ public class MainController extends TabPane implements Initializable {
     private static HashMap<String, Pair<Tab, FieldController>> tabMan;
     private SlotController lastUsedSlot;
     private ResourceGoldCardController cardToRemove;
+    private ResourceGoldCard placedCardToSend;
     @FXML
     private CardController secretObjCard;
     @FXML
@@ -232,7 +233,8 @@ public class MainController extends TabPane implements Initializable {
             System.out.println("CARDSELECTED: "+selectedCard.getIdCard());
             newCardPos.setupCard(selectedCard);
             player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
-            ZakClient.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(cardToRemove.getCard())), lastUsedSlot.coords));
+            ZakClient.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCardToSend)), lastUsedSlot.coords));
+            System.out.println("MESSAGE SENT: SELECTED CARD #" + selectedCard.getIdCard() + " AND CARD TO PLACE IN OTHERS #" + placedCardToSend.getIdCard());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -355,6 +357,8 @@ public class MainController extends TabPane implements Initializable {
                                 }
                             }
                             System.out.println("PIAZZATA CARTA #" + cardToRemove.getCard().getIdCard());
+                            placedCardToSend = cardToRemove.getCard();
+                            System.out.println("PlacedCardToSend: #" + placedCardToSend.getIdCard());
                             slotToPlace.setSlotCardView(cardToRemove.getShownImage());
                             readyToPlace = false;
                             cardPlaced = true;
