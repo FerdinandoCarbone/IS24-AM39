@@ -5,14 +5,14 @@
 
 <?import com.example.codexnaturalis.CardController?>
 <?import com.example.codexnaturalis.ResourceGoldCardController?>
+<?import javafx.geometry.Insets?>
 <fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml">
     <ResourceGoldCardController fx:id="card1"/>
     <ResourceGoldCardController fx:id="card2" />
     <ResourceGoldCardController fx:id="card3" />
-    <!--CardController fx:id="starterCard" />
-    <CardController fx:id="secretObjCard" /!-->
-<!--    <Button fx:id="cardReceiverButton" text="GenCards" minWidth="50.0" maxWidth="50.0" layoutY="-10.0">-->
-<!--    </Button>-->
+    <padding>
+        <Insets bottom="5.0" left="20.0" right="5.0" top="5.0" />
+    </padding>
 
 </fx:root>

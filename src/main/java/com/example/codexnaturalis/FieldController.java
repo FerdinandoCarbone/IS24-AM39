@@ -69,6 +69,7 @@ public class FieldController extends Pane {
         Image img = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream(cardToPlace.getArtRef()[cardToPlace.isPlacedFront() ? 0 : 1])));
         SlotController correspondingSlot = fieldMap.get(new Pair<>(row, column));
         correspondingSlot.setSlotCardView(img);
+        correspondingSlot.toFront();
     }
     public int getFieldSize() {
         return fieldSize;

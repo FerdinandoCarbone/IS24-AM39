@@ -28,6 +28,12 @@ public class MainController extends TabPane implements Initializable {
     private SlotController lastUsedSlot;
     private ResourceGoldCardController cardToRemove;
     @FXML
+    private CardController secretObjCard;
+    @FXML
+    private CardController publicObj1;
+    @FXML
+    private CardController publicObj2;
+    @FXML
     public CommandBoxController commands;
     @FXML
     public Button sendButton;
@@ -79,14 +85,16 @@ public class MainController extends TabPane implements Initializable {
         setupFieldSlots();
         cardsFromModel();
         setupRGCEvents();
-        playerDeck.setPadding(new Insets(25));
-        playerDeck.setSpacing(20);
+        commands.command3.setDisable(true);
+        secretObjCard.setupCard(player.getPlayerDeck().getSecretObjectiveCard());
+        publicObj1.setupCard(player.getCommonObjCards().getFirst());
+        publicObj2.setupCard(player.getCommonObjCards().get(1));
     }
 
     private void viewSetup() {
         textArea = new TextArea("Notification");
         textArea.setEditable(false);
-        vbox.getChildren().add(2, textArea);
+        vbox.getChildren().addFirst(textArea);
         commands.command3.setOnAction(this::resetMove);
         comboBox = new ComboBox<>();
         comboBox.setPromptText("Select recipient Player");
@@ -157,6 +165,7 @@ public class MainController extends TabPane implements Initializable {
             cardPlaced = false;
             readyToPlace = false;
             lastUsedSlot = null;
+            commands.command3.setDisable(true);
         } else {
             System.out.println("NO CARD PLACED YET");
         }
@@ -356,6 +365,7 @@ public class MainController extends TabPane implements Initializable {
                             player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
                             playerDeck.resetCard(deckChildIndex);
                             player.printManas();
+                            commands.command3.setDisable(false);
                         } else {
                             System.out.println("SLOT GIA' OCCUPATO");
                         }

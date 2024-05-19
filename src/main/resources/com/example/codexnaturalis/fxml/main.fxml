@@ -19,6 +19,7 @@
 <?import com.example.codexnaturalis.TabelloneController?>
 
 <?import com.example.codexnaturalis.FieldController?>
+<?import com.example.codexnaturalis.CardController?>
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
@@ -31,19 +32,28 @@
                     </ScrollPane>
                 </left>
                 <right>
-                    <AnchorPane>
-                        <VBox fx:id="vbox" alignment="CENTER">
-                            <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100"
-                                                  AnchorPane.rightAnchor="10"/>
-                            <PlayerDeckController fx:id="playerDeck"/>
-                            <HBox fx:id="turnBOX" spacing="15">
-                                <TextField fx:id="textField" promptText="Enter your chat text here"/>
-                                <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"
-                                        onAction="#chatWrite"/>
+                    <BorderPane>
+                        <top>
+                            <HBox>
+                                <PlayerDeckController fx:id="playerDeck"/>
+                                <VBox>
+                                    <CardController fx:id="secretObjCard"/>
+                                    <CardController fx:id="publicObj1"/>
+                                    <CardController fx:id="publicObj2"/>
+                                </VBox>
+                                <CommandBoxController fx:id="commands"/>
                             </HBox>
-
-                        </VBox>
-                    </AnchorPane>
+                        </top>
+                        <bottom>
+                            <VBox fx:id="vbox">
+                                <HBox fx:id="turnBOX" spacing="15">
+                                    <TextField fx:id="textField" promptText="Enter your chat text here"/>
+                                    <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"
+                                            onAction="#chatWrite"/>
+                                </HBox>
+                            </VBox>
+                        </bottom>
+                    </BorderPane>
                 </right>
             </BorderPane>
         </Tab>

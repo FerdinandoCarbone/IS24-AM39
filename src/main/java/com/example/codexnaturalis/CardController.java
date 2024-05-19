@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -19,6 +20,8 @@ public class CardController extends Pane {
     private Image backImage;
     private Card card;
     private boolean isFront;
+    private final double cardHeight = CardDim.cardHeight * 3;
+    private final double cardWidth = CardDim.cardWidth * 3;
 
     public CardController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/Card.fxml"));
@@ -26,7 +29,13 @@ public class CardController extends Pane {
         loader.setController(this);
         loader.load();
         isFront = true;
-        //flipButton.setOnAction(event -> flipCard());
+        cardImageView.setFitHeight(cardHeight);
+        cardImageView.setFitWidth(cardWidth);
+        this.setOnMouseClicked((MouseEvent event) -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                flipCard();
+            }
+        });
 
     }
 
@@ -38,7 +47,6 @@ public class CardController extends Pane {
         setupCard(card);
         isFront = true;
         //flipButton.setOnAction(event -> flipCard());
-
     }
 
     public void setupCard(Card newCard) {
