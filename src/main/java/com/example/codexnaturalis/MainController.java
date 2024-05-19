@@ -24,6 +24,7 @@ public class MainController extends TabPane implements Initializable {
     private boolean cardPlaced;
     private int deckChildIndex;
     private Player player;
+    ArrayList<Player> others;
     private static HashMap<String, Pair<Tab, FieldController>> tabMan;
     private SlotController lastUsedSlot;
     private ResourceGoldCardController cardToRemove;
@@ -82,6 +83,7 @@ public class MainController extends TabPane implements Initializable {
             throw new RuntimeException();
         }
         player = ZakClient.getPlayer();
+        others = ZakClient.getOtherPlayers();
         viewSetup();
         setupFieldSlots();
         cardsFromModel();
@@ -105,7 +107,6 @@ public class MainController extends TabPane implements Initializable {
         turnButton.setOnAction(event -> genericTurnSender());
         turnBOX.getChildren().add(1, comboBox);
         turnBOX.getChildren().add(turnButton);
-        ArrayList<Player> others = ZakClient.getOtherPlayers();
         Tab[] tabs = new Tab[]{tab1, tab2, tab3};
         FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
         tabMan = new HashMap<>();

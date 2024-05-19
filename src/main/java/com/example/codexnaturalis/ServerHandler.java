@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerHandler extends Thread implements Runnable {
@@ -26,6 +27,7 @@ public class ServerHandler extends Thread implements Runnable {
     private GenericTurnMessage messageTurn;
     private final ConnectionManger connMan;
     private volatile boolean firstBroadCastWasReceived;
+    private String welcomeText;
     public ServerHandler(String clientName, UUID clientID,ConnectionManger connMan){
         this.clientName = clientName;
         this.clientID = clientID;
@@ -60,30 +62,12 @@ public class ServerHandler extends Thread implements Runnable {
         if(message.getDisconnectedClient()!=null) updateOtherPlayers(message);
         if(Objects.equals(sender.get(), getClientName())) sender.set("You");
         if(ZakClient.isGuiSelector()){
-            Semaphore sam = new Semaphore(0);
-            if(!wasFirstBroadCastReceived()) {
-                Platform.runLater(()-> {
-                    try {
-                        LauncherController.alert(sender.get()+": "+message.getTextMessage(),true);
-                        LauncherController.loadGameScene();
-                        sam.release();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+            Platform.runLater(()->{
+                if(!wasFirstBroadCastReceived()) welcomeText = message.getTextMessage();
+                else MainController.printMessage("\n"+sender.get()+": "+message.getTextMessage());
                 });
-                sam.acquire();
-                setFirstBroadCastWasReceived(true);
-            }
-            else{
-                Platform.runLater(()->{
-                    MainController.printMessage("\n"+sender.get()+": "+message.getTextMessage());
-                });
-            }
         }
         else{
-            if(!wasFirstBroadCastReceived()) {
-                setFirstBroadCastWasReceived(true);
-            }
             System.out.println("\n"+sender.get()+": "+message.getTextMessage());
         }
         if(message.getTextMessage().contains("kicked")) System.exit(0);
@@ -111,19 +95,37 @@ public class ServerHandler extends Thread implements Runnable {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
         }
-        ZakClient.initialMatchSetup(initialMatchSetupMessage);
+         ZakClient.initialMatchSetup(initialMatchSetupMessage);
     }
     public void clientDisconnected() {
         //todo: robe per chiudere i thread
         ZakClient.clientDisconnect();
     }
-    public void bcsHandler(BroadCastStandardMessage message) {
+    public void bcsHandler(BroadCastStandardMessage message) throws InterruptedException {
         HashMap<UUID,StarterCard> hashStart= message.starterCards;
         hashStart.remove(getClientID());
-        boolean face;
+        AtomicBoolean face = new AtomicBoolean();
         for(Player p: ZakClient.getOtherPlayers()){
-            face = hashStart.get(p.getPlayerID()).isPlacedFront();
-            p.placeStarterCard(face);
+            face.set(hashStart.get(p.getPlayerID()).isPlacedFront());
+            p.placeStarterCard(face.get());
+        }
+        if(!wasFirstBroadCastReceived()) {
+            Semaphore sam = new Semaphore(0);
+            if(!wasFirstBroadCastReceived()) {
+                if (ZakClient.isGuiSelector()) {
+                    Platform.runLater(() -> {
+                        try {
+                            LauncherController.alert("Server"+": "+welcomeText,true);
+                            LauncherController.loadGameScene();
+                            sam.release();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    sam.acquire();
+                }
+            }
+            setFirstBroadCastWasReceived(true);
         }
     }
     public void universalStatusUpdater(StandardMatchMessage newStatus){
