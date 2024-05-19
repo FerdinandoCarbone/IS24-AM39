@@ -19,6 +19,7 @@
 <?import com.example.codexnaturalis.TabelloneController?>
 
 <?import com.example.codexnaturalis.FieldController?>
+<?import com.example.codexnaturalis.ManaController?>
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
@@ -35,7 +36,12 @@
                         <VBox fx:id="vbox" alignment="CENTER">
                             <CommandBoxController fx:id="commands" AnchorPane.topAnchor="100"
                                                   AnchorPane.rightAnchor="10"/>
-                            <PlayerDeckController fx:id="playerDeck"/>
+                            <HBox>
+                                <PlayerDeckController fx:id="playerDeck"/>
+                                <ManaController fx:id="manaTab"/>
+                            </HBox>
+
+
                             <HBox fx:id="turnBOX" spacing="15">
                                 <TextField fx:id="textField" promptText="Enter your chat text here"/>
                                 <Button fx:id="sendButton" text="Send" mnemonicParsing="false" style="-fx-cursor: hand"

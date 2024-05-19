@@ -59,11 +59,17 @@ public class MainController extends TabPane implements Initializable {
     private PlayerDeckController playerDeck;
     @FXML
     private FieldController field;
+    @FXML
+    public ManaController manaTab;
     private boolean readyToPlace;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        manaTab.displayScore();
+        manaTab.displayResEle();
+
         cardPlaced = false;
         readyToPlace = false;
         cardToRemove = null;
