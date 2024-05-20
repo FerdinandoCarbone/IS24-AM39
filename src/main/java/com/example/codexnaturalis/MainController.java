@@ -31,6 +31,10 @@ public class MainController extends TabPane implements Initializable {
     private ResourceGoldCardController cardToRemove;
     private ResourceGoldCard placedCardToSend;
     @FXML
+    public PlayerManasController manaBar;
+    @FXML
+    public PlayerManasController manaBar2;
+    @FXML
     private CardController secretObjCard;
     @FXML
     private CardController publicObj1;
@@ -101,7 +105,6 @@ public class MainController extends TabPane implements Initializable {
         }
         tokenController.setTokenColor(player.getToken());
         table.moveToken(tokenController, 0);*/
-
     }
 
     private void viewSetup() {

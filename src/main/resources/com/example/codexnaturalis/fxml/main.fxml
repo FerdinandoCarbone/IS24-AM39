@@ -26,9 +26,11 @@
         <Tab text="Your playing Field:">
             <BorderPane>
                 <left>
-                    <ScrollPane prefWidth="1200" prefHeight="750" fx:id="fieldScrollPane">
-                        <FieldController fx:id="field"/>
-                    </ScrollPane>
+                    <VBox>
+                        <ScrollPane prefWidth="1200" prefHeight="750" fx:id="fieldScrollPane">
+                            <FieldController fx:id="field"/>
+                        </ScrollPane>
+                    </VBox>
                 </left>
                 <right>
                     <BorderPane>
