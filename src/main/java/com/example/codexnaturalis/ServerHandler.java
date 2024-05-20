@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerHandler extends Thread implements Runnable {
@@ -133,7 +134,14 @@ public class ServerHandler extends Thread implements Runnable {
         System.out.println("Updating game status" + oldPlayer+" Points: "+ newStatus.getCurrPlayerPoints());
         ResourceGoldCard placedCard= newStatus.getPlacedCard();
         Pair<Integer,Integer> coords = newStatus.getCoords();
-        if(getClientID().equals(oldPlayer))ZakClient.getPlayer().setScore(newStatus.getCurrPlayerPoints());
+        if(getClientID().equals(oldPlayer)){
+            AtomicInteger score = new AtomicInteger();
+            score.set(newStatus.getCurrPlayerPoints());
+            ZakClient.getPlayer().setScore(score.get());
+            if(ZakClient.isGuiSelector()) Platform.runLater(()->{
+                MainController.manaBar.getActualPoints().setText(String.valueOf(score));
+            });
+        }
         else {
             ArrayList<Player> players = ZakClient.getOtherPlayers();
             for (Player p : players) {

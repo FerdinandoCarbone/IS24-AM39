@@ -23,7 +23,7 @@
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
          minWidth="1040.0" maxWidth="700" maxHeight="1040" minHeight="700">
-        <Tab text="Your playing Field:">
+        <Tab text="Your playing Field:" closable="false">
             <BorderPane>
                 <left>
                     <VBox>

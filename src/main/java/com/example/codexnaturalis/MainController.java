@@ -136,6 +136,7 @@ public class MainController extends TabPane implements Initializable {
             comboBox.getItems().add(playerName);
             tabs[i].setText(playerName);
             tabs[i].setDisable(false);
+            tabs[i].setClosable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
             if(ZakClient.isCrashed()) field = FieldController.rebuildField(fieldControllers[i],others.get(i));
             else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
@@ -213,7 +214,7 @@ public class MainController extends TabPane implements Initializable {
 
     }
 
-    private void middlePosition() {
+    /*private void middlePosition() {
         double totalHeight = field.getHeight();
         double visibleHeight = fieldScrollPane.getViewportBounds().getHeight();
         double middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
@@ -222,7 +223,7 @@ public class MainController extends TabPane implements Initializable {
         visibleHeight = fieldScrollPane.getViewportBounds().getWidth();
         middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
         fieldScrollPane.setHvalue(middlePosition);
-    }
+    }*/
 
     public static void printMessage(String message) {
         textArea.appendText(message);
