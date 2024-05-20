@@ -83,6 +83,7 @@ public class Match {
         previousElementMana = playingPlayer.getElementsMana();
         playingPlayer.placeCardAndRemoveFromDeck(row, column, cardToPlace);
         System.out.println(Colors.GREEN + "--Card placed--" + Colors.RESET);
+        System.out.println("Check points sees: " + cardToPlace.getCoveredCornersWhenPlaced());
         playingPlayer.addScore(checkPoints(cardToPlace,playingPlayer, previousElementMana));
 
         System.out.println(Colors.GREEN + "--Check of cycle--" + Colors.RESET);

@@ -129,11 +129,9 @@ public class ServerHandler extends Thread implements Runnable {
         }
     }
     public void universalStatusUpdater(StandardMatchMessage newStatus){
-        //TODO: PER QUALCHE STRANO MOTIVO, placedCard NON E' LA STESSA CHE IL CLIENT PIAZZA, CONTROLLANDO SI NOTA CHE placedCard COINCIDE CON UNA CARTA NELLE PUBLIC CARDS (?)
         UUID oldPlayer= newStatus.getClientID();
         System.out.println("Updating game status" + oldPlayer+" Points: "+ newStatus.getCurrPlayerPoints());
         ResourceGoldCard placedCard= newStatus.getPlacedCard();
-        System.out.println("CARTA DA PIAZZARE IN OTHERS: #" + placedCard.getIdCard());
         Pair<Integer,Integer> coords = newStatus.getCoords();
         if(getClientID().equals(oldPlayer))ZakClient.getPlayer().setScore(newStatus.getCurrPlayerPoints());
         else {
@@ -142,6 +140,7 @@ public class ServerHandler extends Thread implements Runnable {
                 if (p.getPlayerID().equals(oldPlayer)) {
                     System.out.println("Player found:");
                     p.placeCard(coords.getKey(), coords.getValue(), placedCard);
+                    System.out.println("In Server Handler: " + placedCard.getCoveredCornersWhenPlaced());
                     p.setScore(newStatus.getCurrPlayerPoints());
                     if(ZakClient.isGuiSelector()){
                         Platform.runLater(()->{

@@ -168,6 +168,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     private int points;
     private Seed seed;
     protected int coveredCornersWhenPlaced = 0;
+    private boolean cornersChecked = false;
     protected int arrangements=0;
     protected boolean isArrangeable = true;
     //private ResourceElement backCentreResource;
@@ -254,6 +255,14 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     }
     public void setIsArrangeable(boolean isArrangeable) {
         this.isArrangeable = isArrangeable;
+    }
+
+    public void setCornersChecked(boolean cornersAreChecked) {
+        this.cornersChecked = cornersAreChecked;
+    }
+
+    public boolean isCornersChecked() {
+        return cornersChecked;
     }
 }
 /**

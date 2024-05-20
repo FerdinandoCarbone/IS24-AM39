@@ -16,7 +16,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
-<?import com.example.codexnaturalis.TabelloneController?>
 
 <?import com.example.codexnaturalis.FieldController?>
 <?import com.example.codexnaturalis.CardController?>
@@ -73,8 +72,8 @@
             </HBox>
         </Tab>
         <Tab text="Score Tracker">
-            <Pane>
-                <TabelloneController fx:id="table"/>
-            </Pane>
+<!--            <Pane>-->
+<!--                <TabelloneController fx:id="table"/>-->
+<!--            </Pane>-->
         </Tab>
 </TabPane>

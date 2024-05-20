@@ -244,10 +244,7 @@ public class Player implements Serializable {
         playerField.getSlots()[row][column].setCardSlot(cardToPlace);
         playerField.getSlots()[row][column].setBusySlot(true);
         if (!cardToPlace.isPlacedFront()) {
-            System.out.println("Placing the card face down");
             increaseResourceElementsMana(cardToPlace.getSeed());
-        } else {
-            System.out.println("Placing the card face up");
         }
         try {
             //Check the corners of the placed card and add them to the manas
@@ -312,6 +309,7 @@ public class Player implements Serializable {
         }
         //Place the card on the field
         placeCard(row, column, cardToPlace);
+        System.out.println("In player: " + cardToPlace.getCoveredCornersWhenPlaced());
 
         //Remove the placed card from the player's deck
         playerDeck.getResourceGoldCards().remove(cardToPlace);
@@ -341,7 +339,10 @@ public class Player implements Serializable {
             decreaseResourceElementsMana(coveredCorner);
             cardToPlace.updateCornerToBusy(corner);
             coveredCard.updateCornerToBusy(coveredCornerIndex);
-            cardToPlace.coveredCornersWhenPlaced++;
+            if (!cardToPlace.isCornersChecked()) {
+                cardToPlace.coveredCornersWhenPlaced++;
+                cardToPlace.setCornersChecked(true);
+            }
         }
     }
 
@@ -428,9 +429,9 @@ public class Player implements Serializable {
         for (int i = 0; i < 4; i++) {
             int rowToCheck = row + calculateOffSetR(i);
             int columnToCheck = column + calculateOffSetC(i);
-            System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
+//            System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
             if (rowToCheck < 0 || rowToCheck >= fieldSize || columnToCheck < 0 || columnToCheck >= fieldSize) {
-                System.out.println(RED + "--Slot [" + rowToCheck + "][" + columnToCheck + "] not available--" + RESET);
+//                System.out.println(RED + "--Slot [" + rowToCheck + "][" + columnToCheck + "] not available--" + RESET);
                 notBusyCounter++;
                 if (notBusyCounter == 4) {
                     flag = false;

@@ -157,7 +157,6 @@ public class MainController extends TabPane implements Initializable {
             System.out.println("EMPTY CARD, CAN'T DO MUCH WITH IT");
         } else {
             if (!cardPlaced) {
-                System.out.println("CARD #" + card.getCard().getIdCard() + " SELECTED FROM DECK");
                 cardToRemove = card;
                 deckChildIndex = playerDeck.getChildren().indexOf(card);
                 readyToPlace = true;
@@ -241,11 +240,10 @@ public class MainController extends TabPane implements Initializable {
                 selectedCard = pickCard(message);
             } while (selectedCard == null);
             ZakClient.getServerHandler().setMessageTurn(null);
-            System.out.println("CARDSELECTED: "+selectedCard.getIdCard());
+//            System.out.println("CARDSELECTED: "+selectedCard.getIdCard());
             newCardPos.setupCard(selectedCard);
             player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
             ZakClient.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCardToSend)), lastUsedSlot.coords));
-            System.out.println("MESSAGE SENT: SELECTED CARD #" + selectedCard.getIdCard() + " AND CARD TO PLACE IN OTHERS #" + placedCardToSend.getIdCard());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -328,7 +326,6 @@ public class MainController extends TabPane implements Initializable {
         for (int i = 0; i < field.getChildren().size(); i++) {
             SlotController tmpSlot = (SlotController) field.getChildren().get(i);
             tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
-                System.out.println("SLOT CLICKED");
                 if (cardPlaced) {
                     System.out.println("CARD ALREADY PLACED IN THIS TURN");
                 } else {
@@ -367,9 +364,7 @@ public class MainController extends TabPane implements Initializable {
                                     return;
                                 }
                             }
-                            System.out.println("PIAZZATA CARTA #" + cardToRemove.getCard().getIdCard());
                             placedCardToSend = cardToRemove.getCard();
-                            System.out.println("PlacedCardToSend: #" + placedCardToSend.getIdCard());
                             slotToPlace.setSlotCardView(cardToRemove.getShownImage());
                             readyToPlace = false;
                             cardPlaced = true;
@@ -378,6 +373,7 @@ public class MainController extends TabPane implements Initializable {
                             slotToPlace.card = cardToRemove.getCard();
                             lastUsedSlot = slotToPlace;
                             player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
+                            System.out.println("In Main Controller: " + cardToRemove.getCard().getCoveredCornersWhenPlaced());
                             playerDeck.resetCard(deckChildIndex);
                             player.printManas();
                             commands.command3.setDisable(false);
