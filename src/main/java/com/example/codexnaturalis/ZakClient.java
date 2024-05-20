@@ -293,10 +293,13 @@ public class ZakClient extends Application{
         try {
             Path directory = Paths.get("savedata");
             if (Files.notExists(directory)) {
-                Files.createDirectory(directory);
-                switch (Files.exists(directory) ? 1 : 2) {
+                ProcessBuilder createDir = new ProcessBuilder("mkdir",directory.toString());
+                Process createDirProc = createDir.start();
+                int status = createDirProc.waitFor();
+                System.out.println(status);
+                switch (status==0 ? 1 : 2) {
                     case 1:
-                        System.out.println("here");
+                        System.out.println("Save data folder successfully created");
                         break;
                     case 2:
                         if (!playWithoutReconnectionQuestion())
