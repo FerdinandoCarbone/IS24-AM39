@@ -13,7 +13,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.ComboBox?>
+<?import com.example.codexnaturalis.PlayerManasController?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 
