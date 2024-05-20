@@ -164,7 +164,7 @@ public class ConnectionManger {
                     System.out.println("Joined existing match...");
                     System.out.println("CurrentPlayers: " + numOfUsers);
                 } else {
-                    LauncherController.alert("Joined existing match..." + "\nCurrentPlayers: " + numOfUsers,true);
+                    LauncherController.alert("Joined existing match..." + "\nCurrentPlayers: " + numOfUsers, true);
                 }
                 break;
             default:
@@ -406,13 +406,14 @@ public class ConnectionManger {
              * If player disconnected before he was able to set his Starter and secret Objective cards, he will be sent here\
              * */
             if (getPlayer().getPlayerDeck().getSecretObjectiveCard() == null) {
-                /*For rmi is necessary to restart the handler here, because the heartbeat function lives there*/
+                /*For rmi is necessary to restart the handler here, because the heartbeat keepalive function needs to kick in*/
+                System.out.println(Colors.PURPLE + "Choosing card..." + Colors.RESET);
                 if (typeOfConnection) ZakClient.getServerHandler().start();
                 handshakeACKInfo = secretSelector(handshakeACKInfo);
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
             }
-            if(ZakClient.isCrashed()) ZakClient.getSem().release();
+            if (ZakClient.isGuiSelector()) ZakClient.getSem().release();//todo: check if breaks tui
             ZakClient.getServerHandler().setFirstBroadCastWasReceived(true);
             /*
              * Socket still needs to retrieve his GenericTurn Message. Here info is retrieved
@@ -437,8 +438,7 @@ public class ConnectionManger {
             if (amPlayerInTurn && typeOfConnection) {
                 if (isGuiSelector()) {
                     MainController.alert("It's your turn");
-                }
-                else System.out.println("\nIt's your turn!");
+                } else System.out.println("\nIt's your turn!");
             }
         } catch (Exception e) {
             System.out.println("Error while reconnecting after crash: " + e.getMessage());
@@ -528,15 +528,19 @@ public class ConnectionManger {
         if (ZakClient.isGuiSelector()) {
             StarterCard cardStarter;
             cardStarter = ZakClient.getPlayer().getPlayerDeck().getStarterCard();
-            Platform.runLater(() -> {
-                try {
-                    i.set(LauncherController.selectAStarterCardDialog(cardStarter, "Select a face:"));
-                    sem.release();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            sem.acquire();
+            if (!ZakClient.isCrashed()) {
+                Platform.runLater(() -> {
+                    try {
+                        i.set(LauncherController.selectAStarterCardDialog(cardStarter, "Select a face:"));
+                        sem.release();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                sem.acquire();
+            } else {
+                i.set(LauncherController.selectAStarterCardDialog(cardStarter, "Select a face:"));
+            }
         } else {
             i.set(getIntInput(2, false));
         }

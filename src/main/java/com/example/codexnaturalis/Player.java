@@ -230,6 +230,7 @@ public class Player implements Serializable {
 
         return flag;
     }
+
     private void decreaseResourceElementsMana(Seed s) {
         switch (s) {
             case Red -> resourceMana[0]--;
@@ -238,6 +239,7 @@ public class Player implements Serializable {
             case Purple -> resourceMana[3]--;
         }
     }
+
     public void placeCard(int row, int column, ResourceGoldCard cardToPlace) {
         playerField.getSlots()[row][column].setCardSlot(cardToPlace);
         playerField.getSlots()[row][column].setBusySlot(true);
@@ -289,7 +291,7 @@ public class Player implements Serializable {
                     }
                 }
             }
-        } catch(IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             System.err.println("There was an error placing the card. Try again.");
         }
     }
@@ -554,8 +556,10 @@ public class Player implements Serializable {
         while (true) {
             try {
                 if (ZakClient.isGuiSelector()) {
+                    System.out.println("OpenDialog");
                     choice.set(showDialogAndWait(cards));
-                } else {
+                }
+                else {
                     for (ObjectiveCard c : cards) {
                         System.out.println(i + ": ");
                         c.printObjectiveCard();
@@ -567,7 +571,7 @@ public class Player implements Serializable {
                 System.out.println("Invalid input: try again");
                 if (ZakClient.isGuiSelector()) {
 
-                    LauncherController.alert("Invalid input: try again",false);
+                    LauncherController.alert("Invalid input: try again", false);
                 }
                 continue;
             }
@@ -580,87 +584,99 @@ public class Player implements Serializable {
 
     private int showDialogAndWait(ArrayList<ObjectiveCard> cards) throws InterruptedException {
         ArrayList<Card> basicCards = new ArrayList<>(cards);
-        Semaphore sem=new Semaphore(0);
+        Semaphore sem = new Semaphore(0);
         AtomicReference<Integer> selected = new AtomicReference<>(-1);
+        if (!ZakClient.isCrashed()) {
             Platform.runLater(() -> {
                 try {
-                   int chosenCard= LauncherController.selectACardDialog(basicCards, "Please select a secret Objective card");
+                    int chosenCard = LauncherController.selectACardDialog(basicCards, "Please select a secret Objective card");
                     if (chosenCard == cards.get(1).getIdCard()) selected.set(2);
-                    else if(chosenCard == cards.get(0).getIdCard()) selected.set(1);
+                    else if (chosenCard == cards.get(0).getIdCard()) selected.set(1);
                 } catch (IOException e) {
                     selected.set(0);
                 }
                 sem.release();
             });
             sem.acquire();
+        }
+        else{
+            try {
+                int chosenCard = LauncherController.selectACardDialog(basicCards, "Please select a secret Objective card");
+                if (chosenCard == cards.get(1).getIdCard()) selected.set(2);
+                else if (chosenCard == cards.get(0).getIdCard()) selected.set(1);
+            } catch (IOException e) {
+                selected.set(0);
+            }
+        }
         return selected.get();
     }
- /*   public ArrayList<Card> cardsToGUI() throws IOException {
-        ArrayList<Card> tmp = new ArrayList<>();
-        tmp.addAll(playerDeck.getResourceGoldCards());
-        tmp.add(playerDeck.getStarterCard());
-        tmp.addAll(commonObjCards);
-        tmp.add(playerDeck.getSecretObjectiveCard());
-        ArrayList<CardController> rtrnTmp= new ArrayList<>();
-        return rtrnTmp;
-    }*/
- public void undoMove(int row, int column, int deckChildIndex) {
-     Field.Slot slotToUndo = playerField.getSlots()[row][column];
-     ResourceGoldCard cardToUndo = (ResourceGoldCard) slotToUndo.getCardSlot();
-     playerDeck.getResourceGoldCards().add(deckChildIndex, cardToUndo);
-     if (cardToUndo.isPlacedFront()) {
-         score -= cardToUndo.getPoints();
-     }
-     for (int i = 0; i < 4; i++) {
-         decreaseResourceElementsMana(cardToUndo.getCorners().get(i));
-     }
-     if (!cardToUndo.isPlacedFront()) {
-         decreaseResourceElementsMana(cardToUndo.getSeed());
-     }
-     if (row != 0 && row != (playerField.getR() - 1) && column != 0 && column != (playerField.getC() - 1)) {
-         for (int i = 0; i < 4; i++) {
-             updateAdjacentSlotsUndo(cardToUndo, row, column, i);
-         }
-     } else {
-         if (row == 0) {
-             if (column != 0 && column != (playerField.getC() - 1)) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
-             } else if (column == (playerField.getC() - 1)) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
-             } else if (column == 0) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
-             }
-         } else if (row == (playerField.getR() - 1)) {
-             if (column != 0 && column != (playerField.getC() - 1)) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
-             } else if (column == (playerField.getC() - 1)) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
-             } else if (column == 0) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
-             }
-         } else if (column == 0) {
-             if (row != playerField.getR() - 1) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
-             }
-         } else if (column == (playerField.getC() - 1)) {
-             if (row != playerField.getR() - 1) {
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
-                 updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
-             }
-         }
-     }
 
-     System.out.println("MOVE UNDONE: HERE ARE THE CHANGES");
-     printManas();
+    /*   public ArrayList<Card> cardsToGUI() throws IOException {
+           ArrayList<Card> tmp = new ArrayList<>();
+           tmp.addAll(playerDeck.getResourceGoldCards());
+           tmp.add(playerDeck.getStarterCard());
+           tmp.addAll(commonObjCards);
+           tmp.add(playerDeck.getSecretObjectiveCard());
+           ArrayList<CardController> rtrnTmp= new ArrayList<>();
+           return rtrnTmp;
+       }*/
+    public void undoMove(int row, int column, int deckChildIndex) {
+        Field.Slot slotToUndo = playerField.getSlots()[row][column];
+        ResourceGoldCard cardToUndo = (ResourceGoldCard) slotToUndo.getCardSlot();
+        playerDeck.getResourceGoldCards().add(deckChildIndex, cardToUndo);
+        if (cardToUndo.isPlacedFront()) {
+            score -= cardToUndo.getPoints();
+        }
+        for (int i = 0; i < 4; i++) {
+            decreaseResourceElementsMana(cardToUndo.getCorners().get(i));
+        }
+        if (!cardToUndo.isPlacedFront()) {
+            decreaseResourceElementsMana(cardToUndo.getSeed());
+        }
+        if (row != 0 && row != (playerField.getR() - 1) && column != 0 && column != (playerField.getC() - 1)) {
+            for (int i = 0; i < 4; i++) {
+                updateAdjacentSlotsUndo(cardToUndo, row, column, i);
+            }
+        } else {
+            if (row == 0) {
+                if (column != 0 && column != (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
+                } else if (column == (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
+                } else if (column == 0) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
+                }
+            } else if (row == (playerField.getR() - 1)) {
+                if (column != 0 && column != (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
+                } else if (column == (playerField.getC() - 1)) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
+                } else if (column == 0) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
+                }
+            } else if (column == 0) {
+                if (row != playerField.getR() - 1) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 0);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 1);
+                }
+            } else if (column == (playerField.getC() - 1)) {
+                if (row != playerField.getR() - 1) {
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 2);
+                    updateAdjacentSlotsUndo(cardToUndo, row, column, 3);
+                }
+            }
+        }
 
-     slotToUndo.setBusySlot(false);
-     slotToUndo.setCardSlot(null);
- }
+        System.out.println("MOVE UNDONE: HERE ARE THE CHANGES");
+        printManas();
 
-    private void updateAdjacentSlotsUndo(ResourceGoldCard cardToUndo,int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
+        slotToUndo.setBusySlot(false);
+        slotToUndo.setCardSlot(null);
+    }
+
+    private void updateAdjacentSlotsUndo(ResourceGoldCard cardToUndo, int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
         int rowToCheck = selectedRow + calculateOffSetR(corner);
         int columnToCheck = selectedColumn + calculateOffSetC(corner);
         /* Check if the adjacent slot is busy. If busy update the availability of the adjacent card's corner and

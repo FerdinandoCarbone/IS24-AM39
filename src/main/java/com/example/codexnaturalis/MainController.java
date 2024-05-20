@@ -119,14 +119,15 @@ public class MainController extends TabPane implements Initializable {
         Tab[] tabs = new Tab[]{tab1, tab2, tab3};
         FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
         tabMan = new HashMap<>();
+        int middleSlot = CardDim.matrixSize/2;
         if(ZakClient.isCrashed()) field = FieldController.rebuildField(field,player);
+        else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
         for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
             comboBox.getItems().add(playerName);
             tabs[i].setText(playerName);
             tabs[i].setDisable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
-            int middleSlot = CardDim.matrixSize/2;
             if(ZakClient.isCrashed()) field = FieldController.rebuildField(fieldControllers[i],others.get(i));
             else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
             System.out.println("Carta starter di " + others.get(i).getPlayerName() + " piazzata di " + (others.get(i).getPlayerDeck().getStarterCard().isPlacedFront() ? "Fronte" : "Retro"));
