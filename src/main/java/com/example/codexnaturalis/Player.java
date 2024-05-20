@@ -288,6 +288,7 @@ public class Player implements Serializable {
                     }
                 }
             }
+            cardToPlace.setCornersChecked(true);
         } catch (IndexOutOfBoundsException e) {
             System.err.println("There was an error placing the card. Try again.");
         }
@@ -341,7 +342,6 @@ public class Player implements Serializable {
             coveredCard.updateCornerToBusy(coveredCornerIndex);
             if (!cardToPlace.isCornersChecked()) {
                 cardToPlace.coveredCornersWhenPlaced++;
-                cardToPlace.setCornersChecked(true);
             }
         }
     }
@@ -742,4 +742,5 @@ public class Player implements Serializable {
     public Token getToken() {
         return token;
     }
+
 }

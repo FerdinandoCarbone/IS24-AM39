@@ -6,7 +6,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import com.example.codexnaturalis.PlayerManasController?>
 <fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml">
+         xmlns:fx="http://javafx.com/fxml">
 
 </fx:root>

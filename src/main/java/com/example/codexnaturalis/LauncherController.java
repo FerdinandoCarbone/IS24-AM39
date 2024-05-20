@@ -134,6 +134,11 @@ public class LauncherController extends StackPane implements Initializable {
     public void handleSubmitButtonAction() {
         status.clear();
         String input = textField.getText();
+
+        if (ZakClient.isValidNick(input)) {
+            return;
+        }
+
         if (typeOfConnection == null) {
             printStatus("Select a connection type", "red");
         } else if (input == null || input.isEmpty()) {
@@ -161,6 +166,7 @@ public class LauncherController extends StackPane implements Initializable {
             ZakClient.start();
             printStatus("Waiting for everyone to join","blue");
         }
+
     }
     public static int selectAStarterCardDialog(Card card,String whatToSelect) throws IOException {
         SelectableCardController selectableFront = new SelectableCardController(card,true);

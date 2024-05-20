@@ -31,7 +31,8 @@ public class MainController extends TabPane implements Initializable {
     private ResourceGoldCardController cardToRemove;
     private ResourceGoldCard placedCardToSend;
     @FXML
-    public PlayerManasController manaBar;
+    VBox cardControllerVbox;
+    public static PlayerManasController manaBar;
     @FXML
     private CardController secretObjCard;
     @FXML
@@ -106,6 +107,12 @@ public class MainController extends TabPane implements Initializable {
     }
 
     private void viewSetup() {
+        try {
+            manaBar = new PlayerManasController();
+            cardControllerVbox.getChildren().add(manaBar);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         textArea = new TextArea("Notification");
         textArea.setEditable(false);
         vbox.getChildren().addFirst(textArea);
@@ -175,6 +182,7 @@ public class MainController extends TabPane implements Initializable {
             tmp.setupCard((ResourceGoldCard) lastUsedSlot.card);
             lastUsedSlot.setEmpty(true);
             player.undoMove(lastUsedSlot.coords.getKey(), lastUsedSlot.coords.getValue(), deckChildIndex);
+            updateManaStatus();
             cardPlaced = false;
             readyToPlace = false;
             lastUsedSlot = null;
@@ -351,7 +359,21 @@ public class MainController extends TabPane implements Initializable {
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
         field.centerSlot.toFront();
         field.centerSlot.setEmpty(false);
+        updateManaStatus();
         player.printManas();
+    }
+
+    public void updateManaStatus() {
+        ArrayList<SingleManaController> smc = manaBar.getControllers();
+        for(int i = 0;i<smc.size();i++) {
+            if (i<4) smc.get(i).setPoints(player.getResourceMana()[i]);
+            else if(i>=4 && i<=6) {
+                smc.get(i).setPoints(player.getElementsMana()[i%4]);
+            }
+            else{
+                throw new RuntimeException("Error while updating manas");
+            }
+        }
     }
 
     private void placeCardAndRemoveFromDeck(SlotController slotToPlace) {
@@ -377,6 +399,7 @@ public class MainController extends TabPane implements Initializable {
                             slotToPlace.card = cardToRemove.getCard();
                             lastUsedSlot = slotToPlace;
                             player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
+                            updateManaStatus();
                             System.out.println("In Main Controller: " + cardToRemove.getCard().getCoveredCornersWhenPlaced());
                             playerDeck.resetCard(deckChildIndex);
                             player.printManas();
@@ -404,4 +427,6 @@ public class MainController extends TabPane implements Initializable {
    /* public static TokenController getTokenController() {
         return tokenController;
     }*/
+
+
 }

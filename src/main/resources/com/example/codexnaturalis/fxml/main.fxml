@@ -37,11 +37,10 @@
                         <top>
                             <HBox>
                                 <PlayerDeckController fx:id="playerDeck" />
-                                <VBox>
+                                <VBox fx:id="cardControllerVbox">
                                     <CardController fx:id="secretObjCard"/>
                                     <CardController fx:id="publicObj1"/>
                                     <CardController fx:id="publicObj2"/>
-                                    <PlayerManasController fx:id="manaBar"/>
                                 </VBox>
                                 <CommandBoxController fx:id="commands"/>
                             </HBox>

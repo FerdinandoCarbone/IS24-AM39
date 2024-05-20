@@ -20,6 +20,8 @@ public class PlayerDeckController extends VBox {
     @FXML private ResourceGoldCardController card3;
     private CardController starterCard;
     private ArrayList<CardController> objCards;
+    @FXML
+    public PlayerManasController manaBar;
 //    @FXML
 //    private Button cardReceiverButton;
 

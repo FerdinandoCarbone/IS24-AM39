@@ -71,5 +71,11 @@ public class PlayerManasController extends Pane {
         this.getChildren().add(contents);
     }
 
+    public Label getActualPoints() {
+        return actualPoints;
+    }
 
+    public ArrayList<SingleManaController> getControllers() {
+        return controllers;
+    }
 }

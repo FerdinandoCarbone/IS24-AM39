@@ -28,8 +28,9 @@ public class SingleManaController extends HBox {
         this.getChildren().addAll(imageView,points);
     }
 
-    public void setPoints(Label points) {
-        this.points = points;
+    public void setPoints(int playerPoints) {
+        points.setText(String.valueOf(playerPoints));
     }
+
 
 }

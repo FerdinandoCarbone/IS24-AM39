@@ -1,5 +1,6 @@
 package com.example.codexnaturalis;
 
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
