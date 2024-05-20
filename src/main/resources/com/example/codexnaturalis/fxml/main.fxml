@@ -27,7 +27,6 @@
             <BorderPane>
                 <left>
                     <VBox>
-                        <PlayerManasController fx:id="manaBar" minHeight="80" minWidth="200" />
                         <ScrollPane prefWidth="1200" prefHeight="750" fx:id="fieldScrollPane">
                             <FieldController fx:id="field"/>
                         </ScrollPane>
@@ -42,6 +41,7 @@
                                     <CardController fx:id="secretObjCard"/>
                                     <CardController fx:id="publicObj1"/>
                                     <CardController fx:id="publicObj2"/>
+                                    <PlayerManasController fx:id="manaBar"/>
                                 </VBox>
                                 <CommandBoxController fx:id="commands"/>
                             </HBox>
