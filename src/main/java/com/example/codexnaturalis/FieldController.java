@@ -60,8 +60,14 @@ public class FieldController extends Pane {
     }
 
     public static FieldController rebuildField(FieldController field,Player player) {
-        //Field.Slot[] codex = player.getPlayerField().getSlots();
-        //for
+        Field.Slot slot;
+        for(int i=0;i< matrixSize; i++){
+            for (int j = 0; j < matrixSize; j++) {
+               slot = player.getPlayerField().getSlots()[i][j];
+               if(!slot.isBusySlot()) continue;
+               field.fillField(i,j,slot.getCardSlot());
+            }
+        }
         return field;
     }
 

@@ -286,7 +286,6 @@ class SocketClientHandler extends ClientHandler {
                 System.err.println(e.getMessage());
                 try {
                     if (tryReconnectClient()) {
-                        //outClient.reset();
                         continue;
                     }
                 } catch (IOException ex) {
