@@ -216,9 +216,11 @@ public class ConnectionManger {
         String playerNick;
         System.out.println("Username already taken: choose another one");
         System.out.print("New username: ");
-        if (!isGuiSelector()) playerNick = receiveInput();
-        else
-            playerNick = LauncherController.askStringInputToUser("Username already taken: choose another one", "New username: ");
+        do {
+            if (!isGuiSelector()) playerNick = receiveInput();
+            else
+                playerNick = LauncherController.askStringInputToUser("Username already taken: choose another one", "New username: ");
+        }while(ZakClient.isValidNick(playerNick));
         System.out.println("NickRetype: " + playerNick);
         // File (or directory) with old name
         File file = new File("savedata/" + getPlayerNick() + "-matchinfo.cdxn");
@@ -510,7 +512,14 @@ public class ConnectionManger {
         //if (ZakClient.isGuiSelector());
         System.out.println("How do you want to face the starting card");
         System.out.println("1 - face Up\n2 - face Down");
-        boolean cardFace = selectStarterCardFace();
+        Boolean cardFace;
+        do {
+            try {
+                cardFace = selectStarterCardFace();
+            } catch (IOException e) {
+                cardFace=null;
+            }
+        }while(cardFace==null);
         handshakeACKInfo.setStarterCardFace(cardFace);
         return handshakeACKInfo;
     }

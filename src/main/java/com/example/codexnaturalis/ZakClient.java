@@ -384,8 +384,30 @@ public class ZakClient extends Application{
                 (_____)------------------------------------------------------------(_____)
 
                 """);
-        System.out.println("Please enter your nickname:");
-        return receiveInput();
+        String tmp;
+                do{
+                    System.out.println("Please enter your nickname:");
+                    tmp=receiveInput();
+                } while(isValidNick(tmp));
+        return tmp;
+    }
+
+    /**
+     * Checks whether an input nick is valid or not
+     * @param s string to check
+     * @return true if Nick is INVALID, false if Nick is VALID
+     */
+    public static boolean isValidNick(String s){
+        CharSequence notValidChar = "\\/:*?\"<>|";
+        for (int i = 0; i < notValidChar.length(); i++) {
+            char ch = notValidChar.charAt(i);
+            if (s.contains(String.valueOf(ch))) {
+                if(isGuiSelector()) LauncherController.alert("An invalid char was input in the nickname: Try again",true);
+                else System.out.println("An invalid char was input in the nickname: Try again");
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
