@@ -26,7 +26,7 @@
         <Tab text="Your playing Field:">
             <BorderPane>
                 <left>
-                    <ScrollPane prefWidth="1000" prefHeight="800" fx:id="fieldScrollPane">
+                    <ScrollPane prefWidth="1200" prefHeight="750" fx:id="fieldScrollPane">
                         <FieldController fx:id="field"/>
                     </ScrollPane>
                 </left>
@@ -57,19 +57,19 @@
             </BorderPane>
         </Tab>
         <Tab fx:id="tab1" disable="true" text="Player 2">
-            <HBox>
+            <ScrollPane prefWidth="1200" prefHeight="750">
                 <FieldController fx:id="field2"/>
-            </HBox>
+            </ScrollPane>
         </Tab>
         <Tab fx:id="tab2" disable="true" text="Player 3">
-            <Pane>
+            <ScrollPane prefWidth="1200" prefHeight="750">
                 <FieldController fx:id="field3"/>
-            </Pane>
+            </ScrollPane>
         </Tab>
         <Tab fx:id="tab3" disable="true" text="Player 4">
-            <HBox>
+            <ScrollPane prefWidth="1200" prefHeight="750">
                 <FieldController fx:id="field4"/>
-            </HBox>
+            </ScrollPane>
         </Tab>
         <Tab text="Score Tracker">
 <!--            <Pane>-->

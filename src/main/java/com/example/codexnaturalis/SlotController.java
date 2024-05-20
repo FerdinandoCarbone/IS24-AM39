@@ -11,8 +11,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.example.codexnaturalis.CardDim.cardHeight;
-import static com.example.codexnaturalis.CardDim.cardWidth;
+import static com.example.codexnaturalis.CardDim.*;
 
 public class SlotController extends Pane {
 
@@ -30,8 +29,8 @@ public class SlotController extends Pane {
         fxmlLoader.setController(this);
         fxmlLoader.load();
 
-        slotCardView.setFitHeight(cardHeight);
-        slotCardView.setFitWidth(cardWidth);
+        slotCardView.setFitHeight(slotHeight);
+        slotCardView.setFitWidth(slotWidth);
     }
 
     public void setSlotCardView(Image slotImage) {

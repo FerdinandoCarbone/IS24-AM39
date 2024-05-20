@@ -75,9 +75,10 @@ public class MainController extends TabPane implements Initializable {
         readyToPlace = false;
         cardToRemove = null;
         System.out.println("Loading...");
-        fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(this::middlePosition);
-        });
+//        fieldScrollPane.viewportBoundsProperty().addListener((observable, oldValue, newValue) -> {
+//            Platform.runLater(this::middlePosition);
+//        });
+//        middlePosition();
         try {
             ZakClient.getSem().acquire();
         } catch (Exception e) {
@@ -326,17 +327,19 @@ public class MainController extends TabPane implements Initializable {
         for (int i = 0; i < field.getChildren().size(); i++) {
             SlotController tmpSlot = (SlotController) field.getChildren().get(i);
             tmpSlot.setOnMouseClicked((MouseEvent mouseEvent) -> {
-                if (cardPlaced) {
-                    System.out.println("CARD ALREADY PLACED IN THIS TURN");
-                } else {
-                    if (readyToPlace) {
-                        try {
-                            placeCardAndRemoveFromDeck(tmpSlot);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+                    if (cardPlaced) {
+                        System.out.println("CARD ALREADY PLACED IN THIS TURN");
                     } else {
-                        System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
+                        if (readyToPlace) {
+                            try {
+                                placeCardAndRemoveFromDeck(tmpSlot);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            System.out.println("PRIMA SELEZIONA UNA CARTA DAL DECK");
+                        }
                     }
                 }
             });
@@ -350,7 +353,7 @@ public class MainController extends TabPane implements Initializable {
         player.printManas();
     }
 
-    private void placeCardAndRemoveFromDeck(SlotController slotToPlace) throws Exception {
+    private void placeCardAndRemoveFromDeck(SlotController slotToPlace) {
         if (readyToPlace) {
             if (cardToRemove.getCard() != null) {
                 if (!cardPlaced) {

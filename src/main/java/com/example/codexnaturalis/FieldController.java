@@ -15,8 +15,6 @@ public class FieldController extends Pane {
 
     SlotController centerSlot;
     final int fieldSize = matrixSize;
-    final double totalHeight = fieldSize *(deltaHeight) + cardHeight;
-    final double totalWidth = fieldSize *(deltaWidth) + cardWidth;
     private HashMap<Pair<Integer, Integer>, SlotController> fieldMap = new HashMap<>();
 
     public FieldController() throws IOException {
@@ -34,8 +32,8 @@ public class FieldController extends Pane {
                     Pair<Integer, Integer> cords = new Pair<>(r, c);
                     newSlot.setCoords(cords);
                     fieldMap.put(cords, newSlot);
-                    newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
-                    newSlot.setLayoutX(offsetC * (2*deltaWidth));
+                    newSlot.setLayoutY(r *(CardDim.slotHeight - CardDim.cornerSlotHeight));
+                    newSlot.setLayoutX(offsetC * (2*deltaSlotWidth));
                 } else {
                     if (!dispariFlag) {
                         c++;
@@ -44,8 +42,8 @@ public class FieldController extends Pane {
                     Pair<Integer, Integer> cords = new Pair<>(r, c);
                     newSlot.setCoords(cords);
                     fieldMap.put(cords, newSlot);
-                    newSlot.setLayoutY(r *(CardDim.cardHeight - CardDim.cornerHeight));
-                    newSlot.setLayoutX((deltaWidth) + (offsetC * (2*deltaWidth)));
+                    newSlot.setLayoutY(r *(CardDim.slotHeight - CardDim.cornerSlotHeight));
+                    newSlot.setLayoutX((deltaSlotWidth) + (offsetC * (2*deltaSlotWidth)));
                 }
                 this.getChildren().add(newSlot);
                 if (r == fieldSize/2 && c == fieldSize/2) {
@@ -79,14 +77,6 @@ public class FieldController extends Pane {
     }
     public int getFieldSize() {
         return fieldSize;
-    }
-
-    public double getTotalHeight() {
-        return totalHeight;
-    }
-
-    public double getTotalWidth() {
-        return totalWidth;
     }
 
     public HashMap<Pair<Integer, Integer>, SlotController> getFieldMap() {

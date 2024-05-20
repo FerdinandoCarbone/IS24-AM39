@@ -9,6 +9,8 @@ public class CardDim {
     static double cardHeight = 326.0 / divider;
     static double cornerWidth = 106.0 / divider;
     static double cornerHeight = 131.0 / divider;
-    static double deltaHeight = cardHeight - cornerHeight;
-    static double deltaWidth = cardWidth - cornerWidth;
+    static double slotWidth = (492.0 / divider) * 2;
+    static double slotHeight = (326.0 / divider) * 2;
+    static double cornerSlotHeight = (131.0 / divider) * 2;
+    static double deltaSlotWidth = (cardWidth - cornerWidth) * 2;
 }
