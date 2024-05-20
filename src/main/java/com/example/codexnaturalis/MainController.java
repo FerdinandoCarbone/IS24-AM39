@@ -33,8 +33,6 @@ public class MainController extends TabPane implements Initializable {
     @FXML
     public PlayerManasController manaBar;
     @FXML
-    public PlayerManasController manaBar2;
-    @FXML
     private CardController secretObjCard;
     @FXML
     private CardController publicObj1;
