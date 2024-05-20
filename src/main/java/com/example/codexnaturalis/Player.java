@@ -245,7 +245,6 @@ public class Player implements Serializable {
             System.out.println("Placing the card face down");
             increaseResourceElementsMana(cardToPlace.getSeed());
         } else {
-            score += cardToPlace.getPoints();
             System.out.println("Placing the card face up");
         }
         try {
@@ -723,4 +722,7 @@ public class Player implements Serializable {
         return playerID;
     }
 
+    public Token getToken() {
+        return token;
+    }
 }

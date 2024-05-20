@@ -16,7 +16,8 @@ public class Token implements Serializable {
         Red,
         Blue,
         Green,
-        Yellow
+        Yellow,
+        Black
 
     }
 
@@ -60,6 +61,9 @@ public class Token implements Serializable {
             }
 
         }
+        return tokenColor;
+    }
+    public Color getColor() {
         return tokenColor;
     }
 }

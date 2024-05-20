@@ -73,6 +73,13 @@ public class Field implements Serializable {
         public NonObjectiveCard getCardSlot() {
             return cardSlot;
         }
+        /**
+         * Getter of CardSlot
+         * @return NonObjectiveCard contained in the busySlot
+         */
+        public ResourceGoldCard getRGCardSlot() {
+            return (ResourceGoldCard) cardSlot;
+        }
 
         /**
          * Setter of busySlot

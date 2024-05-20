@@ -21,6 +21,7 @@ public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
     public static Button turnButton;
     public static ComboBox comboBox;
+    private TokenController tokenController;
     private boolean cardPlaced;
     private int deckChildIndex;
     private Player player;
@@ -53,8 +54,8 @@ public class MainController extends TabPane implements Initializable {
     public FieldController field3;
     @FXML
     public FieldController field4;
-    @FXML
-    public TabelloneController table;
+    /*@FXML
+    public ScoreTrackerController table;*/
     @FXML
     private Tab tab1;
     @FXML
@@ -92,6 +93,14 @@ public class MainController extends TabPane implements Initializable {
         secretObjCard.setupCard(player.getPlayerDeck().getSecretObjectiveCard());
         publicObj1.setupCard(player.getCommonObjCards().getFirst());
         publicObj2.setupCard(player.getCommonObjCards().get(1));
+        /*riga 94 try {
+            tokenController=new TokenController();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        tokenController.setTokenColor(player.getToken());
+        table.moveToken(tokenController, 0);*/
+
     }
 
     private void viewSetup() {
@@ -391,4 +400,7 @@ public class MainController extends TabPane implements Initializable {
     public static HashMap<String, Pair<Tab, FieldController>> getTabMan() {
         return tabMan;
     }
+   /* public static TokenController getTokenController() {
+        return tokenController;
+    }*/
 }
