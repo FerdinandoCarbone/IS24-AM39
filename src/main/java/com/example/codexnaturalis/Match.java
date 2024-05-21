@@ -33,7 +33,6 @@ public class Match {
         this.matchID = UUID.randomUUID();
         coveredCards.add(0, DrawingDeck.drawCard(true));
         coveredCards.add(1, DrawingDeck.drawCard(false));
-        for (Player player : players) playerIds.add(player.getPlayerID());
     }
 
     /**
@@ -43,6 +42,7 @@ public class Match {
      */
     public StandardMatchMessage chooseRandomFirstPlayer() {
         Collections.shuffle(players);
+        for (Player player : players) playerIds.add(player.getPlayerID());
 
         Player playingPlayer = players.getFirst();
         indexCurrentPlayer = 0;
@@ -225,11 +225,14 @@ public class Match {
     }
 
     public void addDisconnectedPlayerId(UUID playerToAddId) {
-        playerIds.addLast(playerToAddId);
+        Player playerToAdd = getPlayerFromId(playerToAddId);
+        int playerToAddIndex = players.indexOf(playerToAdd);
+        playerIds.set(playerToAddIndex, playerToAddId);
     }
 
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
         Player playerToRemove = getPlayerFromId(disconnectedPlayerId);
+        int playerToRemoveIndex = players.indexOf(playerToRemove);
         System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " disconnected, removing from playerIds--" + Colors.RESET);
         UUID currentPlayerId = playerIds.get(indexCurrentPlayer);
         Player currentPlayer = getPlayerFromId(currentPlayerId);
@@ -241,7 +244,7 @@ public class Match {
             Player nextPlayer = getPlayerFromId(nextPlayerId);
             indexCurrentPlayer = playerIds.indexOf(nextPlayer.getPlayerID());
             System.out.println(Colors.GREEN + "--" + nextPlayer.getPlayerName() + " is the next player--" + Colors.RESET);
-            playerIds.remove(playerToRemove.getPlayerID());
+            playerIds.set(playerToRemoveIndex, null);
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID null di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
@@ -249,7 +252,7 @@ public class Match {
             }
             return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName(), nextPlayerId);
         } else {
-            playerIds.remove(disconnectedPlayerId);
+            playerIds.set(playerToRemoveIndex, null);
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from playerIds--" + Colors.RESET);
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID univoco di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
@@ -274,6 +277,12 @@ public class Match {
         int indiceProssimo = currentIndex + 1;
         if (indiceProssimo >= playerIds.size()) {
             indiceProssimo = 0;
+        }
+        while (playerIds.get(indiceProssimo) == null) {
+            indiceProssimo++;
+            if (indiceProssimo >= playerIds.size()) {
+                indiceProssimo = 0;
+            }
         }
         System.out.println(Colors.GREEN + "NEXT PLAYER INDEX: "  + indiceProssimo + Colors.RESET);
         return indiceProssimo;
