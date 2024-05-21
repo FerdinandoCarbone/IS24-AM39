@@ -23,7 +23,6 @@ public class Match {
 
     /**
      * Constructor of Match
-     *
      * @param players:      ArrayList of all players in the match
      * @param scoreTracker: score tracker
      */
@@ -72,6 +71,12 @@ public class Match {
         return commonObjectives;
     }
 
+    /**
+     * Main method of match progression. Gets called from server. When receiving a message from Server, it gets deserialized, analyzed,
+     * model is modified accordingly, and changes are sent back to server as a StandardMatchMessage
+     * @param msg: Message coming from server containing changes to be made in the model
+     * @return StandardMatchMessage, message containing changes of the model to be sent to server
+     */
     public StandardMatchMessage genericTurn(GenericTurnMessage msg) {
         Player playingPlayer = getPlayerFromId(msg.getClientID());
         String playerName = playingPlayer.getPlayerName();
@@ -96,7 +101,7 @@ public class Match {
                 isLastCycle = true;
             }
         }
-        if (isLastCycle && indexCurrentPlayer == players.size() - 1) {
+        if (isLastCycle && indexCurrentPlayer == playerIds.size() - 1) {
             lastRoundRoutine();
             EndMatchMessage endGame = new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
             endGame.setFinalWinners(finalWinners);
@@ -136,7 +141,7 @@ public class Match {
         System.out.println(Colors.GREEN + "--Selecting next player--" + Colors.RESET);
         UUID currentPlayerId = playingPlayer.getPlayerID();
         int nextPlayerIndex = selectIndexNextPlayer(indexCurrentPlayer);
-        Player nextPlayer = players.get(nextPlayerIndex);
+        Player nextPlayer = getPlayerFromId(playerIds.get(nextPlayerIndex));
         System.out.println(Colors.GREEN + "--" + nextPlayer.getPlayerName() + " is the next player--" + Colors.RESET);
         UUID nextPlayerId = nextPlayer.getPlayerID();
         indexCurrentPlayer = nextPlayerIndex;
@@ -148,6 +153,11 @@ public class Match {
         return mex;
     }
 
+    /**
+     * Given a card Id, returns the card with that id in the public cards
+     * @param cardId: card id to look for
+     * @return ResourceGoldCard, card in the public cards with that Id
+     */
     private ResourceGoldCard getPublicCardFromId(int cardId) {
         ResourceGoldCard cardToReturn = null;
         for (ResourceGoldCard publicCard : publicCards) {
@@ -158,6 +168,11 @@ public class Match {
         return cardToReturn;
     }
 
+    /**
+     * Given a card Id, returns the card with that id in the covered cards
+     * @param cardId: card id to look for
+     * @return ResourceGoldCard, card in the covered cards with that Id
+     */
     private ResourceGoldCard getCoveredCardFromId(int cardId) {
         ResourceGoldCard cardToReturn = null;
         for (ResourceGoldCard publicCard : coveredCards) {
@@ -168,6 +183,11 @@ public class Match {
         return cardToReturn;
     }
 
+    /**
+     * Given a UUID, return the Player in the match with that ID
+     * @param playerId: player Id to look for
+     * @return Player, player with the given Id
+     */
     private Player getPlayerFromId(UUID playerId) {
         Player player = null;
         for (Player p : players) {
@@ -179,6 +199,10 @@ public class Match {
         return player;
     }
 
+    /**
+     * Called in server, for each player two Objective Cards are Drawn and presented to the player
+     * @return HashMap of UUID and ArrayList of ObjectiveCards from which the player chooses the card he wants to keep
+     */
     public HashMap<UUID, ArrayList<ObjectiveCard>> getTwoSecretObjectiveCards() {
 
         for (Player p : players) {
@@ -188,6 +212,11 @@ public class Match {
         return selectedSecrets;
     }
 
+    /**
+     * Called when the player chooses which Objective card from the 2 drawn wants to keep
+     * @param clientID: Id of the client that is choosing
+     * @param cardToKeep
+     */
     public void putBackOtherSecretObjectiveCard(UUID clientID, ObjectiveCard cardToKeep) {
         ObjectiveCard cardToDiscard = null;
         for (ObjectiveCard c : selectedSecrets.get(clientID)) if (!c.equals(cardToKeep)) cardToDiscard = c;
@@ -196,45 +225,35 @@ public class Match {
     }
 
     public void addDisconnectedPlayerId(UUID playerToAddId) {
-        int indexWhereToAdd = -1;
-        for (Player p : players) {
-            if (p.getPlayerID().equals(playerToAddId)) {
-                indexWhereToAdd = players.indexOf(p);
-                break;
-            }
-        }
-        if (indexWhereToAdd == -1) {
-            System.err.println("There has been a problem in retrieving the player from the list");
-            return;
-        }
-        playerIds.add(indexWhereToAdd, playerToAddId);
+        playerIds.addLast(playerToAddId);
     }
 
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
         Player playerToRemove = getPlayerFromId(disconnectedPlayerId);
         System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " disconnected, removing from playerIds--" + Colors.RESET);
-        Player currentPlayer = players.get(indexCurrentPlayer);
+        UUID currentPlayerId = playerIds.get(indexCurrentPlayer);
+        Player currentPlayer = getPlayerFromId(currentPlayerId);
         System.out.println(Colors.GREEN + "--" + currentPlayer.getPlayerName() + " is playing--" + Colors.RESET);
         //Se il giocatore si disconnette prima di giocare il suo turno
         if (playerToRemove.equals(currentPlayer)) {
             System.out.println(Colors.GREEN + "--Choosing next player--" + Colors.RESET);
-            Player nextPlayer = players.get(selectIndexNextPlayer(indexCurrentPlayer));
-            UUID nextPlayerId = nextPlayer.getPlayerID();
-            indexCurrentPlayer = players.indexOf(nextPlayer);
+            UUID nextPlayerId = playerIds.get(selectIndexNextPlayer(indexCurrentPlayer));
+            Player nextPlayer = getPlayerFromId(nextPlayerId);
+            indexCurrentPlayer = playerIds.indexOf(nextPlayer.getPlayerID());
             System.out.println(Colors.GREEN + "--" + nextPlayer.getPlayerName() + " is the next player--" + Colors.RESET);
             playerIds.remove(playerToRemove.getPlayerID());
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID null di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
-                return new CurrentPlayerDisconnectedMessage(publicCards, null, players.getFirst().getPlayerName(), players.getFirst().getPlayerID());
+                return new CurrentPlayerDisconnectedMessage(publicCards, null, getPlayerFromId(playerIds.getFirst()).getPlayerName(), playerIds.getFirst());
             }
             return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName(), nextPlayerId);
         } else {
-            playerIds.remove(playerToRemove.getPlayerID());
+            playerIds.remove(disconnectedPlayerId);
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from playerIds--" + Colors.RESET);
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID univoco di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
-                return new CurrentPlayerDisconnectedMessage(publicCards, null, players.getFirst().getPlayerName(), players.getFirst().getPlayerID());
+                return new CurrentPlayerDisconnectedMessage(publicCards, null, getPlayerFromId(playerIds.getFirst()).getPlayerName(), playerIds.getFirst());
             }
             return new notCurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName());
         }
@@ -242,7 +261,7 @@ public class Match {
     }
 
     private boolean onlyOnePlayerRemaining() {
-        return players.size() == 1;
+        return playerIds.size() == 1;
     }
 
     /**
@@ -253,9 +272,10 @@ public class Match {
      */
     public int selectIndexNextPlayer(int currentIndex) {
         int indiceProssimo = currentIndex + 1;
-        if (indiceProssimo >= players.size()) {
+        if (indiceProssimo >= playerIds.size()) {
             indiceProssimo = 0;
         }
+        System.out.println(Colors.GREEN + "NEXT PLAYER INDEX: "  + indiceProssimo + Colors.RESET);
         return indiceProssimo;
     }
 
