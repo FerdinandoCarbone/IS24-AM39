@@ -313,7 +313,6 @@ public class MainController extends TabPane implements Initializable {
         if (result.isPresent()) {
             ResourceGoldCard selectedOption = result.get();
             card.set(result.get());
-            //dialogClosedFuture.complete(selectedOption);
             System.out.println("Selected Option: " + selectedOption);
             return selectedOption;
         } else {
