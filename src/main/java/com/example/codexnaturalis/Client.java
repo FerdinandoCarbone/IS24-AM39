@@ -482,6 +482,7 @@ public class Client extends Application{
         int row, column;
         boolean face;
         ResourceGoldCard selectedCard = null;
+        ArrayList<Integer> allIds = new ArrayList<>();
         if (player.allCornersEmpty(player.getPlayerDeck().getStarterCard())) {
             System.out.println("StarterCard:");
             player.getPlayerDeck().getStarterCard().printCard();
@@ -508,12 +509,26 @@ public class Client extends Application{
             player.getPlayerDeck().printResourceGoldCards();
             player.printManas();
             System.out.println("What card would you like to place? ");
-            placedCard = playerDeck.get(getIntInput(playerDeck.size(), true));
-            if (placedCard.getIdCard() > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
+            int choice = getIntInput(-2, false);
+
+            for (ResourceGoldCard card : playerDeck) allIds.add(card.getIdCard());
+
+            if (!allIds.contains(choice)) {
+                System.out.println("Invalid Input, retry again. Select a valid card Id");
+                continue;
+            } else {
+                placedCard = playerDeck.get(getCardIndexFromId(choice, allIds));
+            }
+
+            if (choice > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
                 System.out.println("You do not possess enough materials or resources to place this card: choose another one");
                 continue;
             }
             break;
+        }
+        allIds = new ArrayList<>();
+        if (!allIds.isEmpty()) {
+            System.out.println(Colors.RED + "ERROR, ALLIDS LIST HAS NOT BEEN EMPTIED CORRECTLY" + Colors.RESET);
         }
         while (true) {
             System.out.println("What face would you like to play?");
@@ -545,14 +560,7 @@ public class Client extends Application{
         selectable.addAll(message.getDrawnCard());
         selectable.addAll(message.getCardOnHand());
 
-        ArrayList<Integer> allIds = new ArrayList<>();
         for (ResourceGoldCard card : selectable) allIds.add(card.getIdCard());
-        /*allIds.add(message.getDrawnCard().get(0).getIdCard());
-        allIds.add(message.getDrawnCard().get(1).getIdCard());
-        allIds.add(message.getCardOnHand().get(0).getIdCard());
-        allIds.add(message.getCardOnHand().get(1).getIdCard());
-        allIds.add(message.getCardOnHand().get(2).getIdCard());
-        allIds.add(message.getCardOnHand().get(3).getIdCard());*/
         int idSelected = selectCardIdToDrawn(allIds);
         for (ResourceGoldCard card : selectable)
             if (card.getIdCard() == idSelected) {
@@ -894,6 +902,9 @@ public class Client extends Application{
             } catch (Exception e) {
                 System.out.println("Invalid input: try again");
                 continue;
+            }
+            if (range == -2) {
+                break;
             }
             if (thingToParse <= range && thingToParse >= 0) break;
         }
