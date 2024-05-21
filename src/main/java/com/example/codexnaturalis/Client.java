@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ZakClient extends Application{
+public class Client extends Application{
 
     private static boolean crashed;
     private static Pair<String, Integer> connectionInfo;
@@ -864,7 +864,7 @@ public class ZakClient extends Application{
      * This function is called by the connection manager to set the handler pointer
      */
     public static void setServerHandler(ServerHandler serverHandler) {
-        ZakClient.serverHandler = serverHandler;
+        Client.serverHandler = serverHandler;
     }
 
     public static UUID getClientID() {
@@ -910,11 +910,11 @@ public class ZakClient extends Application{
     }
 
     public static void setPlayer(Player player) {
-        ZakClient.player = player;
+        Client.player = player;
     }
 
     public static void setOtherPlayers(ArrayList<Player> otherPlayers) {
-        ZakClient.otherPlayers = otherPlayers;
+        Client.otherPlayers = otherPlayers;
     }
 
     public static Player getPlayer() {

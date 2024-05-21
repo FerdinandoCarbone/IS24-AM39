@@ -4,12 +4,11 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.*;
 
-public class ZakServer {
+public class Server {
     static boolean gameStarted = false;
     static Match match;
     static ServerConnectionManager serverConMan;

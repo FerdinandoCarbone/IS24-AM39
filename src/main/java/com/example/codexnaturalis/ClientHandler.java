@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -33,8 +32,8 @@ public class ClientHandler extends Thread implements Runnable {
     }
 
     public void clientDisconnected() {
-        if(ZakServer.match!=null) {
-            StandardMatchMessage newTurnStatus = ZakServer.match.removeDisconnectedPlayer(clientID);
+        if(Server.match!=null) {
+            StandardMatchMessage newTurnStatus = Server.match.removeDisconnectedPlayer(clientID);
             UUID nextPlayer = newTurnStatus.getNextPlayerId();
             try{
                 //custom use of sender: used to identify the winner
@@ -46,12 +45,12 @@ public class ClientHandler extends Thread implements Runnable {
                 throw new RuntimeException("Error while sending winning message");
             }
             try {
-                ServerConnectionManager.sendMessage(nextPlayer, new GenericTurnMessage("Server", null, ZakServer.match.getCoveredCards(), ZakServer.match.getPublicCards(), null));
+                ServerConnectionManager.sendMessage(nextPlayer, new GenericTurnMessage("Server", null, Server.match.getCoveredCards(), Server.match.getPublicCards(), null));
             } catch (IOException e) {
                 System.err.println(e.getMessage() + ": Error while sending new Generic turn message ");
             }
         }
-        ZakServer.stopThread(getClientID());
+        Server.stopThread(getClientID());
     }
 
     public boolean getSecretWasChosen() {
@@ -97,13 +96,13 @@ public class ClientHandler extends Thread implements Runnable {
     }
 
     public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException, ClassNotFoundException {
-        StandardMatchMessage newStatus = ZakServer.match.genericTurn(message);
+        StandardMatchMessage newStatus = Server.match.genericTurn(message);
         System.out.println("currentPlayer:" + newStatus.getClientID());
         if (newStatus instanceof EndMatchMessage) {
             ServerConnectionManager.sendBroadCastMessage(newStatus);
             return;
         }
-        ArrayList<ResourceGoldCard> coveredCards = ZakServer.match.getCoveredCards();
+        ArrayList<ResourceGoldCard> coveredCards = Server.match.getCoveredCards();
         ArrayList<ResourceGoldCard> publicCards = newStatus.getPublicCardsNewState();
         for (ResourceGoldCard c : coveredCards) System.out.println(Colors.BLUE + c.getIdCard() + Colors.RESET);
         for (ResourceGoldCard c : publicCards) System.out.println(Colors.RED + c.getIdCard() + Colors.RESET);
@@ -115,16 +114,16 @@ public class ClientHandler extends Thread implements Runnable {
     }
 
     public void endOfTheGame(EndGameMessage message) {
-        ZakServer.gameStarted = false;
-        ZakServer.match = null;
+        Server.gameStarted = false;
+        Server.match = null;
         //todo: match reset and restart function to initialize everything
     }
 
     public void secretObjectiveSelector(BroadCastStartingMessage message) {
         ObjectiveCard cardToKeep = message.getSelectedSecret();
         ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().setSecretObjectiveCard(cardToKeep);
-        ZakServer.match.putBackOtherSecretObjectiveCard(clientID, cardToKeep);
-        //ArrayList<Player> players = ZakServer.match.getPlayers();
+        Server.match.putBackOtherSecretObjectiveCard(clientID, cardToKeep);
+        //ArrayList<Player> players = Server.match.getPlayers();
         ServerConnectionManager.hashClient.get(clientID).placeStarterCard(message.getStarterCardFace());
         this.secretWasChosen = true;
     }
@@ -273,12 +272,12 @@ class SocketClientHandler extends ClientHandler {
                 }
             }
             try {
-                if (ZakServer.gameStarted && reconnect) {
+                if (Server.gameStarted && reconnect) {
                     throw new ClientAbruptlyDisconnectedException("Client " + getClientName() + " abruptly disconnected: Attempting reconnection");
-                } else if (!ZakServer.gameStarted && reconnect && (ZakServer.match == null || ZakServer.match.getFinalWinners().isEmpty())) {
+                } else if (!Server.gameStarted && reconnect && (Server.match == null || Server.match.getFinalWinners().isEmpty())) {
                     System.out.println("Riconnessione dopo crash prima inizio partita");
                     throw new ClientAbruptlyDisconnectedException(getClientName() + " abruptly disconnected: Attempting reconnection");
-                } else if (!reconnect && !ZakServer.match.getFinalWinners().isEmpty()) {
+                } else if (!reconnect && !Server.match.getFinalWinners().isEmpty()) {
                     System.out.println("Partita finita");
                     clientDisconnected();
                 }

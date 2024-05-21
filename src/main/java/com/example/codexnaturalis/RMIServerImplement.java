@@ -15,7 +15,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
 
     @Override
     public int getNumOfPlayers() throws RemoteException {
-        return ZakServer.getNumOfPlayers();
+        return Server.getNumOfPlayers();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         Player player;
         player = new Player(sender, new Token(), new Field(CardDim.matrixSize, CardDim.matrixSize), clientID);
         ServerConnectionManager.hashClient.put(clientID, player);
-        ClientHandler handler = new RMIClientHandler(sender, clientID, ZakServer.serverConMan);
+        ClientHandler handler = new RMIClientHandler(sender, clientID, Server.serverConMan);
         new Thread(handler).start();
         ServerConnectionManager.handlers.put(clientID, handler);
         System.out.println(sender + " joined the server");
@@ -51,7 +51,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     @Override
     public boolean callFor(UUID clientID) {
         RMIClientHandler handler;
-        handler = (RMIClientHandler) ZakServer.serverConMan.getHandlers().get(clientID);
+        handler = (RMIClientHandler) Server.serverConMan.getHandlers().get(clientID);
         handler.setHeartBeat(true);
         return handler.hasToDeliver;
     }
@@ -59,7 +59,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     @Override
     public Message whatToCall(UUID clientID) {
         RMIClientHandler handler;
-        handler = (RMIClientHandler) ZakServer.serverConMan.getHandlers().get(clientID);
+        handler = (RMIClientHandler) Server.serverConMan.getHandlers().get(clientID);
         Message msg = handler.queue.getFirst();
         handler.queue.removeFirst();
         if (handler.queue.isEmpty()) handler.setHasToDeliver(false);
@@ -69,7 +69,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     @Override
     public void send(Message message) {
         UUID clientID = message.getClientID();
-        RMIClientHandler handler = (RMIClientHandler) ZakServer.serverConMan.getHandlers().get(clientID);
+        RMIClientHandler handler = (RMIClientHandler) Server.serverConMan.getHandlers().get(clientID);
         try {
             handler.retrieveMessage(message);
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
 
     @Override
     public void keepAlive(UUID clientID) throws RemoteException, InterruptedException {
-        RMIClientHandler handler = (RMIClientHandler) ZakServer.serverConMan.getHandlers().get(clientID);
+        RMIClientHandler handler = (RMIClientHandler) Server.serverConMan.getHandlers().get(clientID);
         handler.setHeartBeat(true);
         Thread.sleep(1000);
     }
@@ -87,13 +87,13 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     @Override
     public Message reHandShakeRMI(UUID matchID) throws RemoteException {
         if(matchID==null) return new Message("MATCHNOTSTARTED",null);
-        else if (!matchID.equals(ZakServer.match.getMatchID())) return new Message("FORBIDDEN", null);
+        else if (!matchID.equals(Server.match.getMatchID())) return new Message("FORBIDDEN", null);
         else {
-            return new BroadCastStartingMessage("Server", ZakServer.match.getCurrentPlayerID(), ServerConnectionManager.hashClient, ZakServer.match.getCommonObjectives(), ZakServer.match.selectedSecrets);
+            return new BroadCastStartingMessage("Server", Server.match.getCurrentPlayerID(), ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
         }
     }
 
     public Message getMessageTurn(UUID clientID) throws RemoteException {
-        return new GenericTurnMessage("Server", null, ZakServer.match.getCoveredCards(), ZakServer.match.getPublicCards(), null);
+        return new GenericTurnMessage("Server", null, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
     }
 }

@@ -10,9 +10,7 @@ import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.*;
 
 public class ServerConnectionManager {
     protected static HashMap<Player, Socket> hashPlayer;
@@ -119,7 +117,7 @@ public class ServerConnectionManager {
                         //
                         break;
                     }
-                    else if(clientJoinRequest.getMatchID().equals(ZakServer.match.getMatchID())){
+                    else if(clientJoinRequest.getMatchID().equals(Server.match.getMatchID())){
                         System.out.println(clientJoinRequest.getSender()+ "is trying to reconnect");
                         break;
                     }
@@ -182,26 +180,26 @@ public class ServerConnectionManager {
             UUID currPlayerID;
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
-            if(ZakServer.match==null) {
+            if(Server.match==null) {
                 currPlayerID= clientID;
                 out.writeObject(new LobbyCreationMessage("MATCHNOTSTARTED",null,getNumPlayers()));
                 System.out.println(sender + " rejoined the server");
                 return new Pair<>(in,out);
             }
             else {
-                currPlayerID = ZakServer.match.getCurrentPlayerID();
-                Message bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, ZakServer.match.getCommonObjectives(),ZakServer.match.selectedSecrets);
+                currPlayerID = Server.match.getCurrentPlayerID();
+                Message bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
                 out.writeObject(bcStart);
                 System.out.println("Flushing stream");
                 if(hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()==null){
                     BroadCastStartingMessage selector=(BroadCastStartingMessage) in.readObject();
-                    ZakServer.match.putBackOtherSecretObjectiveCard(clientID,selector.getSelectedSecret());
+                    Server.match.putBackOtherSecretObjectiveCard(clientID,selector.getSelectedSecret());
                     ServerConnectionManager.hashClient.get(clientID).placeStarterCard(selector.getStarterCardFace());
                     handlers.get(clientID).setSecretWasChosen(true);
                 }
                 else if (clientID.compareTo(currPlayerID) == 0) {
                     System.out.println("Sending over GenericTurnMessage");
-                    Message msg = new GenericTurnMessage("Server", currPlayerID, ZakServer.match.getCoveredCards(), ZakServer.match.getPublicCards(), null);
+                    Message msg = new GenericTurnMessage("Server", currPlayerID, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
                     out.writeObject(msg);
                 }
             }

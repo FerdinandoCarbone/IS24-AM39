@@ -73,9 +73,9 @@
                 <FieldController fx:id="field4"/>
             </ScrollPane>
         </Tab>
-        <Tab text="Score Tracker">
+<!--        <Tab text="Score Tracker">-->
 <!--            <Pane>-->
 <!--                <TabelloneController fx:id="table"/>-->
 <!--            </Pane>-->
-        </Tab>
+<!--        </Tab>-->
 </TabPane>
