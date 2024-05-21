@@ -41,13 +41,17 @@ public class ConnectionManger {
     public boolean connectionSetup() {
         if (!(typeOfConnection)) {
             remoteServerProxy = null;
+            ObjectInputStream in;
+            ObjectOutputStream out;
+
             try {
                 socket = connectionAttempt();
                 System.out.println(Colors.PURPLE + "Sono USCITO DA CONNECTION ATTEMPT" + socket + Colors.RESET);
                 InputStream sInStream = socket.getInputStream();
                 OutputStream sOutStream = socket.getOutputStream();
-                ObjectOutputStream out = new ObjectOutputStream(sOutStream);
-                ObjectInputStream in = new ObjectInputStream(sInStream);
+                System.out.println(Colors.PURPLE + "HO CREATO GLI STREAM" + socket + Colors.RESET);
+                out = new ObjectOutputStream(sOutStream);
+                in = new ObjectInputStream(sInStream);
                 ioStream = new Pair<>(in, out);
                 System.out.println(Colors.PURPLE + "Ho generato oIOStreams" + Colors.RESET);
             } catch (HandShakeException | NullPointerException | IOException e) {

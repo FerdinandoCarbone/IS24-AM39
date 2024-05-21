@@ -57,7 +57,7 @@ public class ServerConnectionManager {
     public void acceptConnection(boolean isReconnection) throws RemoteException, MalformedURLException {
         //rmiListener.start();
         socketListener.start();
-        while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers==0)) {
+        while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers==0 ) || isReconnection) {
             while(connectionCondition()) {
                 try {
                     acceptSocketRMIConnections(isReconnection);
@@ -72,9 +72,7 @@ public class ServerConnectionManager {
         socketListener.setHasToRun(false);
     }
     public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketRMIConnections(boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
-        if(isReconnection){
-            socketListener.setHasToRun(true);
-        }
+        if(isReconnection) socketListener.setHasToRun(true);
         ObjectOutputStream out;
         ObjectInputStream in;
         Message clientJoinRequest;
@@ -190,13 +188,14 @@ public class ServerConnectionManager {
                 currPlayerID = Server.match.getCurrentPlayerID();
                 Message bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
                 out.writeObject(bcStart);
-                System.out.println("Flushing stream");
+                //System.out.println("Flushing stream");
                 if(hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()==null){
                     BroadCastStartingMessage selector=(BroadCastStartingMessage) in.readObject();
                     Server.match.putBackOtherSecretObjectiveCard(clientID,selector.getSelectedSecret());
                     ServerConnectionManager.hashClient.get(clientID).placeStarterCard(selector.getStarterCardFace());
                     handlers.get(clientID).setSecretWasChosen(true);
                 }
+                else if(hashClient.get(clientID)!=null && !Server.match.getPlayerIds().contains(clientID)) Server.match.addDisconnectedPlayerId(clientID);
                 else if (clientID.compareTo(currPlayerID) == 0) {
                     System.out.println("Sending over GenericTurnMessage");
                     Message msg = new GenericTurnMessage("Server", currPlayerID, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
@@ -218,7 +217,7 @@ public class ServerConnectionManager {
      */
     public static void sendBroadCastMessage(Message message) throws IOException {
         for (ClientHandler handler : handlers.values()) {
-            handler.sendMessage(message);
+            if(Server.match.getPlayerIds().contains(handler.getClientID())) handler.sendMessage(message);
         }
     }
 
@@ -305,4 +304,8 @@ public class ServerConnectionManager {
 
         executor.shutdownNow();
     }*/
+
+    public static SocketConnectionListener getSocketListener() {
+        return socketListener;
+    }
 }

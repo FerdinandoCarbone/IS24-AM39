@@ -5,7 +5,9 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,7 +33,7 @@ public class ClientHandler extends Thread implements Runnable {
         this.secretWasChosen = secretWasChosen;
     }
 
-    public void clientDisconnected() {
+    public void clientDisconnected() throws IOException {
         if(Server.match!=null) {
             StandardMatchMessage newTurnStatus = Server.match.removeDisconnectedPlayer(clientID);
             UUID nextPlayer = newTurnStatus.getNextPlayerId();
@@ -159,8 +161,7 @@ class RMIClientHandler extends ClientHandler {
                 if(getSecretWasChosen()){
                 heartBeat = false;
                 Thread.sleep(10000);}
-                if (!heartBeat)
-                    throw new ClientAbruptlyDisconnectedException("Client " + getClientName() + " disconnected: Trying to reconnect...");
+                if (!heartBeat) throw new ClientAbruptlyDisconnectedException("Client " + getClientName() + " disconnected: Trying to reconnect...");
             } catch (InterruptedException e) {
                 System.err.println("Thread Sleep issue:" + e.getMessage());
             } catch (ClientAbruptlyDisconnectedException e) {
@@ -173,7 +174,11 @@ class RMIClientHandler extends ClientHandler {
                 } catch (IOException ex) {
                     System.err.println("Unable to broadcast disconnection Message");
                 }
-                clientDisconnected();
+                try {
+                    clientDisconnected();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
             // Thread.onSpinWait();
         }
@@ -224,6 +229,9 @@ class RMIClientHandler extends ClientHandler {
                 break;
             case "EndGameMessage":
                 endOfTheGame((EndGameMessage) message);
+                break;
+            case "Message":
+                tryReconnectToClient();
                 break;
             default:
                 throw new WrongMessageConversionException("Something went wrong while communicating with the server");
@@ -290,7 +298,13 @@ class SocketClientHandler extends ClientHandler {
                 } catch (IOException ex) {
                     System.out.println("Unable to send match status to disconnected player: " + getClientName());
                 }
-                clientDisconnected();
+                try {
+                    clientDisconnected();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         } while (hasToRun);
     }
@@ -348,6 +362,9 @@ class SocketClientHandler extends ClientHandler {
         }
     }
 
+    public void resilience() throws IOException {
+    }
+
     @Override
     public boolean getReconnect() {
         return this.reconnect;
@@ -368,5 +385,9 @@ class SocketClientHandler extends ClientHandler {
         outClient.writeObject(message);
         outClient.flush();
         outClient.reset();
+    }
+
+    public Socket getSocket() {
+        return  socket;
     }
 }
