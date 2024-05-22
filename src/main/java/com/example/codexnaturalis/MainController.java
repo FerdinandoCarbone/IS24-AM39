@@ -182,10 +182,11 @@ public class MainController extends TabPane implements Initializable {
             tmp.setupCard((ResourceGoldCard) lastUsedSlot.card);
             lastUsedSlot.setEmpty(true);
             player.undoMove(lastUsedSlot.coords.getKey(), lastUsedSlot.coords.getValue(), deckChildIndex, previousScoreStatus);
-            updateManaStatus();
+            updateManaPointsAndStatus();
             cardPlaced = false;
             readyToPlace = false;
             lastUsedSlot = null;
+            previousScoreStatus = -1;
             commands.command3.setDisable(true);
         } else {
             System.out.println("NO CARD PLACED YET");
@@ -358,11 +359,12 @@ public class MainController extends TabPane implements Initializable {
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
         field.centerSlot.toFront();
         field.centerSlot.setEmpty(false);
-        updateManaStatus();
+        updateManaPointsAndStatus();
         player.printManas();
     }
 
-    public void updateManaStatus() {
+    public void updateManaPointsAndStatus() {
+        manaBar.getActualPoints().setText(String.valueOf(player.getScore()));
         ArrayList<SingleManaController> smc = manaBar.getControllers();
         for(int i = 0;i<smc.size();i++) {
             if (i<4) smc.get(i).setPoints(player.getResourceMana()[i]);
@@ -399,7 +401,7 @@ public class MainController extends TabPane implements Initializable {
                             lastUsedSlot = slotToPlace;
                             previousScoreStatus = player.getScore();
                             player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
-                            updateManaStatus();
+                            updateManaPointsAndStatus();
                             System.out.println("In Main Controller: " + cardToRemove.getCard().getCoveredCornersWhenPlaced());
                             playerDeck.resetCard(deckChildIndex);
                             player.printManas();
