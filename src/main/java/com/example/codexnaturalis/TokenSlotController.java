@@ -2,49 +2,85 @@ package com.example.codexnaturalis;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.UUID;
 
 public class TokenSlotController extends Pane {
     @FXML
-    private ImageView visibleToken;
-    private ArrayList<TokenController> tokens = new ArrayList<>(4);
-
+    private ImageView token1, token2, token3, token4;
     public TokenSlotController() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/TokenSlot.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
 
+
+        token1.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getPlayer().getToken().getColor().toString() + "Token.png"))));
+        //token1.setVisible(false);
+        token2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getOtherPlayers().get(0).getToken().getColor().toString() + "Token.png"))));
+        //token2.setVisible(false);
+        if (ZakClient.getOtherPlayers().size() >1){
+            token3.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getOtherPlayers().get(1).getToken().getColor().toString() + "Token.png"))));
+            //token3.setVisible(false);
+        }
+        if(ZakClient.getOtherPlayers().size()>2) {
+            token4.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getOtherPlayers().get(2).getToken().getColor().toString() + "Token.png"))));
+            //token4.setVisible(false);
+        }
+
     }
 
-    public void setNewVisibleToken(TokenController token) {
-        tokens.addFirst(token);
-        this.visibleToken = tokens.getFirst().getTokenImageView();
-
+    public void setEnableToken(int index){
+        switch (index) {
+            case 0:
+                token1.setVisible(true);
+                break;
+            case 1:
+                token2.setVisible(true);
+                break;
+            case 2:
+                token3.setVisible(true);
+                break;
+            case 3:
+                token4.setVisible(true);
+                break;
+        }
+    }
+    public void setDisableToken(int index){
+        switch (index) {
+            case 0:
+                token1.setVisible(false);
+                break;
+            case 1:
+                token2.setVisible(false);
+                break;
+            case 2:
+                token3.setVisible(false);
+                break;
+            case 3:
+                token4.setVisible(false);
+                break;
+        }
     }
 
-    public void setPreviousVisibleToken() {
-        tokens.removeFirst();
-        this.visibleToken = tokens.getFirst().getTokenImageView();
+
+    public ImageView getToken1() {
+        return token1;
     }
 
-    public void removeTokenFromSlot(TokenController tokenController) {
-        tokens.remove(tokenController);
+    public ImageView getToken2() {
+        return token2;
     }
-
-    public ImageView getVisibleToken() {
-        return visibleToken;
+    public ImageView getToken3() {
+        return token3;
     }
-
-    public ArrayList<TokenController> getTokens() {
-        return tokens;
-    }
-
-    public ImageView getTokenSlotImageView() {
-        return visibleToken;
+    public ImageView getToken4() {
+        return token4;
     }
 }

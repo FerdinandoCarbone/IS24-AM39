@@ -3,13 +3,9 @@ package com.example.codexnaturalis;
 
 import java.io.Serializable;
 
-/**
- * Token of players
- */
+/*Token of players*/
 public class Token implements Serializable {
-    /**
-     * Defines the color of a token
-     */
+    /* Defines the color of a token*/
     private Color tokenColor;
 
     public enum Color {
@@ -22,11 +18,10 @@ public class Token implements Serializable {
     }
 
     /**
-     * Constructor of Token
-     */
+
+     Constructor of Token*/
     public Token() {
-        this.tokenColor = pickColor();
-    }
+        this.tokenColor = pickColor();}
 
     public Token(Color color) {
         this.tokenColor = color;
