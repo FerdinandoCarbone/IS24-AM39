@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -17,8 +16,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -107,8 +104,8 @@ public class LauncherController extends StackPane implements Initializable {
     }
 
     public static void loadGameScene() throws IOException {
-        Stage stage = ZakClient.getStage();
-        FXMLLoader fxmlLoader = new FXMLLoader(ZakClient.class.getResource("fxml/main.fxml"));
+        Stage stage = Client.getStage();
+        FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource("fxml/main.fxml"));
         stage.setTitle("Codex Naturalis by IS-AM39 - Game");
         final Parent root = fxmlLoader.load();
         final Scene scene = new Scene(root, Color.LIGHTGRAY);
@@ -135,7 +132,7 @@ public class LauncherController extends StackPane implements Initializable {
         status.clear();
         String input = textField.getText();
 
-        if (ZakClient.isValidNick(input)) {
+        if (Client.isValidNick(input)) {
             return;
         }
 
@@ -145,17 +142,17 @@ public class LauncherController extends StackPane implements Initializable {
             printStatus("Invalid player nickname: please type another one and retry", "red");
         } else {
             //String[] args = new String[]{"localhost", "8081", "gui"};
-            ZakClient.setPlayerNick(input);
-            //ZakClient.clientStart(args);
-            clientSetupState = ZakClient.initialClientSetup();
+            Client.setPlayerNick(input);
+            //Client.clientStart(args);
+            clientSetupState = Client.initialClientSetup();
             printStatus("Submitted", "green");
             switch (clientSetupState) {
                 case 0:
-                    ZakClient.setConnectionType(typeOfConnection);
+                    Client.setConnectionType(typeOfConnection);
                     printStatus("No save file found - Start as new Player", "green");
                     break;
                 case -1:
-                    ZakClient.setConnectionType(typeOfConnection);
+                    Client.setConnectionType(typeOfConnection);
                     printStatus("No save file found and unable to save - Start as new Player", "yellow");
                     break;
                 case 1:
@@ -163,7 +160,7 @@ public class LauncherController extends StackPane implements Initializable {
                     break;
             }
             printStatus("Attempting connection", "blue");
-            ZakClient.start();
+            Client.start();
             printStatus("Waiting for everyone to join","blue");
         }
 

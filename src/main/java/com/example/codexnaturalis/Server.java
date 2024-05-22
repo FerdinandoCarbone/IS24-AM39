@@ -4,12 +4,11 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.*;
 
-public class ZakServer {
+public class Server {
     static boolean gameStarted = false;
     static Match match;
     static ServerConnectionManager serverConMan;
@@ -130,10 +129,10 @@ public class ZakServer {
         String text = "Match is about to start\nPlayers:\n";
         HashMap<UUID, StarterCard> hashStart = new HashMap<>();
         Collection<Player> players = serverConMan.getPlayers();
-        for (Player p : players) {
-            hashStart.put(p.getPlayerID(), p.getPlayerDeck().getStarterCard());
-            System.out.println(hashStart.get(p.getPlayerID()));
-            text = text.concat(p.getPlayerName() + "\n");
+        for (UUID p : match.getPlayerIds()) {
+            hashStart.put(p, serverConMan.getHashClient().get(p).getPlayerDeck().getStarterCard());
+            System.out.println(hashStart.get(p));
+            text = text.concat(serverConMan.getHashClient().get(p).getPlayerName() + "\n");
         }
         ServerConnectionManager.sendBroadCastMessage(new TextMessage(connectionInfo.getKey(), null, text, "Everyone"));
         ServerConnectionManager.sendBroadCastMessage(new BroadCastStandardMessage(connectionInfo.getKey(), null, hashStart));
@@ -148,25 +147,28 @@ public class ZakServer {
      */
     public static void stopThread(UUID clientID) {
         //todo: fare le opportune modifiche a match
+        ClientHandler tmpHand = serverConMan.getHandlers().get(clientID);
         if (serverConMan.getHandlers().values().size() == 1) {
-            ServerConnectionManager.setNumPlayers(0);
+            //ServerConnectionManager.setNumPlayers(0);
             if (ServerConnectionManager.isFirstPlayer()) ServerConnectionManager.setFirstPlayer(false);
         }
         try {
-            serverConMan.getHandlers().get(clientID).setHasToRun(false);
-        } catch (Exception e) {
-            System.err.println("Unable to stop process:" + e.getMessage());
-        }
-        try {
             String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
-            ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
-            ServerConnectionManager.hashClient.remove(clientID);
-            System.out.println(playerName + " left the game and was unable to reconnect");
+            System.out.println(playerName + " left the game or was unable to reconnect");
             System.out.print("Command:");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        serverConMan.getHandlers().remove(clientID);
+        if (tmpHand instanceof SocketClientHandler) {
+            try {
+                ((SocketClientHandler) tmpHand).getSocket().close();
+                ServerConnectionManager.getSocketListener().setHasToRun(true);
+            } catch(IOException e){
+                System.err.println("Unable to close socket on disconnect");
+            }
+            tmpHand.setHasToRun(false);
+
+        }
     }
 
     private static String getInput() {

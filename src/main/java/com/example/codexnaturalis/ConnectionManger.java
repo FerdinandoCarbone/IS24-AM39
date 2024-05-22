@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.example.codexnaturalis.ZakClient.*;
+import static com.example.codexnaturalis.Client.*;
 
 public class ConnectionManger {
     private Pair<ObjectInputStream, ObjectOutputStream> ioStream;
@@ -39,15 +39,19 @@ public class ConnectionManger {
      * @return returns a boolean: false if connectionSetup fails, true if successful
      */
     public boolean connectionSetup() {
-        if (!(typeOfConnection)) {
+        if (!typeOfConnection) {
             remoteServerProxy = null;
+            ObjectInputStream in;
+            ObjectOutputStream out;
+
             try {
                 socket = connectionAttempt();
                 System.out.println(Colors.PURPLE + "Sono USCITO DA CONNECTION ATTEMPT" + socket + Colors.RESET);
                 InputStream sInStream = socket.getInputStream();
                 OutputStream sOutStream = socket.getOutputStream();
-                ObjectOutputStream out = new ObjectOutputStream(sOutStream);
-                ObjectInputStream in = new ObjectInputStream(sInStream);
+                System.out.println(Colors.PURPLE + "HO CREATO GLI STREAM" + socket + Colors.RESET);
+                out = new ObjectOutputStream(sOutStream);
+                in = new ObjectInputStream(sInStream);
                 ioStream = new Pair<>(in, out);
                 System.out.println(Colors.PURPLE + "Ho generato oIOStreams" + Colors.RESET);
             } catch (HandShakeException | NullPointerException | IOException e) {
@@ -103,8 +107,8 @@ public class ConnectionManger {
      * Starts handshake process
      */
     public void doHandShake() {
-        UUID clientID = ZakClient.getClientID();
-        String playerNick = ZakClient.getPlayerNick();
+        UUID clientID = Client.getClientID();
+        String playerNick = Client.getPlayerNick();
         try {
             if (isCrashed()) reHandShake(playerNick, clientID);
             else startHandShake(playerNick, clientID);
@@ -130,7 +134,7 @@ public class ConnectionManger {
                 numOfUsers = socketHandshakeInit(playerNick, clientID);
             } else {
                 numOfUsers = remoteServerProxy.getNumOfPlayers();
-                ZakClient.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
+                Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
             }
             lobbyCreatorCaller(playerNick, clientID, numOfUsers);
             System.out.println("Waiting for everyone to join.");
@@ -181,7 +185,7 @@ public class ConnectionManger {
         //server listens for this message in order to attempt a new connection
         Message handshakeMessage = new Message(playerNick, clientID);
         //used to identify which game the user was initially in. In case of a reconnection the value is not null else it is
-        handshakeMessage.setMatchID(ZakClient.getMatchID());
+        handshakeMessage.setMatchID(Client.getMatchID());
         //Server response after first client join request
         Message ackMessage = null;
         //if server accepts client connection and client is deemed addable to match will return number of players chosen by first player
@@ -199,7 +203,7 @@ public class ConnectionManger {
                 ackMessage = (Message) ioStream.getKey().readObject();
             }
             handshakeACK = (LobbyCreationMessage) ackMessage;
-            ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
+            Client.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
         } catch (IOException | ClassNotFoundException e) {
             // System.out.println();
             throw new HandShakeException("Something went wrong during handshake process: " + e.getMessage());
@@ -220,7 +224,7 @@ public class ConnectionManger {
             if (!isGuiSelector()) playerNick = receiveInput();
             else
                 playerNick = LauncherController.askStringInputToUser("Username already taken: choose another one", "New username: ");
-        }while(ZakClient.isValidNick(playerNick));
+        }while(Client.isValidNick(playerNick));
         System.out.println("NickRetype: " + playerNick);
         // File (or directory) with old name
         File file = new File("savedata/" + getPlayerNick() + "-matchinfo.cdxn");
@@ -231,10 +235,10 @@ public class ConnectionManger {
         if (!file.renameTo(file2)) {
             throw new IOException("Encountered problems while changing player nickname");
         }
-        ZakClient.setPlayerNick(playerNick);
-        /*ZakClient.setClientID(ZakClient.uuidGen());
+        Client.setPlayerNick(playerNick);
+        /*Client.setClientID(Client.uuidGen());
         writeConnectionTypeOnFile(typeOfConnection?2:1);*/
-        System.out.println("PlayerNick in client:" + ZakClient.getPlayerNick());
+        System.out.println("PlayerNick in client:" + Client.getPlayerNick());
         return playerNick;
     }
 
@@ -259,8 +263,8 @@ public class ConnectionManger {
         } finally {
             LobbyCreationMessage msg = new LobbyCreationMessage(null, null, 0);
             msg.setNumPlayer(desiredPlayerCount);
-            msg.setSender(ZakClient.getPlayerNick());
-            msg.setClientID(ZakClient.getClientID());
+            msg.setSender(Client.getPlayerNick());
+            msg.setClientID(Client.getClientID());
             if (!typeOfConnection) {
                 ioStream.getValue().writeObject(msg);
             } else {
@@ -283,7 +287,7 @@ public class ConnectionManger {
         String warningMessage = "No match found. Creating a new one:\nHow many players will be playing?\nWrite a number between 2 and 4:";
 
         while (true) {
-            if (!ZakClient.isGuiSelector()) {
+            if (!Client.isGuiSelector()) {
                 if (i > 0) System.out.println("Write a number between 2 and 4: ");
                 desiredPlayerCount = getIntInput(4, false);
             } else {
@@ -324,7 +328,7 @@ public class ConnectionManger {
     public void reHandShake(String playerNick, UUID clientID) {
         //client join request after crash
         Message handshakeMessage = new Message(playerNick, clientID);
-        handshakeMessage.setMatchID(ZakClient.getMatchID());
+        handshakeMessage.setMatchID(Client.getMatchID());
         BroadCastStartingMessage handshakeACKInfo = null;
         Message tmpMessage;
         boolean amPlayerInTurn;
@@ -333,8 +337,8 @@ public class ConnectionManger {
              * If branch reserved for rmi reconnection
              */
             if (typeOfConnection) {
-                tmpMessage = remoteServerProxy.reHandShakeRMI(ZakClient.getMatchID());
-                ZakClient.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
+                tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
+                Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
                 /*
                  * execution stops here if reconnection with rmi is made in another game the user initially started
                  */
@@ -347,7 +351,7 @@ public class ConnectionManger {
                 else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
                     System.out.println("Welcome back " + playerNick);
                     System.out.println("Waiting for other players to join...");
-                    ZakClient.getServerHandler().start();
+                    Client.getServerHandler().start();
                     return;
                 }
                 /*
@@ -355,7 +359,8 @@ public class ConnectionManger {
                  */
                 else {
                     handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
-                    ZakClient.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+                    Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+                    remoteServerProxy.addDisconnectedPlayer(clientID);
                 }
 
             }
@@ -368,7 +373,7 @@ public class ConnectionManger {
                 //System.out.println("Flushing stream");
                 tmpMessage = (Message) ioStream.getKey().readObject();
                 System.out.println(tmpMessage.getClass());
-                ZakClient.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
+                Client.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
                 /*
                  * execution stops here if reconnection with socket is made in another game the user initially started
                  */
@@ -381,7 +386,7 @@ public class ConnectionManger {
                 else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
                     //LobbyCreationMessage beforeStartReConnectionMessage = (LobbyCreationMessage) tmpMessage;
                     System.out.println("Welcome back " + playerNick);
-                    ZakClient.getServerHandler().start();
+                    Client.getServerHandler().start();
                     return;
                 }
                 /*
@@ -400,41 +405,42 @@ public class ConnectionManger {
             /*
              * InitialMatchSetup after a reconnection. All information is resent from server back to client
              * */
-            ZakClient.setPlayer(handshakeACKInfo.getPlayers().get(getClientID()));
+            Client.setPlayer(handshakeACKInfo.getPlayers().get(getClientID()));
             handshakeACKInfo.getPlayers().remove(getClientID());
             ArrayList<Player> players = new ArrayList<>(handshakeACKInfo.getPlayers().values());
-            ZakClient.setOtherPlayers(players);
+            Client.setOtherPlayers(players);
+            Client.setCurrentlyPlayingPlayers(handshakeACKInfo.getCurrentlyPlaying());
             /*
              * If player disconnected before he was able to set his Starter and secret Objective cards, he will be sent here\
              * */
             if (getPlayer().getPlayerDeck().getSecretObjectiveCard() == null) {
                 /*For rmi is necessary to restart the handler here, because the heartbeat keepalive function needs to kick in*/
                 System.out.println(Colors.PURPLE + "Choosing card..." + Colors.RESET);
-                if (typeOfConnection) ZakClient.getServerHandler().start();
+                if (typeOfConnection) Client.getServerHandler().start();
                 handshakeACKInfo = secretSelector(handshakeACKInfo);
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
             }
-            if (ZakClient.isGuiSelector()) ZakClient.getSem().release();//todo: check if breaks tui
-            ZakClient.getServerHandler().setFirstBroadCastWasReceived(true);
+            if (Client.isGuiSelector()) Client.getSem().release();//todo: check if breaks tui
+            Client.getServerHandler().setFirstBroadCastWasReceived(true);
             /*
              * Socket still needs to retrieve his GenericTurn Message. Here info is retrieved
              */
             if (!typeOfConnection && amPlayerInTurn) {
                 GenericTurnMessage msg = (GenericTurnMessage) ioStream.getKey().readObject();
-                ZakClient.getServerHandler().setMessageTurn(msg);
+                Client.getServerHandler().setMessageTurn(msg);
             }
             /*
              * ServerHandlers are restarted here if needed
              * */
-            if (!ZakClient.getServerHandler().isAlive()) ZakClient.getServerHandler().start();
+            if (!Client.getServerHandler().isAlive()) Client.getServerHandler().start();
             /*
              * Current myTurn flag is set here
              */
             setMyTurn(amPlayerInTurn);
             //System.out.println("Done!");
             if (isGuiSelector()) {
-                ZakClient.getSem().release();
+                Client.getSem().release();
                 LauncherController.loadGameScene();
             }
             if (amPlayerInTurn && typeOfConnection) {
@@ -455,7 +461,7 @@ public class ConnectionManger {
         }
         if (isGuiSelector()) MainController.alert("All players' fields were correctly received");
         else System.out.println("All players' fields were correctly received");
-        ZakClient.setCurrentGameStatus(true);
+        Client.setCurrentGameStatus(true);
     }
 
     /**
@@ -470,8 +476,8 @@ public class ConnectionManger {
         Message tmpMessage;
         String playerNick = handshakeMessage.getSender();
         UUID clientID = handshakeMessage.getClientID();
-        tmpMessage = remoteServerProxy.reHandShakeRMI(ZakClient.getMatchID());
-        ZakClient.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
+        tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
+        Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
         /*
          * execution stops here if reconnection with rmi is made in another game the user initially started
          */
@@ -484,7 +490,7 @@ public class ConnectionManger {
         else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
             System.out.println("Welcome back " + playerNick);
             System.out.println("Waiting for other players to join...");
-            ZakClient.getServerHandler().start();
+            Client.getServerHandler().start();
             return new Pair<>(false, tmpMessage);
         }
         /*
@@ -492,7 +498,7 @@ public class ConnectionManger {
          */
         else {
             handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
-            ZakClient.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+            Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
         }
         return new Pair<>(true, handshakeACKInfo);
     }
@@ -504,12 +510,12 @@ public class ConnectionManger {
         ObjectiveCard chosenCard;
        /* Semaphore sam = new Semaphore(0);
         if(isGuiSelector()) sam.acquire();*/
-        chosenCard = ZakClient.getPlayer().chooseSecretObj(handshakeACKInfo.getSecretObjectiveCards(ZakClient.getClientID()));
+        chosenCard = Client.getPlayer().chooseSecretObj(handshakeACKInfo.getSecretObjectiveCards(Client.getClientID()));
         ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
         handshakeACKInfo.setSelectedSecret(tmpList);
         //todo PRINT StarterCard?
-        ZakClient.getPlayer().getPlayerDeck().getStarterCard().printCardFrontAndBack();
-        //if (ZakClient.isGuiSelector());
+        Client.getPlayer().getPlayerDeck().getStarterCard().printCardFrontAndBack();
+        //if (Client.isGuiSelector());
         System.out.println("How do you want to face the starting card");
         System.out.println("1 - face Up\n2 - face Down");
         Boolean cardFace;
@@ -534,10 +540,10 @@ public class ConnectionManger {
     private static boolean selectStarterCardFace() throws IOException, InterruptedException {
         AtomicInteger i = new AtomicInteger();
         Semaphore sem = new Semaphore(0);
-        if (ZakClient.isGuiSelector()) {
+        if (Client.isGuiSelector()) {
             StarterCard cardStarter;
-            cardStarter = ZakClient.getPlayer().getPlayerDeck().getStarterCard();
-            if (!ZakClient.isCrashed()) {
+            cardStarter = Client.getPlayer().getPlayerDeck().getStarterCard();
+            if (!Client.isCrashed()) {
                 Platform.runLater(() -> {
                     try {
                         i.set(LauncherController.selectAStarterCardDialog(cardStarter, "Select a face:"));

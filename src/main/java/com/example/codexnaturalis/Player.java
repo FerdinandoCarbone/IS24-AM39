@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -556,7 +555,7 @@ public class Player implements Serializable {
         AtomicInteger choice = new AtomicInteger();
         while (true) {
             try {
-                if (ZakClient.isGuiSelector()) {
+                if (Client.isGuiSelector()) {
                     System.out.println("OpenDialog");
                     choice.set(showDialogAndWait(cards));
                 }
@@ -566,11 +565,11 @@ public class Player implements Serializable {
                         c.printObjectiveCard();
                         i++;
                     }
-                    choice.set(Integer.parseInt(ZakClient.receiveInput()));
+                    choice.set(Integer.parseInt(Client.receiveInput()));
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input: try again");
-                if (ZakClient.isGuiSelector()) {
+                if (Client.isGuiSelector()) {
 
                     LauncherController.alert("Invalid input: try again", false);
                 }
@@ -587,7 +586,7 @@ public class Player implements Serializable {
         ArrayList<Card> basicCards = new ArrayList<>(cards);
         Semaphore sem = new Semaphore(0);
         AtomicReference<Integer> selected = new AtomicReference<>(-1);
-        if (!ZakClient.isCrashed()) {
+        if (!Client.isCrashed()) {
             Platform.runLater(() -> {
                 try {
                     int chosenCard = LauncherController.selectACardDialog(basicCards, "Please select a secret Objective card");
@@ -621,13 +620,11 @@ public class Player implements Serializable {
            ArrayList<CardController> rtrnTmp= new ArrayList<>();
            return rtrnTmp;
        }*/
-    public void undoMove(int row, int column, int deckChildIndex) {
+    public void undoMove(int row, int column, int deckChildIndex, int previousScore) {
         Field.Slot slotToUndo = playerField.getSlots()[row][column];
         ResourceGoldCard cardToUndo = (ResourceGoldCard) slotToUndo.getCardSlot();
         playerDeck.getResourceGoldCards().add(deckChildIndex, cardToUndo);
-        if (cardToUndo.isPlacedFront()) {
-            score -= cardToUndo.getPoints();
-        }
+        score = previousScore;
         for (int i = 0; i < 4; i++) {
             decreaseResourceElementsMana(cardToUndo.getCorners().get(i));
         }
@@ -691,6 +688,7 @@ public class Player implements Serializable {
             cardToUndo.updateCornerToFree(corner);
             coveredCard.updateCornerToFree(coveredCornerIndex);
             cardToUndo.setCoveredCornersWhenPlaced(0);
+            cardToUndo.setCornersChecked(false);
         }
     }
 

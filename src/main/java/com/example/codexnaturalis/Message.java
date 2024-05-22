@@ -189,6 +189,7 @@ class BroadCastStartingMessage extends Message{
     private HashMap<UUID, Player> players;
     private ArrayList<ObjectiveCard> selectedSecret;
     private HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector;
+    private ArrayList<String> currentlyPlaying;
     private Boolean starterCardFace;
     public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> players, ArrayList<ObjectiveCard> commonObjectiveCards,HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector) {
         super(sender, ClientID);
@@ -220,6 +221,13 @@ class BroadCastStartingMessage extends Message{
 
     public HashMap<UUID, Player> getPlayers() {
         return players;
+    }
+
+    public ArrayList<String> getCurrentlyPlaying() {
+        return currentlyPlaying;
+    }
+    public void setCurrentlyPlaying(ArrayList<String> currPlay){
+        currentlyPlaying=currPlay;
     }
 }
 class BroadCastStandardMessage extends Message{

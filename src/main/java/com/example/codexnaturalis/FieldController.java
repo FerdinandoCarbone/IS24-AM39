@@ -52,6 +52,7 @@ public class FieldController extends Pane {
                     centerSlot = newSlot;
                     centerSlot.setEmpty(true);
                     centerSlot.setCenter(true);
+                    centerSlot.disableEmptyStuff();
                 }
             }
         }

@@ -1,7 +1,6 @@
 package com.example.codexnaturalis;
 
 import javafx.application.Platform;
-import javafx.scene.image.Image;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class ServerHandler extends Thread implements Runnable {
         this.clientName = clientName;
         this.clientID = clientID;
         this.connMan = connMan;
-        this.connectionInfo = ZakClient.getConnectionInfo();
+        this.connectionInfo = Client.getConnectionInfo();
         this.firstBroadCastWasReceived=false;
         this.messageTurn=null;
         this.samvise = new Semaphore(0);
@@ -62,7 +61,7 @@ public class ServerHandler extends Thread implements Runnable {
         sender.set(message.getSender());
         if(message.getDisconnectedClient()!=null) updateOtherPlayers(message);
         if(Objects.equals(sender.get(), getClientName())) sender.set("You");
-        if(ZakClient.isGuiSelector()){
+        if(Client.isGuiSelector()){
             Platform.runLater(()->{
                 if(!wasFirstBroadCastReceived()) welcomeText = message.getTextMessage();
                 else MainController.printMessage("\n"+sender.get()+": "+message.getTextMessage());
@@ -76,15 +75,20 @@ public class ServerHandler extends Thread implements Runnable {
     }
 
     private void updateOtherPlayers(TextMessage message) {
-        String disconnectedPlayer= message.getDisconnectedClient();
-        ArrayList<Player> otherPlayers = ZakClient.getOtherPlayers();
-        for(Player p: otherPlayers) if(p.getPlayerName().equals(disconnectedPlayer)) ZakClient.getOtherPlayers().remove(p);
-        Platform.runLater(MainController::updateOtherPlayers);
+        if(Client.isCrashed()){
+            Client.setCrashed(false);
+            return;
+        }
+        String newStatusPlayer= message.getDisconnectedClient();
+        HashMap<String,Boolean> otherPlayers = Client.getCurrentlyPlayingPlayers();
+        if(message.getTextMessage().contains("rejoined")) otherPlayers.replace(newStatusPlayer,true);
+        else otherPlayers.replace(newStatusPlayer,false);
+        if(Client.isGuiSelector())Platform.runLater(MainController::updateOtherPlayers);
     }
 
     public void genericTurnMessageHandler(GenericTurnMessage message){
         this.messageTurn = message;
-        ZakClient.genericTurnMessageHandler();
+        Client.genericTurnMessageHandler();
     }
     public void sendMessage(Message message) throws IOException {
 
@@ -96,24 +100,24 @@ public class ServerHandler extends Thread implements Runnable {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
         }
-         ZakClient.initialMatchSetup(initialMatchSetupMessage);
+         Client.initialMatchSetup(initialMatchSetupMessage);
     }
     public void clientDisconnected() {
         //todo: robe per chiudere i thread
-        ZakClient.clientDisconnect();
+        Client.clientDisconnect();
     }
     public void bcsHandler(BroadCastStandardMessage message) throws InterruptedException {
         HashMap<UUID,StarterCard> hashStart= message.starterCards;
         hashStart.remove(getClientID());
         AtomicBoolean face = new AtomicBoolean();
-        for(Player p: ZakClient.getOtherPlayers()){
+        for(Player p: Client.getOtherPlayers()){
             face.set(hashStart.get(p.getPlayerID()).isPlacedFront());
             p.placeStarterCard(face.get());
         }
         if(!wasFirstBroadCastReceived()) {
             Semaphore sam = new Semaphore(0);
             if(!wasFirstBroadCastReceived()) {
-                if (ZakClient.isGuiSelector()) {
+                if (Client.isGuiSelector()) {
                     Platform.runLater(() -> {
                         try {
                             LauncherController.alert("Server"+": "+welcomeText,true);
@@ -137,20 +141,20 @@ public class ServerHandler extends Thread implements Runnable {
         if(getClientID().equals(oldPlayer)){
             AtomicInteger score = new AtomicInteger();
             score.set(newStatus.getCurrPlayerPoints());
-            ZakClient.getPlayer().setScore(score.get());
-            if(ZakClient.isGuiSelector()) Platform.runLater(()->{
+            Client.getPlayer().setScore(score.get());
+            if(Client.isGuiSelector()) Platform.runLater(()->{
                 MainController.manaBar.getActualPoints().setText(String.valueOf(score));
             });
         }
         else {
-            ArrayList<Player> players = ZakClient.getOtherPlayers();
+            ArrayList<Player> players = Client.getOtherPlayers();
             for (Player p : players) {
                 if (p.getPlayerID().equals(oldPlayer)) {
                     System.out.println("Player found:");
                     p.placeCard(coords.getKey(), coords.getValue(), placedCard);
                     System.out.println("In Server Handler: " + placedCard.getCoveredCornersWhenPlaced());
                     p.setScore(newStatus.getCurrPlayerPoints());
-                    if(ZakClient.isGuiSelector()){
+                    if(Client.isGuiSelector()){
                         Platform.runLater(()->{
                         MainController.getTabMan().get(p.getPlayerName()).getValue().fillField(coords.getKey(), coords.getValue(),placedCard);});
                     }
@@ -193,6 +197,7 @@ class ServerSocketHandler extends ServerHandler {
         super(clientName,clientID,connMan);
         this.outServer = connMan.getIoStream().getValue();
         this.inServer = connMan.getIoStream().getKey();
+        System.out.println(outServer);
         this.socket = connMan.socket;
     }
     @Override
@@ -201,11 +206,9 @@ class ServerSocketHandler extends ServerHandler {
             try {
                 messageReceiver();
             } catch (ClassNotFoundException | WrongMessageConversionException e) {
-                e.printStackTrace();
                 System.out.println("ServerComHandler error: " + e.getMessage());
 
             } catch(IOException e){
-                e.printStackTrace();
                 System.out.println("ServerComHandler error: " + e.getMessage());
                 try {
                     throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server due to socket degradation: Attempting reconnection");
@@ -217,7 +220,7 @@ class ServerSocketHandler extends ServerHandler {
                 throw new RuntimeException(e);
             }
             try{
-                if(socket.isClosed() && ZakClient.isCurrentGameStatus()) throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server: Attempting reconnection");
+                if(socket.isClosed() && Client.isCurrentGameStatus()) throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server: Attempting reconnection");
             }catch(ClientAbruptlyDisconnectedException e){
                 if(tryReconnectToServer()) continue;
                 clientDisconnected();
@@ -272,16 +275,18 @@ class ServerSocketHandler extends ServerHandler {
     public void sendMessage(Message message) throws IOException {
         message.setSender(getClientName());
         message.setClientID(getClientID());
+        System.out.println("In sendMessage");
         outServer.writeObject(message);
         outServer.flush();
         outServer.reset();
+        System.out.println("MessageSent");
     }
 
     private void endOfTheGame(EndMatchMessage message) throws IOException, WrongMessageConversionException {
         winnerDeclaration(message);
         outServer.close();
         inServer.close();
-        ZakClient.endOfTheGame();
+        Client.endOfTheGame();
     }
 
 
@@ -361,6 +366,6 @@ class ServerRMIHandler extends ServerHandler{
     }
     private void endOfTheGame(EndMatchMessage message) throws WrongMessageConversionException {
         winnerDeclaration(message);
-        ZakClient.endOfTheGame();
+        Client.endOfTheGame();
     }
 }

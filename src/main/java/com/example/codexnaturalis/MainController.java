@@ -1,10 +1,8 @@
 package com.example.codexnaturalis;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
@@ -30,6 +28,8 @@ public class MainController extends TabPane implements Initializable {
     private SlotController lastUsedSlot;
     private ResourceGoldCardController cardToRemove;
     private ResourceGoldCard placedCardToSend;
+    @FXML
+    TabPane tabContainer;
     @FXML
     VBox cardControllerVbox;
     public static PlayerManasController manaBar;
@@ -70,6 +70,7 @@ public class MainController extends TabPane implements Initializable {
     @FXML
     private FieldController field;
     private boolean readyToPlace;
+    private int previousScoreStatus;
 
 
     @Override
@@ -83,12 +84,12 @@ public class MainController extends TabPane implements Initializable {
 //        });
 //        middlePosition();
         try {
-            ZakClient.getSem().acquire();
+            Client.getSem().acquire();
         } catch (Exception e) {
             throw new RuntimeException();
         }
-        player = ZakClient.getPlayer();
-        others = ZakClient.getOtherPlayers();
+        player = Client.getPlayer();
+        others = Client.getOtherPlayers();
         viewSetup();
         setupFieldSlots();
         cardsFromModel();
@@ -129,7 +130,7 @@ public class MainController extends TabPane implements Initializable {
         FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
         tabMan = new HashMap<>();
         int middleSlot = CardDim.matrixSize/2;
-        if(ZakClient.isCrashed()) field = FieldController.rebuildField(field,player);
+        if(Client.isCrashed()) field = FieldController.rebuildField(field,player);
         else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
         for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
@@ -138,9 +139,14 @@ public class MainController extends TabPane implements Initializable {
             tabs[i].setDisable(false);
             tabs[i].setClosable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
-            if(ZakClient.isCrashed()) field = FieldController.rebuildField(fieldControllers[i],others.get(i));
+            if(Client.isCrashed()) field = FieldController.rebuildField(fieldControllers[i],others.get(i));
             else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
             System.out.println("Carta starter di " + others.get(i).getPlayerName() + " piazzata di " + (others.get(i).getPlayerDeck().getStarterCard().isPlacedFront() ? "Fronte" : "Retro"));
+        }
+        for (Tab tab : tabs) {
+            if (tab.isDisable()) {
+                tabContainer.getTabs().remove(tab);
+            }
         }
     }
 
@@ -148,16 +154,19 @@ public class MainController extends TabPane implements Initializable {
         playerDeck.getCard1().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard1().flipCard();
+                selectRGCFromDeck(playerDeck.getCard1());
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard1());
         });
         playerDeck.getCard2().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard2().flipCard();
+                selectRGCFromDeck(playerDeck.getCard2());
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard2());
         });
         playerDeck.getCard3().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard3().flipCard();
+                selectRGCFromDeck(playerDeck.getCard3());
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard3());
         });
     }
@@ -182,11 +191,12 @@ public class MainController extends TabPane implements Initializable {
             ResourceGoldCardController tmp = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
             tmp.setupCard((ResourceGoldCard) lastUsedSlot.card);
             lastUsedSlot.setEmpty(true);
-            player.undoMove(lastUsedSlot.coords.getKey(), lastUsedSlot.coords.getValue(), deckChildIndex);
-            updateManaStatus();
+            player.undoMove(lastUsedSlot.coords.getKey(), lastUsedSlot.coords.getValue(), deckChildIndex, previousScoreStatus);
+            updateManaPointsAndStatus();
             cardPlaced = false;
             readyToPlace = false;
             lastUsedSlot = null;
+            previousScoreStatus = -1;
             commands.command3.setDisable(true);
         } else {
             System.out.println("NO CARD PLACED YET");
@@ -201,7 +211,7 @@ public class MainController extends TabPane implements Initializable {
         playerDeck.getCard2().setupCard(rgCards.get(1));
         playerDeck.getCard3().setupCard(rgCards.get(2));
         try {
-            ZakClient.getSem().acquire();
+            Client.getSem().acquire();
             playerDeck.getObjCards().add(new CardController(objCards.get(0)));
             playerDeck.getObjCards().add(new CardController(objCards.get(1)));
             playerDeck.getObjCards().add(new CardController(objCards.get(2)));
@@ -233,15 +243,15 @@ public class MainController extends TabPane implements Initializable {
         //send to clientHandler
         String s = textField.getText();
         String recipient = (String) comboBox.getSelectionModel().getSelectedItem();
-        TextMessage text = new TextMessage(ZakClient.getPlayerNick(), ZakClient.getClientID(), s, recipient);
+        TextMessage text = new TextMessage(Client.getPlayerNick(), Client.getClientID(), s, recipient);
         if (!text.getRecipient().equals("Everyone"))
             printMessage("\nYou to " + text.getRecipient() + ": " + text.getTextMessage());
-        ZakClient.getServerHandler().sendMessage(new TextMessage(ZakClient.getPlayerNick(), ZakClient.getClientID(), s, recipient));
+        Client.getServerHandler().sendMessage(new TextMessage(Client.getPlayerNick(), Client.getClientID(), s, recipient));
         textField.setText("");
     }
 
     public void genericTurnSender() {
-        GenericTurnMessage message = ZakClient.getServerHandler().getMessageTurn();
+        GenericTurnMessage message = Client.getServerHandler().getMessageTurn();
         ResourceGoldCardController newCardPos = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
         try {
             message.printCoveredCards();
@@ -250,16 +260,16 @@ public class MainController extends TabPane implements Initializable {
             do {
                 selectedCard = pickCard(message);
             } while (selectedCard == null);
-            ZakClient.getServerHandler().setMessageTurn(null);
+            Client.getServerHandler().setMessageTurn(null);
 //            System.out.println("CARDSELECTED: "+selectedCard.getIdCard());
             newCardPos.setupCard(selectedCard);
             player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
-            ZakClient.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCardToSend)), lastUsedSlot.coords));
+            Client.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCardToSend)), lastUsedSlot.coords));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
         turnButton.setDisable(true);
-        ZakClient.setMyTurn(false);
+        Client.setMyTurn(false);
         cardPlaced = false;
         readyToPlace = false;
         lastUsedSlot = null;
@@ -315,7 +325,6 @@ public class MainController extends TabPane implements Initializable {
         if (result.isPresent()) {
             ResourceGoldCard selectedOption = result.get();
             card.set(result.get());
-            //dialogClosedFuture.complete(selectedOption);
             System.out.println("Selected Option: " + selectedOption);
             return selectedOption;
         } else {
@@ -329,7 +338,7 @@ public class MainController extends TabPane implements Initializable {
 
     public static void updateOtherPlayers() {
         comboBox.getItems().removeAll();
-        for (Player p : ZakClient.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
+        for (String p : Client.getCurrentlyPlayingPlayers().keySet()) comboBox.getItems().add(p);
         comboBox.getItems().add("Everyone");
     }
 
@@ -360,11 +369,12 @@ public class MainController extends TabPane implements Initializable {
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
         field.centerSlot.toFront();
         field.centerSlot.setEmpty(false);
-        updateManaStatus();
+        updateManaPointsAndStatus();
         player.printManas();
     }
 
-    public void updateManaStatus() {
+    public void updateManaPointsAndStatus() {
+        manaBar.getActualPoints().setText(String.valueOf(player.getScore()));
         ArrayList<SingleManaController> smc = manaBar.getControllers();
         for(int i = 0;i<smc.size();i++) {
             if (i<4) smc.get(i).setPoints(player.getResourceMana()[i]);
@@ -399,8 +409,10 @@ public class MainController extends TabPane implements Initializable {
                             slotToPlace.setEmpty(false);
                             slotToPlace.card = cardToRemove.getCard();
                             lastUsedSlot = slotToPlace;
+                            previousScoreStatus = player.getScore();
                             player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
-                            updateManaStatus();
+                            slotToPlace.disableEmptyStuff();
+                            updateManaPointsAndStatus();
                             System.out.println("In Main Controller: " + cardToRemove.getCard().getCoveredCornersWhenPlaced());
                             playerDeck.resetCard(deckChildIndex);
                             player.printManas();

@@ -23,5 +23,6 @@ public interface RemoteServerMethodInterface extends Remote {
     Message reHandShakeRMI(UUID matchID) throws RemoteException;
 
     Message getMessageTurn(UUID clientID)throws RemoteException;
+    void addDisconnectedPlayer(UUID clientID) throws RemoteException, IOException;
 }
 

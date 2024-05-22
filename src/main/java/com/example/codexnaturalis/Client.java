@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ZakClient extends Application{
+public class Client extends Application{
 
     private static boolean crashed;
     private static Pair<String, Integer> connectionInfo;
@@ -34,6 +34,7 @@ public class ZakClient extends Application{
     private static boolean guiSelector;
     private static Stage stage;
     private static Semaphore sem;
+    private static HashMap<String,Boolean> currentlyPlaying;
 
     public static void main(String[] args) {
         sem=new Semaphore(0);
@@ -180,6 +181,7 @@ public class ZakClient extends Application{
         currentGameStatus = false;
         myTurn = false;
         otherPlayers = new ArrayList<>();
+        currentlyPlaying = new HashMap<>();
         if (!guiSelector) playerNick = playerGreeting();
         return uuidGen();
 
@@ -429,6 +431,7 @@ public class ZakClient extends Application{
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players = initialMatchSetupMessage.getPlayers().values();
             otherPlayers.addAll(players);
+            for(Player p: otherPlayers) currentlyPlaying.put(p.getPlayerName(),true);
             initialMatchSetupMessage = ConnectionManger.secretSelector(initialMatchSetupMessage);
             if(isGuiSelector()) sem.release();
             serverHandler.sendMessage(initialMatchSetupMessage);
@@ -481,7 +484,9 @@ public class ZakClient extends Application{
         Pair<Integer, Integer> coordinates;
         int row, column;
         boolean face;
+        int choice;
         ResourceGoldCard selectedCard = null;
+        ArrayList<Integer> allIds = new ArrayList<>();
         if (player.allCornersEmpty(player.getPlayerDeck().getStarterCard())) {
             System.out.println("StarterCard:");
             player.getPlayerDeck().getStarterCard().printCard();
@@ -508,12 +513,21 @@ public class ZakClient extends Application{
             player.getPlayerDeck().printResourceGoldCards();
             player.printManas();
             System.out.println("What card would you like to place? ");
-            placedCard = playerDeck.get(getIntInput(playerDeck.size(), true));
-            if (placedCard.getIdCard() > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
-                System.out.println("You do not possess enough materials or resources to place this card: choose another one");
+            choice = getIntInput(-2, false);
+
+            for (ResourceGoldCard card : playerDeck) allIds.add(card.getIdCard());
+
+            if (!allIds.contains(choice)) {
+                System.out.println("Invalid Input, retry again. Select a valid card Id");
                 continue;
+            } else {
+                placedCard = playerDeck.get(getCardIndexFromId(choice, allIds));
             }
             break;
+        }
+        allIds = new ArrayList<>();
+        if (!allIds.isEmpty()) {
+            System.out.println(Colors.RED + "ERROR, ALLIDS LIST HAS NOT BEEN EMPTIED CORRECTLY" + Colors.RESET);
         }
         while (true) {
             System.out.println("What face would you like to play?");
@@ -525,6 +539,10 @@ public class ZakClient extends Application{
                 continue;
             }
             face = i == 1;
+            if (choice > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
+                System.out.println("You do not possess enough materials or resources to place this card: choose another one");
+                continue;
+            }
             placedCard.setIsPlacedFront(face);
             break;
         }
@@ -545,14 +563,7 @@ public class ZakClient extends Application{
         selectable.addAll(message.getDrawnCard());
         selectable.addAll(message.getCardOnHand());
 
-        ArrayList<Integer> allIds = new ArrayList<>();
         for (ResourceGoldCard card : selectable) allIds.add(card.getIdCard());
-        /*allIds.add(message.getDrawnCard().get(0).getIdCard());
-        allIds.add(message.getDrawnCard().get(1).getIdCard());
-        allIds.add(message.getCardOnHand().get(0).getIdCard());
-        allIds.add(message.getCardOnHand().get(1).getIdCard());
-        allIds.add(message.getCardOnHand().get(2).getIdCard());
-        allIds.add(message.getCardOnHand().get(3).getIdCard());*/
         int idSelected = selectCardIdToDrawn(allIds);
         for (ResourceGoldCard card : selectable)
             if (card.getIdCard() == idSelected) {
@@ -662,13 +673,14 @@ public class ZakClient extends Application{
     private static void writeTextMessage() throws IOException {
         String recipient;
         String text;
-        HashMap<Integer, Player> recipientChooser = new HashMap<>();
+        HashMap<Integer, String> recipientChooser = new HashMap<>();
         int i = 1;
         System.out.println("Who do you want to send the message to?");
         System.out.println(0 + " - Cancel");
-        for (Player p : otherPlayers) {
+        for (String p : currentlyPlaying.keySet()) {
+            if(!currentlyPlaying.get(p)) continue;
             recipientChooser.put(i, p);
-            System.out.println(i + " - " + p.getPlayerName());
+            System.out.println(i + " - " + p);
             ++i;
         }
         System.out.println(i + " - Everyone");
@@ -680,7 +692,7 @@ public class ZakClient extends Application{
                 text = receiveInput();
                 if (i == counter) serverHandler.sendMessage(new TextMessage(playerNick, clientID, text, "Everyone"));
                 else {
-                    recipient = recipientChooser.get(i).getPlayerName();
+                    recipient = recipientChooser.get(i);
                     serverHandler.sendMessage(new TextMessage(playerNick, clientID, text, recipient));
                 }
                 break;
@@ -864,7 +876,7 @@ public class ZakClient extends Application{
      * This function is called by the connection manager to set the handler pointer
      */
     public static void setServerHandler(ServerHandler serverHandler) {
-        ZakClient.serverHandler = serverHandler;
+        Client.serverHandler = serverHandler;
     }
 
     public static UUID getClientID() {
@@ -895,6 +907,9 @@ public class ZakClient extends Application{
                 System.out.println("Invalid input: try again");
                 continue;
             }
+            if (range == -2) {
+                break;
+            }
             if (thingToParse <= range && thingToParse >= 0) break;
         }
         if (type) return thingToParse - 1;
@@ -910,11 +925,11 @@ public class ZakClient extends Application{
     }
 
     public static void setPlayer(Player player) {
-        ZakClient.player = player;
+        Client.player = player;
     }
 
     public static void setOtherPlayers(ArrayList<Player> otherPlayers) {
-        ZakClient.otherPlayers = otherPlayers;
+        Client.otherPlayers = otherPlayers;
     }
 
     public static Player getPlayer() {
@@ -953,6 +968,15 @@ public class ZakClient extends Application{
         return sem;
     }
 
+    public static HashMap<String, Boolean> getCurrentlyPlayingPlayers() {
+        return currentlyPlaying;
+    }
+
+    public static void setCurrentlyPlayingPlayers(ArrayList<String> reconnectionList) {
+        currentlyPlaying = new HashMap<>();
+        for(String s: reconnectionList) currentlyPlaying.put(s,true);
+    }
+
     @Override
     public void start(Stage stageStart) throws Exception {
         DrawingDeck.generateDecks();
@@ -969,5 +993,9 @@ public class ZakClient extends Application{
     }
     public static Stage getStage(){
         return stage;
+    }
+
+    public static void setCrashed(boolean crashed) {
+        Client.crashed = crashed;
     }
 }

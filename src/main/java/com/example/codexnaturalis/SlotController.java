@@ -3,8 +3,10 @@ package com.example.codexnaturalis;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.util.Pair;
 
@@ -17,9 +19,10 @@ public class SlotController extends Pane {
 
     @FXML
     ImageView slotCardView = null;
+    @FXML
+    Label emptyLabel;
     NonObjectiveCard card = null;
     Pair<Integer, Integer> coords;
-    private final Image emptyImage =  new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedCards/empty.png")));
     private boolean isEmpty = true;
     private boolean isCenter = false;
 
@@ -31,10 +34,28 @@ public class SlotController extends Pane {
 
         slotCardView.setFitHeight(slotHeight);
         slotCardView.setFitWidth(slotWidth);
+        emptyLabel.setLayoutX(slotWidth/2 - 16);
+        emptyLabel.setLayoutY(slotHeight/2 - 8);
+        enableEmptyStuff();
+        if (isEmpty) {
+            this.setCursor(Cursor.HAND);
+        } else {
+            this.setCursor(Cursor.DEFAULT);
+        }
     }
 
+    public void enableEmptyStuff() {
+        emptyLabel.setDisable(false);
+        this.setStyle("-fx-background-radius: 25; -fx-border-color: GREY");
+    }
+    public void disableEmptyStuff() {
+        emptyLabel.setDisable(true);
+        this.setStyle("-fx-border-width: 0");
+    }
+
+
     public void setSlotCardView(Image slotImage) {
-        if (!slotImage.equals(emptyImage)) {
+        if (slotImage != null) {
             if (isEmpty) {
                 this.slotCardView.setImage(slotImage);
                 slotCardView.setCursor(Cursor.DEFAULT);
@@ -49,7 +70,10 @@ public class SlotController extends Pane {
 
     public void setEmpty(boolean empty) {
         isEmpty = empty;
-        if(empty) slotCardView.setImage(emptyImage);
+        if(empty) {
+            enableEmptyStuff();
+            slotCardView.setImage(null);
+        }
     }
     public void setCoords(Pair<Integer, Integer> coords) {
         this.coords = coords;
@@ -67,4 +91,7 @@ public class SlotController extends Pane {
         return coords;
     }
 
+    public Label getEmptyLabel() {
+        return emptyLabel;
+    }
 }

@@ -1,6 +1,6 @@
 ###########DA CHIEDERE AL PROF 21/05/2024 #######################
-COME AVVIARE IL PROCESSO DI HELLOAPPLICATION DA ZAKCLIENT
-
+CREARE UNA CARTELLA A RUNTIME, PERCHè NON LA CREA
+BISOGNA FARE UN CHECK PER VEDERE SE è POSSIBILE PIAZZARE CARTE?
 Divisione Compiti
     1.	Implementazione del Ciclo (Zakaria, Ferdinando)
         a.	Check di quanti client ci sono

@@ -2,10 +2,7 @@ package com.example.codexnaturalis;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 class DrawingDeck {
     private static ArrayList<ResourceCard> totalResourceCard = new ArrayList<>();
@@ -25,10 +22,10 @@ class DrawingDeck {
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveComboCards);
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
 
-        Collections.shuffle(DrawingDeck.totalGoldCard);
-        Collections.shuffle(DrawingDeck.totalResourceCard);
-        Collections.shuffle(DrawingDeck.totalStartingCards);
-        Collections.shuffle(DrawingDeck.totalObjectiveCards);
+        Collections.shuffle(DrawingDeck.totalGoldCard, new Random(1000));
+        Collections.shuffle(DrawingDeck.totalResourceCard, new Random(1000));
+        Collections.shuffle(DrawingDeck.totalStartingCards, new Random(1000));
+        Collections.shuffle(DrawingDeck.totalObjectiveCards, new Random(1000));
     }
 
     public static ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
