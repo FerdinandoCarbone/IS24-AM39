@@ -34,6 +34,7 @@ public class Client extends Application{
     private static boolean guiSelector;
     private static Stage stage;
     private static Semaphore sem;
+    private static HashMap<String,Boolean> currentlyPlaying;
 
     public static void main(String[] args) {
         sem=new Semaphore(0);
@@ -180,6 +181,7 @@ public class Client extends Application{
         currentGameStatus = false;
         myTurn = false;
         otherPlayers = new ArrayList<>();
+        currentlyPlaying = new HashMap<>();
         if (!guiSelector) playerNick = playerGreeting();
         return uuidGen();
 
@@ -429,6 +431,7 @@ public class Client extends Application{
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players = initialMatchSetupMessage.getPlayers().values();
             otherPlayers.addAll(players);
+            for(Player p: otherPlayers) currentlyPlaying.put(p.getPlayerName(),true);
             initialMatchSetupMessage = ConnectionManger.secretSelector(initialMatchSetupMessage);
             if(isGuiSelector()) sem.release();
             serverHandler.sendMessage(initialMatchSetupMessage);
@@ -481,6 +484,7 @@ public class Client extends Application{
         Pair<Integer, Integer> coordinates;
         int row, column;
         boolean face;
+        int choice;
         ResourceGoldCard selectedCard = null;
         ArrayList<Integer> allIds = new ArrayList<>();
         if (player.allCornersEmpty(player.getPlayerDeck().getStarterCard())) {
@@ -509,7 +513,7 @@ public class Client extends Application{
             player.getPlayerDeck().printResourceGoldCards();
             player.printManas();
             System.out.println("What card would you like to place? ");
-            int choice = getIntInput(-2, false);
+            choice = getIntInput(-2, false);
 
             for (ResourceGoldCard card : playerDeck) allIds.add(card.getIdCard());
 
@@ -518,11 +522,6 @@ public class Client extends Application{
                 continue;
             } else {
                 placedCard = playerDeck.get(getCardIndexFromId(choice, allIds));
-            }
-
-            if (choice > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
-                System.out.println("You do not possess enough materials or resources to place this card: choose another one");
-                continue;
             }
             break;
         }
@@ -540,6 +539,10 @@ public class Client extends Application{
                 continue;
             }
             face = i == 1;
+            if (choice > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
+                System.out.println("You do not possess enough materials or resources to place this card: choose another one");
+                continue;
+            }
             placedCard.setIsPlacedFront(face);
             break;
         }
@@ -670,13 +673,14 @@ public class Client extends Application{
     private static void writeTextMessage() throws IOException {
         String recipient;
         String text;
-        HashMap<Integer, Player> recipientChooser = new HashMap<>();
+        HashMap<Integer, String> recipientChooser = new HashMap<>();
         int i = 1;
         System.out.println("Who do you want to send the message to?");
         System.out.println(0 + " - Cancel");
-        for (Player p : otherPlayers) {
+        for (String p : currentlyPlaying.keySet()) {
+            if(!currentlyPlaying.get(p)) continue;
             recipientChooser.put(i, p);
-            System.out.println(i + " - " + p.getPlayerName());
+            System.out.println(i + " - " + p);
             ++i;
         }
         System.out.println(i + " - Everyone");
@@ -688,7 +692,7 @@ public class Client extends Application{
                 text = receiveInput();
                 if (i == counter) serverHandler.sendMessage(new TextMessage(playerNick, clientID, text, "Everyone"));
                 else {
-                    recipient = recipientChooser.get(i).getPlayerName();
+                    recipient = recipientChooser.get(i);
                     serverHandler.sendMessage(new TextMessage(playerNick, clientID, text, recipient));
                 }
                 break;
@@ -964,6 +968,15 @@ public class Client extends Application{
         return sem;
     }
 
+    public static HashMap<String, Boolean> getCurrentlyPlayingPlayers() {
+        return currentlyPlaying;
+    }
+
+    public static void setCurrentlyPlayingPlayers(ArrayList<String> reconnectionList) {
+        currentlyPlaying = new HashMap<>();
+        for(String s: reconnectionList) currentlyPlaying.put(s,true);
+    }
+
     @Override
     public void start(Stage stageStart) throws Exception {
         DrawingDeck.generateDecks();
@@ -980,5 +993,9 @@ public class Client extends Application{
     }
     public static Stage getStage(){
         return stage;
+    }
+
+    public static void setCrashed(boolean crashed) {
+        Client.crashed = crashed;
     }
 }

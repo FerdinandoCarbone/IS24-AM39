@@ -1,6 +1,7 @@
 package com.example.codexnaturalis;
 
 import javafx.util.Pair;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,25 +27,26 @@ public class ServerConnectionManager {
     static int numPlayers;
     static ServerSocket serverSocket;
     static RemoteServerMethodInterface remoteServerSkeleton;
+    public static UUID reconnectingID;
 
-
-    public ServerConnectionManager(Pair<String,Integer> connectionInfo,int rmiPort) throws IOException {
+    public ServerConnectionManager(Pair<String, Integer> connectionInfo, int rmiPort) throws IOException {
         this.rmiPort = rmiPort;
         hashPlayer = new HashMap<>();
         hashClient = new HashMap<>();
         handlers = new HashMap<>();
         port = connectionInfo.getValue();
         serverName = connectionInfo.getKey();
-        serverSocket=new ServerSocket(port);
+        serverSocket = new ServerSocket(port);
         firstPlayer = false;
         numPlayers = 0;
-        //rmiListener = new RMIConnectionListener(this);
+        reconnectingID = null;
+        rmiListener = new RMIConnectionListener(this);
         socketListener = new SocketConnectionListener(this);
 
-        ////////TEST
+        /*///////TEST
         remoteServerSkeleton = new RMIServerImplement();
         LocateRegistry.createRegistry(getRmiPort());
-        Naming.rebind(ServerConnectionManager.getServerName(), remoteServerSkeleton);
+        Naming.rebind(ServerConnectionManager.getServerName(), remoteServerSkeleton);*/
     }
 
     /**
@@ -52,15 +54,16 @@ public class ServerConnectionManager {
      * SocketListener Thread is opened only if there is a socket trying to connect.
      * Thinking of leaving it open accepting connections and dropping ones not necessary.
      * As of now it seems to be working fine, so will leave as is
+     *
      * @param isReconnection- if the client is trying to reconnect after a crash or connection issue set true; else set to false
      */
     public void acceptConnection(boolean isReconnection) throws RemoteException, MalformedURLException {
-        //rmiListener.start();
+        rmiListener.start();
         socketListener.start();
-        while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers==0 ) || isReconnection) {
-            while(connectionCondition()) {
+        while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers == 0) || isReconnection) {
+            while (connectionCondition()) {
                 try {
-                    acceptSocketRMIConnections(isReconnection);
+                    acceptSocketRMIConnections(null, isReconnection);
                 } catch (ClassNotFoundException | InterruptedException e) {
                     System.out.println("SERVER failure: " + e.getMessage());
                 } catch (IOException e) {
@@ -69,35 +72,45 @@ public class ServerConnectionManager {
                 }
             }
         }
-        socketListener.setHasToRun(false);
+        //socketListener.setHasToRun(false);
     }
-    public Pair<ObjectInputStream,ObjectOutputStream> acceptSocketRMIConnections(boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
-        if(isReconnection) socketListener.setHasToRun(true);
+
+    public Pair<ObjectInputStream, ObjectOutputStream> acceptSocketRMIConnections(Socket socket, boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
+        //if (isReconnection) socketListener.setHasToRun(true);
         ObjectOutputStream out;
         ObjectInputStream in;
+        Socket clientSocket;
         Message clientJoinRequest;
         LobbyCreationMessage handshakeACK;
         Player player;
-        if(socketListener.sockets.isEmpty()){
-            if(isReconnection)socketListener.setHasToRun(false);
+        if (socketListener.sockets.isEmpty()) {
+            if (isReconnection) {
+                System.out.println("DEBUG1");
+                //socketListener.setHasToRun(false);
+            }
+            //System.out.println("DEBUG0");
             return null;
         }
-        Socket clientSocket = socketListener.sockets.getFirst();
-        socketListener.sockets.removeFirst();
-        in = new ObjectInputStream(clientSocket.getInputStream());
+        if (socket != null) clientSocket = socket;
+        else {
+            clientSocket = socketListener.sockets.getFirst();
+            socketListener.sockets.remove(clientSocket);
+        }
+        System.out.println("DEBUG2");
         out = new ObjectOutputStream(clientSocket.getOutputStream());
+        in = new ObjectInputStream(clientSocket.getInputStream());
+        System.out.println("DEBUG3");
         //clientSocket.setSoTimeout(10000);
         clientJoinRequest = (Message) in.readObject();//prendo l'handshake Message
-        if (!firstPlayer&&!isReconnection) {
+        if (!firstPlayer && !isReconnection) {
             firstPlayer = true;
-            handshakeACK = new LobbyCreationMessage(serverName,null,numPlayers);
+            handshakeACK = new LobbyCreationMessage(serverName, null, numPlayers);
             out.writeObject(handshakeACK);
             handshakeACK = (LobbyCreationMessage) in.readObject();
             numPlayers = handshakeACK.getNumPlayer();
             //playerCounter = numPlayers;
-            System.out.println("There will be "+numPlayers+" players");
-        }
-        else {
+            System.out.println("There will be " + numPlayers + " players");
+        } else {
             ArrayList<Player> players = new ArrayList<>(getPlayers());
             Message tmp = new Message("!!++***++!!", null);
             for (int i = 0; i < players.size(); i++) {
@@ -105,26 +118,25 @@ public class ServerConnectionManager {
                  * In this code snippet I am managing the reconnection after a crash of the client
                  * Firstly I am checking whether there is a player with the same ID as the one the reconnecting client has
                  */
-                if (players.get(i).getPlayerID().compareTo(clientJoinRequest.getClientID())==0) {
+                if (players.get(i).getPlayerID().compareTo(clientJoinRequest.getClientID()) == 0) {
                     /**
                      * here I am checking if the matchID the client and server have match.(If a player disconnected an hour ago and
                      * the match he was in ended and another one started, the player won't be able to join as he will be kicked/prompted to restart the client)
                      * Otherwise his reconnection attempt will take place
                      */
-                    if(clientJoinRequest.getMatchID()==null){
+                    if (clientJoinRequest.getMatchID() == null) {
                         //
                         break;
-                    }
-                    else if(clientJoinRequest.getMatchID().equals(Server.match.getMatchID())){
-                        System.out.println(clientJoinRequest.getSender()+ "is trying to reconnect");
+                    } else if (clientJoinRequest.getMatchID().equals(Server.match.getMatchID())) {
+                        System.out.println(clientJoinRequest.getSender() + " is trying to reconnect");
                         break;
                     }
                     /**
                      * else the player is kicked and his save file is removed
                      */
                     else {
-                        System.out.println(Colors.PURPLE+ "Forbidden" +Colors.RESET);
-                        out.writeObject(new Message("FORBIDDEN",null));
+                        System.out.println(Colors.PURPLE + "Forbidden" + Colors.RESET);
+                        out.writeObject(new Message("FORBIDDEN", null));
                         return null;
                     }
                 }
@@ -144,13 +156,13 @@ public class ServerConnectionManager {
              * If a new player (with a different ID as ones who are currently connected) tries to connect he will be receiving the number of players
              * Required for the connection of player after the lobby is created
              */
-            if(!Arrays.stream((players.stream().map(Player::getPlayerID).toArray(UUID[]::new))).toList().contains(clientJoinRequest.getClientID())){
+            if (!Arrays.stream((players.stream().map(Player::getPlayerID).toArray(UUID[]::new))).toList().contains(clientJoinRequest.getClientID())) {
                 handshakeACK = new LobbyCreationMessage(serverName, null, hashClient.size());
                 try {
                     System.out.println("Sto inviando i dati");
-                  out.writeObject(handshakeACK);
-                 } catch (RuntimeException e) {
-                System.out.println(e.getMessage());
+                    out.writeObject(handshakeACK);
+                } catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
                 }
             }
         }
@@ -158,15 +170,15 @@ public class ServerConnectionManager {
          * Code snipped reserved for first time connection with the server, before the match starts
          */
         //System.out.println(Thread.currentThread().getName());
-        if(hashClient.size()<=numPlayers && !isReconnection && Thread.currentThread().getName().compareToIgnoreCase("main")==0){
+        if (hashClient.size() <= numPlayers && !isReconnection && Thread.currentThread().getName().compareToIgnoreCase("main") == 0) {
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
-            player = new Player(sender,new Token(), new Field(CardDim.matrixSize, CardDim.matrixSize),clientID);
+            player = new Player(sender, new Token(), new Field(CardDim.matrixSize, CardDim.matrixSize), clientID);
             hashPlayer.put(player, clientSocket);
-            hashClient.put(clientID,player);
+            hashClient.put(clientID, player);
             System.out.println(sender + " joined the server");
-            ioStream = new Pair<>(in,out);
-            ClientHandler handler = new SocketClientHandler(sender,clientSocket,clientID,ioStream,this);
+            ioStream = new Pair<>(in, out);
+            ClientHandler handler = new SocketClientHandler(sender, clientSocket, clientID, ioStream, this);
             new Thread(handler).start();
             handlers.put(clientID, handler);
             return null;
@@ -174,62 +186,72 @@ public class ServerConnectionManager {
         /**
          * If the connection is a reconnection socket information is updated
          */
-        else if(isReconnection){
+        else if (isReconnection) {
             UUID currPlayerID;
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
-            if(Server.match==null) {
-                currPlayerID= clientID;
-                out.writeObject(new LobbyCreationMessage("MATCHNOTSTARTED",null,getNumPlayers()));
+            reconnectingID = clientID;
+            if (Server.match == null) {
+                currPlayerID = clientID;
+                out.writeObject(new LobbyCreationMessage("MATCHNOTSTARTED", null, getNumPlayers()));
                 System.out.println(sender + " rejoined the server");
-                return new Pair<>(in,out);
-            }
-            else {
+                return new Pair<>(in, out);
+            } else {
                 currPlayerID = Server.match.getCurrentPlayerID();
-                Message bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
+                BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
+                ArrayList<String> currPlaying = new ArrayList<>();
+                for (UUID id : Server.match.getPlayerIds())
+                    if (id != null) currPlaying.add(hashClient.get(id).getPlayerName());
+                bcStart.setCurrentlyPlaying(currPlaying);
                 out.writeObject(bcStart);
-                //System.out.println("Flushing stream");
-                if(hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()==null){
-                    BroadCastStartingMessage selector=(BroadCastStartingMessage) in.readObject();
-                    Server.match.putBackOtherSecretObjectiveCard(clientID,selector.getSelectedSecret());
+                if (hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard() == null) {
+                    BroadCastStartingMessage selector = (BroadCastStartingMessage) in.readObject();
+                    Server.match.putBackOtherSecretObjectiveCard(clientID, selector.getSelectedSecret());
                     ServerConnectionManager.hashClient.get(clientID).placeStarterCard(selector.getStarterCardFace());
                     handlers.get(clientID).setSecretWasChosen(true);
-                }
-                else if(hashClient.get(clientID)!=null && !Server.match.getPlayerIds().contains(clientID)) Server.match.addDisconnectedPlayerId(clientID);
-                else if (clientID.compareTo(currPlayerID) == 0) {
+                } else if (hashClient.get(clientID) != null && !Server.match.getPlayerIds().contains(clientID))
+                    Server.match.addDisconnectedPlayerId(clientID);
+                if (clientID.compareTo(currPlayerID) == 0) {
                     System.out.println("Sending over GenericTurnMessage");
                     Message msg = new GenericTurnMessage("Server", currPlayerID, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
                     out.writeObject(msg);
                 }
             }
-            System.out.println("Current:"+currPlayerID+"\n"+"Reconnecting player:"+clientID);
-            hashPlayer.replace(hashClient.get(clientID),clientSocket);
+            System.out.println("Current:" + currPlayerID + "\n" + "Reconnecting player:" + clientID);
+            hashPlayer.replace(hashClient.get(clientID), clientSocket);
             System.out.println(sender + " rejoined the server");
-            return new Pair<>(in,out);
+            TextMessage text = new TextMessage("Server",null,sender + " rejoined the server","Everyone");
+            text.setDisconnectedClient(sender);
+            sendBroadCastMessage(text);
+            return new Pair<>(in, out);
         }
         return null;
     }
 
     /**
      * Sends message to all ClientHandlers who will manage the communication with client's ServerHandlers and call their specific methods
+     *
      * @param message - message object to be sent
      * @throws IOException -
      */
     public static void sendBroadCastMessage(Message message) throws IOException {
-        for (ClientHandler handler : handlers.values()) {
-            if(Server.match.getPlayerIds().contains(handler.getClientID())) handler.sendMessage(message);
+        for (UUID id : Server.match.getPlayerIds()) {
+            if (id != null) handlers.get(id).sendMessage(message);
         }
+        //todo: accessi a null in reconnect
     }
 
     /**
      * Ssends a message to a specific ClientHandler given its clientID
+     *
      * @param clientID - Identifier for a specific Client
-     * @param message - message object to send
+     * @param message  - message object to send
      * @throws IOException -
      */
-    public static void sendMessage(UUID clientID,Message message) throws IOException {
+    public static void sendMessage(UUID clientID, Message message) throws IOException {
         handlers.get(clientID).sendMessage(message);
     }
+
     public void setRmiPort(int rmiPort) {
         this.rmiPort = rmiPort;
     }
@@ -245,10 +267,12 @@ public class ServerConnectionManager {
     public static String getServerName() {
         return serverName;
     }
-    public Pair<ObjectInputStream,ObjectOutputStream> getIoStream(){
+
+    public Pair<ObjectInputStream, ObjectOutputStream> getIoStream() {
         return ioStream;
     }
-    public static Collection<Player> getPlayers(){
+
+    public static Collection<Player> getPlayers() {
         return hashClient.values();
     }
 
@@ -263,11 +287,14 @@ public class ServerConnectionManager {
     public HashMap<UUID, ClientHandler> getHandlers() {
         return handlers;
     }
-    private boolean connectionCondition(){
-        for(ClientHandler h : handlers.values()){
-            if(h instanceof SocketClientHandler && h.getReconnect()) return false;
+
+    private boolean connectionCondition() {
+        synchronized (handlers) {
+            for (ClientHandler h : handlers.values()) {
+                if (h instanceof SocketClientHandler && h.getReconnect()) return false;
+            }
         }
-        if(hashClient.size() == numPlayers && numPlayers!=0) return false;
+        if (hashClient.size() == numPlayers && numPlayers != 0) return false;
         return true;
     }
 
@@ -286,24 +313,6 @@ public class ServerConnectionManager {
     public static void setNumPlayers(int numPlayers) {
         ServerConnectionManager.numPlayers = numPlayers;
     }
-    /*private static void timeOutThrower(){
-        final Duration timeout = Duration.ofSeconds(30);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        final Future<String> handler = executor.submit((Callable) () -> {
-            return requestDataFromModem();
-        });
-
-        try {
-            handler.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
-        } catch (TimeoutException e) {
-            handler.cancel(true);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        executor.shutdownNow();
-    }*/
 
     public static SocketConnectionListener getSocketListener() {
         return socketListener;

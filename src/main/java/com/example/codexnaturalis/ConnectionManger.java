@@ -39,7 +39,7 @@ public class ConnectionManger {
      * @return returns a boolean: false if connectionSetup fails, true if successful
      */
     public boolean connectionSetup() {
-        if (!(typeOfConnection)) {
+        if (!typeOfConnection) {
             remoteServerProxy = null;
             ObjectInputStream in;
             ObjectOutputStream out;
@@ -360,6 +360,7 @@ public class ConnectionManger {
                 else {
                     handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
                     Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+                    remoteServerProxy.addDisconnectedPlayer(clientID);
                 }
 
             }
@@ -408,6 +409,7 @@ public class ConnectionManger {
             handshakeACKInfo.getPlayers().remove(getClientID());
             ArrayList<Player> players = new ArrayList<>(handshakeACKInfo.getPlayers().values());
             Client.setOtherPlayers(players);
+            Client.setCurrentlyPlayingPlayers(handshakeACKInfo.getCurrentlyPlaying());
             /*
              * If player disconnected before he was able to set his Starter and secret Objective cards, he will be sent here\
              * */

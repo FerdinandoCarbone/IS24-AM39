@@ -3,6 +3,7 @@ package com.example.codexnaturalis;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class RMIServerImplement extends UnicastRemoteObject implements RemoteServerMethodInterface {
@@ -89,11 +90,24 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         if(matchID==null) return new Message("MATCHNOTSTARTED",null);
         else if (!matchID.equals(Server.match.getMatchID())) return new Message("FORBIDDEN", null);
         else {
-            return new BroadCastStartingMessage("Server", Server.match.getCurrentPlayerID(), ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
+            BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", Server.match.getCurrentPlayerID(), ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
+            ArrayList<String> currPlaying = new ArrayList<>();
+            for(UUID id:Server.match.getPlayerIds()) if(id!=null) currPlaying.add(ServerConnectionManager.hashClient.get(id).getPlayerName());
+            bcStart.setCurrentlyPlaying(currPlaying);
+            return bcStart;
         }
     }
 
     public Message getMessageTurn(UUID clientID) throws RemoteException {
         return new GenericTurnMessage("Server", null, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
+    }
+
+    @Override
+    public void addDisconnectedPlayer(UUID clientID) throws IOException {
+        if (ServerConnectionManager.hashClient.get(clientID) != null && !Server.match.getPlayerIds().contains(clientID)) Server.match.addDisconnectedPlayerId(clientID);
+        String sender = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
+        TextMessage text = new TextMessage("Server",null,sender+" rejoined the server", "Everyone");
+        text.setDisconnectedClient(sender);
+        ServerConnectionManager.sendBroadCastMessage(text);
     }
 }

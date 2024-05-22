@@ -338,7 +338,7 @@ public class MainController extends TabPane implements Initializable {
 
     public static void updateOtherPlayers() {
         comboBox.getItems().removeAll();
-        for (Player p : Client.getOtherPlayers()) comboBox.getItems().add(p.getPlayerName());
+        for (String p : Client.getCurrentlyPlayingPlayers().keySet()) comboBox.getItems().add(p);
         comboBox.getItems().add("Everyone");
     }
 

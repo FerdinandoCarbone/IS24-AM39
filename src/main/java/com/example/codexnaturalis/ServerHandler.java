@@ -75,10 +75,15 @@ public class ServerHandler extends Thread implements Runnable {
     }
 
     private void updateOtherPlayers(TextMessage message) {
-        String disconnectedPlayer= message.getDisconnectedClient();
-        ArrayList<Player> otherPlayers = Client.getOtherPlayers();
-        for(Player p: otherPlayers) if(p.getPlayerName().equals(disconnectedPlayer)) Client.getOtherPlayers().remove(p);
-        Platform.runLater(MainController::updateOtherPlayers);
+        if(Client.isCrashed()){
+            Client.setCrashed(false);
+            return;
+        }
+        String newStatusPlayer= message.getDisconnectedClient();
+        HashMap<String,Boolean> otherPlayers = Client.getCurrentlyPlayingPlayers();
+        if(message.getTextMessage().contains("rejoined")) otherPlayers.replace(newStatusPlayer,true);
+        else otherPlayers.replace(newStatusPlayer,false);
+        if(Client.isGuiSelector())Platform.runLater(MainController::updateOtherPlayers);
     }
 
     public void genericTurnMessageHandler(GenericTurnMessage message){
@@ -192,6 +197,7 @@ class ServerSocketHandler extends ServerHandler {
         super(clientName,clientID,connMan);
         this.outServer = connMan.getIoStream().getValue();
         this.inServer = connMan.getIoStream().getKey();
+        System.out.println(outServer);
         this.socket = connMan.socket;
     }
     @Override
@@ -200,11 +206,9 @@ class ServerSocketHandler extends ServerHandler {
             try {
                 messageReceiver();
             } catch (ClassNotFoundException | WrongMessageConversionException e) {
-                e.printStackTrace();
                 System.out.println("ServerComHandler error: " + e.getMessage());
 
             } catch(IOException e){
-                e.printStackTrace();
                 System.out.println("ServerComHandler error: " + e.getMessage());
                 try {
                     throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server due to socket degradation: Attempting reconnection");
@@ -271,9 +275,11 @@ class ServerSocketHandler extends ServerHandler {
     public void sendMessage(Message message) throws IOException {
         message.setSender(getClientName());
         message.setClientID(getClientID());
+        System.out.println("In sendMessage");
         outServer.writeObject(message);
         outServer.flush();
         outServer.reset();
+        System.out.println("MessageSent");
     }
 
     private void endOfTheGame(EndMatchMessage message) throws IOException, WrongMessageConversionException {

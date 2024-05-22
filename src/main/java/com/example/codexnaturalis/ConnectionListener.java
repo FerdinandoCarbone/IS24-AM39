@@ -1,6 +1,10 @@
 package com.example.codexnaturalis;
 
+import javafx.util.Pair;
+
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -32,7 +36,6 @@ class SocketConnectionListener extends ConnectionListener {
     public void run() {
         while (true) {
             try {
-                if(!hasToRun) Thread.onSpinWait();
                 startListening();
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 System.err.println("There was an error listening for sockets: "+e.getMessage()+"\nRetrying...");
@@ -40,14 +43,17 @@ class SocketConnectionListener extends ConnectionListener {
         }
     }
     private void startListening() throws IOException, ClassNotFoundException, InterruptedException {
-        this.sockets.add(serverComMan.getServerSocket().accept());
-        if(Server.gameStarted&&Server.match.getPlayerIds().size() < Server.getNumOfPlayers()){
-            Server.serverConMan.acceptSocketRMIConnections(true);
+        Socket clientSocket = serverComMan.getServerSocket().accept();
+        this.sockets.add(clientSocket);
+        if(Server.gameStarted&&Server.match.getPlayerIds().contains(null)&&!sockets.isEmpty()){
+            System.out.println("Accepted socket connection");
+            Pair<ObjectInputStream, ObjectOutputStream> oIOStream = Server.serverConMan.acceptSocketRMIConnections(clientSocket,true);
+            SocketClientHandler tmpHand = (SocketClientHandler)Server.serverConMan.getHandlers().get(ServerConnectionManager.reconnectingID);
+            tmpHand.reset(oIOStream,clientSocket);
+            sockets.remove(clientSocket);
+            tmpHand.setHasToRun(true);
+            tmpHand.reconnectionAlert();
         }
-    }
-    private boolean getCondition(){
-        if(Server.match == null) return true;
-        else return Server.match.getPlayerIds().size() != Server.getNumOfPlayers();
     }
 }
 class RMIConnectionListener extends ConnectionListener {
