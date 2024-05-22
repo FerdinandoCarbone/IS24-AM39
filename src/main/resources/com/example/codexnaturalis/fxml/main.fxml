@@ -41,8 +41,8 @@
                                     <CardController fx:id="secretObjCard"/>
                                     <CardController fx:id="publicObj1"/>
                                     <CardController fx:id="publicObj2"/>
+                                    <CommandBoxController fx:id="commands"/>
                                 </VBox>
-                                <CommandBoxController fx:id="commands"/>
                             </HBox>
                         </top>
                         <bottom>

@@ -68,6 +68,7 @@ public class MainController extends TabPane implements Initializable {
     @FXML
     private FieldController field;
     private boolean readyToPlace;
+    private int previousScoreStatus;
 
 
     @Override
@@ -180,7 +181,7 @@ public class MainController extends TabPane implements Initializable {
             ResourceGoldCardController tmp = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
             tmp.setupCard((ResourceGoldCard) lastUsedSlot.card);
             lastUsedSlot.setEmpty(true);
-            player.undoMove(lastUsedSlot.coords.getKey(), lastUsedSlot.coords.getValue(), deckChildIndex);
+            player.undoMove(lastUsedSlot.coords.getKey(), lastUsedSlot.coords.getValue(), deckChildIndex, previousScoreStatus);
             updateManaStatus();
             cardPlaced = false;
             readyToPlace = false;
@@ -396,6 +397,7 @@ public class MainController extends TabPane implements Initializable {
                             slotToPlace.setEmpty(false);
                             slotToPlace.card = cardToRemove.getCard();
                             lastUsedSlot = slotToPlace;
+                            previousScoreStatus = player.getScore();
                             player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
                             updateManaStatus();
                             System.out.println("In Main Controller: " + cardToRemove.getCard().getCoveredCornersWhenPlaced());

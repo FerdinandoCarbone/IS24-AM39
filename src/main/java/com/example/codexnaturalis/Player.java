@@ -620,13 +620,11 @@ public class Player implements Serializable {
            ArrayList<CardController> rtrnTmp= new ArrayList<>();
            return rtrnTmp;
        }*/
-    public void undoMove(int row, int column, int deckChildIndex) {
+    public void undoMove(int row, int column, int deckChildIndex, int previousScore) {
         Field.Slot slotToUndo = playerField.getSlots()[row][column];
         ResourceGoldCard cardToUndo = (ResourceGoldCard) slotToUndo.getCardSlot();
         playerDeck.getResourceGoldCards().add(deckChildIndex, cardToUndo);
-        if (cardToUndo.isPlacedFront()) {
-            score -= cardToUndo.getPoints();
-        }
+        score = previousScore;
         for (int i = 0; i < 4; i++) {
             decreaseResourceElementsMana(cardToUndo.getCorners().get(i));
         }
@@ -690,6 +688,7 @@ public class Player implements Serializable {
             cardToUndo.updateCornerToFree(corner);
             coveredCard.updateCornerToFree(coveredCornerIndex);
             cardToUndo.setCoveredCornersWhenPlaced(0);
+            cardToUndo.setCornersChecked(false);
         }
     }
 
