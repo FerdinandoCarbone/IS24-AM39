@@ -34,15 +34,21 @@ class SocketConnectionListener extends ConnectionListener {
             try {
                 if(!hasToRun) Thread.onSpinWait();
                 startListening();
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 System.err.println("There was an error listening for sockets: "+e.getMessage()+"\nRetrying...");
             }
         }
     }
-    private void startListening() throws IOException {
+    private void startListening() throws IOException, ClassNotFoundException, InterruptedException {
         this.sockets.add(serverComMan.getServerSocket().accept());
+        if(Server.gameStarted&&Server.match.getPlayerIds().size() < Server.getNumOfPlayers()){
+            Server.serverConMan.acceptSocketRMIConnections(true);
+        }
     }
-
+    private boolean getCondition(){
+        if(Server.match == null) return true;
+        else return Server.match.getPlayerIds().size() != Server.getNumOfPlayers();
+    }
 }
 class RMIConnectionListener extends ConnectionListener {
 

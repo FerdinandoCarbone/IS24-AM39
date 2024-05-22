@@ -145,27 +145,28 @@ public class Server {
      *
      * @param clientID clientID belonging to the client whose clientHandler thread needs to be killed
      */
-    public static void stopThread(UUID clientID) {
+    public static void stopThread(UUID clientID) throws IOException {
         //todo: fare le opportune modifiche a match
+        ServerConnectionManager.getSocketListener().setHasToRun(true);
         if (serverConMan.getHandlers().values().size() == 1) {
-            ServerConnectionManager.setNumPlayers(0);
+            //ServerConnectionManager.setNumPlayers(0);
             if (ServerConnectionManager.isFirstPlayer()) ServerConnectionManager.setFirstPlayer(false);
         }
-        try {
+        /*try {
             serverConMan.getHandlers().get(clientID).setHasToRun(false);
         } catch (Exception e) {
             System.err.println("Unable to stop process:" + e.getMessage());
-        }
+        }*/
         try {
             String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
-            ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
-            ServerConnectionManager.hashClient.remove(clientID);
-            System.out.println(playerName + " left the game and was unable to reconnect");
+            //ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
+            //ServerConnectionManager.hashClient.remove(clientID);
+            System.out.println(playerName + " left the game or was unable to reconnect");
             System.out.print("Command:");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        serverConMan.getHandlers().remove(clientID);
+        if(serverConMan.getHandlers().get(clientID) instanceof SocketClientHandler) ((SocketClientHandler)serverConMan.getHandlers().get(clientID)).getSocket().close();
     }
 
     private static String getInput() {
