@@ -1000,7 +1000,7 @@ public class Match {
     }
 
     public UUID getCurrentPlayerID() {
-        return players.get(indexCurrentPlayer).getPlayerID();
+        return playerIds.get(indexCurrentPlayer);
     }
 
     public ArrayList<ResourceGoldCard> getPublicCards() {
