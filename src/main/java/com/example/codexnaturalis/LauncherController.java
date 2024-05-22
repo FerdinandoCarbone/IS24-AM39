@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class LauncherController extends StackPane implements Initializable {
     @FXML
+    public Button connectButton;
+    @FXML
     private RadioButton socketOption;
     @FXML
     private RadioButton rmiOption;
@@ -162,6 +164,7 @@ public class LauncherController extends StackPane implements Initializable {
             printStatus("Attempting connection", "blue");
             Client.start();
             printStatus("Waiting for everyone to join","blue");
+            connectButton.setDisable(true);
         }
 
     }

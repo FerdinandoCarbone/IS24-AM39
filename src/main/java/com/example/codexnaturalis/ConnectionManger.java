@@ -445,7 +445,7 @@ public class ConnectionManger {
             }
             if (amPlayerInTurn && typeOfConnection) {
                 if (isGuiSelector()) {
-                    MainController.alert("It's your turn");
+                    MainController.alert("It's your turn",false);
                 } else System.out.println("\nIt's your turn!");
             }
         } catch (Exception e) {
@@ -459,7 +459,7 @@ public class ConnectionManger {
             }
             clientDisconnect();
         }
-        if (isGuiSelector()) MainController.alert("All players' fields were correctly received");
+        if (isGuiSelector()) MainController.alert("All players' fields were correctly received",true);
         else System.out.println("All players' fields were correctly received");
         Client.setCurrentGameStatus(true);
     }

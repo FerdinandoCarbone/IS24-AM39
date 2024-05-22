@@ -49,7 +49,7 @@
                                 <Label text="Enter your name:"/>
                                 <HBox>
                                     <TextField fx:id="textField"/>
-                                    <Button text="Send Play request" onAction="#handleSubmitButtonAction"/>
+                                    <Button fx:id="connectButton" text="Connect" onAction="#handleSubmitButtonAction"/>
                                 </HBox>
                             </VBox>
                         </top>

@@ -19,7 +19,6 @@ public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
     public static Button turnButton;
     public static ComboBox comboBox;
-    private TokenController tokenController;
     private boolean cardPlaced;
     private int deckChildIndex;
     private Player player;
@@ -57,8 +56,6 @@ public class MainController extends TabPane implements Initializable {
     public FieldController field3;
     @FXML
     public FieldController field4;
-    /*@FXML
-    public ScoreTrackerController table;*/
     @FXML
     private Tab tab1;
     @FXML
@@ -198,6 +195,7 @@ public class MainController extends TabPane implements Initializable {
             lastUsedSlot = null;
             previousScoreStatus = -1;
             commands.command3.setDisable(true);
+            //turnButton.setDisable(true);
         } else {
             System.out.println("NO CARD PLACED YET");
         }
@@ -251,38 +249,41 @@ public class MainController extends TabPane implements Initializable {
     }
 
     public void genericTurnSender() {
-        GenericTurnMessage message = Client.getServerHandler().getMessageTurn();
-        ResourceGoldCardController newCardPos = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
-        try {
-            message.printCoveredCards();
-            message.printPublicCards();
-            ResourceGoldCard selectedCard;
-            do {
-                selectedCard = pickCard(message);
-            } while (selectedCard == null);
-            Client.getServerHandler().setMessageTurn(null);
+        if(!cardPlaced) alert("Place a card first",false);
+        else{
+            GenericTurnMessage message = Client.getServerHandler().getMessageTurn();
+            ResourceGoldCardController newCardPos = (ResourceGoldCardController) playerDeck.getChildren().get(deckChildIndex);
+            try {
+                message.printCoveredCards();
+                message.printPublicCards();
+                ResourceGoldCard selectedCard;
+                do {
+                    selectedCard = pickCard(message);
+                } while (selectedCard == null);
+                Client.getServerHandler().setMessageTurn(null);
 //            System.out.println("CARDSELECTED: "+selectedCard.getIdCard());
-            newCardPos.setupCard(selectedCard);
-            player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
-            Client.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCardToSend)), lastUsedSlot.coords));
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+                newCardPos.setupCard(selectedCard);
+                player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
+                Client.getServerHandler().sendMessage(new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCardToSend)), lastUsedSlot.coords));
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            turnButton.setDisable(true);
+            Client.setMyTurn(false);
+            cardPlaced = false;
+            readyToPlace = false;
+            lastUsedSlot = null;
+            cardToRemove = null;
         }
-        turnButton.setDisable(true);
-        Client.setMyTurn(false);
-        cardPlaced = false;
-        readyToPlace = false;
-        lastUsedSlot = null;
-        cardToRemove = null;
     }
 
-    public static void alert(String message) {
+    public static void alert(String message,boolean wait) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Notification");
         alert.setHeaderText(null); // No header text
         alert.setContentText(message);
-        alert.showAndWait();
-        alert.close();
+        if(wait)alert.showAndWait();
+        else alert.show();
     }
 
     public ResourceGoldCard pickCard(GenericTurnMessage message) throws IOException {

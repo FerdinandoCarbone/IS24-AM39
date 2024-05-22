@@ -21,16 +21,16 @@ public class TokenSlotController extends Pane {
         loader.load();
 
 
-        token1.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getPlayer().getToken().getColor().toString() + "Token.png"))));
+        token1.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + Client.getPlayer().getToken().getColor().toString() + "Token.png"))));
         //token1.setVisible(false);
-        token2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getOtherPlayers().get(0).getToken().getColor().toString() + "Token.png"))));
+        token2.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + Client.getOtherPlayers().get(0).getToken().getColor().toString() + "Token.png"))));
         //token2.setVisible(false);
-        if (ZakClient.getOtherPlayers().size() >1){
-            token3.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getOtherPlayers().get(1).getToken().getColor().toString() + "Token.png"))));
+        if (Client.getOtherPlayers().size() >1){
+            token3.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + Client.getOtherPlayers().get(1).getToken().getColor().toString() + "Token.png"))));
             //token3.setVisible(false);
         }
-        if(ZakClient.getOtherPlayers().size()>2) {
-            token4.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + ZakClient.getOtherPlayers().get(2).getToken().getColor().toString() + "Token.png"))));
+        if(Client.getOtherPlayers().size()>2) {
+            token4.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/" + Client.getOtherPlayers().get(2).getToken().getColor().toString() + "Token.png"))));
             //token4.setVisible(false);
         }
 

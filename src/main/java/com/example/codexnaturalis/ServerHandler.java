@@ -168,8 +168,13 @@ public class ServerHandler extends Thread implements Runnable {
     }
     public void winnerDeclaration(EndMatchMessage message) throws WrongMessageConversionException {
         ArrayList<Player> players = message.getFinalWinners();
-        String winString;
-        switch(players.size()){
+        String winString=null;
+        int i = players.size();
+        if(message.getSender().equals(clientName)) {
+            winString = clientName + " is the winner of this game";
+            i=-1;
+        }
+        switch(i){
             case 1:
                 winString = players.getFirst().getPlayerName() + " is the winner of this game";
                 break;
@@ -178,7 +183,13 @@ public class ServerHandler extends Thread implements Runnable {
                 for (Player p : players){
                     winString.concat(p.getPlayerName()+" ");
                 }
+            case -1:
+                break;
             default: throw new WrongMessageConversionException("There was a problem declaring the winner");
+        }
+        if(Client.isGuiSelector()) {
+            String finalWinString = winString;
+            Platform.runLater(()->MainController.alert(finalWinString +"\nThank you for playing",true));
         }
         System.out.println(winString+"\nThank you for playing");
     }

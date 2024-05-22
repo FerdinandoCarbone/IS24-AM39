@@ -269,8 +269,10 @@ public class Match {
             printPlayerIds();
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID null di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
+                UUID winnerID=null;
                 System.out.println("ONYL ONE PLAYER REMAINING");
-                return new CurrentPlayerDisconnectedMessage(publicCards, null,  getPlayerFromId(playerIds.getFirst()).getPlayerName(), playerIds.getFirst());
+                for(UUID id : playerIds) if(id!=null) winnerID = id;
+                return new CurrentPlayerDisconnectedMessage(publicCards, null,  getPlayerFromId(winnerID).getPlayerName(), winnerID);
             }
             return new CurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName(), nextPlayerId);
         } else {
@@ -279,8 +281,10 @@ public class Match {
             printPlayerIds();
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID univoco di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
+                UUID winnerID=null;
                 System.out.println("ONYL ONE PLAYER REMAINING");
-                return new CurrentPlayerDisconnectedMessage(publicCards, null, getPlayerFromId(playerIds.getFirst()).getPlayerName(), playerIds.getFirst());
+                for(UUID id : playerIds) if(id!=null) winnerID = id;
+                return new CurrentPlayerDisconnectedMessage(publicCards, null,  getPlayerFromId(winnerID).getPlayerName(), winnerID);
             }
             return new notCurrentPlayerDisconnectedMessage(publicCards, disconnectedPlayerId, playerToRemove.getPlayerName());
         }
