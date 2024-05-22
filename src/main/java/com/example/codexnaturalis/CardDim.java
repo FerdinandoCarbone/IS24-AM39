@@ -3,7 +3,7 @@ package com.example.codexnaturalis;
 import java.util.UUID;
 
 public class CardDim {
-    static int matrixSize = 50;
+    static int matrixSize = 25;
     static double divider = 6;
     static double cardWidth = 492.0 / divider;
     static double cardHeight = 326.0 / divider;
