@@ -22,7 +22,8 @@
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
-         minWidth="1040.0" maxWidth="700" maxHeight="1040" minHeight="700">
+         minWidth="1040.0" maxWidth="700" maxHeight="1040" minHeight="700"
+        fx:id="tabContainer">
         <Tab text="Your playing Field:" closable="false">
             <BorderPane>
                 <left>
@@ -36,12 +37,14 @@
                     <BorderPane>
                         <top>
                             <HBox>
-                                <PlayerDeckController fx:id="playerDeck" />
+                                <VBox>
+                                    <PlayerDeckController fx:id="playerDeck" />
+                                    <CommandBoxController fx:id="commands"/>
+                                </VBox>
                                 <VBox fx:id="cardControllerVbox">
                                     <CardController fx:id="secretObjCard"/>
                                     <CardController fx:id="publicObj1"/>
                                     <CardController fx:id="publicObj2"/>
-                                    <CommandBoxController fx:id="commands"/>
                                 </VBox>
                             </HBox>
                         </top>

@@ -29,6 +29,8 @@ public class MainController extends TabPane implements Initializable {
     private ResourceGoldCardController cardToRemove;
     private ResourceGoldCard placedCardToSend;
     @FXML
+    TabPane tabContainer;
+    @FXML
     VBox cardControllerVbox;
     public static PlayerManasController manaBar;
     @FXML
@@ -141,22 +143,30 @@ public class MainController extends TabPane implements Initializable {
             else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
             System.out.println("Carta starter di " + others.get(i).getPlayerName() + " piazzata di " + (others.get(i).getPlayerDeck().getStarterCard().isPlacedFront() ? "Fronte" : "Retro"));
         }
+        for (Tab tab : tabs) {
+            if (tab.isDisable()) {
+                tabContainer.getTabs().remove(tab);
+            }
+        }
     }
 
     private void setupRGCEvents() {
         playerDeck.getCard1().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard1().flipCard();
+                selectRGCFromDeck(playerDeck.getCard1());
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard1());
         });
         playerDeck.getCard2().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard2().flipCard();
+                selectRGCFromDeck(playerDeck.getCard2());
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard2());
         });
         playerDeck.getCard3().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 playerDeck.getCard3().flipCard();
+                selectRGCFromDeck(playerDeck.getCard3());
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard3());
         });
     }
@@ -401,6 +411,7 @@ public class MainController extends TabPane implements Initializable {
                             lastUsedSlot = slotToPlace;
                             previousScoreStatus = player.getScore();
                             player.placeCardAndRemoveFromDeck(row, col, cardToRemove.getCard());
+                            slotToPlace.disableEmptyStuff();
                             updateManaPointsAndStatus();
                             System.out.println("In Main Controller: " + cardToRemove.getCard().getCoveredCornersWhenPlaced());
                             playerDeck.resetCard(deckChildIndex);
