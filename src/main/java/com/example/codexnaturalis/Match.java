@@ -28,14 +28,33 @@ public class Match {
      */
     public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
         this.players = players;
+        System.out.println("Players currently playing: ");
+        printPLayers();
         this.scoreTracker = scoreTracker;
         this.coveredCards = new ArrayList<>();
         this.matchID = UUID.randomUUID();
         coveredCards.add(0, DrawingDeck.drawCard(true));
         coveredCards.add(1, DrawingDeck.drawCard(false));
         Collections.shuffle(players);
+        System.out.println("Players have been shuffled, here's the current playing order");
+        printPLayers();
         for (Player player : players) playerIds.add(player.getPlayerID());
+        printPlayerIds();
     }
+
+    public void printPLayers() {
+        for (int i = 0; i < players.size(); i++) {
+            System.out.println((i) + ") " + players.get(i).getPlayerName());
+        }
+    }
+
+    public void printPlayerIds() {
+        System.out.println("Here's the list of updated Ids:");
+        for (int i = 0; i < playerIds.size(); i++) {
+            System.out.println((i) + ") " + playerIds.get(i));
+        }
+    }
+
 
     /**
      * Chooses who will be the first player and updates its firstPlayer attribute
@@ -228,6 +247,7 @@ public class Match {
         Player playerToAdd = getPlayerFromId(playerToAddId);
         int playerToAddIndex = players.indexOf(playerToAdd);
         playerIds.set(playerToAddIndex, playerToAddId);
+        printPlayerIds();
     }
 
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
@@ -246,6 +266,7 @@ public class Match {
             System.out.println(Colors.GREEN + "--" + nextPlayer.getPlayerName() + " is the next player--" + Colors.RESET);
             playerIds.set(playerToRemoveIndex, null);
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from players--" + Colors.RESET);
+            printPlayerIds();
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID null di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
                 System.out.println("ONYL ONE PLAYER REMAINING");
@@ -255,6 +276,7 @@ public class Match {
         } else {
             playerIds.set(playerToRemoveIndex, null);
             System.out.println(Colors.GREEN + "--" + playerToRemove.getPlayerName() + " removed from playerIds--" + Colors.RESET);
+            printPlayerIds();
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID univoco di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
                 System.out.println("ONYL ONE PLAYER REMAINING");
@@ -280,6 +302,7 @@ public class Match {
      * @return int, defines the index of the next player in line
      */
     public int selectIndexNextPlayer(int currentIndex) {
+        printPlayerIds();
         int indiceProssimo = currentIndex + 1;
         if (indiceProssimo >= playerIds.size()) {
             indiceProssimo = 0;
