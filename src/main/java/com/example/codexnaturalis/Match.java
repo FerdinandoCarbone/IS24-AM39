@@ -35,7 +35,7 @@ public class Match {
         this.matchID = UUID.randomUUID();
         coveredCards.add(0, DrawingDeck.drawCard(true));
         coveredCards.add(1, DrawingDeck.drawCard(false));
-        Collections.shuffle(players);
+        Collections.shuffle(players, new Random(100));
         System.out.println("Players have been shuffled, here's the current playing order");
         printPLayers();
         for (Player player : players) playerIds.add(player.getPlayerID());
