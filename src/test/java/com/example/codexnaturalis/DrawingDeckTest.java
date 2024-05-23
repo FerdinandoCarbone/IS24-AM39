@@ -11,8 +11,6 @@ class DrawingDeckTest {
     @Test
     void checkDeckEmptiness() throws IOException {
 
-        Player player = new Player(new Token(), new Field(5, 5));
-
         DrawingDeck.generateDecks();
         assertFalse( DrawingDeck.checkDeckEmptiness(1) );
         assertFalse( DrawingDeck.checkDeckEmptiness(2) );
