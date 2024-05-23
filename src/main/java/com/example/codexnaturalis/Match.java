@@ -346,7 +346,8 @@ public class Match {
                 points = pts;
                 return points;
             }
-
+            else
+                return 0;
 
         }
         /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
@@ -409,23 +410,19 @@ public class Match {
             switch (id) {
                 /** se idCard is ripetizioni semi*/
                 case 95, 96, 97, 98:
-                    //95 3funghi, 96 3foglie, 97 3lupo, 98 3farfalle. tutto x2 punti
+                    //95 3 funghi, 96 3 foglie, 97 3 lupo, 98 3 farfalle. tutto x2 punti
                     switch (id) {
                         case 95:
                             points = (p.getResourceMana()[0] / 3) * 2;
-                            p.addScore(points);
                             return points;
                         case 96:
                             points = (p.getResourceMana()[1] / 3) * 2;
-                            p.addScore(points);
                             return points;
                         case 97:
                             points = (p.getResourceMana()[2] / 3) * 2;
-                            p.addScore(points);
                             return points;
                         case 98:
                             points = (p.getResourceMana()[3] / 3) * 2;
-                            p.addScore(points);
                             return points;
                         default:
                             break;
@@ -442,22 +439,18 @@ public class Match {
                                 }
                             }
                             points = min * 3;
-                            p.addScore(points);
                             return points;
                         // 2 pergamene
                         case 100:
                             points = (p.getElementsMana()[1] / 2) * 2;
-                            p.addScore(points);
                             return points;
                         // 2 ink
                         case 101:
                             points = (p.getElementsMana()[0] / 2) * 2;
-                            p.addScore(points);
                             return points;
                         // 2 piume
                         case 102:
                             points = (p.getElementsMana()[2] / 2) * 2;
-                            p.addScore(points);
                             return points;
 
                         default:
@@ -472,26 +465,19 @@ public class Match {
     }
     protected static int calculateArrObjPoints(Player p) {
         int points = 0;
-        points += checkArrangements(p, p.getPlayerDeck().getSecretObjectiveCard().getIdCard());
-        for(ObjectiveCard o: commonObjectives){
-            points += checkArrangements(p,o.getIdCard());
+        ArrayList<Integer> ids = new ArrayList<>();
+        int id1 = p.getPlayerDeck().getSecretObjectiveCard().getIdCard();
+        int id2 = commonObjectives.getFirst().getIdCard();
+        int id3 = commonObjectives.getLast().getIdCard();
+        ids.add(id1);
+        ids.add(id2);
+        ids.add(id3);
+        Collections.sort(ids);
+        Collections.reverse(ids);
+        for (Integer i : ids) {
+            points += checkArrangements(p,i);
         }
-        int r = p.getPlayerField().getR(), c = p.getPlayerField().getC();
-        int i, j;
-        Field.Slot[][] s;
-        s = p.getPlayerField().getSlots();
-        int arrangedCards = 0;
-        for (i = 0; i < r; i++) {
-            for (j = 0; j < c; j++) {
-                if (s[i][j].isBusySlot() &&
-                        !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
-                    if (((ResourceGoldCard) s[i][j].getCardSlot()).arrangements != 0 &&
-                            ((ResourceGoldCard)s[i][j].getCardSlot()).getIsArrangeable())
-                        arrangedCards++;
-                }
-            }
-        }
-        points += (arrangedCards/3)*2;
+
         return points;
     }
     protected static int checkArrangements(Player p, int id){
@@ -506,379 +492,391 @@ public class Match {
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
-                            card = (ResourceGoldCard) s[i][j].getCardSlot();
+                              card = (ResourceGoldCard)  s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Red) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
-                                    (s[i+1][j-1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i+1][j-1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 2 < r && 0 < j - 2) && (s[i + 2][j - 2].isBusySlot()) &&
-                                    (s[i+2][j-2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i+2][j-2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j-2].getRGCardSlot()).getSeed().equals(Seed.Red)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i+1][j-1].getRGCardSlot().setIsArranged(true);
+                                s[i+2][j-2].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
 
                             if (card.getSeed().equals(Seed.Red) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
-                                    (s[i-1][j+1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i-1][j+1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
-                                    (s[i+1][j-1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i+1][j-1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Red)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j+1].getRGCardSlot().setIsArranged(true);
+                                s[i+1][j-1].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                             if (card.getSeed().equals(Seed.Red) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
-                                    (s[i-1][j+1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i-1][j+1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (0 < i - 2 && j + 2 < c) && (s[i - 2][j + 2].isBusySlot()) &&
-                                    (s[i - 2][j + 2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j+2].getRGCardSlot()).getSeed().equals(Seed.Red)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j+1].getRGCardSlot().setIsArranged(true);
+                                s[i-2][j+2].getRGCardSlot().setIsArranged(true);
+                                points +=2;
+                            }
                         }
                     }
-                }
+                } break;
             case 88:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Green) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
-                                    (s[i+1][j+1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i+1][j+1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 2 < r && j + 2 < c) && (s[i + 2][j + 2].isBusySlot()) &&
-                                    (s[i + 2][j + 2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j+2].getRGCardSlot()).getSeed().equals(Seed.Green)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i+1][j+1].getRGCardSlot().setIsArranged(true);
+                                s[i+2][j+2].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                             if (card.getSeed().equals(Seed.Green) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
-                                    (s[i - 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
-                                    (s[i + 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j-1].getRGCardSlot().setIsArranged(true);
+                                s[i+1][j+1].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                             if (card.getSeed().equals(Seed.Green) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
-                                    (s[i - 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (0 < i - 2 && 0 < j - 2) && (s[i - 2][j - 2].isBusySlot()) &&
-                                    (s[i - 2][j-2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j-2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j-2].getRGCardSlot()).getSeed().equals(Seed.Green)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j-1].getRGCardSlot().setIsArranged(true);
+                                s[i-2][j-2].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                         }
                     }
-                }
+                } break;
             case 89:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Blue) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged() &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
-                                    (s[i + 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 2 < r && 0 < j - 2) && (s[i + 2][j - 2].isBusySlot()) &&
-                                    (s[i + 2][j-2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 2][j-2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j-2].getRGCardSlot()).getSeed().equals(Seed.Blue)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i+1][j-1].getRGCardSlot().setIsArranged(true);
+                                s[i+2][j-2].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                             if (card.getSeed().equals(Seed.Blue) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
-                                    (s[i - 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
-                                    (s[i + 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j+1].getRGCardSlot().setIsArranged(true);
+                                s[i+1][j-1].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                             if (card.getSeed().equals(Seed.Blue) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
-                                    (s[i - 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (0 < i - 2 && j + 2 < c) && (s[i - 2][j + 2].isBusySlot()) &&
-                                    (s[i - 2][j + 2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j+2].getRGCardSlot()).getSeed().equals(Seed.Blue)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j+1].getRGCardSlot().setIsArranged(true);
+                                s[i-2][j+2].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                         }
                     }
-                }
+                } break;
             case 90:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Purple) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
-                                    (s[i + 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (i + 2 < r && j + 2 < c) && (s[i + 2][j + 2].isBusySlot()) &&
-                                    (s[i + 2][j + 2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j+2].getRGCardSlot()).getSeed().equals(Seed.Purple)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i+1][j+1].getRGCardSlot().setIsArranged(true);
+                                s[i+2][j+2].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                             if (card.getSeed().equals(Seed.Purple) &&
-                                    card.getIsArrangeable() &&
+                                    !card.getIsArranged() &&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
-                                    (s[i - 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
-                                    (s[i + 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j-1].getRGCardSlot().setIsArranged(true);
+                                s[i+1][j+1].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                             if (card.getSeed().equals(Seed.Purple) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
-                                    (s[i - 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (0 < i - 2 && 0 < j - 2) && (s[i - 2][j - 2].isBusySlot()) &&
-                                    (s[i - 2][j - 2].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j - 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j-2].getRGCardSlot()).getSeed().equals(Seed.Purple)
-                            ) card.arrangements++;
+                            ){ card.setIsArranged(true);
+                                s[i-1][j-1].getRGCardSlot().setIsArranged(true);
+                                s[i-2][j-2].getRGCardSlot().setIsArranged(true);
+                                points += 2;
+                            }
                         }
                     }
-                }
+                } break;
             case 91:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Red) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
-                                    (s[i + 2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 3 < r && j + 1 < c) && (s[i + 3][j + 1].isBusySlot()) &&
-                                    (s[i + 3][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ) {
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i + 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                (s[i + 2][j].getRGCardSlot()).arrangements=0;
-                                (s[i + 3][j + 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 3][j + 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i + 2][j].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 3][j + 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                             if (card.getSeed().equals(Seed.Red) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
-                                    (s[i - 2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
-                                    (s[i + 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ) {
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                (s[i - 2][j].getRGCardSlot()).arrangements=0;
-                                (s[i + 1][j + 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 1][j + 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 2][j].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 1][j + 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                             if (card.getSeed().equals(Seed.Green) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
-                                    (s[i - 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (0 < i - 2) && (s[i - 2][j - 1].isBusySlot()) &&
-                                    (s[i - 2][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j-1].getRGCardSlot()).getSeed().equals(Seed.Red)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 1][j - 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 1][j - 1].getRGCardSlot().arrangements=0;
-                                (s[i - 2][j - 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 2][j - 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 1][j - 1].getRGCardSlot()).setIsArranged(true);
+                                (s[i - 2][j - 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                         }
                     }
-                }
+                } break;
             case 92:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Green) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
-                                    (s[i + 2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 3 < r && 0 < j - 1) && (s[i + 3][j - 1].isBusySlot()) &&
-                                    (s[i + 3][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 3][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i + 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 2][j].getRGCardSlot().arrangements=0;
-                                (s[i + 3][j - 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 3][j - 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i + 2][j].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 3][j - 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                             if (card.getSeed().equals(Seed.Green) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
-                                    (s[i - 2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
-                                    (s[i + 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 2][j].getRGCardSlot().arrangements=0;
-                                (s[i + 1][j - 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 1][j - 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 2][j].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 1][j - 1].getRGCardSlot()).setIsArranged(true);
                                 points+= 3;
                             }
                             if (card.getSeed().equals(Seed.Purple) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
-                                    (s[i - 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (0 < i - 3) && (s[i - 3][j + 1].isBusySlot()) &&
-                                    (s[i - 3][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-3][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 1][j + 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 1][j + 1].getRGCardSlot().arrangements=0;
-                                (s[i - 3][j + 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 3][j + 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 1][j + 1].getRGCardSlot()).setIsArranged(true);
+                                (s[i - 3][j + 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                         }
                     }
-                }
+                } break;
             case 93:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Red) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
-                                    (s[i + 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 3 < r) && (s[i + 3][j - 1].isBusySlot()) &&
-                                    (s[i + 3][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 3][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i + 1][j-1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 1][j-1].getRGCardSlot().arrangements=0;
-                                (s[i + 3][j - 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 3][j - 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i + 1][j-1].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 3][j - 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                             if (card.getSeed().equals(Seed.Blue) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
-                                    (s[i - 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
-                                    (s[i + 2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 1][j+1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 1][j+1].getRGCardSlot().arrangements=0;
-                                (s[i + 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 2][j].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 1][j+1].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 2][j].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                             if (card.getSeed().equals(Seed.Blue) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
-                                    (s[i - 2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (0 < i - 3 && j + 1 < c) && (s[i - 3][j + 1].isBusySlot()) &&
-                                    (s[i - 3][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-3][j+1].getRGCardSlot()).getSeed().equals(Seed.Red)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 2][j].getRGCardSlot().arrangements=0;
-                                (s[i - 3][j + 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 3][j].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 2][j].getRGCardSlot()).setIsArranged(true);
+                                (s[i - 3][j + 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                         }
                     }
-                }
+                }break;
             case 94:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
                         if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Blue) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
-                                    (s[i + 1][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (i + 3 < r) && (s[i + 3][j + 1].isBusySlot()) &&
-                                    (s[i + 3][j + 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i + 1][j + 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 1][j + 1].getRGCardSlot().arrangements=0;
-                                (s[i + 3][j + 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 3][j + 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i + 1][j + 1].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 3][j + 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                             if (card.getSeed().equals(Seed.Purple) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
-                                    (s[i - 1][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
-                                    (s[i + 2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 1][j - 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 1][j - 1].getRGCardSlot().arrangements=0;
-                                (s[i + 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                s[i + 2][j].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 1][j - 1].getRGCardSlot()).setIsArranged(true);
+                                (s[i + 2][j].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                             if (card.getSeed().equals(Seed.Purple) &&
-                                    card.getIsArrangeable()&&
+                                    !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
-                                    (s[i-2][j].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i-2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (0 < i - 3 && 0 < j - 1) && (s[i - 3][j - 1].isBusySlot()) &&
-                                    (s[i - 3][j - 1].getRGCardSlot()).getIsArrangeable() &&
+                                    !(s[i - 3][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-3][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){
-                                card.setIsArrangeable(false);
-                                card.arrangements=0;
-                                (s[i - 2][j].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 2][j].getRGCardSlot().arrangements=0;
-                                (s[i - 3][j - 1].getRGCardSlot()).setIsArrangeable(false);
-                                s[i - 3][j - 1].getRGCardSlot().arrangements=0;
+                                card.setIsArranged(true);
+                                (s[i - 2][j].getRGCardSlot()).setIsArranged(true);
+                                (s[i - 3][j - 1].getRGCardSlot()).setIsArranged(true);
                                 points += 3;
                             }
                         }
                     }
-                }
+                } break;
             default: break;
         } return points;
     }

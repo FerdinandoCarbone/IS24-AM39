@@ -169,8 +169,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     private Seed seed;
     protected int coveredCornersWhenPlaced = 0;
     private boolean cornersChecked = false;
-    protected int arrangements=0;
-    protected boolean isArrangeable = true;
+    protected boolean isArranged = false;
     //private ResourceElement backCentreResource;
     public enum ResourceElement{
         Mushroom,
@@ -250,11 +249,11 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     public void setSeed(Seed seed) {
         this.seed = seed;
     }
-    public boolean getIsArrangeable(){
-        return isArrangeable;
+    public boolean getIsArranged(){
+        return isArranged;
     }
-    public void setIsArrangeable(boolean isArrangeable) {
-        this.isArrangeable = isArrangeable;
+    public void setIsArranged(boolean isArranged) {
+        this.isArranged = isArranged;
     }
 
     public void setCornersChecked(boolean cornersAreChecked) {

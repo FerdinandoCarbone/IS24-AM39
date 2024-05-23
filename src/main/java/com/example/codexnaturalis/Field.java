@@ -75,10 +75,14 @@ public class Field implements Serializable {
         }
         /**
          * Getter of CardSlot
-         * @return NonObjectiveCard contained in the busySlot
+         * @return ResourceGoldCard contained in the busySlot
          */
         public ResourceGoldCard getRGCardSlot() {
-            return (ResourceGoldCard) cardSlot;
+            ResourceGoldCard card = null;
+            if (!cardSlot.getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
+                card = (ResourceGoldCard) cardSlot;
+            }
+           return card;
         }
 
         /**
