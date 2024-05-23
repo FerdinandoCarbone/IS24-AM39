@@ -22,10 +22,10 @@ class DrawingDeck {
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveComboCards);
         DrawingDeck.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
 
-        Collections.shuffle(DrawingDeck.totalGoldCard, new Random(1000));
-        Collections.shuffle(DrawingDeck.totalResourceCard, new Random(1000));
-        Collections.shuffle(DrawingDeck.totalStartingCards, new Random(1000));
-        Collections.shuffle(DrawingDeck.totalObjectiveCards, new Random(1000));
+        Collections.shuffle(DrawingDeck.totalGoldCard, new Random());
+        Collections.shuffle(DrawingDeck.totalResourceCard, new Random());
+        Collections.shuffle(DrawingDeck.totalStartingCards, new Random());
+        Collections.shuffle(DrawingDeck.totalObjectiveCards, new Random());
     }
 
     public static ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
