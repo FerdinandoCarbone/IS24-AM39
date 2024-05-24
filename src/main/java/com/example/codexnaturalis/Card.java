@@ -3,6 +3,8 @@ package com.example.codexnaturalis;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -37,11 +39,17 @@ abstract class NonObjectiveCard extends Card {
         this.backCorners = backCorners;
     }
 
-    public boolean checkAvailableCorner(int cornerIndex) throws Exception {
+    /**
+     * Given an index as argument, checks whether the corresponding corner is available or not
+     * @param cornerIndex: index to check
+     * @return boolean, true if corner checked is available, false otherwise
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public boolean checkAvailableCorner(int cornerIndex) throws IndexOutOfBoundsException {
         boolean flagAvailable;
 
         if (cornerIndex < 0 || cornerIndex > 3) {
-            throw new Exception("CORNER OUT OF BOUNDS");
+            throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
         }
 
         if (isPlacedFront) {
@@ -52,6 +60,11 @@ abstract class NonObjectiveCard extends Card {
         return flagAvailable;
     }
 
+    /**
+     * Given an index as argument, updates the corresponding corner to busy
+     * @param cornerIndex: index to update
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
     public void updateCornerToBusy(int cornerIndex) throws IndexOutOfBoundsException {
         if (cornerIndex < 0 || cornerIndex > 3) {
             throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
@@ -59,6 +72,12 @@ abstract class NonObjectiveCard extends Card {
 
         getCorners().get(cornerIndex).setAvailableCorner(false);
     }
+
+    /**
+     * Given an index as argument, updates the corresponding corner to free
+     * @param cornerIndex: index to update
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
     public void updateCornerToFree(int cornerIndex) throws IndexOutOfBoundsException {
         if (cornerIndex < 0 || cornerIndex > 3) {
             throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
@@ -66,6 +85,22 @@ abstract class NonObjectiveCard extends Card {
 
         getCorners().get(cornerIndex).setAvailableCorner(true);
     }
+
+    /**
+     * Checks if all corners of card are available
+     * @return true if all corners are available, false otherwise
+     */
+    public boolean allCornersAvailable() {
+        boolean flag = true;
+        for (Corner c : getCorners()) {
+            if (!c.isAvailableCorner()) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
+
 
 
     /**
@@ -102,6 +137,9 @@ abstract class NonObjectiveCard extends Card {
         printBackCorners();
     }
 
+    /**
+     * Checks which way the card is placed and prints the corners accordingly
+     */
     public void printCard() {
         if (isPlacedFront) {
             printFrontCorners();
@@ -192,15 +230,6 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         this.points = points;
         this.seed = seed;
 
-    }
-
-    public void printCoveredCard() {
-        System.out.println(Colors.BLUE + "------------------------------" + RESET);
-        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
-        System.out.print(YELLOW + "[" + (getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(3).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(0).getResourceElement()) + "]" + RESET);
-        System.out.print(YELLOW + "[" + (getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(2).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(1).getResourceElement()) + "]" + RESET);
     }
 
     /**
@@ -323,10 +352,52 @@ class GoldCard extends ResourceGoldCard {
         printRequirements();
     }
 
+    /**
+     * Auxiliary method to check gold card requirements
+     * @param numberToCheck: number to check
+     * @param required: required quantity
+     * @return boolean, true if number to check is enough, false otherwise
+     */
+    private boolean isEnough(int numberToCheck, int required) {
 
-    public ArrayList<ResourceElement> getRequiredResources() {
-        return requiredResources;
+        return numberToCheck >= required;
     }
+
+    /**
+     * Given a gold card, checks its requirements
+     * @return boolean, true if requirements are fulfilled, false otherwise
+     */
+    public boolean requirementsAreFulfilled(Player p) {
+        boolean reqsFulfilled = true;
+
+        ArrayList<ResourceGoldCard.ResourceElement> alreadySeen = new ArrayList<>();
+        HashMap<ResourceElement, Integer> counts = new HashMap<>();
+
+        for (ResourceGoldCard.ResourceElement e : requiredResources) {
+            if (!alreadySeen.contains(e)) {
+                alreadySeen.add(e);
+                counts.put(e, Collections.frequency(requiredResources, e));
+            }
+        }
+
+        for (ResourceGoldCard.ResourceElement e : alreadySeen) {
+            switch (e) {
+                case Mushroom -> reqsFulfilled = isEnough(p.getResourceMana()[0], counts.get(e));
+                case Leaf -> reqsFulfilled = isEnough(p.getResourceMana()[1], counts.get(e));
+                case Wolf -> reqsFulfilled = isEnough(p.getResourceMana()[2], counts.get(e));
+                case Butterfly -> reqsFulfilled = isEnough(p.getResourceMana()[3], counts.get(e));
+                case Ink -> reqsFulfilled = isEnough(p.getElementsMana()[0], counts.get(e));
+                case Papyrus -> reqsFulfilled = isEnough(p.getElementsMana()[1], counts.get(e));
+                case Feather -> reqsFulfilled = isEnough(p.getElementsMana()[2], counts.get(e));
+            }
+            if (!reqsFulfilled) {
+                break;
+            }
+        }
+
+        return reqsFulfilled;
+    }
+
 }
 
 

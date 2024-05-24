@@ -57,9 +57,8 @@ public class Match {
 
 
     /**
-     * Chooses who will be the first player and updates its firstPlayer attribute
-     *
-     * @return Player, first player of the match
+     * When called, chooses the first player in the player list. Chooses the first because the players are shuffled when constructor is called
+     * @return StandardMatchMessage, containing the publicCards, the ID of the playing player, his name and all other fields are null
      */
     public StandardMatchMessage chooseRandomFirstPlayer() {
 
@@ -117,10 +116,12 @@ public class Match {
         //These 2 Ifs check if we are at the end of the cycle and if the playing player is the last on the cycle
         if (!isLastCycle) {
             if (playerIsWinner(playingPlayer)) {
+                System.out.println(Colors.GREEN + "Last cycle initiated" + Colors.RESET);
                 isLastCycle = true;
             }
         }
         if (isLastCycle && indexCurrentPlayer == playerIds.size() - 1) {
+            System.out.println(Colors.GREEN + "Last player has played his turn, last routine routine initiated" + Colors.RESET);
             lastRoundRoutine();
             EndMatchMessage endGame = new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
             endGame.setFinalWinners(finalWinners);

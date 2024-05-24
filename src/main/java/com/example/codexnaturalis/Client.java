@@ -487,7 +487,7 @@ public class Client extends Application{
         int choice;
         ResourceGoldCard selectedCard = null;
         ArrayList<Integer> allIds = new ArrayList<>();
-        if (player.allCornersEmpty(player.getPlayerDeck().getStarterCard())) {
+        if (player.getPlayerDeck().getStarterCard().allCornersAvailable()) {
             System.out.println("StarterCard:");
             player.getPlayerDeck().getStarterCard().printCard();
         }
@@ -539,7 +539,7 @@ public class Client extends Application{
                 continue;
             }
             face = i == 1;
-            if (choice > 40 && !player.requirementsAreFulfilled((GoldCard) placedCard)) {
+            if (choice > 40 && !((GoldCard)placedCard).requirementsAreFulfilled(player)) {
                 System.out.println("You do not possess enough materials or resources to place this card: choose another one");
                 continue;
             }

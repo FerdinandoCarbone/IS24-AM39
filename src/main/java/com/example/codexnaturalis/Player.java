@@ -29,6 +29,9 @@ public class Player implements Serializable {
      * Defines the player's deck
      */
     private PlayerDeck playerDeck;
+    /**
+     * The common objective cards of the match
+     */
     private ArrayList<ObjectiveCard> commonObjCards;
     /**
      * Defines the player's own field
@@ -82,7 +85,6 @@ public class Player implements Serializable {
 
     /**
      * Places the starter card at the center of the player's field
-     *
      * @param isFront: true if the card is faced with if front facing up, otherwise false
      */
     public void placeStarterCard(boolean isFront) {
@@ -114,6 +116,9 @@ public class Player implements Serializable {
         playerDeck.getSecretObjectiveCard().printObjectiveCard();
     }
 
+    /**
+     * Prints to console the resource mana, elements mana, and score
+     */
     public void printManas() {
         System.out.println(BLUE + "-----RESOURCES AND MATERIALS------" + RESET);
         System.out.println(BLUE + "Mushroom: " + resourceMana[0] + RESET);
@@ -125,18 +130,6 @@ public class Player implements Serializable {
         System.out.println(BLUE + "Feather: " + elementsMana[2] + RESET);
         System.out.println(BLUE + "Points: " + score + RESET);
     }
-
-    public boolean allCornersEmpty(NonObjectiveCard card) {
-        boolean flag = true;
-        for (Corner c : card.getCorners()) {
-            if (!c.isAvailableCorner()) {
-                flag = false;
-                break;
-            }
-        }
-        return flag;
-    }
-
 
     /**
      * Prints the player field with its name
@@ -162,74 +155,9 @@ public class Player implements Serializable {
     }
 
     /**
-     * Given a gold card, checks its requirements
-     *
-     * @param card: card to check
-     * @return boolean, true if requirements are fulfilled, false otherwise
+     * Given a seed, updates the elementsMana
+     * @param s: seed to check
      */
-    public boolean requirementsAreFulfilled(GoldCard card) {
-        boolean reqsFulfilled = true;
-
-        ArrayList<ResourceGoldCard.ResourceElement> alreadySeen = new ArrayList<>();
-        HashMap<ResourceGoldCard.ResourceElement, Integer> counts = new HashMap<>();
-        ArrayList<ResourceGoldCard.ResourceElement> resources = card.getRequiredResources();
-
-        for (ResourceGoldCard.ResourceElement e : resources) {
-            if (!alreadySeen.contains(e)) {
-                alreadySeen.add(e);
-                counts.put(e, Collections.frequency(resources, e));
-            }
-        }
-
-        for (ResourceGoldCard.ResourceElement e : alreadySeen) {
-            switch (e) {
-                case Mushroom -> reqsFulfilled = isResourcesEnough(0, counts.get(e));
-                case Leaf -> reqsFulfilled = isResourcesEnough(1, counts.get(e));
-                case Wolf -> reqsFulfilled = isResourcesEnough(2, counts.get(e));
-                case Butterfly -> reqsFulfilled = isResourcesEnough(3, counts.get(e));
-                case Ink -> reqsFulfilled = isElementsEnough(0, counts.get(e));
-                case Papyrus -> reqsFulfilled = isElementsEnough(1, counts.get(e));
-                case Feather -> reqsFulfilled = isElementsEnough(2, counts.get(e));
-            }
-            if (!reqsFulfilled) {
-                break;
-            }
-        }
-
-        return reqsFulfilled;
-    }
-
-    /**
-     * Auxiliary method to check gold card requirements
-     *
-     * @param index:         index of manas
-     * @param numberToCheck: number to check
-     * @return boolean, true if number to check is enough, false otherwise
-     */
-    private boolean isResourcesEnough(int index, int numberToCheck) {
-        boolean flag = true;
-        if (resourceMana[index] < numberToCheck) {
-            flag = false;
-        }
-        return flag;
-    }
-
-    /**
-     * Auxiliary method to check gold card requirements
-     *
-     * @param index:         index of manas
-     * @param numberToCheck: number to check
-     * @return boolean, true if number to check is enough, false otherwise
-     */
-    private boolean isElementsEnough(int index, int numberToCheck) {
-        boolean flag = true;
-        if (elementsMana[index] < numberToCheck) {
-            flag = false;
-        }
-
-        return flag;
-    }
-
     private void decreaseResourceElementsMana(Seed s) {
         switch (s) {
             case Red -> resourceMana[0]--;
@@ -239,6 +167,12 @@ public class Player implements Serializable {
         }
     }
 
+    /**
+     * Method called when the player wants to place a card
+     * @param row: row of the slot where the card will be placed
+     * @param column: column of the slot where the card will be placed
+     * @param cardToPlace: card to place in the slot
+     */
     public void placeCard(int row, int column, ResourceGoldCard cardToPlace) {
         playerField.getSlots()[row][column].setCardSlot(cardToPlace);
         playerField.getSlots()[row][column].setBusySlot(true);
@@ -346,11 +280,9 @@ public class Player implements Serializable {
     }
 
     /**
-     * Given a Corner, analyses its content and updates the player's manas
-     *
+     * Given a corner, updates the player's manas by checking what the corner contains
      * @param corner: corner to check
      */
-
     private void increaseResourceElementsMana(Corner corner) {
         switch (corner.getResourceElement()) {
             case Mushroom -> resourceMana[0]++;
@@ -369,6 +301,10 @@ public class Player implements Serializable {
      * @param e: resource or element to add
      */
 
+    /**
+     * Given a Resource or Element updates the player's manas
+     * @param e: element or resource to check
+     */
     private void increaseResourceElementsMana(ResourceGoldCard.ResourceElement e) {
         switch (e) {
             case Mushroom -> resourceMana[0]++;
@@ -386,7 +322,6 @@ public class Player implements Serializable {
      *
      * @param s: seed or element to add
      */
-
     private void increaseResourceElementsMana(Seed s) {
         switch (s) {
             case Red -> resourceMana[0]++;
@@ -402,7 +337,7 @@ public class Player implements Serializable {
      *
      * @param corner: corner to check
      */
-    private void decreaseResourceElementsMana(Corner corner) {
+    protected void decreaseResourceElementsMana(Corner corner) {
         switch (corner.getResourceElement()) {
             case Mushroom -> resourceMana[0]--;
             case Leaf -> resourceMana[1]--;
@@ -416,7 +351,6 @@ public class Player implements Serializable {
 
     /**
      * Checks is a card is attachable to the adjacent slots
-     *
      * @param row:    row of placed card
      * @param column: column of placed card
      * @return boolean, true if card can be placed, false otherwise
@@ -425,12 +359,17 @@ public class Player implements Serializable {
         boolean flag = true;
         int fieldSize = playerField.getSlots().length;
         int notBusyCounter = 0;
+
+        if (row >= playerField.getSlots().length || column >= playerField.getSlots().length || row < 0 || column < 0) {
+            throw new IndexOutOfBoundsException("UOB EXCEPTION");
+        }
+
         for (int i = 0; i < 4; i++) {
             int rowToCheck = row + calculateOffSetR(i);
             int columnToCheck = column + calculateOffSetC(i);
-//            System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
+            System.out.println(GREEN + "--Checking [" + rowToCheck + "][" + columnToCheck + "]--" + RESET);
             if (rowToCheck < 0 || rowToCheck >= fieldSize || columnToCheck < 0 || columnToCheck >= fieldSize) {
-//                System.out.println(RED + "--Slot [" + rowToCheck + "][" + columnToCheck + "] not available--" + RESET);
+                System.out.println(RED + "--Slot [" + rowToCheck + "][" + columnToCheck + "] not available--" + RESET);
                 notBusyCounter++;
                 if (notBusyCounter == 4) {
                     flag = false;
@@ -454,7 +393,6 @@ public class Player implements Serializable {
         }
         return flag;
     }
-
 
     /**
      * Let A be a card on the field, the player wants to place card B over one if A's corners. Finds which one of
@@ -611,15 +549,14 @@ public class Player implements Serializable {
         return selected.get();
     }
 
-    /*   public ArrayList<Card> cardsToGUI() throws IOException {
-           ArrayList<Card> tmp = new ArrayList<>();
-           tmp.addAll(playerDeck.getResourceGoldCards());
-           tmp.add(playerDeck.getStarterCard());
-           tmp.addAll(commonObjCards);
-           tmp.add(playerDeck.getSecretObjectiveCard());
-           ArrayList<CardController> rtrnTmp= new ArrayList<>();
-           return rtrnTmp;
-       }*/
+    /**
+     * After placing a card this method can get called to restore the state of
+     * the player to how it was before the placement of the card
+     * @param row: row of the slot where the card was placed
+     * @param column: column of the slot where the card was placed
+     * @param deckChildIndex: index in the player's deck where the card placed was
+     * @param previousScore: the player's score before the placement of the card
+     */
     public void undoMove(int row, int column, int deckChildIndex, int previousScore) {
         Field.Slot slotToUndo = playerField.getSlots()[row][column];
         ResourceGoldCard cardToUndo = (ResourceGoldCard) slotToUndo.getCardSlot();
@@ -674,12 +611,18 @@ public class Player implements Serializable {
         slotToUndo.setCardSlot(null);
     }
 
+    /**
+     /* Check if the adjacent slot is busy. If busy update the availability of the adjacent card's corner and
+     * update the availability of the placed card. Also update resourceMana and elementsMana
+     * @param cardToUndo: card that will be restored in the player's deck
+     * @param selectedRow: row where the card was placed
+     * @param selectedColumn: column where the card was placed
+     * @param corner: Corner to check
+     * @throws IndexOutOfBoundsException
+     */
     private void updateAdjacentSlotsUndo(ResourceGoldCard cardToUndo, int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
         int rowToCheck = selectedRow + calculateOffSetR(corner);
         int columnToCheck = selectedColumn + calculateOffSetC(corner);
-        /* Check if the adjacent slot is busy. If busy update the availability of the adjacent card's corner and
-         * update the availability of the placed card. Also update resourceMana and elementsMana
-         *  */
         if (playerField.getSlots()[rowToCheck][columnToCheck].isBusySlot()) {
             NonObjectiveCard coveredCard = playerField.getSlots()[rowToCheck][columnToCheck].getCardSlot();
             int coveredCornerIndex = findCornerToPlace(corner);
@@ -691,7 +634,6 @@ public class Player implements Serializable {
             cardToUndo.setCornersChecked(false);
         }
     }
-
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;

@@ -28,6 +28,26 @@ class DrawingDeck {
         Collections.shuffle(DrawingDeck.totalObjectiveCards, new Random());
     }
 
+    /**
+     * Given a card, it adds it back to its deck
+     * @param cardToReAdd: card to add
+     */
+    public static void reAddCards(Card cardToReAdd) {
+        if (cardToReAdd instanceof ResourceCard) {
+            totalResourceCard.add((ResourceCard)cardToReAdd);
+        } else if (cardToReAdd instanceof GoldCard) {
+            totalGoldCard.add((GoldCard)cardToReAdd);
+        } else if (cardToReAdd instanceof ObjectiveCard) {
+            totalObjectiveCards.add((ObjectiveCard)cardToReAdd);
+        } else if (cardToReAdd instanceof StarterCard) {
+            totalStartingCards.add((StarterCard)cardToReAdd);
+        }
+    }
+
+    /**
+     * When called, returns an ArrayList containing 2 Objective Cards
+     * @return 2 Objective Cards, from which the player will choose his secret one to keep
+     */
     public static ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
 
         ArrayList<ObjectiveCard> cards = new ArrayList<>();
@@ -38,6 +58,10 @@ class DrawingDeck {
         return cards;
     }
 
+    /**
+     * When called, returns an ArrayList of ObjectiveCards
+     * @return List of ObjectiveCards, which will be used as the common objectives during the match
+     */
     public static ArrayList<ObjectiveCard> drawCommonObjective() {
         ArrayList<ObjectiveCard> commonObj = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -46,13 +70,17 @@ class DrawingDeck {
         }
         return commonObj;
     }
+
+    /**
+     * Called when the player chooses his secret objective card, the other one is reAdded to the total objective cards
+     * @param objectiveCard which has to be added to the Objective Cards Deck
+     */
     public static void reAddSecretObjectiveCard(ObjectiveCard objectiveCard){
         totalObjectiveCards.addLast(objectiveCard);
     }
 
     /**
      * Method called from the player who draws a card
-     *
      * @param cardType: defines the card that will be drawn, true for resource, false for gold
      * @return ResourceGoldCard, card that will be added to the playerDeck and removed from its deck
      */
@@ -69,9 +97,8 @@ class DrawingDeck {
     }
 
     /**
-     * The method generates the player deck by randomly choosing 2 cards
-     *
-     * @return PlayerDeck
+     * When called generates the player deck, containing the resource gold cards and the starter card
+     * @return PlayerDeck used in the constructor of Player
      */
     public static PlayerDeck generatePlayerDeck() throws IOException {
         if (!decksAreGenerated) {

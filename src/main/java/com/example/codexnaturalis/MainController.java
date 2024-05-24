@@ -397,7 +397,7 @@ public class MainController extends TabPane implements Initializable {
                     if (player.isCardAttachableToSlot(row, col)) {
                         if (slotToPlace.isEmpty()) {
                             if (cardToRemove.getCard() instanceof GoldCard && cardToRemove.getCard().isPlacedFront()) {
-                                if (!player.requirementsAreFulfilled((GoldCard) cardToRemove.getCard())) {
+                                if (!((GoldCard) cardToRemove.getCard()).requirementsAreFulfilled(player)) {
                                     System.out.println("REQUIREMENTS FOR GOLD CARD NOT FULFILLED");
                                     return;
                                 }
