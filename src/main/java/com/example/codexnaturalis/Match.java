@@ -35,7 +35,7 @@ public class Match {
         this.matchID = UUID.randomUUID();
         coveredCards.add(0, DrawingDeck.drawCard(true));
         coveredCards.add(1, DrawingDeck.drawCard(false));
-        Collections.shuffle(players, new Random(100));
+        Collections.shuffle(players, new Random());
         System.out.println("Players have been shuffled, here's the current playing order");
         printPLayers();
         for (Player player : players) playerIds.add(player.getPlayerID());
@@ -480,6 +480,16 @@ public class Match {
 
         return points;
     }
+
+    /** Given a Player p and an int id (representing the id of an ObjectiveCard), analyzes his Field to
+     * determinate whether it fulfills the requirement of the objective card (in the case that it's a special arrangement of card)
+     * to get the extra-points specified on the card itself.
+     * @param p The Player for whom is required the Field check.
+     * @param id The id of the ObjectiveCard that specifies the requirement and the given points.
+     * @return The number of points made by the fulfillment of the requirement, which can be satisfied more than one time:
+     * in this case it assigns the number of points specified on the card multiplied by the times that the requirement
+     * is fulfilled.
+     */
     protected static int checkArrangements(Player p, int id){
         int points=0;
         int r = p.getPlayerField().getR(), c = p.getPlayerField().getC();
@@ -491,14 +501,16 @@ public class Match {
             case 87:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
-                        if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                        if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
                               card = (ResourceGoldCard)  s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Red) &&
                                     !card.getIsArranged() &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                    !s[i+1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i+1][j-1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 2 < r && 0 < j - 2) && (s[i + 2][j - 2].isBusySlot()) &&
+                                    !s[i+2][j-2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i+2][j-2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j-2].getRGCardSlot()).getSeed().equals(Seed.Red)
                             ){ card.setIsArranged(true);
@@ -510,9 +522,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Red) &&
                                     !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                    !s[i-1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i-1][j+1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                    !s[i+1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i+1][j-1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Red)
                             ){ card.setIsArranged(true);
@@ -523,9 +537,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Red) &&
                                     !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                    !s[i-1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i-1][j+1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (0 < i - 2 && j + 2 < c) && (s[i - 2][j + 2].isBusySlot()) &&
+                                    !s[i-2][j+2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j+2].getRGCardSlot()).getSeed().equals(Seed.Red)
                             ){ card.setIsArranged(true);
@@ -544,9 +560,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Green) &&
                                     !card.getIsArranged() &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                    !s[i+1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i+1][j+1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 2 < r && j + 2 < c) && (s[i + 2][j + 2].isBusySlot()) &&
+                                    !s[i+2][j+2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j+2].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ){ card.setIsArranged(true);
@@ -557,9 +575,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Green) &&
                                     !card.getIsArranged() &&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                    !s[i-1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                    !s[i+1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ){ card.setIsArranged(true);
@@ -570,9 +590,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Green) &&
                                     !card.getIsArranged() &&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                    !s[i-1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (0 < i - 2 && 0 < j - 2) && (s[i - 2][j - 2].isBusySlot()) &&
+                                    !s[i-2][j-2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j-2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j-2].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ){ card.setIsArranged(true);
@@ -586,14 +608,16 @@ public class Match {
             case 89:
                 for (i = 0; i < r; i++) {
                     for (j = 0; j < c; j++) {
-                        if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")) {
+                        if (s[i][j].isBusySlot() && !s[i][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")){
                             card = (ResourceGoldCard) s[i][j].getCardSlot();
                             if (card.getSeed().equals(Seed.Blue) &&
                                     !card.getIsArranged() &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                    !s[i+1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 2 < r && 0 < j - 2) && (s[i + 2][j - 2].isBusySlot()) &&
+                                    !s[i+2][j-2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 2][j-2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j-2].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){ card.setIsArranged(true);
@@ -604,9 +628,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Blue) &&
                                     !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                    !s[i-1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                    !s[i+1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){ card.setIsArranged(true);
@@ -617,9 +643,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Blue) &&
                                     !card.getIsArranged() &&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                    !s[i-1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (0 < i - 2 && j + 2 < c) && (s[i - 2][j + 2].isBusySlot()) &&
+                                    !s[i-2][j+2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j+2].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){ card.setIsArranged(true);
@@ -638,9 +666,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Purple) &&
                                     !card.getIsArranged() &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                    !s[i+1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (i + 2 < r && j + 2 < c) && (s[i + 2][j + 2].isBusySlot()) &&
+                                    !s[i+2][j+2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 2][j + 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j+2].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){ card.setIsArranged(true);
@@ -651,9 +681,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Purple) &&
                                     !card.getIsArranged() &&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                    !s[i-1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                    !s[i+1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){ card.setIsArranged(true);
@@ -664,9 +696,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Purple) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                    !s[i-1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (0 < i - 2 && 0 < j - 2) && (s[i - 2][j - 2].isBusySlot()) &&
+                                    !s[i-2][j-2].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j - 2].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j-2].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){ card.setIsArranged(true);
@@ -685,9 +719,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Red) &&
                                     !card.getIsArranged()&&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                    !s[i+2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 3 < r && j + 1 < c) && (s[i + 3][j + 1].isBusySlot()) &&
+                                    !s[i+3][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ) {
@@ -699,9 +735,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Red) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                    !s[i-2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                    !s[i+1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ) {
@@ -713,9 +751,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Green) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                    !s[i-1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (0 < i - 2) && (s[i - 2][j - 1].isBusySlot()) &&
+                                    !s[i-2][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j-1].getRGCardSlot()).getSeed().equals(Seed.Red)
                             ){
@@ -735,9 +775,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Green) &&
                                     !card.getIsArranged()&&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                    !s[i+2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 3 < r && 0 < j - 1) && (s[i + 3][j - 1].isBusySlot()) &&
+                                    !s[i+3][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 3][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
@@ -749,9 +791,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Green) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                    !s[i-2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                    !s[i+1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
@@ -763,9 +807,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Purple) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                    !s[i-1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Green) &&
                                     (0 < i - 3) && (s[i - 3][j + 1].isBusySlot()) &&
+                                    !s[i-3][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-3][j+1].getRGCardSlot()).getSeed().equals(Seed.Green)
                             ){
@@ -785,9 +831,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Red) &&
                                     !card.getIsArranged()&&
                                     (i + 1 < r && 0 < j - 1) && (s[i + 1][j - 1].isBusySlot()) &&
+                                    !s[i+1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 3 < r) && (s[i + 3][j - 1].isBusySlot()) &&
+                                    !s[i+3][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 3][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){
@@ -799,9 +847,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Blue) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 1 && j + 1 < c) && (s[i - 1][j + 1].isBusySlot()) &&
+                                    !s[i-1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j+1].getRGCardSlot()).getSeed().equals(Seed.Red) &&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                    !s[i+2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){
@@ -813,9 +863,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Blue) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                    !s[i-2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (0 < i - 3 && j + 1 < c) && (s[i - 3][j + 1].isBusySlot()) &&
+                                    !s[i-3][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-3][j+1].getRGCardSlot()).getSeed().equals(Seed.Red)
                             ){
@@ -835,9 +887,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Blue) &&
                                     !card.getIsArranged()&&
                                     (i + 1 < r && j + 1 < c) && (s[i + 1][j + 1].isBusySlot()) &&
+                                    !s[i+1][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 1][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+1][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (i + 3 < r) && (s[i + 3][j + 1].isBusySlot()) &&
+                                    !s[i+3][j+1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 3][j + 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i+3][j+1].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
@@ -849,9 +903,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Purple) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 1 && 0 < j - 1) && (s[i - 1][j - 1].isBusySlot()) &&
+                                    !s[i-1][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 1][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-1][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue) &&
                                     (i + 2 < r) && (s[i + 2][j].isBusySlot()) &&
+                                    !s[i+2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i + 2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i+2][j].getRGCardSlot()).getSeed().equals(Seed.Purple)
                             ){
@@ -863,9 +919,11 @@ public class Match {
                             if (card.getSeed().equals(Seed.Purple) &&
                                     !card.getIsArranged()&&
                                     (0 < i - 2) && (s[i - 2][j].isBusySlot()) &&
+                                    !s[i-2][j].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i-2][j].getRGCardSlot()).getIsArranged() &&
                                     (s[i-2][j].getRGCardSlot()).getSeed().equals(Seed.Purple) &&
                                     (0 < i - 3 && 0 < j - 1) && (s[i - 3][j - 1].isBusySlot()) &&
+                                    !s[i-3][j-1].getCardSlot().getClass().getName().equals("com.example.codexnaturalis.StarterCard")&&
                                     !(s[i - 3][j - 1].getRGCardSlot()).getIsArranged() &&
                                     (s[i-3][j-1].getRGCardSlot()).getSeed().equals(Seed.Blue)
                             ){
