@@ -461,6 +461,7 @@ public class ConnectionManger {
         }
         if (isGuiSelector()) MainController.alert("All players' fields were correctly received",true);
         else System.out.println("All players' fields were correctly received");
+
         Client.setCurrentGameStatus(true);
     }
 

@@ -1,6 +1,33 @@
 ###########DA CHIEDERE AL PROF 21/05/2024 #######################
-CREARE UNA CARTELLA A RUNTIME, PERCHè NON LA CREA
+Serializzare i field, i player, handler ogni GenericTurn e sovrascrivo
+crasho
+setto le cose deserializzate dal file di testo
+forzo la riconnessione dei client in qualche maniera(pensaci)
+
+(funzione di server reset)
+
+
+
+
+
+
+
+
 BISOGNA FARE UN CHECK PER VEDERE SE è POSSIBILE PIAZZARE CARTE?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Divisione Compiti
     1.	Implementazione del Ciclo (Zakaria, Ferdinando)
         a.	Check di quanti client ci sono

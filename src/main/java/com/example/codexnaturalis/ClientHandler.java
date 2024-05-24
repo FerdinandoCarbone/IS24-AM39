@@ -5,6 +5,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.rmi.RemoteException;
@@ -13,7 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-public class ClientHandler extends Thread implements Runnable {
+public class ClientHandler extends Thread implements Runnable, Serializable {
     private ServerConnectionManager connMan;
     public boolean reconnect;
     private final String clientName;
@@ -99,15 +100,20 @@ public class ClientHandler extends Thread implements Runnable {
         System.out.print("Command: ");
 
     }
+public void reset(){
 
+}
     public void broadCastMessageHandler(BroadCastStandardMessage message) {
     }
 
     public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException, ClassNotFoundException {
         StandardMatchMessage newStatus = Server.match.genericTurn(message);
+        Server.getServerSaver().saveState();
         System.out.println("currentPlayer:" + newStatus.getClientID());
         if (newStatus instanceof EndMatchMessage) {
             ServerConnectionManager.sendBroadCastMessage(newStatus);
+            //match ended with no issues --> save data can be reset
+            Server.getServerSaver().resetSave();
             return;
         }
         ArrayList<ResourceGoldCard> coveredCards = Server.match.getCoveredCards();
@@ -160,6 +166,7 @@ class RMIClientHandler extends ClientHandler {
         heartBeat = false;
     }
 
+    @Override
     public void reset(){
         hasToRun = false;
         queue = new ArrayList<>();
@@ -277,7 +284,6 @@ class SocketClientHandler extends ClientHandler {
         this.reconnect = false;
         this.samviseGamgee = new Semaphore(0);
     }
-
     public void reset(Pair<ObjectInputStream, ObjectOutputStream> iostream, Socket socket) {
         this.inClient = iostream.getKey();
         this.outClient = iostream.getValue();

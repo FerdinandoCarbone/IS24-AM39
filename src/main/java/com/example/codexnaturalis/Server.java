@@ -11,13 +11,17 @@ import java.util.*;
 public class Server {
     static boolean gameStarted = false;
     static Match match;
+    private static boolean isCrashed;
     static ServerConnectionManager serverConMan;
     static Pair<String, Integer> connectionInfo;
+    private static ServerStateSaver serverSaver;
 
     //static int playerCounter = 1;
     public static void main(String[] args) throws RemoteException, MalformedURLException {
         int port = 8081;
-        if (!args[0].isBlank()) {
+        checkForSaveData();
+        if(isCrashed) serverSaver.retrieveNecessaryInfo();
+        else if (!args[0].isBlank()) {
             try {
                 port = Integer.parseInt(args[0]);
             } catch (Exception e) {
@@ -25,12 +29,18 @@ public class Server {
             }
 
             connectionInfo = new Pair<>("Server", port);
-        } else {
+        }
+
+        else {
             System.err.println("Cannot start server: Start server with an integer parameter as port");
             System.exit(0);
         }
         serverSetupProcedure();
 
+    }
+
+    private static void checkForSaveData() {
+        serverSaver = new ServerStateSaver();
     }
 
     /**
@@ -44,13 +54,35 @@ public class Server {
         } catch (Exception e) {
             System.err.println("Server Failure: " + e.getMessage());
         }
-        serverConMan.acceptConnection(false);
+        serverConMan.acceptConnection(isCrashed);
         try {
-            matchStart();
+            if(!isCrashed)matchStart();
+            else matchRestart();
         } catch (Exception e) {
             System.err.println("Server Failure: " + e.getMessage());
         }
     }
+
+    private static void matchRestart() throws IOException {
+        Collections.fill(match.getPlayerIds(), null);
+        while (!restartMatchCondition()) Thread.onSpinWait();
+        reWelcomePlayer();
+        serverIdle();
+    }
+
+    private static boolean restartMatchCondition() {
+        int counter = 0;
+        ArrayList<UUID> ids = match.getPlayerIds();
+        for (UUID id : ids) {
+            if (id != null) ++counter;
+        }
+        return counter >= 2;
+    }
+
+    private static void reWelcomePlayer() throws IOException {
+        ServerConnectionManager.sendBroadCastMessage(new BroadCastStandardMessage(null,null,null));
+    }
+
 
     /**
      * Prints ASCII Art and initializes ServerConnectionManager
@@ -59,7 +91,8 @@ public class Server {
      */
     public static void serverStart() throws IOException {
         gameStarted = false;
-        serverConMan = new ServerConnectionManager(connectionInfo, 1099);
+        serverConMan = new ServerConnectionManager(connectionInfo, 1099,isCrashed);
+        serverSaver.saveInitialState();
         System.out.println(
                 """
                          _____                                                                      _____\s
@@ -87,22 +120,32 @@ public class Server {
      *                    The Thread stops here in the while(true) so that the person hosting the server can give it some commands
      */
     public static void matchStart() throws Exception {
-        String serverCommand;
-        ArrayList<Player> players = new ArrayList<>(serverConMan.getPlayers());
+        ArrayList<Player> players = new ArrayList<>(ServerConnectionManager.getPlayers());
         match = new Match(players, new ScoreTracker());
         startingFieldClientSetup();
         System.out.println("Match is about to start: Waiting for all players to choose a secret objective");
         while (!match.areAllSecretObjectiveSet()) Thread.onSpinWait();
+        serverSaver.saveState();
         welcomePlayer();
         gameStarted = true;
         System.out.println("Match has began");
         StandardMatchMessage stdMessage = match.chooseRandomFirstPlayer();
         GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(), stdMessage.getClientID(), match.getCoveredCards(), stdMessage.getPublicCardsNewState(), null); //match loop starts here
         ServerConnectionManager.sendMessage(stdMessage.getClientID(), message);
+        serverSaver.saveState();
+        serverIdle();
+    }
+
+    private static void serverIdle() {
+        String serverCommand;
         while (true) {
             serverCommand = getInput();
             interpretInput(serverCommand);
         }
+    }
+
+    public static ServerStateSaver getServerSaver() {
+        return serverSaver;
     }
 
     /**
@@ -272,6 +315,13 @@ public class Server {
         }
         if (type) return thingToParse - 1;
         else return thingToParse;
+    }
+
+    public static boolean isCrashed() {
+        return isCrashed;
+    }
+    public static void setIsCrashed(boolean isCrashed) {
+        Server.isCrashed = isCrashed;
     }
 
 }

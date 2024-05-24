@@ -104,6 +104,12 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
 
     @Override
     public void addDisconnectedPlayer(UUID clientID) throws IOException {
+        if(Server.isCrashed()){
+            ServerConnectionManager.handlers.replace(clientID,new RMIClientHandler(ServerConnectionManager.hashClient.get(clientID).getPlayerName(),clientID,Server.serverConMan));
+            ClientHandler handler = ServerConnectionManager.handlers.get(clientID);
+            if(ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()!=null)handler.setSecretWasChosen(true);
+            new Thread(handler).start();
+        }
         if (ServerConnectionManager.hashClient.get(clientID) != null && !Server.match.getPlayerIds().contains(clientID)) Server.match.addDisconnectedPlayerId(clientID);
         String sender = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
         TextMessage text = new TextMessage("Server",null,sender+" rejoined the server", "Everyone");

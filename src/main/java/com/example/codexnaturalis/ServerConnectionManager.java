@@ -26,27 +26,30 @@ public class ServerConnectionManager {
     static SocketConnectionListener socketListener;
     static int numPlayers;
     static ServerSocket serverSocket;
-    static RemoteServerMethodInterface remoteServerSkeleton;
     public static UUID reconnectingID;
 
-    public ServerConnectionManager(Pair<String, Integer> connectionInfo, int rmiPort) throws IOException {
+    public ServerConnectionManager(Pair<String, Integer> connectionInfo, int rmiPort, boolean isCrashed) throws IOException {
+        if(!isCrashed) {
+            hashPlayer = new HashMap<>();
+            hashClient = new HashMap<>();
+            handlers = new HashMap<>();
+            firstPlayer = false;
+            numPlayers = 0;
+        }
+        else{
+            retrieveServerConManInfo();
+        }
         this.rmiPort = rmiPort;
-        hashPlayer = new HashMap<>();
-        hashClient = new HashMap<>();
-        handlers = new HashMap<>();
+        serverSocket = new ServerSocket(port);
         port = connectionInfo.getValue();
         serverName = connectionInfo.getKey();
-        serverSocket = new ServerSocket(port);
-        firstPlayer = false;
-        numPlayers = 0;
         reconnectingID = null;
         rmiListener = new RMIConnectionListener(this);
         socketListener = new SocketConnectionListener(this);
+    }
 
-        /*///////TEST
-        remoteServerSkeleton = new RMIServerImplement();
-        LocateRegistry.createRegistry(getRmiPort());
-        Naming.rebind(ServerConnectionManager.getServerName(), remoteServerSkeleton);*/
+    private void retrieveServerConManInfo() {
+        Server.getServerSaver().retrieveCrucial();
     }
 
     /**
@@ -60,7 +63,7 @@ public class ServerConnectionManager {
     public void acceptConnection(boolean isReconnection) throws RemoteException, MalformedURLException {
         rmiListener.start();
         socketListener.start();
-        while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers == 0) || isReconnection) {
+        while (!firstPlayer || (hashClient.size() < numPlayers || numPlayers == 0) || isReconnection && !Server.isCrashed()) {
             while (connectionCondition()) {
                 try {
                     acceptSocketRMIConnections(null, isReconnection);
@@ -196,7 +199,8 @@ public class ServerConnectionManager {
                 out.writeObject(new LobbyCreationMessage("MATCHNOTSTARTED", null, getNumPlayers()));
                 System.out.println(sender + " rejoined the server");
                 return new Pair<>(in, out);
-            } else {
+            }
+            else {
                 currPlayerID = Server.match.getCurrentPlayerID();
                 BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
                 ArrayList<String> currPlaying = new ArrayList<>();

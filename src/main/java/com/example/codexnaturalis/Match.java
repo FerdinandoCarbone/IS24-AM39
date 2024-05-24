@@ -1,8 +1,9 @@
 package com.example.codexnaturalis;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Match {
+public class Match implements Serializable {
     private final ArrayList<Player> players;
     private ArrayList<Player> winners = new ArrayList<>();
     private ArrayList<Player> finalWinners = new ArrayList<>();

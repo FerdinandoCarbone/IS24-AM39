@@ -15,6 +15,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class ConnectionListener extends Thread implements Runnable{
     ServerConnectionManager serverComMan;
@@ -43,15 +44,28 @@ class SocketConnectionListener extends ConnectionListener {
         }
     }
     private void startListening() throws IOException, ClassNotFoundException, InterruptedException {
+        System.out.println("I am listening");
         Socket clientSocket = serverComMan.getServerSocket().accept();
+        System.out.println("I heard");
         this.sockets.add(clientSocket);
         if(Server.gameStarted&&Server.match.getPlayerIds().contains(null)&&!sockets.isEmpty()){
+            SocketClientHandler tmpHand;
+            UUID clientID;
             System.out.println("Accepted socket connection");
             Pair<ObjectInputStream, ObjectOutputStream> oIOStream = Server.serverConMan.acceptSocketRMIConnections(clientSocket,true);
-            SocketClientHandler tmpHand = (SocketClientHandler)Server.serverConMan.getHandlers().get(ServerConnectionManager.reconnectingID);
-            tmpHand.reset(oIOStream,clientSocket);
+            clientID =ServerConnectionManager.reconnectingID;
             sockets.remove(clientSocket);
-            tmpHand.setHasToRun(true);
+            if(Server.isCrashed()){
+                tmpHand = new SocketClientHandler(ServerConnectionManager.hashClient.get(clientID).getPlayerName(),clientSocket,clientID,oIOStream,Server.serverConMan);
+                ServerConnectionManager.handlers.replace(clientID,tmpHand);
+                if(ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()!=null)tmpHand.setSecretWasChosen(true);
+                new Thread(tmpHand).start();
+            }
+            else{
+                tmpHand = (SocketClientHandler)Server.serverConMan.getHandlers().get(clientID);
+                tmpHand.reset(oIOStream,clientSocket);
+                tmpHand.setHasToRun(true);
+            }
             tmpHand.reconnectionAlert();
         }
     }
