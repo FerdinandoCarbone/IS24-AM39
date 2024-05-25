@@ -20,7 +20,7 @@ public class Server {
     public static void main(String[] args) throws RemoteException, MalformedURLException {
         int port = 8081;
         checkForSaveData();
-        if(isCrashed) serverSaver.retrieveNecessaryInfo();
+        if(isCrashed) serverSaver.retrieveNecessaryStartingInfo();
         else if (!args[0].isBlank()) {
             try {
                 port = Integer.parseInt(args[0]);
@@ -70,7 +70,7 @@ public class Server {
         serverIdle();
     }
 
-    private static boolean restartMatchCondition() {
+    public static boolean restartMatchCondition() {
         int counter = 0;
         ArrayList<UUID> ids = match.getPlayerIds();
         for (UUID id : ids) {
@@ -92,6 +92,7 @@ public class Server {
     public static void serverStart() throws IOException {
         gameStarted = false;
         serverConMan = new ServerConnectionManager(connectionInfo, 1099,isCrashed);
+        if(isCrashed) serverSaver.retrieveCrucial();
         serverSaver.saveInitialState();
         System.out.println(
                 """
@@ -156,7 +157,7 @@ public class Server {
     private static void startingFieldClientSetup() throws IOException {
         BroadCastStartingMessage fieldSetupMessage;
         ArrayList<ObjectiveCard> commonObjectiveCard;
-        commonObjectiveCard = DrawingDeck.drawCommonObjective();
+        commonObjectiveCard = match.getDeck().drawCommonObjective();
         match.setCommonObjectives(commonObjectiveCard);
         fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(), null, serverConMan.getHashClient(), commonObjectiveCard, match.getTwoSecretObjectiveCards());
         fieldSetupMessage.setMatchID(match.getMatchID());
@@ -302,7 +303,7 @@ public class Server {
         return serverConMan.getNumPlayers();
     }
 
-    private static int getIntInput(int range, boolean type) {
+    public static int getIntInput(int range, boolean type) {
         Integer thingToParse = null;
         while (true) {
             try {
@@ -312,6 +313,7 @@ public class Server {
                 continue;
             }
             if (thingToParse <= range && thingToParse >= 0) break;
+            System.out.println("Invalid input: try again");
         }
         if (type) return thingToParse - 1;
         else return thingToParse;

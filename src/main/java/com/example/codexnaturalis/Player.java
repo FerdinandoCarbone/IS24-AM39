@@ -64,7 +64,6 @@ public class Player implements Serializable {
     public Player(String playerName, Token token, Field playerField, UUID playerID) throws IOException {
         this.playerName = playerName;
         this.token = token;
-        this.playerDeck = DrawingDeck.generatePlayerDeck();
         this.playerField = playerField;
         this.resourceMana = new int[]{0, 0, 0, 0};
         this.elementsMana = new int[]{0, 0, 0};
@@ -74,7 +73,6 @@ public class Player implements Serializable {
     public Player(Token token, Field playerField) throws IOException {
         this.playerName = null;
         this.token = token;
-        this.playerDeck = DrawingDeck.generatePlayerDeck();
         this.playerField = playerField;
         this.resourceMana = new int[]{0, 0, 0, 0};
         this.elementsMana = new int[]{0, 0, 0};
@@ -741,4 +739,7 @@ public class Player implements Serializable {
         return token;
     }
 
+    public void setPlayerDeck(PlayerDeck playerDeck) {
+        this.playerDeck = playerDeck;
+    }
 }

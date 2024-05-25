@@ -1,41 +1,41 @@
 package com.example.codexnaturalis;
 
-import javafx.util.Pair;
-
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.UUID;
 
 public class ServerSaveData implements Serializable {
+    private static final long serialVersionUID = 6529685098267757690L;
     private Match matchSave;
     private HashMap<Player, Socket> hashPlayer;
     private HashMap<UUID, Player> hashClient;
-    private HashMap<UUID, ClientHandler> handlers;
+    private DrawingDeck drawingDeck;
+    private int handlersSize;
     private boolean firstPlayer;
     private int port;
     private int numPlayers;
     private boolean gameStarted;
     private boolean empty;
-    public ServerSaveData(){
+
+    public ServerSaveData() {
         empty = true;
     }
 
-    public void setInitialSave(int port,int numPlayers){
+    public void setInitialSave(int port, int numPlayers) {
         setPort(port);
         setNumPlayers(numPlayers);
     }
-    public void setSave(Boolean gameStarted,HashMap<Player, Socket> hashPlayer, HashMap<UUID, Player> hashClient, HashMap<UUID, ClientHandler> handlers,Match match){
+
+    public void setSave(Boolean gameStarted, HashMap<Player, Socket> hashPlayer, HashMap<UUID, Player> hashClient, int handlers, Match match) {
         setHashClient(hashClient);
         setGameStarted(gameStarted);
         setMatchSave(match);
-        setHandlers(handlers);
+        setHandlersSize(handlers);
         setHashPlayer(hashPlayer);
 
     }
+
     public int getNumPlayers() {
         return numPlayers;
     }
@@ -44,8 +44,8 @@ public class ServerSaveData implements Serializable {
         return empty;
     }
 
-    public HashMap<UUID, ClientHandler> getHandlers() {
-        return handlers;
+    public int getHandlersSize() {
+        return handlersSize;
     }
 
     public int getPort() {
@@ -53,7 +53,7 @@ public class ServerSaveData implements Serializable {
     }
 
     public void setEmpty(boolean empty) {
-        empty = empty;
+        this.empty = empty;
     }
 
     public boolean isGameStarted() {
@@ -68,6 +68,13 @@ public class ServerSaveData implements Serializable {
         this.firstPlayer = firstPlayer;
     }
 
+    public void setDrawingDeck(DrawingDeck deck) {
+        drawingDeck = deck;
+    }
+
+    public DrawingDeck getDrawingDeck() {
+        return drawingDeck;
+    }
 
     public boolean isFirstPlayer() {
         return firstPlayer;
@@ -82,7 +89,7 @@ public class ServerSaveData implements Serializable {
     }
 
     public Match getMatchSave() {
-        return matchSave;
+        return this.matchSave;
     }
 
 
@@ -90,8 +97,8 @@ public class ServerSaveData implements Serializable {
         return hashPlayer;
     }
 
-    public void setHandlers(HashMap<UUID, ClientHandler> handlers) {
-        this.handlers = handlers;
+    public void setHandlersSize(int handlers) {
+        this.handlersSize = handlers;
     }
 
     public void setHashPlayer(HashMap<Player, Socket> hashPlayer) {

@@ -3,17 +3,16 @@ package com.example.codexnaturalis;
 import javafx.util.Pair;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class ServerStateSaver {
-    ServerSaveData saveData;
-    Pair<FileInputStream, FileOutputStream> fileSaveStream;
-    Pair<ObjectInputStream, ObjectOutputStream> saveFileRW;
-
-
+    public ServerSaveData saveData;
+    private String fileName = "serverSaveData/match-SaveData.serv";
     public ServerStateSaver() {
         initSaver();
 
@@ -30,22 +29,10 @@ public class ServerStateSaver {
             throw new RuntimeException("Cannot create Directory");
         }
         //creating references to access file and save file itself
-        String fileName = "serverSaveData/match-SaveData.serv";
+
         boolean saveFound = true;
-        FileOutputStream fileSave;
-        FileInputStream fileLoad;
         try {
-            path = Paths.get(fileName);
-            if(Files.notExists(path)) saveDataCreation(fileName);
-            fileSave = new FileOutputStream(fileName);
-            fileLoad = new FileInputStream(fileName);
-            fileSaveStream = new Pair<>(fileLoad, fileSave);
-            ObjectOutputStream tmpOutStream = new ObjectOutputStream(fileSave);
-            ObjectInputStream tmpInStream = new ObjectInputStream(fileLoad);
-            saveFileRW = new Pair<>(tmpInStream, tmpOutStream);
             saveFound = loadState();
-        } catch (IOException e) {
-            System.out.println("An error occurred:" + e.getMessage());
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +40,18 @@ public class ServerStateSaver {
         // if file contains useful data, data is read and loaded
         if (saveFound) {
             System.out.println("Save data loaded correctly: " + (saveData.isEmpty() ? "data is empty, starting a new match" : "previous match data was found"));
-            Server.setIsCrashed(!saveData.isEmpty());
+            if(!saveData.isEmpty()) {
+                System.out.println("Do you want to start a new match or load the previous one?\n0 - New match\n1 - Load save");
+                int choice = Server.getIntInput(1,false);
+                switch (choice){
+                    case 0:
+                        Server.setIsCrashed(false);
+                        break;
+                    case 1:
+                        Server.setIsCrashed(true);
+                        break;
+                }
+            }
         } else {
             System.out.println("No save file was found: will start a new match when requested to");
             Server.setIsCrashed(false);
@@ -62,7 +60,6 @@ public class ServerStateSaver {
 
 
     private void saveDataCreation(String fileName) {
-        saveData = new ServerSaveData();
         try (FileOutputStream fileOut = new FileOutputStream(fileName);
              ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
             objectOut.writeObject(saveData);
@@ -80,28 +77,37 @@ public class ServerStateSaver {
     public boolean saveState() {
         saveData.setMatchSave(Server.match);
         saveData.setGameStarted(Server.gameStarted);
-        saveData.setHandlers(Server.serverConMan.getHandlers());
+        saveData.setHandlersSize(Server.serverConMan.getHandlers().size());
         saveData.setHashClient(Server.serverConMan.getHashClient());
         saveData.setFirstPlayer(ServerConnectionManager.firstPlayer);
+        saveData.setNumPlayers(ServerConnectionManager.numPlayers);
         saveData.setEmpty(false);
         return save();
     }
 
     private boolean save() {
-        try {
-            saveFileRW.getValue().writeObject(saveData);
-            saveFileRW.getValue().flush();
-            saveFileRW.getValue().reset();
+        try (FileOutputStream fileOut = new FileOutputStream(fileName);
+             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+            objectOut.writeObject(saveData);
+            objectOut.flush();
+            objectOut.reset();
         } catch (Exception e) {
             System.err.println("Error occurred while saving");
             return false;
+        }
+        System.out.println(Colors.GREEN + "SAVE SUCCESSFULL" + Colors.RESET);
+        try{
+            loadState();
+        } catch(ClassNotFoundException e){
+            e.printStackTrace();
         }
         return true;
     }
 
     public boolean loadState() throws ClassNotFoundException {
-        try {
-            saveData = (ServerSaveData) saveFileRW.getKey().readObject();
+        try (FileInputStream fileIn = new FileInputStream(fileName);
+             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
+            saveData = (ServerSaveData) objectIn.readObject();
         }
         catch(EOFException E){
             System.out.println("eof reached:"+ E.getMessage());
@@ -114,7 +120,7 @@ public class ServerStateSaver {
         return true;
     }
 
-    public void retrieveNecessaryInfo() {
+    public void retrieveNecessaryStartingInfo() {
         Server.connectionInfo = new Pair<>("Server", saveData.getPort());
         Server.gameStarted = saveData.isGameStarted();
 
@@ -122,10 +128,13 @@ public class ServerStateSaver {
 
     public void retrieveCrucial() {
         ServerConnectionManager.hashClient = saveData.getHashClient();
-        ServerConnectionManager.handlers = saveData.getHandlers();
+        ServerConnectionManager.handlers = new HashMap<>();
+        ArrayList<UUID> ids = new ArrayList<>(ServerConnectionManager.hashClient.keySet());
+        for(int i =0;i< saveData.getHandlersSize();i++) ServerConnectionManager.handlers.put(ids.get(i),null);
         ServerConnectionManager.hashPlayer = saveData.getHashPlayer();
         ServerConnectionManager.firstPlayer = saveData.isFirstPlayer();
         ServerConnectionManager.numPlayers = saveData.getNumPlayers();
+        Server.gameStarted = saveData.isGameStarted();
         Server.match = saveData.getMatchSave();
     }
 

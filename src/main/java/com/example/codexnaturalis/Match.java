@@ -19,6 +19,7 @@ public class Match implements Serializable {
     private int[] previousResourceMana;
     public HashMap<UUID, ArrayList<ObjectiveCard>> selectedSecrets = new HashMap<>();
     private ArrayList<UUID> playerIds = new ArrayList<>();
+    private DrawingDeck deck;
 
 
 
@@ -34,12 +35,24 @@ public class Match implements Serializable {
         this.scoreTracker = scoreTracker;
         this.coveredCards = new ArrayList<>();
         this.matchID = UUID.randomUUID();
-        coveredCards.add(0, DrawingDeck.drawCard(true));
-        coveredCards.add(1, DrawingDeck.drawCard(false));
+        try{
+            this.deck = new DrawingDeck();
+        }
+        catch(Exception e){
+            throw new RuntimeException("Cannot instanciate cards");
+        }
+        try {
+            for (Player p : players) p.setPlayerDeck(deck.generatePlayerDeck());
+        } catch(Exception e){
+            throw new RuntimeException("Unable to generate Decks");
+        }
+        coveredCards.add(0, deck.drawCard(true));
+        coveredCards.add(1, deck.drawCard(false));
         Collections.shuffle(players, new Random(100));
         System.out.println("Players have been shuffled, here's the current playing order");
         printPLayers();
         for (Player player : players) playerIds.add(player.getPlayerID());
+        indexCurrentPlayer = 0;
 //        printPlayerIds();
     }
 
@@ -68,10 +81,10 @@ public class Match implements Serializable {
         indexCurrentPlayer = 0;
         System.out.println(Colors.GREEN + playingPlayer.getPlayerName() + " is first to play!" + Colors.RESET);
         System.out.println(Colors.GREEN + "--Getting public cards, please wait--" + Colors.RESET);
-        ResourceGoldCard publicCard1 = DrawingDeck.drawCard(true);
-        ResourceGoldCard publicCard2 = DrawingDeck.drawCard(true);
-        ResourceGoldCard publicCard3 = DrawingDeck.drawCard(false);
-        ResourceGoldCard publicCard4 = DrawingDeck.drawCard(false);
+        ResourceGoldCard publicCard1 = deck.drawCard(true);
+        ResourceGoldCard publicCard2 = deck.drawCard(true);
+        ResourceGoldCard publicCard3 = deck.drawCard(false);
+        ResourceGoldCard publicCard4 = deck.drawCard(false);
         System.out.println(Colors.GREEN + "--Adding public cards--" + Colors.RESET);
         publicCards.add(publicCard1);
         publicCards.add(publicCard2);
@@ -144,14 +157,14 @@ public class Match implements Serializable {
             publicCards.add(tmpCardPos, replacementCard);
             coveredCards.remove(replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to public cards as replacement from covered cards--" + Colors.RESET);
-            ResourceGoldCard cardAddedToCovered = DrawingDeck.drawCard(isResourceCard);
+            ResourceGoldCard cardAddedToCovered = deck.drawCard(isResourceCard);
             coveredCards.add(isResourceCard ? 0 : 1, cardAddedToCovered);
             System.out.println(Colors.GREEN + "--Card #" + cardAddedToCovered.getIdCard() + " added to covered cards--" + Colors.RESET);
         } else {
             ResourceGoldCard tmpCard = getCoveredCardFromId(cardDrawnId);
             coveredCards.remove(tmpCard);
             System.out.println(Colors.GREEN + "--Card #" + tmpCard.getIdCard() + " removed from covered cards--" + Colors.RESET);
-            ResourceGoldCard replacementCard = DrawingDeck.drawCard(isResourceCard);
+            ResourceGoldCard replacementCard = deck.drawCard(isResourceCard);
             coveredCards.add(isResourceCard ? 0 : 1, replacementCard);
             System.out.println(Colors.GREEN + "--Card #" + replacementCard.getIdCard() + " added to covered cards--" + Colors.RESET);
         }
@@ -226,7 +239,7 @@ public class Match implements Serializable {
     public HashMap<UUID, ArrayList<ObjectiveCard>> getTwoSecretObjectiveCards() {
 
         for (Player p : players) {
-            ArrayList<ObjectiveCard> cards = DrawingDeck.drawTwoObjectiveCards();
+            ArrayList<ObjectiveCard> cards = deck.drawTwoObjectiveCards();
             selectedSecrets.put(p.getPlayerID(), cards);
         }
         return selectedSecrets;
@@ -241,7 +254,7 @@ public class Match implements Serializable {
         ObjectiveCard cardToDiscard = null;
         for (ObjectiveCard c : selectedSecrets.get(clientID)) if (!c.equals(cardToKeep)) cardToDiscard = c;
         selectedSecrets.get(clientID).remove(cardToDiscard);
-        DrawingDeck.reAddSecretObjectiveCard(cardToDiscard);
+        deck.reAddSecretObjectiveCard(cardToDiscard);
     }
 
     public void addDisconnectedPlayerId(UUID playerToAddId) {
@@ -1019,6 +1032,10 @@ public class Match implements Serializable {
     public ArrayList<UUID> getPlayerIds() {
         return playerIds;
     }
+    public DrawingDeck getDeck(){
+        return this.deck;
+    }
+
 }
 
 

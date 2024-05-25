@@ -40,6 +40,7 @@ class SocketConnectionListener extends ConnectionListener {
                 startListening();
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 System.err.println("There was an error listening for sockets: "+e.getMessage()+"\nRetrying...");
+                continue;
             }
         }
     }
@@ -48,7 +49,7 @@ class SocketConnectionListener extends ConnectionListener {
         Socket clientSocket = serverComMan.getServerSocket().accept();
         System.out.println("I heard");
         this.sockets.add(clientSocket);
-        if(Server.gameStarted&&Server.match.getPlayerIds().contains(null)&&!sockets.isEmpty()){
+        if(Server.gameStarted&& Server.match.getPlayerIds().contains(null) && !sockets.isEmpty()){
             SocketClientHandler tmpHand;
             UUID clientID;
             System.out.println("Accepted socket connection");
@@ -56,12 +57,16 @@ class SocketConnectionListener extends ConnectionListener {
             clientID =ServerConnectionManager.reconnectingID;
             sockets.remove(clientSocket);
             if(Server.isCrashed()){
-                tmpHand = new SocketClientHandler(ServerConnectionManager.hashClient.get(clientID).getPlayerName(),clientSocket,clientID,oIOStream,Server.serverConMan);
+                System.out.println("Reconnecting a client after a server crash...");
+                String playerName=null;
+                for(Player p: Server.match.getPlayers()) if(p.getPlayerID().equals(clientID)) playerName = p.getPlayerName();
+                tmpHand = new SocketClientHandler(playerName,clientSocket,clientID,oIOStream,Server.serverConMan);
                 ServerConnectionManager.handlers.replace(clientID,tmpHand);
                 if(ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()!=null)tmpHand.setSecretWasChosen(true);
                 new Thread(tmpHand).start();
             }
             else{
+                System.out.println("Reconnecting a client after a client crash...");
                 tmpHand = (SocketClientHandler)Server.serverConMan.getHandlers().get(clientID);
                 tmpHand.reset(oIOStream,clientSocket);
                 tmpHand.setHasToRun(true);

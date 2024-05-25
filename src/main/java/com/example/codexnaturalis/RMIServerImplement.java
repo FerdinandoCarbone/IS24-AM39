@@ -90,7 +90,10 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         if(matchID==null) return new Message("MATCHNOTSTARTED",null);
         else if (!matchID.equals(Server.match.getMatchID())) return new Message("FORBIDDEN", null);
         else {
-            BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", Server.match.getCurrentPlayerID(), ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
+            UUID currPlayerID;
+            if(Server.isCrashed()) currPlayerID = Server.getServerSaver().saveData.getMatchSave().getCurrentPlayerID();
+            else currPlayerID = Server.match.getCurrentPlayerID();
+            BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
             ArrayList<String> currPlaying = new ArrayList<>();
             for(UUID id:Server.match.getPlayerIds()) if(id!=null) currPlaying.add(ServerConnectionManager.hashClient.get(id).getPlayerName());
             bcStart.setCurrentlyPlaying(currPlaying);
@@ -105,7 +108,9 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     @Override
     public void addDisconnectedPlayer(UUID clientID) throws IOException {
         if(Server.isCrashed()){
-            ServerConnectionManager.handlers.replace(clientID,new RMIClientHandler(ServerConnectionManager.hashClient.get(clientID).getPlayerName(),clientID,Server.serverConMan));
+            String playerName=null;
+            for(Player p: Server.match.getPlayers()) if(p.getPlayerID().equals(clientID)) playerName = p.getPlayerName();
+            ServerConnectionManager.handlers.replace(clientID,new RMIClientHandler(playerName,clientID,Server.serverConMan));
             ClientHandler handler = ServerConnectionManager.handlers.get(clientID);
             if(ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()!=null)handler.setSecretWasChosen(true);
             new Thread(handler).start();

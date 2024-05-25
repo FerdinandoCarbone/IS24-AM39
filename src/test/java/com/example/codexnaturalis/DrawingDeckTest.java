@@ -12,20 +12,21 @@ class DrawingDeckTest {
     void checkDeckEmptiness() throws IOException {
 
         Player player = new Player(new Token(), new Field(5, 5));
+        DrawingDeck deck = new DrawingDeck();
 
-        DrawingDeck.generateDecks();
-        assertFalse( DrawingDeck.checkDeckEmptiness(1) );
-        assertFalse( DrawingDeck.checkDeckEmptiness(2) );
+        deck.generateDecks();
+        assertFalse( deck.checkDeckEmptiness(1) );
+        assertFalse( deck.checkDeckEmptiness(2) );
 
-        while (DrawingDeck.getTotalResourceCard().size() > 0) {
-            ResourceGoldCard card = DrawingDeck.drawCard(true);
+        while (deck.getTotalResourceCard().size() > 0) {
+            ResourceGoldCard card = deck.drawCard(true);
         }
-        while (DrawingDeck.getTotalGoldCard().size() > 0) {
-            ResourceGoldCard card = DrawingDeck.drawCard(false);
+        while (deck.getTotalGoldCard().size() > 0) {
+            ResourceGoldCard card = deck.drawCard(false);
         }
 
-        assertTrue( DrawingDeck.checkDeckEmptiness(1) );
-        assertTrue( DrawingDeck.checkDeckEmptiness(2) );
+        assertTrue( deck.checkDeckEmptiness(1) );
+        assertTrue( deck.checkDeckEmptiness(2) );
 
 
 

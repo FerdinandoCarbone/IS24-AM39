@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
-import static com.example.codexnaturalis.DrawingDeck.drawCard;
-import static com.example.codexnaturalis.DrawingDeck.generateDecks;
+
 import static com.example.codexnaturalis.Seed.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,12 +16,12 @@ class PointsTest{
 
     @RepeatedTest(1000)
     void testCalculateObjPoints() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(8, 8), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -35,7 +34,7 @@ class PointsTest{
         int i, j;
         Random rand = new Random();
         rand.setSeed(System.currentTimeMillis());
-        ResourceGoldCard card = drawCard(rand.nextBoolean());
+        ResourceGoldCard card = deck.drawCard(rand.nextBoolean());
         for (i = 0; i < 8; i++) {
             for (j = 0; j < 8; j++) {
                 if ((i % 2 == 1 && j % 2 == 1) || (i % 2 == 0 && j % 2 == 0)) {
@@ -45,10 +44,10 @@ class PointsTest{
                         if (!s[i][j].isBusySlot()) {
                             System.out.println("Slot [" + i + "]" + "[" + j + "]" + " is not busy");
                             player.placeCard(i, j, card);
-                            card = drawCard(rand.nextBoolean());
+                            card = deck.drawCard(rand.nextBoolean());
                         } else System.out.println("Slot [" + i + "]" + "[" + j + "]" + " is busy");
                     } else {
-                        card = drawCard(rand.nextBoolean());
+                        card = deck.drawCard(rand.nextBoolean());
                         System.out.println("Card num. " + card.getIdCard() + " is not attachable to slot [" + i + "]" + "[" + j + "]");
                     }
                 } else System.out.println("Index " + i + " and index " + j + " are uncompatible");
@@ -78,7 +77,7 @@ class PointsTest{
 
     @RepeatedTest(10)
     void testCheckPoints() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(5, 5), UUID.randomUUID());
         Field f = player.getPlayerField();
         Field.Slot[][] s = f.getSlots();
@@ -86,7 +85,7 @@ class PointsTest{
         int[] previousElementsMana;
         Random rand = new Random();
         rand.setSeed(System.currentTimeMillis());
-        ResourceGoldCard card= drawCard(rand.nextBoolean());
+        ResourceGoldCard card= deck.drawCard(rand.nextBoolean());
         for(i = 0; i < 5; i++){
             for(j = 0; j < 5; j++) {
                 if((i%2==1 && j%2==1)||(i%2==0 && j%2==0)) {
@@ -102,11 +101,11 @@ class PointsTest{
                             player.placeCard(i, j, card);
                             player.addScore(Match.checkPoints(card,player,previousElementsMana));
                             System.out.println("Il giocatore " + player.getPlayerName() + " ha totalizzato " + player.getScore() + " punti dopo questo turno");
-                            card = drawCard(rand.nextBoolean());
+                            card = deck.drawCard(rand.nextBoolean());
 
                         } else System.out.println("Slot [" + i + "]" + "[" + j + "]" + " is busy");
                     } else{
-                        card = drawCard(rand.nextBoolean());
+                        card = deck.drawCard(rand.nextBoolean());
                         System.out.println("Card num. " + card.getIdCard() + " is not attachable to slot [" + i + "]" + "[" + j + "]");
                     }
                 } else System.out.println("Index " + i + " and index " + j + " are uncompatible");
@@ -117,12 +116,12 @@ class PointsTest{
 
     @RepeatedTest(200)
     void testCalculateObjPoints87() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -172,12 +171,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints88() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -227,12 +226,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints89() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -282,12 +281,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints90() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(90,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -337,12 +336,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints91() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -392,12 +391,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints92() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -447,12 +446,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints93() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -502,12 +501,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints94() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -557,12 +556,12 @@ class PointsTest{
     }
     /*@Test
     void testCalculateObjPoints95() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -601,12 +600,12 @@ class PointsTest{
     }
     @Test
     void testCalculateObjPoints96() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -645,12 +644,12 @@ class PointsTest{
     }
     @Test
     void testCalculateObjPoints97() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -689,12 +688,12 @@ class PointsTest{
     }
     @Test
     void testCalculateObjPoints98() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -733,12 +732,12 @@ class PointsTest{
     }
     @Test
     void testCalculateObjPoints99() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -777,12 +776,12 @@ class PointsTest{
     }
     @Test
     void testCalculateObjPoints100() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -821,12 +820,12 @@ class PointsTest{
     }
     @Test
     void testCalculateObjPoints101() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -865,12 +864,12 @@ class PointsTest{
     }
     @Test
     void testCalculateObjPoints102() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -909,12 +908,12 @@ class PointsTest{
     }*/
     @RepeatedTest(200)
     void testCalculateObjPoints88bis() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false), card4= drawCard(false), card5= drawCard(true);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false), card4= deck.drawCard(false), card5= deck.drawCard(true);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(88,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(87,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -968,12 +967,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints88ter() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1= drawCard(true), card2= drawCard(true), card3= drawCard(false), card4= drawCard(false), card5= drawCard(true), card6 = drawCard(true);
+        ResourceGoldCard card1= deck.drawCard(true), card2= deck.drawCard(true), card3= deck.drawCard(false), card4= deck.drawCard(false), card5= deck.drawCard(true), card6 = deck.drawCard(true);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87,null,2,null,Red,true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88,null,2,null,Green,true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2,null, Blue, true);
@@ -1029,12 +1028,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints94bis() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1 = drawCard(true), card2 = drawCard(true), card3 = drawCard(false), card4 = drawCard(false), card5 = drawCard(false);
+        ResourceGoldCard card1 = deck.drawCard(true), card2 = deck.drawCard(true), card3 = deck.drawCard(false), card4 = deck.drawCard(false), card5 = deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87, null, 2, null, Red, true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88, null, 2, null, Green, true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2, null, Blue, true);
@@ -1088,12 +1087,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints94ter() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1 = drawCard(true), card2 = drawCard(true), card3 = drawCard(false), card4 = drawCard(false), card5 = drawCard(false), card6 = drawCard(false);
+        ResourceGoldCard card1 = deck.drawCard(true), card2 = deck.drawCard(true), card3 = deck.drawCard(false), card4 = deck.drawCard(false), card5 = deck.drawCard(false), card6 = deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87, null, 2, null, Red, true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88, null, 2, null, Green, true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2, null, Blue, true);
@@ -1149,12 +1148,12 @@ class PointsTest{
     }
     @RepeatedTest(200)
     void testCalculateObjPoints94quat() throws IOException {
-        generateDecks();
+        DrawingDeck deck = new DrawingDeck();
         Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
-        ResourceGoldCard card1 = drawCard(true), card2 = drawCard(true), card3 = drawCard(false), card4 = drawCard(false), card5 = drawCard(false), card6 = drawCard(false);
+        ResourceGoldCard card1 = deck.drawCard(true), card2 = deck.drawCard(true), card3 = deck.drawCard(false), card4 = deck.drawCard(false), card5 = deck.drawCard(false), card6 = deck.drawCard(false);
         ObjectiveCard objCard1 = new ObjectiveCardCombo(87, null, 2, null, Red, true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(88, null, 2, null, Green, true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(89, null, 2, null, Blue, true);

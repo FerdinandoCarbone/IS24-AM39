@@ -630,7 +630,7 @@ public class Client extends Application{
      * @return Pair of coordinates of a field slot
      */
     private static Pair<Integer, Integer> getCoordinates(boolean mode) {
-        int fieldSize = player.getPlayerField().getSlots().length;
+        int fieldSize = CardDim.matrixSize - 1;
         Pair<Integer, Integer> coordinates;
         while (true) {
             int row, column;
@@ -639,6 +639,9 @@ public class Client extends Application{
             System.out.println("Select a column:");
             column = getIntInput(fieldSize, false);
             coordinates = new Pair<>(row, column);
+            /*if(coordinates.getValue()>=CardDim.matrixSize || coordinates.getKey()>=CardDim.matrixSize){
+                System.out.println("Invalid position");
+            }*/
             if (mode) {
                 if (player.getPlayerField().getSlots()[row][column].isBusySlot()) {
                     System.out.println("You cannot place a card in a busy slot. Select another one");
@@ -678,7 +681,7 @@ public class Client extends Application{
         System.out.println("Who do you want to send the message to?");
         System.out.println(0 + " - Cancel");
         for (String p : currentlyPlaying.keySet()) {
-            if(!currentlyPlaying.get(p)) continue;
+            if(!currentlyPlaying.get(p) || p.equals(playerNick)) continue;
             recipientChooser.put(i, p);
             System.out.println(i + " - " + p);
             ++i;
@@ -911,6 +914,7 @@ public class Client extends Application{
                 break;
             }
             if (thingToParse <= range && thingToParse >= 0) break;
+            System.out.println("Invalid input: try again");
         }
         if (type) return thingToParse - 1;
         else return thingToParse;
@@ -979,7 +983,6 @@ public class Client extends Application{
 
     @Override
     public void start(Stage stageStart) throws Exception {
-        DrawingDeck.generateDecks();
         stage=stageStart;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/launcher.fxml"));
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedLogo.png")));

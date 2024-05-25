@@ -4,31 +4,34 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-class DrawingDeck {
-    private static ArrayList<ResourceCard> totalResourceCard = new ArrayList<>();
-    private static ArrayList<GoldCard> totalGoldCard = new ArrayList<>();
-    private static ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<>();
-    private static ArrayList<ObjectiveCardCombo> totalObjectiveComboCards = new ArrayList<>();
-    private static ArrayList<ObjectiveCardResourceSet> totalObjectiveResourceSetCards = new ArrayList<>();
-    private static ArrayList<StarterCard> totalStartingCards = new ArrayList<>();
-    private static boolean decksAreGenerated = false;
+class DrawingDeck implements Serializable{
+    private ArrayList<ResourceCard> totalResourceCard = new ArrayList<>();
+    private ArrayList<GoldCard> totalGoldCard = new ArrayList<>();
+    private ArrayList<ObjectiveCard> totalObjectiveCards = new ArrayList<>();
+    private  ArrayList<ObjectiveCardCombo> totalObjectiveComboCards = new ArrayList<>();
+    private  ArrayList<ObjectiveCardResourceSet> totalObjectiveResourceSetCards = new ArrayList<>();
+    private  ArrayList<StarterCard> totalStartingCards = new ArrayList<>();
+    private  boolean decksAreGenerated = false;
 
-    public static void generateDecks() throws IOException {
-        DrawingDeck.totalGoldCard = (ArrayList<GoldCard>)GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/GoldCardDB.json");
-        DrawingDeck.totalResourceCard = (ArrayList<ResourceCard>)ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ResourceCardDB.json");
-        DrawingDeck.totalStartingCards = (ArrayList<StarterCard>)StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/StarterCardDB.json");
-        DrawingDeck.totalObjectiveComboCards = (ArrayList<ObjectiveCardCombo>)ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ObjectiveCardDB.json");
-        DrawingDeck.totalObjectiveResourceSetCards = (ArrayList<ObjectiveCardResourceSet>)ObjectiveCardResourceSetDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ObjectiveCardResourceSetDB.json");
-        DrawingDeck.totalObjectiveCards.addAll(totalObjectiveComboCards);
-        DrawingDeck.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
+    public DrawingDeck() throws IOException {
+        generateDecks();
+    }
+    public void generateDecks() throws IOException {
+        this.totalGoldCard = (ArrayList<GoldCard>)GoldCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/GoldCardDB.json");
+        this.totalResourceCard = (ArrayList<ResourceCard>)ResourceCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ResourceCardDB.json");
+        this.totalStartingCards = (ArrayList<StarterCard>)StarterCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/StarterCardDB.json");
+        this.totalObjectiveComboCards = (ArrayList<ObjectiveCardCombo>)ObjectiveCardDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ObjectiveCardDB.json");
+        this.totalObjectiveResourceSetCards = (ArrayList<ObjectiveCardResourceSet>)ObjectiveCardResourceSetDatabaseLoader.loadCardsFromFile("src/main/resources/com/example/codexnaturalis/jsons/ObjectiveCardResourceSetDB.json");
+        this.totalObjectiveCards.addAll(totalObjectiveComboCards);
+        this.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
 
-        Collections.shuffle(DrawingDeck.totalGoldCard, new Random(1000));
-        Collections.shuffle(DrawingDeck.totalResourceCard, new Random(1000));
-        Collections.shuffle(DrawingDeck.totalStartingCards, new Random(1000));
-        Collections.shuffle(DrawingDeck.totalObjectiveCards, new Random(1000));
+        Collections.shuffle(this.totalGoldCard, new Random(1000));
+        Collections.shuffle(this.totalResourceCard, new Random(1000));
+        Collections.shuffle(this.totalStartingCards, new Random(1000));
+        Collections.shuffle(this.totalObjectiveCards, new Random(1000));
     }
 
-    public static ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
+    public ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
 
         ArrayList<ObjectiveCard> cards = new ArrayList<>();
         cards.add(totalObjectiveCards.get(0));
@@ -38,7 +41,7 @@ class DrawingDeck {
         return cards;
     }
 
-    public static ArrayList<ObjectiveCard> drawCommonObjective() {
+    public ArrayList<ObjectiveCard> drawCommonObjective() {
         ArrayList<ObjectiveCard> commonObj = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             commonObj.add(totalObjectiveCards.getFirst());
@@ -46,7 +49,7 @@ class DrawingDeck {
         }
         return commonObj;
     }
-    public static void reAddSecretObjectiveCard(ObjectiveCard objectiveCard){
+    public void reAddSecretObjectiveCard(ObjectiveCard objectiveCard){
         totalObjectiveCards.addLast(objectiveCard);
     }
 
@@ -56,7 +59,7 @@ class DrawingDeck {
      * @param cardType: defines the card that will be drawn, true for resource, false for gold
      * @return ResourceGoldCard, card that will be added to the playerDeck and removed from its deck
      */
-    public static ResourceGoldCard drawCard(boolean cardType) {
+    public ResourceGoldCard drawCard(boolean cardType) {
         ResourceGoldCard drewCard;
         if (cardType) {
             drewCard = totalResourceCard.getFirst();
@@ -73,7 +76,7 @@ class DrawingDeck {
      *
      * @return PlayerDeck
      */
-    public static PlayerDeck generatePlayerDeck() throws IOException {
+    public PlayerDeck generatePlayerDeck() throws IOException {
         if (!decksAreGenerated) {
             generateDecks();
             decksAreGenerated = true;
@@ -97,7 +100,7 @@ class DrawingDeck {
      * @param deckChoice: deck chosen from the player, 1 for Resource Deck, 2 for Gold deck
      * @return boolean, true if the deck is Empty, otherwise false
      */
-    public static boolean checkDeckEmptiness(int deckChoice) {
+    public boolean checkDeckEmptiness(int deckChoice) {
         boolean isMazzoVuoto = false;
 
         if (deckChoice == 1 && totalResourceCard.isEmpty()) {
@@ -111,19 +114,19 @@ class DrawingDeck {
         return isMazzoVuoto;
     }
 
-    public static ArrayList<ResourceCard> getTotalResourceCard() {
+    public ArrayList<ResourceCard> getTotalResourceCard() {
         return totalResourceCard;
     }
 
-    public static ArrayList<GoldCard> getTotalGoldCard() {
+    public ArrayList<GoldCard> getTotalGoldCard() {
         return totalGoldCard;
     }
 
-    public static ArrayList<ObjectiveCard> getTotalObjectiveCards() {
+    public ArrayList<ObjectiveCard> getTotalObjectiveCards() {
         return totalObjectiveCards;
     }
 
-    public static ArrayList<StarterCard> getTotalStartingCards() {
+    public ArrayList<StarterCard> getTotalStartingCards() {
         return totalStartingCards;
     }
 }
@@ -205,4 +208,5 @@ class PlayerDeck implements Serializable {
     public void setSecretObjectiveCard(ObjectiveCard cardToKeep) {
         this.secretObjectiveCard = cardToKeep;
     }
+
 }

@@ -263,6 +263,11 @@ class TextMessage extends Message{
         return textMessage;
     }
 }
+class ResetMatchMessage extends TextMessage{
+    public ResetMatchMessage(String sender, UUID ClientID, String textMex, String recipient) {
+        super(sender, ClientID, textMex, recipient);
+    }
+}
 class EndGameMessage extends Message{
     private String winner;
     public EndGameMessage(String sender, UUID ClientID,String winner) {
