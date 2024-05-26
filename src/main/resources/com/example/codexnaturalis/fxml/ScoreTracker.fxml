@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import com.example.codexnaturalis.ScoreTrackerSlotController?>
+<fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml">
+
+    <ImageView fx:id="scoreTracker"/>
+<!--    <ScoreTrackerSlotController fx:id="s0" layoutX="62.0" layoutY="572.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s1" layoutX="132.0" layoutY="572.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s2" layoutX="202.0" layoutY="572.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s3" layoutX="232.0" layoutY="502.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s4" layoutX="162.0" layoutY="502.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s5" layoutX="92.0" layoutY="502.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s6" layoutX="22.0" layoutY="502.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s7" layoutX="22.0" layoutY="432.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s8" layoutX="92.0" layoutY="432.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s9" layoutX="162.0" layoutY="432.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s10" layoutX="232.0" layoutY="432.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s11" layoutX="232.0" layoutY="362.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s12" layoutX="162.0" layoutY="362.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s13" layoutX="92.0" layoutY="362.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s14" layoutX="22.0" layoutY="362.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s15" layoutX="22.0" layoutY="292.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s16" layoutX="92.0" layoutY="292.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s17" layoutX="162.0" layoutY="292.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s18" layoutX="232.0" layoutY="292.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s19" layoutX="62.0" layoutY="222.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s20" layoutX="232.0" layoutY="184.5" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s21" layoutX="157.5" layoutY="222.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s22" layoutX="22.0" layoutY="152.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s23" layoutX="22.0" layoutY="82.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s24" layoutX="62.0" layoutY="12.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s25" layoutX="157.5" layoutY="5" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s26" layoutX="202.0" layoutY="12.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s27" layoutX="232.0" layoutY="82.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s28" layoutX="232.0" layoutY="152.0" prefHeight="65.0" prefWidth="65.0" />-->
+<!--    <ScoreTrackerSlotController fx:id="s29" layoutX="157.5" layoutY="100" prefHeight="65.0" prefWidth="65.0" />-->
+
+
+</fx:root>
