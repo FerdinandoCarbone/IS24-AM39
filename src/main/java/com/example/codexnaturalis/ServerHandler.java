@@ -136,6 +136,7 @@ public class ServerHandler extends Thread implements Runnable {
     public void universalStatusUpdater(StandardMatchMessage newStatus){
         UUID oldPlayer= newStatus.getClientID();
         System.out.println("Updating game status" + oldPlayer+" Points: "+ newStatus.getCurrPlayerPoints());
+        if (Client.isGuiSelector()) Platform.runLater(() -> MainController.scoreTracker.moveToken(oldPlayer, newStatus.getCurrPlayerPoints()));
         ResourceGoldCard placedCard= newStatus.getPlacedCard();
         Pair<Integer,Integer> coords = newStatus.getCoords();
         if(getClientID().equals(oldPlayer)){

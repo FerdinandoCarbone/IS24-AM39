@@ -19,11 +19,12 @@
 
 <?import com.example.codexnaturalis.FieldController?>
 <?import com.example.codexnaturalis.CardController?>
+<?import com.example.codexnaturalis.NewScoreTrackerController?>
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"
          minWidth="1040.0" maxWidth="700" maxHeight="1040" minHeight="700"
-        fx:id="tabContainer">
+         fx:id="tabContainer">
         <Tab text="Your playing Field:" closable="false">
             <BorderPane>
                 <left>
@@ -76,9 +77,6 @@
                 <FieldController fx:id="field4"/>
             </ScrollPane>
         </Tab>
-<!--        <Tab text="Score Tracker">-->
-<!--            <Pane>-->
-<!--                <TabelloneController fx:id="table"/>-->
-<!--            </Pane>-->
-<!--        </Tab>-->
+        <Tab fx:id="tab4" text="Score Tracker">
+        </Tab>
 </TabPane>
