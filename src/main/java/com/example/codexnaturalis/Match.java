@@ -14,8 +14,7 @@ public class Match {
     private ArrayList<ResourceGoldCard> coveredCards;
     private int indexCurrentPlayer;
     private UUID matchID;
-    private int[] previousElementMana;
-    private int[] previousResourceMana;
+    protected static int[] previousElementMana = {0,0,0};
     public HashMap<UUID, ArrayList<ObjectiveCard>> selectedSecrets = new HashMap<>();
     private ArrayList<UUID> playerIds = new ArrayList<>();
 
@@ -106,11 +105,11 @@ public class Match {
         int column = msg.getCoordinates().getValue();
         ResourceGoldCard cardToPlace = msg.getCardOnHand().getFirst();
         System.out.println(Colors.GREEN + "--Placing #" + cardToPlace.getIdCard() + " card on " + playerName + "'s field in [" + row + "][" + column + "]--" + Colors.RESET);
-        previousElementMana = playingPlayer.getElementsMana();
+        this.previousElementMana=playingPlayer.getElementsMana().clone();
         playingPlayer.placeCardAndRemoveFromDeck(row, column, cardToPlace);
         System.out.println(Colors.GREEN + "--Card placed--" + Colors.RESET);
         System.out.println("Check points sees: " + cardToPlace.getCoveredCornersWhenPlaced());
-        playingPlayer.addScore(checkPoints(cardToPlace,playingPlayer, previousElementMana));
+        playingPlayer.addScore(checkPoints(cardToPlace, previousElementMana));
 
         System.out.println(Colors.GREEN + "--Check of cycle--" + Colors.RESET);
         //These 2 Ifs check if we are at the end of the cycle and if the playing player is the last on the cycle
@@ -336,7 +335,7 @@ public class Match {
         return winnerFlag;
     }
 
-    public static int checkPoints(ResourceGoldCard playedCard, Player currentPlayer, int[] previousElementMana) {
+    public static int checkPoints(ResourceGoldCard playedCard, int[] previousElementMana) {
         int id = playedCard.getIdCard();
         int pts = playedCard.getPoints();
         int points=0;
@@ -1074,6 +1073,10 @@ public class Match {
 
     public ArrayList<UUID> getPlayerIds() {
         return playerIds;
+    }
+
+    public static int[] getPreviousElementMana() {
+        return previousElementMana;
     }
 }
 

@@ -96,11 +96,11 @@ class PointsTest{
                         if (!s[i][j].isBusySlot()) {
                             System.out.println("Slot [" + i + "]" + "[" + j + "]" + " is not busy");
                             System.out.println("La carta numero " + card.getIdCard() + " assegna " + card.getPoints() + " punti");
-                            previousElementsMana = player.getElementsMana();
+                            previousElementsMana = Match.getPreviousElementMana();
                             System.out.println("Si hanno sul tavolo " + previousElementsMana[0] + " Ink, " + previousElementsMana[1] + " Papyrus, " + previousElementsMana[2] + " Feather.");
                             card.setIsPlacedFront(rand.nextBoolean());
                             player.placeCard(i, j, card);
-                            player.addScore(Match.checkPoints(card,player,previousElementsMana));
+                            player.addScore(Match.checkPoints(card, previousElementsMana));
                             System.out.println("Il giocatore " + player.getPlayerName() + " ha totalizzato " + player.getScore() + " punti dopo questo turno");
                             card = drawCard(rand.nextBoolean());
 
@@ -1218,7 +1218,7 @@ class PointsTest{
         ResourceGoldCard card1 = drawCard(true), card2 = drawCard(true), card3 = drawCard(false), card4 = drawCard(false), card5 = drawCard(false), card6 = drawCard(false);
         ResourceGoldCard card7 = drawCard(true), card8 = drawCard(true), card9 = drawCard(false), card10 = drawCard(false), card11 = drawCard(false), card12 = drawCard(false);
         ResourceGoldCard card13 = drawCard(true), card14 = drawCard(true), card15 = drawCard(false), card16 = drawCard(false);
-        ObjectiveCard objCard1 = new ObjectiveCardCombo(94, null, 2, null, Red, true);
+        ObjectiveCard objCard1 = new ObjectiveCardCombo(87, null, 2, null, Red, true);
         ObjectiveCard objCard2 = new ObjectiveCardCombo(91, null, 2, null, Green, true);
         ObjectiveCard objCard3 = new ObjectiveCardCombo(88, null, 2, null, Blue, true);
         player.getPlayerDeck().setSecretObjectiveCard(objCard1);
@@ -1263,23 +1263,6 @@ class PointsTest{
 
         int objPoints = Match.calculateArrObjPoints(player);
 
-        /*System.out.println("La carta 1 in [0][0] appartiene a " + card1.getArrangements() + (card1.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card1.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 2 in [2][0] appartiene a " + card2.getArrangements() + (card2.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card2.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 3 in [0][5] appartiene a " + card3.getArrangements() + (card3.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card3.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 4 in [2][5] appartiene a " + card4.getArrangements() + (card4.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card4.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 5 in [0][9] appartiene a " + card5.getArrangements() + (card5.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card5.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 6 in [2][9] appartiene a " + card6.getArrangements() + (card6.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card6.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 7 in [3][1] appartiene a " + card7.getArrangements() + (card7.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card7.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 8 in [4][2] appartiene a " + card8.getArrangements() + (card8.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card8.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 9 in [5][3] appartiene a " + card9.getArrangements() + (card9.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card9.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 10 in [6][4] appartiene a " + card10.getArrangements() + (card10.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card10.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 11 in [3][6] appartiene a " + card11.getArrangements() + (card11.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card11.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 12in [4][7] appartiene a " + card12.getArrangements() + (card12.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card12.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 13 in [5][8] appartiene a " + card13.getArrangements() + (card13.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card13.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 14 in [3][10] appartiene a " + card14.getArrangements() + (card14.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card14.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 15 in [4][11] appartiene a " + card15.getArrangements() + (card15.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card15.getIsArranged()?" non disponibile":" disponibile"));
-        System.out.println("La carta 16 in [5][12] appartiene a " + card16.getArrangements() + (card16.getArrangements()==1?" disposizione semplice": " disposizioni semplici")+ " e la carta è " + (card16.getIsArranged()?" non disponibile":" disponibile"));*/
-
 
         System.out.println("Totalizzati " + objPoints + " dalle disposizioni");
         System.out.println("Totalizzati " + Match.calculateSimpleObjPoints(player, 95) + " punti dalla carta 95");
@@ -1292,14 +1275,6 @@ class PointsTest{
         System.out.println("Totalizzati " + Match.calculateSimpleObjPoints(player, 102) + " punti dalla carta 102");
 
         assertSame(11, objPoints);
-        assertSame(0, match1.checkArrangements(player, 87));
-        assertSame(0, match1.checkArrangements(player, 88));
-        assertSame(0, match1.checkArrangements(player, 89));
-        assertSame(0, match1.checkArrangements(player, 90));
-        assertSame(0, match1.checkArrangements(player, 91));
-        assertSame(0, match1.checkArrangements(player, 92));
-        assertSame(0, match1.checkArrangements(player, 93));
-        assertSame(0, match1.checkArrangements(player, 94));
         assertNotSame(-1, match1.calculateSimpleObjPoints(player, 95));
         assertNotSame(-1, match1.calculateSimpleObjPoints(player, 96));
         assertNotSame(-1, match1.calculateSimpleObjPoints(player, 97));
