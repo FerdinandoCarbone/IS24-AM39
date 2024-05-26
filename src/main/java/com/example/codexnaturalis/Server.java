@@ -78,7 +78,7 @@ public class Server {
             if (id != null) ++counterIDs;
             if (ServerConnectionManager.handlers.get(id)!=null) ++counterHandlers;
         }
-        System.out.println("CounterID:"+counterIDs+"handlers:"+ counterHandlers);
+        //System.out.println("CounterID:"+counterIDs+"handlers:"+ counterHandlers);
         return counterIDs >= 2 && counterHandlers>=2;
     }
 

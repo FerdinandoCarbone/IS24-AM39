@@ -35,6 +35,7 @@ public class Client extends Application{
     private static Stage stage;
     private static Semaphore sem;
     private static HashMap<String,Boolean> currentlyPlaying;
+    public static String[] clientArgs;
 
     public static void main(String[] args) {
         sem=new Semaphore(0);
@@ -99,6 +100,7 @@ public class Client extends Application{
      */
     public static void clientStart(String[] args) {
         int numOfPar = Arrays.stream(args).toList().size();
+        clientArgs = args;
         String portStandard = "8081";
         System.out.println("numOfPar:" + numOfPar + " port:" + portStandard);
         guiSelector = false;
@@ -1000,4 +1002,5 @@ public class Client extends Application{
     public static void setCrashed(boolean crashed) {
         Client.crashed = crashed;
     }
+
 }

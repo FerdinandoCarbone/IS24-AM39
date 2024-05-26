@@ -328,6 +328,7 @@ public class ConnectionManger {
     public void reHandShake(String playerNick, UUID clientID) {
         //client join request after crash
         Message handshakeMessage = new Message(playerNick, clientID);
+        System.out.println(Client.getMatchID());
         handshakeMessage.setMatchID(Client.getMatchID());
         BroadCastStartingMessage handshakeACKInfo = null;
         Message tmpMessage;
@@ -373,6 +374,7 @@ public class ConnectionManger {
                 ioStream.getValue().writeObject(handshakeMessage);
                 //System.out.println("Flushing stream");
                 tmpMessage = (Message) ioStream.getKey().readObject();
+                if(tmpMessage instanceof ResetMatchMessage) tmpMessage = (Message) ioStream.getKey().readObject();
                 System.out.println(tmpMessage.getClass());
                 Client.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
                 /*
@@ -463,7 +465,6 @@ public class ConnectionManger {
         }
         if (isGuiSelector()) MainController.alert("All players' fields were correctly received",true);
         else System.out.println("All players' fields were correctly received");
-
         Client.setCurrentGameStatus(true);
     }
 
@@ -567,5 +568,9 @@ public class ConnectionManger {
             case 2 -> false;
             default -> throw new IOException("There was an error trying to read the string");
         };
+    }
+
+    public void setIoStream(Pair<ObjectInputStream, ObjectOutputStream> ioStream) {
+        this.ioStream = ioStream;
     }
 }

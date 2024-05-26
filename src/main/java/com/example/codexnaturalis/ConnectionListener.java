@@ -54,8 +54,9 @@ class SocketConnectionListener extends ConnectionListener {
             UUID clientID;
             System.out.println("Accepted socket connection");
             Pair<ObjectInputStream, ObjectOutputStream> oIOStream = Server.serverConMan.acceptSocketRMIConnections(clientSocket,true);
-            clientID =ServerConnectionManager.reconnectingID;
             sockets.remove(clientSocket);
+            if(oIOStream==null) return;
+            clientID =ServerConnectionManager.reconnectingID;
             if(Server.isCrashed()){
                 System.out.println("Reconnecting a client after a server crash...");
                 String playerName=null;

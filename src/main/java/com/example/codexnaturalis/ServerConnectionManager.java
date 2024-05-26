@@ -96,6 +96,10 @@ public class ServerConnectionManager implements Serializable {
         out = new ObjectOutputStream(clientSocket.getOutputStream());
         in = new ObjectInputStream(clientSocket.getInputStream());
         //clientSocket.setSoTimeout(10000);
+        if(Server.isCrashed()&&isReconnection) {
+            out.writeObject(new ResetMatchMessage("Server",null,"I crashed",null));
+            return null;
+        }
         clientJoinRequest = (Message) in.readObject();//prendo l'handshake Message
         if (!firstPlayer && !isReconnection) {
             firstPlayer = true;
@@ -114,6 +118,7 @@ public class ServerConnectionManager implements Serializable {
                  * In this code snippet I am managing the reconnection after a crash of the client
                  * Firstly I am checking whether there is a player with the same ID as the one the reconnecting client has
                  */
+                System.out.println("Iterating:"+players.get(i).getPlayerID()+"Connecting Player:"+clientJoinRequest.getClientID());
                 if (players.get(i).getPlayerID().compareTo(clientJoinRequest.getClientID()) == 0) {
                     /**
                      * here I am checking if the matchID the client and server have match.(If a player disconnected an hour ago and
@@ -123,7 +128,8 @@ public class ServerConnectionManager implements Serializable {
                     if (clientJoinRequest.getMatchID() == null) {
                         System.out.println("DEBUG3");
                         break;
-                    } else if (clientJoinRequest.getMatchID().equals(Server.match.getMatchID())) {
+                    }
+                    else if (clientJoinRequest.getMatchID().equals(Server.match.getMatchID())) {
                         System.out.println(clientJoinRequest.getSender() + " is trying to reconnect");
                         break;
                     }
@@ -202,7 +208,13 @@ public class ServerConnectionManager implements Serializable {
                         currPlayerID=Server.match.getPlayerIds().get(index);
                         //Server.match.getPlayers().get(Server.match.selectIndexNextPlayer(index)).getPlayerID();
                     }
-                    else Server.match.getPlayerIds().set(Server.match.getPlayers().indexOf(hashClient.get(clientID)),clientID);
+                    else {
+                        int index = -1;
+                        do{
+                           index= Server.match.getPlayers().indexOf(hashClient.get(clientID));
+                        }while(index==-1);
+                        Server.match.getPlayerIds().set(index,clientID);
+                    }
                 }
                 BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
                 HashMap<String,Boolean> currPlaying = new HashMap<>();
@@ -253,8 +265,9 @@ public class ServerConnectionManager implements Serializable {
      * @throws IOException -
      */
     public static void sendBroadCastMessage(Message message) throws IOException {
-        for (UUID id : Server.match.getPlayerIds()) {
-            if (id != null ) handlers.get(id).sendMessage(message);
+        for (int i=0;i<Server.match.getPlayerIds().size();i++) {
+            UUID id=Server.match.getPlayerIds().get(i);
+            if (id!=null) handlers.get(id).sendMessage(message);
         }
     }
 
