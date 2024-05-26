@@ -89,4 +89,12 @@ public class CardController extends Pane {
     public Card getCard() {
         return card;
     }
+
+    public double getCardHeight() {
+        return cardHeight;
+    }
+
+    public double getCardWidth() {
+        return cardWidth;
+    }
 }

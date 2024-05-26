@@ -45,11 +45,11 @@ public class SlotController extends Pane {
     }
 
     public void enableEmptyStuff() {
-        emptyLabel.setDisable(false);
+        emptyLabel.setText("Empty");
         this.setStyle("-fx-background-radius: 25; -fx-border-color: GREY");
     }
     public void disableEmptyStuff() {
-        emptyLabel.setDisable(true);
+        emptyLabel.setText("");
         this.setStyle("-fx-border-width: 0");
     }
 

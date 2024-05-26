@@ -2,7 +2,6 @@ package com.example.codexnaturalis;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -11,14 +10,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
+import static com.example.codexnaturalis.CardDim.scoreTrackerMulti;
 
 public class NewScoreTrackerController extends Pane {
     @FXML
     ImageView scoreTracker;
     ArrayList<ScoreTrackerSlotController> tokenSlots = new ArrayList<>();
-    double multi = 1.3;
-    double widthTracker = 375 * multi;
-    double heightTracker = 732 * multi;
+    double widthTracker = 375 * scoreTrackerMulti;
+    double heightTracker = 732 * scoreTrackerMulti;
     double c0 = 0.23;
     double c1 = 0.45;
     double c2 = 0.67;

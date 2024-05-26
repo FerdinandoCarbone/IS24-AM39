@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+import static com.example.codexnaturalis.CardDim.scoreTrackerMulti;
 
 public class ScoreTrackerSlotController extends Pane {
 
@@ -29,8 +30,8 @@ public class ScoreTrackerSlotController extends Pane {
             String url = "Assets/" + color + "Token" + ".png";
             ImageView tmpImgView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(url))));
             playerTokenHash.put(players.get(i).getPlayerID(), tmpImgView);
-            tmpImgView.setFitHeight(40);
-            tmpImgView.setFitWidth(40);
+            tmpImgView.setFitHeight(scoreTrackerMulti * 30);
+            tmpImgView.setFitWidth(scoreTrackerMulti * 30);
             tmpImgView.setPreserveRatio(true);
             switch (i) {
                 case 1:

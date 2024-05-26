@@ -30,8 +30,6 @@ public class MainController extends TabPane implements Initializable {
     private ResourceGoldCard placedCardToSend;
     @FXML
     TabPane tabContainer;
-    @FXML
-    VBox cardControllerVbox;
     public static PlayerManasController manaBar;
     @FXML
     private CardController secretObjCard;
@@ -69,6 +67,8 @@ public class MainController extends TabPane implements Initializable {
     private PlayerDeckController playerDeck;
     @FXML
     private FieldController field;
+    @FXML
+    private HBox rightTopPart;
     private boolean readyToPlace;
     private int previousScoreStatus;
 
@@ -90,6 +90,11 @@ public class MainController extends TabPane implements Initializable {
         }
         player = Client.getPlayer();
         others = Client.getOtherPlayers();
+        try {
+            commands = new CommandBoxController();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         viewSetup();
         setupFieldSlots();
         cardsFromModel();
@@ -108,12 +113,6 @@ public class MainController extends TabPane implements Initializable {
     }
 
     private void viewSetup() {
-        try {
-            manaBar = new PlayerManasController();
-            cardControllerVbox.getChildren().add(manaBar);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         textArea = new TextArea("Notification");
         textArea.setEditable(false);
         vbox.getChildren().addFirst(textArea);
@@ -153,10 +152,26 @@ public class MainController extends TabPane implements Initializable {
             allPlayers.add(player);
             allPlayers.addAll(others);
             scoreTracker = new NewScoreTrackerController(allPlayers);
-            tab4.setContent(scoreTracker);
+            rightTopPart.getChildren().add(scoreTracker);
+            VBox containerManasUndo = new VBox();
+            rightTopPart.getChildren().addFirst(containerManasUndo);
+            try {
+                manaBar = new PlayerManasController();
+                containerManasUndo.getChildren().add(manaBar);
+                containerManasUndo.getChildren().add(commands);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        publicObj1.getCardImageView().setFitHeight(publicObj1.getCardHeight()/2);
+        publicObj1.getCardImageView().setFitWidth(publicObj1.getCardWidth()/2);
+
+        publicObj2.getCardImageView().setFitHeight(publicObj2.getCardHeight()/2);
+        publicObj2.getCardImageView().setFitWidth(publicObj2.getCardWidth()/2);
+
     }
 
     private void setupRGCEvents() {

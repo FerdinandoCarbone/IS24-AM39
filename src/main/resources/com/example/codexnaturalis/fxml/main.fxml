@@ -32,22 +32,24 @@
                         <ScrollPane prefWidth="1200" prefHeight="750" fx:id="fieldScrollPane">
                             <FieldController fx:id="field"/>
                         </ScrollPane>
+                        <HBox>
+                            <PlayerDeckController fx:id="playerDeck"/>
+                            <HBox>
+                                <CardController fx:id="secretObjCard"/>
+                                <VBox>
+                                    <CardController fx:id="publicObj1"/>
+                                    <CardController fx:id="publicObj2"/>
+                                </VBox>
+                            </HBox>
+                        </HBox>
                     </VBox>
                 </left>
                 <right>
                     <BorderPane>
                         <top>
-                            <HBox>
-                                <VBox>
-                                    <PlayerDeckController fx:id="playerDeck" />
-                                    <CommandBoxController fx:id="commands"/>
-                                </VBox>
-                                <VBox fx:id="cardControllerVbox">
-                                    <CardController fx:id="secretObjCard"/>
-                                    <CardController fx:id="publicObj1"/>
-                                    <CardController fx:id="publicObj2"/>
-                                </VBox>
-                            </HBox>
+                            <VBox>
+                                <HBox fx:id="rightTopPart"/>
+                            </VBox>
                         </top>
                         <bottom>
                             <VBox fx:id="vbox">
@@ -76,7 +78,5 @@
             <ScrollPane prefWidth="1200" prefHeight="750">
                 <FieldController fx:id="field4"/>
             </ScrollPane>
-        </Tab>
-        <Tab fx:id="tab4" text="Score Tracker">
         </Tab>
 </TabPane>

@@ -6,7 +6,7 @@
 <?import com.example.codexnaturalis.CardController?>
 <?import com.example.codexnaturalis.ResourceGoldCardController?>
 <?import javafx.geometry.Insets?>
-<fx:root type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx"
+<fx:root type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml">
     <ResourceGoldCardController fx:id="card1"/>
     <ResourceGoldCardController fx:id="card2" />

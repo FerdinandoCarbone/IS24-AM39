@@ -13,4 +13,5 @@ public class CardDim {
     static double slotHeight = (326.0 / divider) * 2;
     static double cornerSlotHeight = (131.0 / divider) * 2;
     static double deltaSlotWidth = (cardWidth - cornerWidth) * 2;
+    static double scoreTrackerMulti = 1;
 }
