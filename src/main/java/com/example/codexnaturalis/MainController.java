@@ -19,7 +19,7 @@ public class MainController extends TabPane implements Initializable {
     public static TextArea textArea;
     public static Button turnButton;
     public static ComboBox comboBox;
-    public static NewScoreTrackerController scoreTracker;
+    public static ScoreTrackerController scoreTracker;
     private boolean cardPlaced;
     private int deckChildIndex;
     private Player player;
@@ -61,8 +61,6 @@ public class MainController extends TabPane implements Initializable {
     private Tab tab2;
     @FXML
     private Tab tab3;
-    @FXML
-    private Tab tab4;
     @FXML
     private PlayerDeckController playerDeck;
     @FXML
@@ -151,7 +149,7 @@ public class MainController extends TabPane implements Initializable {
             ArrayList<Player> allPlayers = new ArrayList<>();
             allPlayers.add(player);
             allPlayers.addAll(others);
-            scoreTracker = new NewScoreTrackerController(allPlayers);
+            scoreTracker = new ScoreTrackerController(allPlayers);
             rightTopPart.getChildren().add(scoreTracker);
             VBox containerManasUndo = new VBox();
             rightTopPart.getChildren().addFirst(containerManasUndo);

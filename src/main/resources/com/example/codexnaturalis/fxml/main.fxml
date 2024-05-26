@@ -1,25 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import com.example.codexnaturalis.PlayerDeckController?>
-<?import com.example.codexnaturalis.StructLeftController?>
-
-<?import com.example.codexnaturalis.StructRightController?>
-<?import com.example.codexnaturalis.CommandBoxController?>
-<?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.text.TextFlow?>
-
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import com.example.codexnaturalis.PlayerManasController?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 
 <?import com.example.codexnaturalis.FieldController?>
 <?import com.example.codexnaturalis.CardController?>
-<?import com.example.codexnaturalis.NewScoreTrackerController?>
 <TabPane xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="com.example.codexnaturalis.MainController"

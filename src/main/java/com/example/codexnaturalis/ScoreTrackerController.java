@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 import static com.example.codexnaturalis.CardDim.scoreTrackerMulti;
 
-public class NewScoreTrackerController extends Pane {
+public class ScoreTrackerController extends Pane {
     @FXML
     ImageView scoreTracker;
     ArrayList<ScoreTrackerSlotController> tokenSlots = new ArrayList<>();
@@ -26,7 +26,7 @@ public class NewScoreTrackerController extends Pane {
     double c5 = 0.35;
     double c6 = 0.13;
 
-    public NewScoreTrackerController(ArrayList<Player> players) throws IOException {
+    public ScoreTrackerController(ArrayList<Player> players) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/ScoreTracker.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
