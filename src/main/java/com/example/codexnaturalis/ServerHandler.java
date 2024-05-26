@@ -107,6 +107,15 @@ public class ServerHandler extends Thread implements Runnable {
         Client.clientDisconnect();
     }
     public void bcsHandler(BroadCastStandardMessage message) throws InterruptedException {
+        if( message.starterCards==null){
+            setFirstBroadCastWasReceived(true);
+            HashMap<String,Boolean> playingPlayer = message.getCurrPlaying();
+            Client.setCurrentlyPlayingPlayers(playingPlayer);
+            return;
+        }
+        else if(Client.isCrashed()) {
+            setFirstBroadCastWasReceived(true);
+        }
         HashMap<UUID,StarterCard> hashStart= message.starterCards;
         hashStart.remove(getClientID());
         AtomicBoolean face = new AtomicBoolean();

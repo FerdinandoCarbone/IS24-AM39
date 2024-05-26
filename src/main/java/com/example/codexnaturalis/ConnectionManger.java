@@ -359,6 +359,7 @@ public class ConnectionManger {
                  */
                 else {
                     handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
+                        //todo: while che retrieva o qualcosa che aspetta lì
                     Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
                     remoteServerProxy.addDisconnectedPlayer(clientID);
                 }
@@ -401,7 +402,8 @@ public class ConnectionManger {
             /*
              * True if current reconnecting player has to play after reconnection
              * */
-            amPlayerInTurn = clientID.compareTo(handshakeACKInfo.getClientID()) == 0;
+            if(handshakeACKInfo.getClientID()!=null)amPlayerInTurn = clientID.compareTo(handshakeACKInfo.getClientID()) == 0;
+            else amPlayerInTurn = false;
             /*
              * InitialMatchSetup after a reconnection. All information is resent from server back to client
              * */
@@ -422,7 +424,7 @@ public class ConnectionManger {
                 else remoteServerProxy.send(handshakeACKInfo);
             }
             if (Client.isGuiSelector()) Client.getSem().release();//todo: check if breaks tui
-            Client.getServerHandler().setFirstBroadCastWasReceived(true);
+            if(handshakeACKInfo.getClientID()!=null) Client.getServerHandler().setFirstBroadCastWasReceived(true);
             /*
              * Socket still needs to retrieve his GenericTurn Message. Here info is retrieved
              */

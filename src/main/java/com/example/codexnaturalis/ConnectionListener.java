@@ -50,7 +50,7 @@ class SocketConnectionListener extends ConnectionListener {
         System.out.println("I heard");
         this.sockets.add(clientSocket);
         if(Server.gameStarted&& Server.match.getPlayerIds().contains(null) && !sockets.isEmpty()){
-            SocketClientHandler tmpHand;
+            ClientHandler tmpHand;
             UUID clientID;
             System.out.println("Accepted socket connection");
             Pair<ObjectInputStream, ObjectOutputStream> oIOStream = Server.serverConMan.acceptSocketRMIConnections(clientSocket,true);
@@ -61,15 +61,23 @@ class SocketConnectionListener extends ConnectionListener {
                 String playerName=null;
                 for(Player p: Server.match.getPlayers()) if(p.getPlayerID().equals(clientID)) playerName = p.getPlayerName();
                 tmpHand = new SocketClientHandler(playerName,clientSocket,clientID,oIOStream,Server.serverConMan);
-                ServerConnectionManager.handlers.replace(clientID,tmpHand);
                 if(ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()!=null)tmpHand.setSecretWasChosen(true);
                 new Thread(tmpHand).start();
+                TextMessage text = new TextMessage("Server",null,playerName + " rejoined the server","Everyone");
+                text.setDisconnectedClient(playerName);
+                try{
+                    ServerConnectionManager.sendBroadCastMessage(text);
+                } catch (Exception e){
+                    System.out.println("Sending broadcast issue:"+e.getMessage());
+                }
+                ServerConnectionManager.handlers.replace(clientID,tmpHand);
             }
             else{
                 System.out.println("Reconnecting a client after a client crash...");
-                tmpHand = (SocketClientHandler)Server.serverConMan.getHandlers().get(clientID);
-                tmpHand.reset(oIOStream,clientSocket);
-                tmpHand.setHasToRun(true);
+                SocketClientHandler tmpSCH = (SocketClientHandler) Server.serverConMan.getHandlers().get(clientID);
+                tmpSCH.reset(oIOStream,clientSocket);
+                tmpSCH.setHasToRun(true);
+                tmpHand = tmpSCH;
             }
             tmpHand.reconnectionAlert();
         }

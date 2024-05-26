@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class RMIServerImplement extends UnicastRemoteObject implements RemoteServerMethodInterface {
@@ -94,8 +95,10 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
             if(Server.isCrashed()) currPlayerID = Server.getServerSaver().saveData.getMatchSave().getCurrentPlayerID();
             else currPlayerID = Server.match.getCurrentPlayerID();
             BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
-            ArrayList<String> currPlaying = new ArrayList<>();
-            for(UUID id:Server.match.getPlayerIds()) if(id!=null) currPlaying.add(ServerConnectionManager.hashClient.get(id).getPlayerName());
+            HashMap<String,Boolean> currPlaying = new HashMap<>();
+            for (int i =0;i<ServerConnectionManager.hashClient.size();i++){
+                if (Server.match.getPlayerIds().get(i) != null) currPlaying.put(ServerConnectionManager.hashClient.get(Server.match.getPlayerIds().get(i)).getPlayerName(),true);
+                else currPlaying.put(Server.match.getPlayers().get(i).getPlayerName(),false);}
             bcStart.setCurrentlyPlaying(currPlaying);
             return bcStart;
         }

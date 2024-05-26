@@ -54,6 +54,7 @@ public class Server {
         } catch (Exception e) {
             System.err.println("Server Failure: " + e.getMessage());
         }
+        if(isCrashed)Collections.fill(match.getPlayerIds(), null);
         serverConMan.acceptConnection(isCrashed);
         try {
             if(!isCrashed)matchStart();
@@ -64,23 +65,33 @@ public class Server {
     }
 
     private static void matchRestart() throws IOException {
-        Collections.fill(match.getPlayerIds(), null);
         while (!restartMatchCondition()) Thread.onSpinWait();
         reWelcomePlayer();
         serverIdle();
     }
 
     public static boolean restartMatchCondition() {
-        int counter = 0;
+        int counterIDs = 0;
+        int counterHandlers = 0;
         ArrayList<UUID> ids = match.getPlayerIds();
         for (UUID id : ids) {
-            if (id != null) ++counter;
+            if (id != null) ++counterIDs;
+            if (ServerConnectionManager.handlers.get(id)!=null) ++counterHandlers;
         }
-        return counter >= 2;
+        System.out.println("CounterID:"+counterIDs+"handlers:"+ counterHandlers);
+        return counterIDs >= 2 && counterHandlers>=2;
     }
 
     private static void reWelcomePlayer() throws IOException {
-        ServerConnectionManager.sendBroadCastMessage(new BroadCastStandardMessage(null,null,null));
+        BroadCastStandardMessage bds = new BroadCastStandardMessage(null, null, null);
+        HashMap<String, Boolean> currPlaying = new HashMap<>();
+        for (int i = 0; i < ServerConnectionManager.hashClient.size(); i++){
+            if (Server.match.getPlayerIds().get(i) != null)
+                currPlaying.put(ServerConnectionManager.hashClient.get(Server.match.getPlayerIds().get(i)).getPlayerName(), true);
+            else currPlaying.put(Server.match.getPlayers().get(i).getPlayerName(), false);}
+        bds.setCurrPlaying(currPlaying);
+        ServerConnectionManager.sendBroadCastMessage(bds);
+        ServerConnectionManager.sendMessage(match.getCurrentPlayerID(),new GenericTurnMessage(connectionInfo.getKey(), match.getCurrentPlayerID(), match.getCoveredCards(), match.getPublicCards(), null)); //match loop starts here
     }
 
 
@@ -92,7 +103,9 @@ public class Server {
     public static void serverStart() throws IOException {
         gameStarted = false;
         serverConMan = new ServerConnectionManager(connectionInfo, 1099,isCrashed);
-        if(isCrashed) serverSaver.retrieveCrucial();
+        if(isCrashed) {
+            serverSaver.retrieveCrucial();
+        }
         serverSaver.saveInitialState();
         System.out.println(
                 """
@@ -290,7 +303,6 @@ public class Server {
         }
         try {
             String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
-            ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
             ServerConnectionManager.hashClient.remove(clientID);
             System.out.println(playerName + " was kicked from server");
         } catch (Exception e) {

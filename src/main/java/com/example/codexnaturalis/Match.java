@@ -1035,7 +1035,28 @@ public class Match implements Serializable {
     public DrawingDeck getDeck(){
         return this.deck;
     }
+    /**
+     Given an ID, it returns the index of the player with that id
+     @param id: id to check
+     @return int, index of player with that id*/
+    public int getIndexFromId(UUID id) {
+        int index = -1;
+        for (Player p : players) {
+            if (p.getPlayerID() == id) {
+                index = players.indexOf(p);
+                break;}}
+        return index;
 
+    }
+    /**
+     Calculates number of players in the match
+     @return int, all non null ids in playerIds*/
+    public int allNonNullIds() {
+        int nonNull = 0;
+        for (int i = 0; i < playerIds.size(); i++) {
+            if (playerIds.get(i) != null) {
+                nonNull++;}}
+        return nonNull;}
 }
 
 

@@ -976,9 +976,8 @@ public class Client extends Application{
         return currentlyPlaying;
     }
 
-    public static void setCurrentlyPlayingPlayers(ArrayList<String> reconnectionList) {
-        currentlyPlaying = new HashMap<>();
-        for(String s: reconnectionList) currentlyPlaying.put(s,true);
+    public static void setCurrentlyPlayingPlayers(HashMap<String,Boolean> reconnectionList) {
+        currentlyPlaying=reconnectionList;
     }
 
     @Override

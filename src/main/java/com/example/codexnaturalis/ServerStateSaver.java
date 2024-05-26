@@ -79,6 +79,7 @@ public class ServerStateSaver {
         saveData.setGameStarted(Server.gameStarted);
         saveData.setHandlersSize(Server.serverConMan.getHandlers().size());
         saveData.setHashClient(Server.serverConMan.getHashClient());
+        //saveData.setHashPlayer(ServerConnectionManager.hashPlayer);
         saveData.setFirstPlayer(ServerConnectionManager.firstPlayer);
         saveData.setNumPlayers(ServerConnectionManager.numPlayers);
         saveData.setEmpty(false);
@@ -92,7 +93,7 @@ public class ServerStateSaver {
             objectOut.flush();
             objectOut.reset();
         } catch (Exception e) {
-            System.err.println("Error occurred while saving");
+            System.err.println("Error occurred while saving" + e.getMessage());
             return false;
         }
         System.out.println(Colors.GREEN + "SAVE SUCCESSFULL" + Colors.RESET);
@@ -131,7 +132,7 @@ public class ServerStateSaver {
         ServerConnectionManager.handlers = new HashMap<>();
         ArrayList<UUID> ids = new ArrayList<>(ServerConnectionManager.hashClient.keySet());
         for(int i =0;i< saveData.getHandlersSize();i++) ServerConnectionManager.handlers.put(ids.get(i),null);
-        ServerConnectionManager.hashPlayer = saveData.getHashPlayer();
+        //ServerConnectionManager.hashPlayer = saveData.getHashPlayer();
         ServerConnectionManager.firstPlayer = saveData.isFirstPlayer();
         ServerConnectionManager.numPlayers = saveData.getNumPlayers();
         Server.gameStarted = saveData.isGameStarted();
