@@ -5,6 +5,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.rmi.RemoteException;
@@ -38,11 +39,15 @@ public class ClientHandler extends Thread implements Runnable {
         if (Server.match != null) {
             StandardMatchMessage newTurnStatus = Server.match.removeDisconnectedPlayer(clientID);
             UUID nextPlayer = newTurnStatus.getNextPlayerId();
+            Server.getServerSaver().saveState();
             try {
                 //custom use of sender: used to identify the winner
                 if (newTurnStatus.getClientID() == null) {
                     ServerConnectionManager.sendBroadCastMessage(new TextMessage("Server:", null, "only you in the match", "Everyone"));
                     ServerConnectionManager.sendBroadCastMessage((new EndMatchMessage(null, null, newTurnStatus.getSender(), null, null, null)));
+                    //match ended with no issues --> save data can be reset
+                    Server.getServerSaver().resetSave();
+                    endOfTheGame();
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Error while sending winning message");
@@ -99,15 +104,21 @@ public class ClientHandler extends Thread implements Runnable {
         System.out.print("Command: ");
 
     }
+public void reset(){
 
+}
     public void broadCastMessageHandler(BroadCastStandardMessage message) {
     }
 
     public void genericTurnMessageHandler(GenericTurnMessage message) throws IOException, ClassNotFoundException {
         StandardMatchMessage newStatus = Server.match.genericTurn(message);
+        Server.getServerSaver().saveState();
         System.out.println("currentPlayer:" + newStatus.getClientID());
         if (newStatus instanceof EndMatchMessage) {
             ServerConnectionManager.sendBroadCastMessage(newStatus);
+            //match ended with no issues --> save data can be reset
+            Server.getServerSaver().resetSave();
+            endOfTheGame();
             return;
         }
         ArrayList<ResourceGoldCard> coveredCards = Server.match.getCoveredCards();
@@ -121,9 +132,11 @@ public class ClientHandler extends Thread implements Runnable {
         ServerConnectionManager.sendMessage(newStatus.getNextPlayerId(), newTurn);
     }
 
-    public void endOfTheGame(EndGameMessage message) {
+    public void endOfTheGame() {
         Server.gameStarted = false;
         Server.match = null;
+        System.out.println("Winner:" + Server.match.getFinalWinners()+"\nRestart server to play a new game");
+        System.exit(0);
         //todo: match reset and restart function to initialize everything
     }
 
@@ -160,6 +173,7 @@ class RMIClientHandler extends ClientHandler {
         heartBeat = false;
     }
 
+    @Override
     public void reset(){
         hasToRun = false;
         queue = new ArrayList<>();
@@ -238,12 +252,9 @@ class RMIClientHandler extends ClientHandler {
             case "BroadCastStartingMessage":
                 secretObjectiveSelector((BroadCastStartingMessage) message);
                 break;
-            case "EndGameMessage":
-                endOfTheGame((EndGameMessage) message);
-                break;
-            case "Message":
+            /*case "Message":
                 tryReconnectToClient();
-                break;
+                break;*/
             default:
                 throw new WrongMessageConversionException("Something went wrong while communicating with the server");
         }
@@ -277,7 +288,6 @@ class SocketClientHandler extends ClientHandler {
         this.reconnect = false;
         this.samviseGamgee = new Semaphore(0);
     }
-
     public void reset(Pair<ObjectInputStream, ObjectOutputStream> iostream, Socket socket) {
         this.inClient = iostream.getKey();
         this.outClient = iostream.getValue();
@@ -330,15 +340,16 @@ class SocketClientHandler extends ClientHandler {
 
     private boolean tryReconnectClient() {
         int i;
-        System.err.println("Trying to re-establish a connection with client:");
+        System.err.println(Colors.PURPLE+"Trying to re-establish a connection with client:"+Colors.RESET);
         Pair<ObjectInputStream, ObjectOutputStream> oIOstream = null;
         try {
             for (i = 0; i < 3; i++) {
                 try {
                     oIOstream = getConnMan().acceptSocketRMIConnections(null, true);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     System.out.println();
-                    System.err.println("Unable to establish a connection - retrying in 7s");
+                    System.err.println("Unable to establish a connection: an exception was thrown - retrying in 7s : "+e.getMessage());
                     Thread.sleep(7000);
                 }
                 if (oIOstream == null) {
@@ -351,15 +362,18 @@ class SocketClientHandler extends ClientHandler {
                         reconnect = true;
                         hasToRun = false;
                         return false;
-                    } else {
-                        System.err.println("Unable to establish a connection - retrying in 7s");
+                    }
+                    else {
+                        System.err.println("Unable to establish a connection: returned null - retrying in 7s");
                         Thread.sleep(7000);
-                        continue;
                     }
                 }
-                outClient = oIOstream.getValue();
-                inClient = oIOstream.getKey();
-                break;
+                else {
+                    System.out.println("Generated new Streams");
+                    outClient = oIOstream.getValue();
+                    inClient = oIOstream.getKey();
+                    break;
+                }
             }
         } catch (InterruptedException e) {
             System.err.println("An error occurred during reconnection setup");
@@ -384,9 +398,6 @@ class SocketClientHandler extends ClientHandler {
                 break;
             case "BroadCastStandardMessage":
                 broadCastMessageHandler((BroadCastStandardMessage) message);
-                break;
-            case "EndGameMessage":
-                endOfTheGame((EndGameMessage) message);
                 break;
             default:
                 throw new WrongMessageConversionException("Something went wrong while communicating with the server");

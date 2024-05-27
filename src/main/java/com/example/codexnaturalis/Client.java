@@ -35,6 +35,7 @@ public class Client extends Application{
     private static Stage stage;
     private static Semaphore sem;
     private static HashMap<String,Boolean> currentlyPlaying;
+    public static String[] clientArgs;
 
     public static void main(String[] args) {
         sem=new Semaphore(0);
@@ -99,6 +100,7 @@ public class Client extends Application{
      */
     public static void clientStart(String[] args) {
         int numOfPar = Arrays.stream(args).toList().size();
+        clientArgs = args;
         String portStandard = "8081";
         System.out.println("numOfPar:" + numOfPar + " port:" + portStandard);
         guiSelector = false;
@@ -123,27 +125,8 @@ public class Client extends Application{
                     //todo:ENTRYPOINT JAVAFXGUI
                     launch();
                     System.exit(0);
-                    /*try{
-                        //todo: REMOVE IN FINAL BUILD AND CHANGE PATH
-                        //ProcessBuilder processBuilderCompile = new ProcessBuilder("javac","-d","out/dev/HelloApp","src/main/java/com/example/codexnaturalis/HelloApplication.java");
-                        //processBuilderCompile.start().waitFor();
-                        //todo: REMOVE IN FINAL BUILD AND CHANGE PATH
-                        ProcessBuilder processBuilder = new ProcessBuilder("java","-cp",System.getProperty("java.class.path"),"com.example.codexnaturalis.HelloApplication");
-                        processBuilder.inheritIO();
-                        //processBuilder.redirectErrorStream(true);
-                        Process process = processBuilder.start();
-                        int exitCode = process.waitFor();
-                        System.out.println(exitCode);
-                        if(exitCode==0) System.exit(exitCode);
-                        else throw new IOException("An error was encountered starting the GUI: fallback to TUI");
-                    } catch(IOException e){
-                        System.err.println(e.getMessage());
-                        e.printStackTrace();
-                        guiSelector=false;
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }*/
-                } else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
+                }
+                else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
                 else {
                     System.out.println("Invalid argument " + args[2] + ": Accepted values are 'gui' or 'tui' " + "\nFallback using TUI");
                     guiSelector = false;
@@ -630,7 +613,7 @@ public class Client extends Application{
      * @return Pair of coordinates of a field slot
      */
     private static Pair<Integer, Integer> getCoordinates(boolean mode) {
-        int fieldSize = player.getPlayerField().getSlots().length;
+        int fieldSize = CardDim.matrixSize - 1;
         Pair<Integer, Integer> coordinates;
         while (true) {
             int row, column;
@@ -639,6 +622,9 @@ public class Client extends Application{
             System.out.println("Select a column:");
             column = getIntInput(fieldSize, false);
             coordinates = new Pair<>(row, column);
+            /*if(coordinates.getValue()>=CardDim.matrixSize || coordinates.getKey()>=CardDim.matrixSize){
+                System.out.println("Invalid position");
+            }*/
             if (mode) {
                 if (player.getPlayerField().getSlots()[row][column].isBusySlot()) {
                     System.out.println("You cannot place a card in a busy slot. Select another one");
@@ -678,7 +664,7 @@ public class Client extends Application{
         System.out.println("Who do you want to send the message to?");
         System.out.println(0 + " - Cancel");
         for (String p : currentlyPlaying.keySet()) {
-            if(!currentlyPlaying.get(p)) continue;
+            if(!currentlyPlaying.get(p) || p.equals(playerNick)) continue;
             recipientChooser.put(i, p);
             System.out.println(i + " - " + p);
             ++i;
@@ -911,6 +897,7 @@ public class Client extends Application{
                 break;
             }
             if (thingToParse <= range && thingToParse >= 0) break;
+            System.out.println("Invalid input: try again");
         }
         if (type) return thingToParse - 1;
         else return thingToParse;
@@ -972,14 +959,12 @@ public class Client extends Application{
         return currentlyPlaying;
     }
 
-    public static void setCurrentlyPlayingPlayers(ArrayList<String> reconnectionList) {
-        currentlyPlaying = new HashMap<>();
-        for(String s: reconnectionList) currentlyPlaying.put(s,true);
+    public static void setCurrentlyPlayingPlayers(HashMap<String,Boolean> reconnectionList) {
+        currentlyPlaying=reconnectionList;
     }
 
     @Override
     public void start(Stage stageStart) throws Exception {
-        DrawingDeck.generateDecks();
         stage=stageStart;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/launcher.fxml"));
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedLogo.png")));
@@ -998,4 +983,5 @@ public class Client extends Application{
     public static void setCrashed(boolean crashed) {
         Client.crashed = crashed;
     }
+
 }

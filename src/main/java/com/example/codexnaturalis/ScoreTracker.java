@@ -1,11 +1,12 @@
 package com.example.codexnaturalis;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Score Tracker of the game for all players
  */
-public class ScoreTracker {
+public class ScoreTracker implements Serializable {
     /**
      * Arraylist of all slots of the score tracker
      */

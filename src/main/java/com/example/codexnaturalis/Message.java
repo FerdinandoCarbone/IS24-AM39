@@ -14,10 +14,20 @@ public class Message implements Serializable {
     private String sender;
     private UUID clientID;
     private UUID matchID;
+    private boolean reconnectServerCrash;
     public Message(String sender,UUID clientID){
         this.sender = sender;
         this.clientID = clientID;
         this.matchID = null;
+        reconnectServerCrash = false;
+    }
+
+    public void setReconnectServerCrash(boolean reconnectServerCrash) {
+        this.reconnectServerCrash = reconnectServerCrash;
+    }
+
+    public boolean isReconnectServerCrash() {
+        return reconnectServerCrash;
     }
 
     public UUID getMatchID() {
@@ -189,7 +199,7 @@ class BroadCastStartingMessage extends Message{
     private HashMap<UUID, Player> players;
     private ArrayList<ObjectiveCard> selectedSecret;
     private HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector;
-    private ArrayList<String> currentlyPlaying;
+    private HashMap<String,Boolean> currentlyPlaying;
     private Boolean starterCardFace;
     public BroadCastStartingMessage(String sender, UUID ClientID, HashMap<UUID, Player> players, ArrayList<ObjectiveCard> commonObjectiveCards,HashMap<UUID,ArrayList<ObjectiveCard>> secretObjectiveCardSelector) {
         super(sender, ClientID);
@@ -223,18 +233,28 @@ class BroadCastStartingMessage extends Message{
         return players;
     }
 
-    public ArrayList<String> getCurrentlyPlaying() {
+    public HashMap<String, Boolean> getCurrentlyPlaying() {
         return currentlyPlaying;
     }
-    public void setCurrentlyPlaying(ArrayList<String> currPlay){
+    public void setCurrentlyPlaying(HashMap<String,Boolean> currPlay){
         currentlyPlaying=currPlay;
     }
 }
 class BroadCastStandardMessage extends Message{
     HashMap<UUID,StarterCard> starterCards;
+    HashMap<String,Boolean> currPlaying;
     public BroadCastStandardMessage(String sender, UUID ClientID,HashMap<UUID,StarterCard> starterCards) {
         super(sender, ClientID);
         this.starterCards = starterCards;
+        this.currPlaying = new HashMap<>();
+    }
+
+    public HashMap<String,Boolean> getCurrPlaying() {
+        return currPlaying;
+    }
+
+    public void setCurrPlaying(HashMap<String,Boolean> currPlaying) {
+        this.currPlaying = currPlaying;
     }
 }
 class TextMessage extends Message{
@@ -261,6 +281,11 @@ class TextMessage extends Message{
 
     public String getTextMessage() {
         return textMessage;
+    }
+}
+class ResetMatchMessage extends TextMessage{
+    public ResetMatchMessage(String sender, UUID ClientID, String textMex, String recipient) {
+        super(sender, ClientID, textMex, recipient);
     }
 }
 class EndGameMessage extends Message{

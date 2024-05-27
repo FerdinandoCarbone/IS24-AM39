@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class RMIServerImplement extends UnicastRemoteObject implements RemoteServerMethodInterface {
@@ -86,13 +87,37 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     }
 
     @Override
-    public Message reHandShakeRMI(UUID matchID) throws RemoteException {
+    public Message reHandShakeRMI(UUID matchID,UUID clientID) throws RemoteException {
         if(matchID==null) return new Message("MATCHNOTSTARTED",null);
         else if (!matchID.equals(Server.match.getMatchID())) return new Message("FORBIDDEN", null);
         else {
-            BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", Server.match.getCurrentPlayerID(), ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
-            ArrayList<String> currPlaying = new ArrayList<>();
-            for(UUID id:Server.match.getPlayerIds()) if(id!=null) currPlaying.add(ServerConnectionManager.hashClient.get(id).getPlayerName());
+            UUID currPlayerID=null;
+            System.out.println("Debug0-0");
+            System.out.println("ServerCrash:" +Server.isCrashed());
+            if(Server.isCrashed()){
+                if(!Server.serverConMan.checkIfAllNull(Server.match.getPlayerIds())) {
+                    Server.match.getPlayerIds().set(Server.match.getPlayers().indexOf(ServerConnectionManager.hashClient.get(clientID)),clientID);
+                    int index = Server.match.selectIndexNextPlayer(ServerConnectionManager.hashClient.size()-1);
+                    currPlayerID=Server.match.getPlayerIds().get(index);
+                    //Server.match.getPlayers().get(Server.match.selectIndexNextPlayer(index)).getPlayerID();
+                }
+                else {
+                    int index = -1;
+                    do{
+                        index= Server.match.getPlayers().indexOf(ServerConnectionManager.hashClient.get(clientID));
+                    }while(index==-1);
+                    Server.match.getPlayerIds().set(index,clientID);
+                }
+            }
+            else currPlayerID = Server.match.getCurrentPlayerID();
+            System.out.println("Debug0-1");
+            assert currPlayerID != null;
+            BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
+            HashMap<String,Boolean> currPlaying = new HashMap<>();
+            for (int i =0;i<ServerConnectionManager.hashClient.size();i++){
+                if (Server.match.getPlayerIds().get(i) != null) currPlaying.put(ServerConnectionManager.hashClient.get(Server.match.getPlayerIds().get(i)).getPlayerName(),true);
+                else currPlaying.put(Server.match.getPlayers().get(i).getPlayerName(),false);}
+            System.out.println("Debug0-2");
             bcStart.setCurrentlyPlaying(currPlaying);
             return bcStart;
         }
@@ -104,10 +129,23 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
 
     @Override
     public void addDisconnectedPlayer(UUID clientID) throws IOException {
+        if(Server.isCrashed()){
+            String playerName=null;
+            for(Player p: Server.match.getPlayers()) if(p.getPlayerID().equals(clientID)) playerName = p.getPlayerName();
+            ServerConnectionManager.handlers.replace(clientID,new RMIClientHandler(playerName,clientID,Server.serverConMan));
+            ClientHandler handler = ServerConnectionManager.handlers.get(clientID);
+            if(ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()!=null)handler.setSecretWasChosen(true);
+            new Thread(handler).start();
+        }
         if (ServerConnectionManager.hashClient.get(clientID) != null && !Server.match.getPlayerIds().contains(clientID)) Server.match.addDisconnectedPlayerId(clientID);
         String sender = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
         TextMessage text = new TextMessage("Server",null,sender+" rejoined the server", "Everyone");
         text.setDisconnectedClient(sender);
         ServerConnectionManager.sendBroadCastMessage(text);
+    }
+
+    @Override
+    public boolean isServerCrashed() throws RemoteException {
+        return Server.isCrashed();
     }
 }

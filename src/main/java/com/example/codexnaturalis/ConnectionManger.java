@@ -58,7 +58,8 @@ public class ConnectionManger {
                 System.err.println(e.getMessage());
                 return false;
             }
-        } else {
+        }
+        else {
             socket = null;
             try {
                 connectionAttempt();
@@ -328,6 +329,7 @@ public class ConnectionManger {
     public void reHandShake(String playerNick, UUID clientID) {
         //client join request after crash
         Message handshakeMessage = new Message(playerNick, clientID);
+        System.out.println(Client.getMatchID());
         handshakeMessage.setMatchID(Client.getMatchID());
         BroadCastStartingMessage handshakeACKInfo = null;
         Message tmpMessage;
@@ -337,7 +339,8 @@ public class ConnectionManger {
              * If branch reserved for rmi reconnection
              */
             if (typeOfConnection) {
-                tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
+                System.out.println("Debug0 - "+remoteServerProxy);
+                tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID(),clientID);
                 Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
                 /*
                  * execution stops here if reconnection with rmi is made in another game the user initially started
@@ -359,7 +362,10 @@ public class ConnectionManger {
                  */
                 else {
                     handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
+                        //todo: while che retrieva o qualcosa che aspetta lì
+                    System.out.println("Debug1");
                     Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+                    System.out.println("Debug2");
                     remoteServerProxy.addDisconnectedPlayer(clientID);
                 }
 
@@ -370,8 +376,13 @@ public class ConnectionManger {
             else {
                 System.out.println(Colors.PURPLE + "Starting Handshake" + Colors.RESET);
                 ioStream.getValue().writeObject(handshakeMessage);
-                //System.out.println("Flushing stream");
+                ioStream.getValue().flush();
+                System.out.println("Flushing stream");
                 tmpMessage = (Message) ioStream.getKey().readObject();
+                if(tmpMessage instanceof ResetMatchMessage) {
+                    System.out.println("Waiting for a new message");
+                    tmpMessage = (Message) ioStream.getKey().readObject();
+                }
                 System.out.println(tmpMessage.getClass());
                 Client.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
                 /*
@@ -401,7 +412,8 @@ public class ConnectionManger {
             /*
              * True if current reconnecting player has to play after reconnection
              * */
-            amPlayerInTurn = clientID.compareTo(handshakeACKInfo.getClientID()) == 0;
+            if(handshakeACKInfo.getClientID()!=null)amPlayerInTurn = clientID.compareTo(handshakeACKInfo.getClientID()) == 0;
+            else amPlayerInTurn = false;
             /*
              * InitialMatchSetup after a reconnection. All information is resent from server back to client
              * */
@@ -421,8 +433,8 @@ public class ConnectionManger {
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
             }
-            if (Client.isGuiSelector()) Client.getSem().release();//todo: check if breaks tui
-            Client.getServerHandler().setFirstBroadCastWasReceived(true);
+            if (Client.isGuiSelector()) Client.getSem().release();
+            if(handshakeACKInfo.getClientID()!=null) Client.getServerHandler().setFirstBroadCastWasReceived(true);
             /*
              * Socket still needs to retrieve his GenericTurn Message. Here info is retrieved
              */
@@ -471,37 +483,37 @@ public class ConnectionManger {
      * @throws NotSameMatchException thrown if server is currently playing a different match to the one the player is trying to reconnect
      * @throws RemoteException       thrown when rmi fails to return requested messages
      */
-    private Pair<Boolean, Message> rmiReconnect(Message handshakeMessage) throws NotSameMatchException, RemoteException {
-        BroadCastStartingMessage handshakeACKInfo;
-        Message tmpMessage;
-        String playerNick = handshakeMessage.getSender();
-        UUID clientID = handshakeMessage.getClientID();
-        tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
-        Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
-        /*
-         * execution stops here if reconnection with rmi is made in another game the user initially started
-         */
-        if (tmpMessage.getSender().equals("FORBIDDEN")) {
-            throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
-        }
-        /*
-         * execution stops here if reconnection with rmi is made before game has started
-         */
-        else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
-            System.out.println("Welcome back " + playerNick);
-            System.out.println("Waiting for other players to join...");
-            Client.getServerHandler().start();
-            return new Pair<>(false, tmpMessage);
-        }
-        /*
-         * reconnecting with rmi in an existing and already running game. Retrieving match info
-         */
-        else {
-            handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
-            Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
-        }
-        return new Pair<>(true, handshakeACKInfo);
-    }
+//    private Pair<Boolean, Message> rmiReconnect(Message handshakeMessage) throws NotSameMatchException, RemoteException {
+//        BroadCastStartingMessage handshakeACKInfo;
+//        Message tmpMessage;
+//        String playerNick = handshakeMessage.getSender();
+//        UUID clientID = handshakeMessage.getClientID();
+//        tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
+//        Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
+//        /*
+//         * execution stops here if reconnection with rmi is made in another game the user initially started
+//         */
+//        if (tmpMessage.getSender().equals("FORBIDDEN")) {
+//            throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
+//        }
+//        /*
+//         * execution stops here if reconnection with rmi is made before game has started
+//         */
+//        else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
+//            System.out.println("Welcome back " + playerNick);
+//            System.out.println("Waiting for other players to join...");
+//            Client.getServerHandler().start();
+//            return new Pair<>(false, tmpMessage);
+//        }
+//        /*
+//         * reconnecting with rmi in an existing and already running game. Retrieving match info
+//         */
+//        else {
+//            handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
+//            Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+//        }
+//        return new Pair<>(true, handshakeACKInfo);
+//    }
 
     /**
      * Essential piece of code for Client.initialMatchSetup() and reHandshake() methods. Lets you choose your secret objective card and face up or down of starting card
@@ -564,5 +576,9 @@ public class ConnectionManger {
             case 2 -> false;
             default -> throw new IOException("There was an error trying to read the string");
         };
+    }
+
+    public void setIoStream(Pair<ObjectInputStream, ObjectOutputStream> ioStream) {
+        this.ioStream = ioStream;
     }
 }

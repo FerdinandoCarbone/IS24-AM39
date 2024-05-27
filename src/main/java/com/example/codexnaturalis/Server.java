@@ -11,13 +11,17 @@ import java.util.*;
 public class Server {
     static boolean gameStarted = false;
     static Match match;
+    private static boolean isCrashed;
     static ServerConnectionManager serverConMan;
     static Pair<String, Integer> connectionInfo;
+    private static ServerStateSaver serverSaver;
 
     //static int playerCounter = 1;
     public static void main(String[] args) throws RemoteException, MalformedURLException {
         int port = 8081;
-        if (!args[0].isBlank()) {
+        checkForSaveData();
+        if(isCrashed) serverSaver.retrieveNecessaryStartingInfo();
+        else if (!args[0].isBlank()) {
             try {
                 port = Integer.parseInt(args[0]);
             } catch (Exception e) {
@@ -25,12 +29,18 @@ public class Server {
             }
 
             connectionInfo = new Pair<>("Server", port);
-        } else {
+        }
+
+        else {
             System.err.println("Cannot start server: Start server with an integer parameter as port");
             System.exit(0);
         }
         serverSetupProcedure();
 
+    }
+
+    private static void checkForSaveData() {
+        serverSaver = new ServerStateSaver();
     }
 
     /**
@@ -44,13 +54,47 @@ public class Server {
         } catch (Exception e) {
             System.err.println("Server Failure: " + e.getMessage());
         }
-        serverConMan.acceptConnection(false);
+        if(isCrashed)Collections.fill(match.getPlayerIds(), null);
+        serverConMan.acceptConnection(isCrashed);
         try {
-            matchStart();
+            if(!isCrashed)matchStart();
+            else matchRestart();
         } catch (Exception e) {
             System.err.println("Server Failure: " + e.getMessage());
         }
     }
+
+    private static void matchRestart() throws IOException {
+        while (!restartMatchCondition()) Thread.onSpinWait();
+        reWelcomePlayer();
+        serverIdle();
+    }
+
+    public static boolean restartMatchCondition() {
+        int counterIDs = 0;
+        int counterHandlers = 0;
+        ArrayList<UUID> ids = match.getPlayerIds();
+        for (UUID id : ids) {
+            if (id != null) ++counterIDs;
+            if (ServerConnectionManager.handlers.get(id)!=null) ++counterHandlers;
+        }
+        //System.out.println("CounterID:"+counterIDs+"handlers:"+ counterHandlers);
+        return counterIDs >= 2 && counterHandlers>=2;
+    }
+
+    private static void reWelcomePlayer() throws IOException {
+        isCrashed = false;
+        BroadCastStandardMessage bds = new BroadCastStandardMessage(null, null, null);
+        HashMap<String, Boolean> currPlaying = new HashMap<>();
+        for (int i = 0; i < ServerConnectionManager.hashClient.size(); i++){
+            if (Server.match.getPlayerIds().get(i) != null)
+                currPlaying.put(ServerConnectionManager.hashClient.get(Server.match.getPlayerIds().get(i)).getPlayerName(), true);
+            else currPlaying.put(Server.match.getPlayers().get(i).getPlayerName(), false);}
+        bds.setCurrPlaying(currPlaying);
+        ServerConnectionManager.sendBroadCastMessage(bds);
+        ServerConnectionManager.sendMessage(match.getCurrentPlayerID(),new GenericTurnMessage(connectionInfo.getKey(), match.getCurrentPlayerID(), match.getCoveredCards(), match.getPublicCards(), null)); //match loop starts here
+    }
+
 
     /**
      * Prints ASCII Art and initializes ServerConnectionManager
@@ -59,7 +103,11 @@ public class Server {
      */
     public static void serverStart() throws IOException {
         gameStarted = false;
-        serverConMan = new ServerConnectionManager(connectionInfo, 1099);
+        serverConMan = new ServerConnectionManager(connectionInfo, 1099,isCrashed);
+        if(isCrashed) {
+            serverSaver.retrieveCrucial();
+        }
+        serverSaver.saveInitialState();
         System.out.println(
                 """
                          _____                                                                      _____\s
@@ -87,22 +135,32 @@ public class Server {
      *                    The Thread stops here in the while(true) so that the person hosting the server can give it some commands
      */
     public static void matchStart() throws Exception {
-        String serverCommand;
-        ArrayList<Player> players = new ArrayList<>(serverConMan.getPlayers());
+        ArrayList<Player> players = new ArrayList<>(ServerConnectionManager.getPlayers());
         match = new Match(players, new ScoreTracker());
         startingFieldClientSetup();
         System.out.println("Match is about to start: Waiting for all players to choose a secret objective");
         while (!match.areAllSecretObjectiveSet()) Thread.onSpinWait();
+        serverSaver.saveState();
         welcomePlayer();
         gameStarted = true;
         System.out.println("Match has began");
         StandardMatchMessage stdMessage = match.chooseRandomFirstPlayer();
         GenericTurnMessage message = new GenericTurnMessage(connectionInfo.getKey(), stdMessage.getClientID(), match.getCoveredCards(), stdMessage.getPublicCardsNewState(), null); //match loop starts here
         ServerConnectionManager.sendMessage(stdMessage.getClientID(), message);
+        serverSaver.saveState();
+        serverIdle();
+    }
+
+    private static void serverIdle() {
+        String serverCommand;
         while (true) {
             serverCommand = getInput();
             interpretInput(serverCommand);
         }
+    }
+
+    public static ServerStateSaver getServerSaver() {
+        return serverSaver;
     }
 
     /**
@@ -113,7 +171,7 @@ public class Server {
     private static void startingFieldClientSetup() throws IOException {
         BroadCastStartingMessage fieldSetupMessage;
         ArrayList<ObjectiveCard> commonObjectiveCard;
-        commonObjectiveCard = DrawingDeck.drawCommonObjective();
+        commonObjectiveCard = match.getDeck().drawCommonObjective();
         match.setCommonObjectives(commonObjectiveCard);
         fieldSetupMessage = new BroadCastStartingMessage(connectionInfo.getKey(), null, serverConMan.getHashClient(), commonObjectiveCard, match.getTwoSecretObjectiveCards());
         fieldSetupMessage.setMatchID(match.getMatchID());
@@ -246,7 +304,6 @@ public class Server {
         }
         try {
             String playerName = ServerConnectionManager.hashClient.get(clientID).getPlayerName();
-            ServerConnectionManager.hashPlayer.remove(ServerConnectionManager.hashClient.get(clientID));
             ServerConnectionManager.hashClient.remove(clientID);
             System.out.println(playerName + " was kicked from server");
         } catch (Exception e) {
@@ -259,7 +316,7 @@ public class Server {
         return serverConMan.getNumPlayers();
     }
 
-    private static int getIntInput(int range, boolean type) {
+    public static int getIntInput(int range, boolean type) {
         Integer thingToParse = null;
         while (true) {
             try {
@@ -269,9 +326,17 @@ public class Server {
                 continue;
             }
             if (thingToParse <= range && thingToParse >= 0) break;
+            System.out.println("Invalid input: try again");
         }
         if (type) return thingToParse - 1;
         else return thingToParse;
+    }
+
+    public static boolean isCrashed() {
+        return isCrashed;
+    }
+    public static void setIsCrashed(boolean isCrashed) {
+        Server.isCrashed = isCrashed;
     }
 
 }

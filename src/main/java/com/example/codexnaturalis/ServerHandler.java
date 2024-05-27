@@ -3,15 +3,14 @@ package com.example.codexnaturalis;
 import javafx.application.Platform;
 import javafx.util.Pair;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -107,6 +106,15 @@ public class ServerHandler extends Thread implements Runnable {
         Client.clientDisconnect();
     }
     public void bcsHandler(BroadCastStandardMessage message) throws InterruptedException {
+        if( message.starterCards==null){
+            setFirstBroadCastWasReceived(true);
+            HashMap<String,Boolean> playingPlayer = message.getCurrPlaying();
+            Client.setCurrentlyPlayingPlayers(playingPlayer);
+            return;
+        }
+        else if(Client.isCrashed()) {
+            setFirstBroadCastWasReceived(true);
+        }
         HashMap<UUID,StarterCard> hashStart= message.starterCards;
         hashStart.remove(getClientID());
         AtomicBoolean face = new AtomicBoolean();
@@ -197,6 +205,25 @@ public class ServerHandler extends Thread implements Runnable {
     public void setMessageTurn(GenericTurnMessage messageTurn) {
         this.messageTurn = messageTurn;
     }
+    public void restartClient() throws IOException, URISyntaxException {
+        System.out.println("Server crashed: please try restarting client with same username to try and rejoin match");
+        this.interrupt();
+        System.exit(0);
+        /*final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        final File currentJar = new File(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        if(!currentJar.getName().endsWith(".jar"))
+            return;
+        final ArrayList<String> command = new ArrayList<>();
+        command.add(javaBin);
+        command.add("-jar");
+        command.add(currentJar.getPath());
+        String args="";
+        for(String s: Arrays.stream(Client.clientArgs).toList()) args = args.concat(s);
+        command.add(args);
+        final ProcessBuilder builder = new ProcessBuilder(command);
+        builder.start();
+        System.exit(0);*/
+    }
 }
 
 class ServerSocketHandler extends ServerHandler {
@@ -204,11 +231,13 @@ class ServerSocketHandler extends ServerHandler {
     private Socket socket;
     private ObjectOutputStream outServer;
     private ObjectInputStream inServer;
+    private Boolean hasToRun;
 
     public ServerSocketHandler(String clientName, UUID clientID,ConnectionManger connMan) throws IOException {
         super(clientName,clientID,connMan);
         this.outServer = connMan.getIoStream().getValue();
         this.inServer = connMan.getIoStream().getKey();
+        this.hasToRun = true;
         System.out.println(outServer);
         this.socket = connMan.socket;
     }
@@ -216,19 +245,19 @@ class ServerSocketHandler extends ServerHandler {
     public void run() {
         while(true){
             try {
-                messageReceiver();
-            } catch (ClassNotFoundException | WrongMessageConversionException e) {
-                System.out.println("ServerComHandler error: " + e.getMessage());
+                if(hasToRun) messageReceiver(null);
+            } catch (ClassNotFoundException e) {
+                System.out.println("ServerComHandler ClassNotFoundError: " + e.getMessage());
 
             } catch(IOException e){
-                System.out.println("ServerComHandler error: " + e.getMessage());
+                System.out.println("ServerComHandler IOError: " + e.getMessage());
                 try {
                     throw new ClientAbruptlyDisconnectedException(getClientName()+" abruptly disconnected from server due to socket degradation: Attempting reconnection");
                 } catch (ClientAbruptlyDisconnectedException ex) {
                     if(tryReconnectToServer()) continue;
                     clientDisconnected();
                 }
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | WrongMessageConversionException e) {
                 throw new RuntimeException(e);
             }
             try{
@@ -243,19 +272,45 @@ class ServerSocketHandler extends ServerHandler {
 
     private boolean tryReconnectToServer()  {
         boolean result=true;
-        Socket socket;
         try {
-            socket = getConnMan().connectionAttempt();
+            this.socket = getConnMan().connectionAttempt();
             outServer= new ObjectOutputStream(socket.getOutputStream());
             inServer = new ObjectInputStream(socket.getInputStream());
+            System.out.println("Waiting to see if server crashed");
+            boolean isServerCrashed=false;
+            try{
+               Message retryConnection = new Message(getClientName(),getClientID());
+               retryConnection.setReconnectServerCrash(true);
+                outServer.writeObject(retryConnection);
+                outServer.flush();
+                Message mex = (Message) inServer.readObject();
+                if(mex instanceof ResetMatchMessage){
+                    isServerCrashed=true;
+                    hasToRun = false;
+                }
+                else messageReceiver(mex);
+            } catch(Exception e){
+                System.err.println("Server is not crashed:" +e.getMessage());
+            }
+            if(isServerCrashed) {
+                //System.out.println("Server crashed: to restart client please press select an option and press Enter");
+                restartClient();
+                /*getConnMan().setIoStream(new Pair<>(inServer,outServer));
+                getConnMan().reHandShake(getClientName(),getClientID());*/
+            }
+            System.out.println("Done");
+            hasToRun = true;
         } catch (Exception e){
             result = false;
         }
         return result;
     }
 
-    private void messageReceiver() throws IOException, ClassNotFoundException, WrongMessageConversionException, InterruptedException {
-        Message message = (Message) inServer.readObject();
+    private void messageReceiver(Message inputmex) throws IOException, ClassNotFoundException, WrongMessageConversionException, InterruptedException {
+        Message message;
+        if(inputmex==null)message = (Message) inServer.readObject();
+        else message = inputmex;
+        if(message==null) return;
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
         System.out.println(messageType);
@@ -333,8 +388,13 @@ class ServerRMIHandler extends ServerHandler{
         boolean result=true;
         try {
             getConnMan().connectionAttempt();
-        } catch (Exception e){
+            if(remoteProxy.isServerCrashed()) restartClient();
+        } catch (HandShakeException e){
             result = false;
+        }
+        catch(URISyntaxException |IOException e){
+            System.out.println("Unable to restart client: please restart it manually");
+            System.exit(0);
         }
         return result;
     }
