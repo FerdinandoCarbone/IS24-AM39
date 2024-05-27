@@ -14,7 +14,9 @@ class PlayerTest {
 
     @Test
     void placeStarterCardFront() throws IOException {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player("pippo", new Token(Token.Color.Red), new Field(3, 3), UUID.randomUUID());
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -56,14 +58,13 @@ class PlayerTest {
         for (int i = 0; i < 3; i++) {
             assertEquals(resourceMana[i], player.getResourceMana()[i]);
         }
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
     }
 
     @Test
     void placeStarterCardBack() throws IOException {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player("pluto", new Token(Token.Color.Red), new Field(3, 3), UUID.randomUUID());
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -111,14 +112,13 @@ class PlayerTest {
         for (int i = 0; i < 3; i++) {
             assertEquals(resourceMana[i], player.getResourceMana()[i]);
         }
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
     }
 
     @Test
     void placeCardSwitchOffset1() throws Exception {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -132,15 +132,13 @@ class PlayerTest {
         assertTrue(player.getPlayerField().getSlots()[3][3].isBusySlot());
         assertEquals(card, player.getPlayerField().getSlots()[3][3].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
-
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
     }
 
     @Test
     void placeCardOffset2() throws Exception {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -153,14 +151,13 @@ class PlayerTest {
         assertTrue(player.getPlayerField().getSlots()[0][2].isBusySlot());
         assertEquals(card, player.getPlayerField().getSlots()[0][2].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
     }
 
     @Test
     void placeCardCornerToPlace2AndRemoveFromDeck() throws Exception {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -173,14 +170,13 @@ class PlayerTest {
         assertTrue(player.getPlayerField().getSlots()[2][2].isBusySlot());
         assertEquals(card, player.getPlayerField().getSlots()[2][2].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
     }
 
     @Test
     void placeCardCornerToPlace4AndRemoveFromDeck() throws Exception {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -193,14 +189,13 @@ class PlayerTest {
         assertTrue(player.getPlayerField().getSlots()[0][0].isBusySlot());
         assertEquals(card, player.getPlayerField().getSlots()[0][0].getCardSlot());
         assertEquals(originalDeckSize - 1, player.getPlayerDeck().getResourceGoldCards().size());
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
     }
 
     @Test
     void addScoreResourceElementTest() throws IOException {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -217,14 +212,13 @@ class PlayerTest {
         int oldMana2 = player.getElementsMana()[randomIndex2];
         player.addElementsMana(1, randomIndex2);
         assertEquals(player.getElementsMana()[randomIndex2], oldMana2 + 1);
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
     }
 
     @Test
     void isCardAttachableToSlotTest() throws IOException {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -245,15 +239,14 @@ class PlayerTest {
         assertFalse(player.isCardAttachableToSlot(3, 1));
         assertThrows(IndexOutOfBoundsException.class, () -> player.isCardAttachableToSlot(-1, 3));
         assertThrows(IndexOutOfBoundsException.class, () -> player.isCardAttachableToSlot(0, 9));
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
 
     }
 
     @Test
     void decreaseResourceElementsManaTest() throws IOException {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -270,15 +263,14 @@ class PlayerTest {
         assertEquals(0, player.getElementsMana()[0]);
         assertEquals(0, player.getElementsMana()[1]);
         assertEquals(0, player.getElementsMana()[2]);
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
 
     }
 
     @Test
     void undoMoveTest() throws IOException {
+        DrawingDeck drawingDeck = new DrawingDeck();
         Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
         cards.addAll(player.getPlayerDeck().getResourceGoldCards());
@@ -294,10 +286,6 @@ class PlayerTest {
         assertEquals(player.getPlayerDeck().getResourceGoldCards().getFirst(), cardToPlace);
         assertNull(player.getPlayerField().getSlots()[3][3].getCardSlot());
         assertFalse(player.getPlayerField().getSlots()[3][3].isBusySlot());
-
-        for (Card cs : cards) {
-            DrawingDeck.reAddCards(cs);
-        }
 
     }
 
