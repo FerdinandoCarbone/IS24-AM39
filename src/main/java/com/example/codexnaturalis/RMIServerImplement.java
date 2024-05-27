@@ -88,13 +88,15 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
 
     @Override
     public Message reHandShakeRMI(UUID matchID,UUID clientID) throws RemoteException {
+        ArrayList<UUID> playerNames = new ArrayList<>();
+        for(Player p : ServerConnectionManager.hashClient.values()) playerNames.add(p.getPlayerID());
+        if(!playerNames.contains(clientID)) return null;
         if(matchID==null) return new Message("MATCHNOTSTARTED",null);
         else if (!matchID.equals(Server.match.getMatchID())) return new Message("FORBIDDEN", null);
         else {
             UUID currPlayerID=null;
-            System.out.println("Debug0-0");
-            System.out.println("ServerCrash:" +Server.isCrashed());
             if(Server.isCrashed()){
+                System.out.println("Reconnecting after a server crash...");
                 if(!Server.serverConMan.checkIfAllNull(Server.match.getPlayerIds())) {
                     Server.match.getPlayerIds().set(Server.match.getPlayers().indexOf(ServerConnectionManager.hashClient.get(clientID)),clientID);
                     int index = Server.match.selectIndexNextPlayer(ServerConnectionManager.hashClient.size()-1);
@@ -110,14 +112,12 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
                 }
             }
             else currPlayerID = Server.match.getCurrentPlayerID();
-            System.out.println("Debug0-1");
             assert currPlayerID != null;
             BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
             HashMap<String,Boolean> currPlaying = new HashMap<>();
             for (int i =0;i<ServerConnectionManager.hashClient.size();i++){
                 if (Server.match.getPlayerIds().get(i) != null) currPlaying.put(ServerConnectionManager.hashClient.get(Server.match.getPlayerIds().get(i)).getPlayerName(),true);
                 else currPlaying.put(Server.match.getPlayers().get(i).getPlayerName(),false);}
-            System.out.println("Debug0-2");
             bcStart.setCurrentlyPlaying(currPlaying);
             return bcStart;
         }

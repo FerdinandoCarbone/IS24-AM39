@@ -102,7 +102,6 @@ public class ServerHandler extends Thread implements Runnable {
          Client.initialMatchSetup(initialMatchSetupMessage);
     }
     public void clientDisconnected() {
-        //todo: robe per chiudere i thread
         Client.clientDisconnect();
     }
     public void bcsHandler(BroadCastStandardMessage message) throws InterruptedException {
@@ -143,7 +142,7 @@ public class ServerHandler extends Thread implements Runnable {
     }
     public void universalStatusUpdater(StandardMatchMessage newStatus){
         UUID oldPlayer= newStatus.getClientID();
-        System.out.println("Updating game status" + oldPlayer+" Points: "+ newStatus.getCurrPlayerPoints());
+        //System.out.println("Updating game status" + oldPlayer+" Points: "+ newStatus.getCurrPlayerPoints());
         if (Client.isGuiSelector()) Platform.runLater(() -> MainController.scoreTracker.moveToken(oldPlayer, newStatus.getCurrPlayerPoints()));
         ResourceGoldCard placedCard= newStatus.getPlacedCard();
         Pair<Integer,Integer> coords = newStatus.getCoords();
@@ -159,9 +158,9 @@ public class ServerHandler extends Thread implements Runnable {
             ArrayList<Player> players = Client.getOtherPlayers();
             for (Player p : players) {
                 if (p.getPlayerID().equals(oldPlayer)) {
-                    System.out.println("Player found:");
+                    //System.out.println("Player found:");
                     p.placeCard(coords.getKey(), coords.getValue(), placedCard);
-                    System.out.println("In Server Handler: " + placedCard.getCoveredCornersWhenPlaced());
+                    //System.out.println("In Server Handler: " + placedCard.getCoveredCornersWhenPlaced());
                     p.setScore(newStatus.getCurrPlayerPoints());
                     if(Client.isGuiSelector()){
                         Platform.runLater(()->{
@@ -207,7 +206,7 @@ public class ServerHandler extends Thread implements Runnable {
     }
     public void restartClient() {
         String kickString = "Server crashed: please try restarting client with same username to try and rejoin match";
-        System.out.println();
+        System.out.println(kickString);
         if(Client.isGuiSelector()) Platform.runLater(()->MainController.alert(kickString,true));
         System.exit(0);
         /*final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
@@ -239,7 +238,6 @@ class ServerSocketHandler extends ServerHandler {
         this.outServer = connMan.getIoStream().getValue();
         this.inServer = connMan.getIoStream().getKey();
         this.hasToRun = true;
-        System.out.println(outServer);
         this.socket = connMan.socket;
     }
     @Override
@@ -299,7 +297,7 @@ class ServerSocketHandler extends ServerHandler {
                 /*getConnMan().setIoStream(new Pair<>(inServer,outServer));
                 getConnMan().reHandShake(getClientName(),getClientID());*/
             }
-            System.out.println("Done");
+            //System.out.println("Done");
             hasToRun = true;
         } catch (Exception e){
             result = false;
@@ -314,7 +312,7 @@ class ServerSocketHandler extends ServerHandler {
         if(message==null) return;
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
-        System.out.println(messageType);
+        //System.out.println(messageType);
         switch (messageType){
             case "GenericTurnMessage":
                 genericTurnMessageHandler((GenericTurnMessage) message);
@@ -343,11 +341,9 @@ class ServerSocketHandler extends ServerHandler {
     public void sendMessage(Message message) throws IOException {
         message.setSender(getClientName());
         message.setClientID(getClientID());
-        System.out.println("In sendMessage");
         outServer.writeObject(message);
         outServer.flush();
         outServer.reset();
-        System.out.println("MessageSent");
     }
 
     private void endOfTheGame(EndMatchMessage message) throws IOException, WrongMessageConversionException {
@@ -401,7 +397,7 @@ class ServerRMIHandler extends ServerHandler{
     private void messageReceiver(Message message) throws WrongMessageConversionException, IOException, InterruptedException {
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
-        System.out.println(messageType);
+        //System.out.println(messageType);
         switch (messageType){
             case "GenericTurnMessage":
                 genericTurnMessageHandler((GenericTurnMessage) message);

@@ -107,7 +107,7 @@ public class ServerConnectionManager implements Serializable {
         Player player;
         if (socketListener.sockets.isEmpty()) {
             if (isReconnection) {
-                System.out.println("DEBUG1");
+                //System.out.println("DEBUG1");
                 //socketListener.setHasToRun(false);
             }
             //System.out.println("DEBUG0");
@@ -118,14 +118,25 @@ public class ServerConnectionManager implements Serializable {
             clientSocket = socketListener.sockets.getFirst();
             socketListener.sockets.remove(clientSocket);
         }
-        System.out.println("DEBUG2");
+        //System.out.println("DEBUG2");
         out = new ObjectOutputStream(clientSocket.getOutputStream());
         in = new ObjectInputStream(clientSocket.getInputStream());
         //clientSocket.setSoTimeout(10000);
-        System.out.println("Streams generated");
+        //System.out.println("Streams generated");
         clientJoinRequest = (Message) in.readObject();//prendo l'handshake Message
+        /*Snippet intended for kicking players when trying to get in a game they do not belong to*/
+        if(isReconnection&&socket!=null){
+            ArrayList<String> playerNames = new ArrayList<>();
+            for(Player p : hashClient.values()) playerNames.add(p.getPlayerName());
+            if(!playerNames.contains(clientJoinRequest.getSender())) {
+                out.writeObject(new TextMessage(null,null,null,null));
+                out.flush();
+                socket.close();
+                return null;
+            }
+        }
         if(clientJoinRequest.isReconnectServerCrash()) {
-                System.out.println("Entered here");
+                //System.out.println("Entered here");
                 out.writeObject(new ResetMatchMessage("Server", null, "I crashed", null));
                 return null;
         }
@@ -234,7 +245,6 @@ public class ServerConnectionManager implements Serializable {
                         Server.match.getPlayerIds().set(Server.match.getPlayers().indexOf(hashClient.get(clientID)),clientID);
                         int index = Server.match.selectIndexNextPlayer(hashClient.size()-1);
                         currPlayerID=Server.match.getPlayerIds().get(index);
-                        //Server.match.getPlayers().get(Server.match.selectIndexNextPlayer(index)).getPlayerID();
                     }
                     else {
                         int index = -1;
@@ -260,13 +270,12 @@ public class ServerConnectionManager implements Serializable {
                 else if (hashClient.get(clientID) != null && !Server.match.getPlayerIds().contains(clientID))
                     Server.match.addDisconnectedPlayerId(clientID);
                 if ((Server.match.allNonNullIds()>2 &&Server.isCrashed()) || (currPlayerID!=null && clientID.compareTo(currPlayerID) == 0)) {
-                    System.out.println("Sending over GenericTurnMessage");
+                    System.out.println(Colors.PURPLE+"Sending over GenericTurnMessage"+Colors.RESET);
                     Message msg = new GenericTurnMessage("Server", currPlayerID, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
                     out.writeObject(msg);
                 }
             }
-            System.out.println("Current:" + currPlayerID + "\n" + "Reconnecting player:" + clientID);
-            //hashPlayer.replace(hashClient.get(clientID), clientSocket);
+            //System.out.println("Current:" + currPlayerID + "\n" + "Reconnecting player:" + clientID);
             System.out.println(sender + " rejoined the server");
             TextMessage text = new TextMessage("Server",null,sender + " rejoined the server","Everyone");
             text.setDisconnectedClient(sender);

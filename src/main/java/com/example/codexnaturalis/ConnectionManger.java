@@ -5,6 +5,9 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -46,14 +49,14 @@ public class ConnectionManger {
 
             try {
                 socket = connectionAttempt();
-                System.out.println(Colors.PURPLE + "Sono USCITO DA CONNECTION ATTEMPT" + socket + Colors.RESET);
+                //System.out.println(Colors.PURPLE + "Sono USCITO DA CONNECTION ATTEMPT" + socket + Colors.RESET);
                 InputStream sInStream = socket.getInputStream();
                 OutputStream sOutStream = socket.getOutputStream();
-                System.out.println(Colors.PURPLE + "HO CREATO GLI STREAM" + socket + Colors.RESET);
+                //System.out.println(Colors.PURPLE + "HO CREATO GLI STREAM" + socket + Colors.RESET);
                 out = new ObjectOutputStream(sOutStream);
                 in = new ObjectInputStream(sInStream);
                 ioStream = new Pair<>(in, out);
-                System.out.println(Colors.PURPLE + "Ho generato oIOStreams" + Colors.RESET);
+                //System.out.println(Colors.PURPLE + "Ho generato oIOStreams" + Colors.RESET);
             } catch (HandShakeException | NullPointerException | IOException e) {
                 System.err.println(e.getMessage());
                 return false;
@@ -88,7 +91,7 @@ public class ConnectionManger {
                     return null;
                 } else {
                     socket = new Socket(serverAddress, port);
-                    System.out.println(Colors.PURPLE + "Ho generato il socket" + socket + Colors.RESET);
+                    //System.out.println(Colors.PURPLE + "Ho generato il socket" + socket + Colors.RESET);
                     return socket;
                 }
             } catch (IOException | NotBoundException e) {
@@ -167,9 +170,9 @@ public class ConnectionManger {
                 }
                 if (!isGuiSelector()) {
                     System.out.println("Joined existing match...");
-                    System.out.println("CurrentPlayers: " + numOfUsers);
+                    System.out.println("CurrentPlayers: " + (numOfUsers+1));
                 } else {
-                    LauncherController.alert("Joined existing match..." + "\nCurrentPlayers: " + numOfUsers, true);
+                    LauncherController.alert("Joined existing match..." + "\nCurrentPlayers: " + (numOfUsers+1), true);
                 }
                 break;
             default:
@@ -194,10 +197,14 @@ public class ConnectionManger {
         try {
             ioStream.getValue().writeObject(handshakeMessage);
             ackMessage = (Message) ioStream.getKey().readObject();
+            if(ackMessage instanceof TextMessage) {
+                System.out.println("A game is already being played: cannot join");
+                System.exit(0);
+            }
             while (ackMessage.getClientID() == null && Objects.equals(ackMessage.getSender(), "!!++***++!!")) {
                 playerNick = nickRetype();
                 handshakeMessage.setSender(playerNick);
-                System.out.println("Handshake: " + handshakeMessage.getSender());
+                //System.out.println("Handshake: " + handshakeMessage.getSender());
                 handshakeMessage.setClientID(clientID);
                 ioStream.getValue().reset();
                 ioStream.getValue().writeObject(handshakeMessage);
@@ -297,7 +304,7 @@ public class ConnectionManger {
             if (desiredPlayerCount >= 2 && desiredPlayerCount <= 4) break;
             System.out.println("Unacceptable value was input");
             warningMessage = warningMessage.replaceFirst("No match found. Creating a new one:\nHow many players will be playing?", "Unacceptable value was input");
-            if (i == 2) throw new StupidUserException("u stupid bruh");
+            if (i == 5) throw new StupidUserException("Too many invalid attempts");
             i++;
         }
         return desiredPlayerCount;
@@ -326,10 +333,10 @@ public class ConnectionManger {
      * Apologies to whoever will be trying to read it, and good luck debugging it!
      */
     //todo: Divide this
-    public void reHandShake(String playerNick, UUID clientID) {
+    public void reHandShake(String playerNick, UUID clientID) throws IOException {
         //client join request after crash
         Message handshakeMessage = new Message(playerNick, clientID);
-        System.out.println(Client.getMatchID());
+        //System.out.println(Client.getMatchID());
         handshakeMessage.setMatchID(Client.getMatchID());
         BroadCastStartingMessage handshakeACKInfo = null;
         Message tmpMessage;
@@ -339,8 +346,11 @@ public class ConnectionManger {
              * If branch reserved for rmi reconnection
              */
             if (typeOfConnection) {
-                System.out.println("Debug0 - "+remoteServerProxy);
                 tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID(),clientID);
+                if(tmpMessage == null){
+                    System.out.println("A game is being played and lobby is full");
+                    System.exit(0);
+                }
                 Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
                 /*
                  * execution stops here if reconnection with rmi is made in another game the user initially started
@@ -362,10 +372,7 @@ public class ConnectionManger {
                  */
                 else {
                     handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
-                        //todo: while che retrieva o qualcosa che aspetta lì
-                    System.out.println("Debug1");
                     Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
-                    System.out.println("Debug2");
                     remoteServerProxy.addDisconnectedPlayer(clientID);
                 }
 
@@ -374,16 +381,14 @@ public class ConnectionManger {
              * If branch reserved for socket reconnection
              */
             else {
-                System.out.println(Colors.PURPLE + "Starting Handshake" + Colors.RESET);
+                //System.out.println(Colors.PURPLE + "Starting Handshake" + Colors.RESET);
                 ioStream.getValue().writeObject(handshakeMessage);
                 ioStream.getValue().flush();
-                System.out.println("Flushing stream");
                 tmpMessage = (Message) ioStream.getKey().readObject();
                 if(tmpMessage instanceof ResetMatchMessage) {
-                    System.out.println("Waiting for a new message");
                     tmpMessage = (Message) ioStream.getKey().readObject();
                 }
-                System.out.println(tmpMessage.getClass());
+                //System.out.println(tmpMessage.getClass());
                 Client.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
                 /*
                  * execution stops here if reconnection with socket is made in another game the user initially started
@@ -404,7 +409,6 @@ public class ConnectionManger {
                  * Retrieving match information
                  */
                 handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
-                System.out.println("CASTED");
                 //System.out.println(Colors.PURPLE+ "Settato correttamente" +Colors.RESET);
             }
             System.out.println(Colors.PURPLE + "Setting Up field..." + Colors.RESET);
@@ -465,9 +469,12 @@ public class ConnectionManger {
             if (e.getClass().equals(NotSameMatchException.class)) {
                 System.out.println("Save data can be deleted: deleting it now...");
                 String filePath = "savedata/" + playerNick + "-matchInfo.cdxn";
-                File file = new File(filePath);
-                boolean deleted = file.delete();
-                if (!deleted) System.out.println("Unable to delete save file");
+                Path path = Paths.get(filePath);
+                if(Files.exists(path)) {
+                    Files.delete(path);
+                    System.out.println("Unusable file deleted successfully");
+                }
+                else System.out.println("Unable to delete save file");
             }
             clientDisconnect();
         }
@@ -525,7 +532,6 @@ public class ConnectionManger {
         chosenCard = Client.getPlayer().chooseSecretObj(handshakeACKInfo.getSecretObjectiveCards(Client.getClientID()));
         ArrayList<ObjectiveCard> tmpList = new ArrayList<>(Collections.singletonList(chosenCard));
         handshakeACKInfo.setSelectedSecret(tmpList);
-        //todo PRINT StarterCard?
         Client.getPlayer().getPlayerDeck().getStarterCard().printCardFrontAndBack();
         //if (Client.isGuiSelector());
         System.out.println("How do you want to face the starting card");

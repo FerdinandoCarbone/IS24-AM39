@@ -292,7 +292,6 @@ class SocketClientHandler extends ClientHandler {
         this.inClient = iostream.getKey();
         this.outClient = iostream.getValue();
         this.socket = socket;
-        System.out.println("This shit was reset");
     }
 
     public Semaphore getSamviseGamgee() {

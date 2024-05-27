@@ -45,14 +45,14 @@ class SocketConnectionListener extends ConnectionListener {
         }
     }
     private void startListening() throws IOException, ClassNotFoundException, InterruptedException {
-        System.out.println("I am listening");
+        //System.out.println("I am listening");
         Socket clientSocket = serverComMan.getServerSocket().accept();
-        System.out.println("I heard");
+        //System.out.println("I heard");
         this.sockets.add(clientSocket);
         if(Server.gameStarted&& Server.match.getPlayerIds().contains(null) && !sockets.isEmpty()){
             ClientHandler tmpHand;
             UUID clientID;
-            System.out.println("Accepted socket connection");
+            System.out.println(Colors.PURPLE+"Accepted socket connection"+Colors.RESET);
             Pair<ObjectInputStream, ObjectOutputStream> oIOStream = Server.serverConMan.acceptSocketRMIConnections(clientSocket,true);
             sockets.remove(clientSocket);
             if(oIOStream==null) return;
@@ -98,18 +98,11 @@ class RMIConnectionListener extends ConnectionListener {
         remoteServerSkeleton = new RMIServerImplement();
         LocateRegistry.createRegistry(serverComMan.getRmiPort());
         Naming.rebind(ServerConnectionManager.getServerName(), remoteServerSkeleton);
-        System.out.println(remoteServerSkeleton);
+        //System.out.println(remoteServerSkeleton);
     }
     @Override
     public void run(){
         while(hasToRun){
-            /*if(Server.isCrashed()) {
-                try {
-                    ServerConnectionManager.sendBroadCastMessage(new ResetMatchMessage("Server",null,"OOPSIES",null));
-                } catch (IOException e) {
-                    System.out.println("Unable to send broadcast disconnecting message");
-                }
-            }*/
         }
     }
     public void shutRMIConnection() throws RemoteException, MalformedURLException, NotBoundException {
