@@ -281,7 +281,7 @@ public class ServerConnectionManager implements Serializable {
         return null;
     }
 
-    private boolean checkIfAllNull(ArrayList<UUID> objs) {
+    public boolean checkIfAllNull(ArrayList<UUID> objs) {
         for(UUID ob:objs) if(ob!=null) return false;
         return true;
     }

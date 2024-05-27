@@ -87,15 +87,31 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     }
 
     @Override
-    public Message reHandShakeRMI(UUID matchID) throws RemoteException {
+    public Message reHandShakeRMI(UUID matchID,UUID clientID) throws RemoteException {
         if(matchID==null) return new Message("MATCHNOTSTARTED",null);
         else if (!matchID.equals(Server.match.getMatchID())) return new Message("FORBIDDEN", null);
         else {
-            UUID currPlayerID;
+            UUID currPlayerID=null;
             System.out.println("Debug0-0");
-            if(Server.isCrashed()) currPlayerID = Server.getServerSaver().saveData.getMatchSave().getCurrentPlayerID();
+            System.out.println("ServerCrash:" +Server.isCrashed());
+            if(Server.isCrashed()){
+                if(!Server.serverConMan.checkIfAllNull(Server.match.getPlayerIds())) {
+                    Server.match.getPlayerIds().set(Server.match.getPlayers().indexOf(ServerConnectionManager.hashClient.get(clientID)),clientID);
+                    int index = Server.match.selectIndexNextPlayer(ServerConnectionManager.hashClient.size()-1);
+                    currPlayerID=Server.match.getPlayerIds().get(index);
+                    //Server.match.getPlayers().get(Server.match.selectIndexNextPlayer(index)).getPlayerID();
+                }
+                else {
+                    int index = -1;
+                    do{
+                        index= Server.match.getPlayers().indexOf(ServerConnectionManager.hashClient.get(clientID));
+                    }while(index==-1);
+                    Server.match.getPlayerIds().set(index,clientID);
+                }
+            }
             else currPlayerID = Server.match.getCurrentPlayerID();
             System.out.println("Debug0-1");
+            assert currPlayerID != null;
             BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
             HashMap<String,Boolean> currPlaying = new HashMap<>();
             for (int i =0;i<ServerConnectionManager.hashClient.size();i++){

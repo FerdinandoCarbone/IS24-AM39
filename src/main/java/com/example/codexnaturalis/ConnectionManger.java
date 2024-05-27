@@ -340,7 +340,7 @@ public class ConnectionManger {
              */
             if (typeOfConnection) {
                 System.out.println("Debug0 - "+remoteServerProxy);
-                tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
+                tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID(),clientID);
                 Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
                 /*
                  * execution stops here if reconnection with rmi is made in another game the user initially started
@@ -483,37 +483,37 @@ public class ConnectionManger {
      * @throws NotSameMatchException thrown if server is currently playing a different match to the one the player is trying to reconnect
      * @throws RemoteException       thrown when rmi fails to return requested messages
      */
-    private Pair<Boolean, Message> rmiReconnect(Message handshakeMessage) throws NotSameMatchException, RemoteException {
-        BroadCastStartingMessage handshakeACKInfo;
-        Message tmpMessage;
-        String playerNick = handshakeMessage.getSender();
-        UUID clientID = handshakeMessage.getClientID();
-        tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
-        Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
-        /*
-         * execution stops here if reconnection with rmi is made in another game the user initially started
-         */
-        if (tmpMessage.getSender().equals("FORBIDDEN")) {
-            throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
-        }
-        /*
-         * execution stops here if reconnection with rmi is made before game has started
-         */
-        else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
-            System.out.println("Welcome back " + playerNick);
-            System.out.println("Waiting for other players to join...");
-            Client.getServerHandler().start();
-            return new Pair<>(false, tmpMessage);
-        }
-        /*
-         * reconnecting with rmi in an existing and already running game. Retrieving match info
-         */
-        else {
-            handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
-            Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
-        }
-        return new Pair<>(true, handshakeACKInfo);
-    }
+//    private Pair<Boolean, Message> rmiReconnect(Message handshakeMessage) throws NotSameMatchException, RemoteException {
+//        BroadCastStartingMessage handshakeACKInfo;
+//        Message tmpMessage;
+//        String playerNick = handshakeMessage.getSender();
+//        UUID clientID = handshakeMessage.getClientID();
+//        tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
+//        Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
+//        /*
+//         * execution stops here if reconnection with rmi is made in another game the user initially started
+//         */
+//        if (tmpMessage.getSender().equals("FORBIDDEN")) {
+//            throw new NotSameMatchException("A different match is being played: Wait for the current match to end");
+//        }
+//        /*
+//         * execution stops here if reconnection with rmi is made before game has started
+//         */
+//        else if (tmpMessage.getSender().equals("MATCHNOTSTARTED")) {
+//            System.out.println("Welcome back " + playerNick);
+//            System.out.println("Waiting for other players to join...");
+//            Client.getServerHandler().start();
+//            return new Pair<>(false, tmpMessage);
+//        }
+//        /*
+//         * reconnecting with rmi in an existing and already running game. Retrieving match info
+//         */
+//        else {
+//            handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
+//            Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+//        }
+//        return new Pair<>(true, handshakeACKInfo);
+//    }
 
     /**
      * Essential piece of code for Client.initialMatchSetup() and reHandshake() methods. Lets you choose your secret objective card and face up or down of starting card

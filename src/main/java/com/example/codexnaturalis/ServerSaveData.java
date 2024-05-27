@@ -1,5 +1,6 @@
 package com.example.codexnaturalis;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class ServerSaveData implements Serializable {
+    @Serial
     private static final long serialVersionUID = 6529685098267757690L;
     private Match matchSave;
     private ArrayList<UUID> kicked;

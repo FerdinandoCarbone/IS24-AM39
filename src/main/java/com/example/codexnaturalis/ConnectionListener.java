@@ -98,6 +98,7 @@ class RMIConnectionListener extends ConnectionListener {
         remoteServerSkeleton = new RMIServerImplement();
         LocateRegistry.createRegistry(serverComMan.getRmiPort());
         Naming.rebind(ServerConnectionManager.getServerName(), remoteServerSkeleton);
+        System.out.println(remoteServerSkeleton);
     }
     @Override
     public void run(){

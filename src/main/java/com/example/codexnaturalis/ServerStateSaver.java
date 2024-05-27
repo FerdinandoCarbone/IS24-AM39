@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class ServerStateSaver {
-    public ServerSaveData saveData;
+public class ServerStateSaver implements Serializable{
+    private ServerSaveData saveData;
     private String fileName = "serverSaveData/match-SaveData.serv";
     public ServerStateSaver() {
         initSaver();
@@ -142,5 +142,8 @@ public class ServerStateSaver {
 
     public void resetSave() throws IOException {
         Files.delete(Paths.get(fileName));
+    }
+    public ServerSaveData getSaveData(){
+        return saveData;
     }
 }
