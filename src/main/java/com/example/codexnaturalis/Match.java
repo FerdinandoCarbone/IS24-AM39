@@ -330,17 +330,23 @@ public class Match {
         boolean winnerFlag = false;
         if (playingPlayer.getScore() >= 20) {
             winnerFlag = true;
-            System.out.println(playingPlayer.getPlayerName() + " ha raggiunto " + playingPlayer.getScore() + " punti!");
+            System.out.println(playingPlayer.getPlayerName() + " got " + playingPlayer.getScore() + " points!");
         }
         return winnerFlag;
     }
 
+    /**
+     * calculate cards normal points
+     * @param playedCard
+     * @param previousElementMana
+     * @return points
+     */
     public static int checkPoints(ResourceGoldCard playedCard, int[] previousElementMana) {
         int id = playedCard.getIdCard();
         int pts = playedCard.getPoints();
         int points=0;
 
-        /** se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
+        /** if it is Resource Deck: check card points and id for criteria and add*/
         if (0 < id && id < 41) {
             if(playedCard.isPlacedFront()){
                 points = pts;
@@ -350,27 +356,27 @@ public class Match {
                 return 0;
 
         }
-        /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
+        /** if it is Gold Deck: check card points and id for criteria:*/
         else if (40 < id && id < 81) {
             if(playedCard.isPlacedFront()) {
                 switch (id) {
-                    /** se idCard==41||51||63||71 Feather*/
+                    /** if idCard==41||51||63||71 Feather*/
                     case 41, 51, 63, 71:
                         points = previousElementMana[2] * pts;
                         return points;
-                    /** se idCard==42||53||61||73  Ink*/
+                    /** if idCard==42||53||61||73  Ink*/
                     case 42, 53, 61, 73:
                         points = previousElementMana[0] * pts;
                         return points;
-                    /** se idCard==43||52||62||72 Papyrus*/
+                    /** if idCard==43||52||62||72 Papyrus*/
                     case 43, 52, 62, 72:
                         points = previousElementMana[1] * pts;
                         return points;
-                    /** se idCard==44||45||46||54||55||56||64||65||66||74||75||76 conta angoli coperti*/
+                    /** if idCard==44||45||46||54||55||56||64||65||66||74||75||76 count covered corners*/
                     case 44, 45, 46, 54, 55, 56, 64, 65, 66, 74, 75, 76:
                         points = playedCard.getCoveredCornersWhenPlaced() * pts;
                         return points;
-                    /** altrimenti assegna punti*/
+                    /** else set points*/
                     default:
                         points = pts;
                         return points;
@@ -391,7 +397,7 @@ public class Match {
     }
 
     /**
-     * Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo
+     * Add objective points (gold + resource) for each player into his score
      */
     private void addObjectiveTotalPoints() {
         int obj = 0;
@@ -402,13 +408,13 @@ public class Match {
     }
 
     /**
-     * calculate objective points and add into the array
+     * calculate objective points
      */
     protected static int calculateSimpleObjPoints(Player p, int id) {
         int points = 0;
         if (86 < id && id < 103) {
             switch (id) {
-                /** se idCard is ripetizioni semi*/
+                /** if idCard is seed repetition*/
                 case 95, 96, 97, 98:
                     //95 3 funghi, 96 3 foglie, 97 3 lupo, 98 3 farfalle. tutto x2 punti
                     switch (id) {
@@ -427,7 +433,7 @@ public class Match {
                         default:
                             break;
                     }
-                    /** se idCard is ripetizioni elementi*/
+                    /** if idCard is element repetition*/
                 case 99, 100, 101, 102:
                     switch (id) {
                         //piuma, ink, pergamena
@@ -952,7 +958,7 @@ public class Match {
 
 
     /**
-     * calculate objective points and add into the array
+     * calculate objective points (secret and common objective cards) and add into the hashObjectivePoints
      */
     private int checkExtraPoints(Player p) {
         int extraPoints = 0;
@@ -965,13 +971,15 @@ public class Match {
         /** calculates extraPoints from all (secret and common) of the Objective Cards in case they have an arrangement condition */
         extraPoints += calculateArrObjPoints(p);
 
-        /** aggiornare l'array (mappa): objectivePoints */
+        /** update  the hashmap hashObjectivePoints */
         hashObjectivePoints.put(p, extraPoints);
 
         return extraPoints;
     }
 
-
+    /**
+     * check if there is just one winner with normal score, or if there are multiple players with the same score
+     */
     private void declareWinnerOrDraw() {
 
         int maxScore = 0;
@@ -999,6 +1007,10 @@ public class Match {
         else declareWinners();
     }
 
+    /**
+     * check the objective points to find the real winner
+     * check if there is just one winner with objective points, or if there are multiple players with the same number of objective points
+     */
     private void drawWinners() {
 
         int MaxObjPoint = 0;
