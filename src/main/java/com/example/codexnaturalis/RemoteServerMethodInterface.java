@@ -24,5 +24,7 @@ public interface RemoteServerMethodInterface extends Remote {
 
     Message getMessageTurn(UUID clientID)throws RemoteException;
     void addDisconnectedPlayer(UUID clientID) throws RemoteException, IOException;
+
+    boolean isServerCrashed() throws RemoteException;
 }
 

@@ -92,13 +92,16 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         else if (!matchID.equals(Server.match.getMatchID())) return new Message("FORBIDDEN", null);
         else {
             UUID currPlayerID;
+            System.out.println("Debug0-0");
             if(Server.isCrashed()) currPlayerID = Server.getServerSaver().saveData.getMatchSave().getCurrentPlayerID();
             else currPlayerID = Server.match.getCurrentPlayerID();
+            System.out.println("Debug0-1");
             BroadCastStartingMessage bcStart = new BroadCastStartingMessage("Server", currPlayerID, ServerConnectionManager.hashClient, Server.match.getCommonObjectives(), Server.match.selectedSecrets);
             HashMap<String,Boolean> currPlaying = new HashMap<>();
             for (int i =0;i<ServerConnectionManager.hashClient.size();i++){
                 if (Server.match.getPlayerIds().get(i) != null) currPlaying.put(ServerConnectionManager.hashClient.get(Server.match.getPlayerIds().get(i)).getPlayerName(),true);
                 else currPlaying.put(Server.match.getPlayers().get(i).getPlayerName(),false);}
+            System.out.println("Debug0-2");
             bcStart.setCurrentlyPlaying(currPlaying);
             return bcStart;
         }
@@ -123,5 +126,10 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         TextMessage text = new TextMessage("Server",null,sender+" rejoined the server", "Everyone");
         text.setDisconnectedClient(sender);
         ServerConnectionManager.sendBroadCastMessage(text);
+    }
+
+    @Override
+    public boolean isServerCrashed() throws RemoteException {
+        return Server.isCrashed();
     }
 }

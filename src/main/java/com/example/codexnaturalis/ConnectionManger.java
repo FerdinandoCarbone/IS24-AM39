@@ -58,7 +58,8 @@ public class ConnectionManger {
                 System.err.println(e.getMessage());
                 return false;
             }
-        } else {
+        }
+        else {
             socket = null;
             try {
                 connectionAttempt();
@@ -338,6 +339,7 @@ public class ConnectionManger {
              * If branch reserved for rmi reconnection
              */
             if (typeOfConnection) {
+                System.out.println("Debug0 - "+remoteServerProxy);
                 tmpMessage = remoteServerProxy.reHandShakeRMI(Client.getMatchID());
                 Client.setServerHandler(new ServerRMIHandler(playerNick, clientID, this));
                 /*
@@ -361,7 +363,9 @@ public class ConnectionManger {
                 else {
                     handshakeACKInfo = (BroadCastStartingMessage) tmpMessage;
                         //todo: while che retrieva o qualcosa che aspetta lì
+                    System.out.println("Debug1");
                     Client.getServerHandler().setMessageTurn((GenericTurnMessage) remoteServerProxy.getMessageTurn(clientID));
+                    System.out.println("Debug2");
                     remoteServerProxy.addDisconnectedPlayer(clientID);
                 }
 

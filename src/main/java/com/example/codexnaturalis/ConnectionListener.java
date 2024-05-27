@@ -5,9 +5,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.rmi.Naming;
 import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
@@ -16,6 +14,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ConnectionListener extends Thread implements Runnable{
     ServerConnectionManager serverComMan;
@@ -89,8 +89,12 @@ class SocketConnectionListener extends ConnectionListener {
 class RMIConnectionListener extends ConnectionListener {
 
     RemoteServerMethodInterface remoteServerSkeleton;
-    public RMIConnectionListener(ServerConnectionManager serverComMan) throws RemoteException, MalformedURLException {
+    public String bindingName;
+    private static final long serialVersionUID = 1L;
+    public ExecutorService executorService = Executors.newCachedThreadPool();
+    public RMIConnectionListener(ServerConnectionManager serverComMan) throws RemoteException, MalformedURLException, UnknownHostException {
         super(serverComMan);
+        bindingName = "rmi://"+ InetAddress.getLocalHost()+"/"+ServerConnectionManager.serverName;
         remoteServerSkeleton = new RMIServerImplement();
         LocateRegistry.createRegistry(serverComMan.getRmiPort());
         Naming.rebind(ServerConnectionManager.getServerName(), remoteServerSkeleton);
@@ -98,7 +102,13 @@ class RMIConnectionListener extends ConnectionListener {
     @Override
     public void run(){
         while(hasToRun){
-
+            /*if(Server.isCrashed()) {
+                try {
+                    ServerConnectionManager.sendBroadCastMessage(new ResetMatchMessage("Server",null,"OOPSIES",null));
+                } catch (IOException e) {
+                    System.out.println("Unable to send broadcast disconnecting message");
+                }
+            }*/
         }
     }
     public void shutRMIConnection() throws RemoteException, MalformedURLException, NotBoundException {

@@ -204,6 +204,25 @@ public class ServerHandler extends Thread implements Runnable {
     public void setMessageTurn(GenericTurnMessage messageTurn) {
         this.messageTurn = messageTurn;
     }
+    public void restartClient() throws IOException, URISyntaxException {
+        System.out.println("Server crashed: please try restarting client with same username to try and rejoin match");
+        this.interrupt();
+        System.exit(0);
+        /*final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        final File currentJar = new File(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        if(!currentJar.getName().endsWith(".jar"))
+            return;
+        final ArrayList<String> command = new ArrayList<>();
+        command.add(javaBin);
+        command.add("-jar");
+        command.add(currentJar.getPath());
+        String args="";
+        for(String s: Arrays.stream(Client.clientArgs).toList()) args = args.concat(s);
+        command.add(args);
+        final ProcessBuilder builder = new ProcessBuilder(command);
+        builder.start();
+        System.exit(0);*/
+    }
 }
 
 class ServerSocketHandler extends ServerHandler {
@@ -274,7 +293,6 @@ class ServerSocketHandler extends ServerHandler {
             }
             if(isServerCrashed) {
                 //System.out.println("Server crashed: to restart client please press select an option and press Enter");
-                System.out.println("Server crashed: please try restarting client with same username to try and rejoin match");
                 restartClient();
                 /*getConnMan().setIoStream(new Pair<>(inServer,outServer));
                 getConnMan().reHandShake(getClientName(),getClientID());*/
@@ -285,26 +303,6 @@ class ServerSocketHandler extends ServerHandler {
             result = false;
         }
         return result;
-    }
-
-    private void restartClient() throws IOException, URISyntaxException {
-        this.interrupt();
-        socket.close();
-        System.exit(0);
-        /*final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-        final File currentJar = new File(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        if(!currentJar.getName().endsWith(".jar"))
-            return;
-        final ArrayList<String> command = new ArrayList<>();
-        command.add(javaBin);
-        command.add("-jar");
-        command.add(currentJar.getPath());
-        String args="";
-        for(String s: Arrays.stream(Client.clientArgs).toList()) args = args.concat(s);
-        command.add(args);
-        final ProcessBuilder builder = new ProcessBuilder(command);
-        builder.start();
-        System.exit(0);*/
     }
 
     private void messageReceiver(Message inputmex) throws IOException, ClassNotFoundException, WrongMessageConversionException, InterruptedException {
@@ -389,8 +387,13 @@ class ServerRMIHandler extends ServerHandler{
         boolean result=true;
         try {
             getConnMan().connectionAttempt();
-        } catch (Exception e){
+            if(remoteProxy.isServerCrashed()) restartClient();
+        } catch (HandShakeException e){
             result = false;
+        }
+        catch(URISyntaxException |IOException e){
+            System.out.println("Unable to restart client: please restart it manually");
+            System.exit(0);
         }
         return result;
     }

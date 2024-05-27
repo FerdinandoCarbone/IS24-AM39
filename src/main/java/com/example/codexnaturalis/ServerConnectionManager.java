@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
 public class ServerConnectionManager implements Serializable {
@@ -43,6 +44,21 @@ public class ServerConnectionManager implements Serializable {
         rmiListener = new RMIConnectionListener(this);
         socketListener = new SocketConnectionListener(this);
         kickedIDs = new ArrayList<>();
+        System.out.println(InetAddress.getLocalHost());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                //String unbindingName = "rmi://"+"localhost"+"/"+serverName;
+                Naming.unbind(serverName);
+                UnicastRemoteObject.unexportObject(rmiListener.remoteServerSkeleton, true);
+                System.out.println("RMI release.");
+            } catch (RemoteException e) {
+                System.err.println("RemoteError: "+ e.getMessage());
+            } catch (MalformedURLException | NotBoundException e) {
+                System.out.println("Unable to perform action:" + e.getMessage());
+                throw new RuntimeException(e);
+            }
+            rmiListener.executorService.shutdown();
+        }));
     }
 
     /**
