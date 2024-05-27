@@ -165,8 +165,7 @@ public class Match {
         UUID nextPlayerId = nextPlayer.getPlayerID();
         indexCurrentPlayer = nextPlayerIndex;
         System.out.println(Colors.GREEN + "--Next player selected, it's" + playerName + "'s turn--" + Colors.RESET);
-        /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
-         * Infine chiamare lastRoundRoutine*/
+
         StandardMatchMessage mex = new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId, msg.getCardOnHand().getFirst(), msg.getCoordinates());
         mex.setCurrPlayerPoints(playingPlayer.getScore());
         return mex;
@@ -335,6 +334,20 @@ public class Match {
         return winnerFlag;
     }
 
+    /**
+     * Given the ResourceGoldCard to be played on the Field and the elementMana that the Player has the moment right
+     * before the ResourceGoldCard is played, calculates and assigns the points specified on the ResourceGoldCard in case
+     * it is positioned front-up and it has points specified on it. If the ResourceGoldCard is an instance of ResourceCard
+     * directly assigns the points. If the ResourceGoldCard is an instance of GoldCard, if there's no dependency
+     * on the number of Element(s) on the field or on the number of corners covered by the GoldCard when it's placed, directly
+     * assign the points; otherwise checks on which Element(s) it depends, or if it depends on the number of corners
+     * covered by the GoldCard when it's placed, and assigns the specified number of points multiplied by the number of
+     * occurrences of that(those) Element(s) on the Field in the moment right before the GoldCard is placed, or by
+     * the number of corners covered.
+     * @param playedCard The ResourceGoldCard played.
+     * @param previousElementMana The elementMana (array of int) taken right before playedCard is played.
+     * @return The number of points assigned by the playedCard according to the previously defined conditions.
+     */
     public static int checkPoints(ResourceGoldCard playedCard, int[] previousElementMana) {
         int id = playedCard.getIdCard();
         int pts = playedCard.getPoints();
@@ -402,7 +415,15 @@ public class Match {
     }
 
     /**
-     * calculate objective points and add into the array
+     * Given a Player p and an int id (representing the id of an ObjectiveCard), analyzes his Field to
+     * determinate whether it fulfills the requirement of the ObjectiveCard (in case it's in terms
+     * of quantity of one or more different Elements or Resources)
+     * to get the extra-points specified on the ObjectiveCard itself.
+     * @param p The Player for whom is required the Field-check.
+     * @param id The int representing the id of the ObjectiveCard that specifies the requirement and the given points.
+     * @return The number of points made by the fulfillment of the requirement, which can be satisfied more than one time:
+     * in this case it assigns the number of points specified on the ObjectiveCard multiplied by the times that the requirement
+     * is fulfilled.
      */
     protected static int calculateSimpleObjPoints(Player p, int id) {
         int points = 0;
@@ -463,6 +484,16 @@ public class Match {
             }
         }return points;
     }
+
+    /**
+     * Given a Player p: first rearranges the ids of the ObjectiveCard(s) of the Match in a descendant way, so that
+     * the first card to be checked will be the ones that assign the highest score; then calls checkArrangements for
+     * each ObjectiveCard.
+     * @param p The Player for whom is required the Field-check.
+     * @return The number of points assigned to the Player p by the ObjectiveCard(s); surely 0 if none of them require
+     * a special arrangement of Card(s); could be different from 0 if at least one ObjectiveCard of the Match requires
+     * a special arrangement of Card(s)
+     */
     protected static int calculateArrObjPoints(Player p) {
         int points = 0;
         ArrayList<Integer> ids = new ArrayList<>();
@@ -482,12 +513,12 @@ public class Match {
     }
 
     /** Given a Player p and an int id (representing the id of an ObjectiveCard), analyzes his Field to
-     * determinate whether it fulfills the requirement of the objective card (in the case that it's a special arrangement of card)
-     * to get the extra-points specified on the card itself.
-     * @param p The Player for whom is required the Field check.
-     * @param id The id of the ObjectiveCard that specifies the requirement and the given points.
+     * determinate whether it fulfills the requirement of the ObjectiveCard (in the case that it's a special arrangement of Card(s))
+     * to get the points specified on the ObjectiveCard itself. Each Card on the Field can be considered only one single time.
+     * @param p The Player for whom is required the Field-check.
+     * @param id The int representing the id of the ObjectiveCard that specifies the requirement and the given points.
      * @return The number of points made by the fulfillment of the requirement, which can be satisfied more than one time:
-     * in this case it assigns the number of points specified on the card multiplied by the times that the requirement
+     * in this case it assigns the number of points specified on the ObjectiveCard multiplied by the times that the requirement
      * is fulfilled.
      */
     protected static int checkArrangements(Player p, int id){
@@ -956,16 +987,16 @@ public class Match {
      */
     private int checkExtraPoints(Player p) {
         int extraPoints = 0;
-        /** calculates extraPoints from the secret Objective Card in case it has a simple condition */
+        /* calculates extraPoints from the secret Objective Card in case it has a simple condition */
         extraPoints += calculateSimpleObjPoints(p,p.getPlayerDeck().getSecretObjectiveCard().getIdCard());
-        /** calculates extraPoints from the common Objective Cards in case they have a simple condition */
+        /* calculates extraPoints from the common Objective Cards in case they have a simple condition */
         for(ObjectiveCard o: commonObjectives){
             extraPoints += calculateSimpleObjPoints(p,o.getIdCard());
         }
-        /** calculates extraPoints from all (secret and common) of the Objective Cards in case they have an arrangement condition */
+        /* calculates extraPoints from all (secret and common) of the Objective Cards in case they have an arrangement condition */
         extraPoints += calculateArrObjPoints(p);
 
-        /** aggiornare l'array (mappa): objectivePoints */
+        /* aggiornare l'array (mappa): objectivePoints */
         hashObjectivePoints.put(p, extraPoints);
 
         return extraPoints;
