@@ -372,9 +372,13 @@ public class ConnectionManger {
             else {
                 System.out.println(Colors.PURPLE + "Starting Handshake" + Colors.RESET);
                 ioStream.getValue().writeObject(handshakeMessage);
-                //System.out.println("Flushing stream");
+                ioStream.getValue().flush();
+                System.out.println("Flushing stream");
                 tmpMessage = (Message) ioStream.getKey().readObject();
-                if(tmpMessage instanceof ResetMatchMessage) tmpMessage = (Message) ioStream.getKey().readObject();
+                if(tmpMessage instanceof ResetMatchMessage) {
+                    System.out.println("Waiting for a new message");
+                    tmpMessage = (Message) ioStream.getKey().readObject();
+                }
                 System.out.println(tmpMessage.getClass());
                 Client.setServerHandler(new ServerSocketHandler(playerNick, clientID, this));
                 /*
@@ -425,7 +429,7 @@ public class ConnectionManger {
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
             }
-            if (Client.isGuiSelector()) Client.getSem().release();//todo: check if breaks tui
+            if (Client.isGuiSelector()) Client.getSem().release();
             if(handshakeACKInfo.getClientID()!=null) Client.getServerHandler().setFirstBroadCastWasReceived(true);
             /*
              * Socket still needs to retrieve his GenericTurn Message. Here info is retrieved

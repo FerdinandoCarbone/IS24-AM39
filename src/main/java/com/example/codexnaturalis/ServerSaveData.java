@@ -2,12 +2,14 @@ package com.example.codexnaturalis;
 
 import java.io.Serializable;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 public class ServerSaveData implements Serializable {
     private static final long serialVersionUID = 6529685098267757690L;
     private Match matchSave;
+    private ArrayList<UUID> kicked;
     private HashMap<Player, Socket> hashPlayer;
     private HashMap<UUID, Player> hashClient;
     private DrawingDeck drawingDeck;
@@ -34,6 +36,14 @@ public class ServerSaveData implements Serializable {
         setHandlersSize(handlers);
         setHashPlayer(hashPlayer);
 
+    }
+
+    public ArrayList<UUID> getKicked() {
+        return kicked;
+    }
+
+    public void setKicked(ArrayList<UUID> kicked) {
+        this.kicked = kicked;
     }
 
     public int getNumPlayers() {

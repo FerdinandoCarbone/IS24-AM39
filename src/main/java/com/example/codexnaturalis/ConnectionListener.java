@@ -64,6 +64,8 @@ class SocketConnectionListener extends ConnectionListener {
                 tmpHand = new SocketClientHandler(playerName,clientSocket,clientID,oIOStream,Server.serverConMan);
                 if(ServerConnectionManager.hashClient.get(clientID).getPlayerDeck().getSecretObjectiveCard()!=null)tmpHand.setSecretWasChosen(true);
                 new Thread(tmpHand).start();
+                Server.serverConMan.getKickedIDs().remove(clientID);
+                Server.getServerSaver().saveState();
                 TextMessage text = new TextMessage("Server",null,playerName + " rejoined the server","Everyone");
                 text.setDisconnectedClient(playerName);
                 try{

@@ -14,10 +14,20 @@ public class Message implements Serializable {
     private String sender;
     private UUID clientID;
     private UUID matchID;
+    private boolean reconnectServerCrash;
     public Message(String sender,UUID clientID){
         this.sender = sender;
         this.clientID = clientID;
         this.matchID = null;
+        reconnectServerCrash = false;
+    }
+
+    public void setReconnectServerCrash(boolean reconnectServerCrash) {
+        this.reconnectServerCrash = reconnectServerCrash;
+    }
+
+    public boolean isReconnectServerCrash() {
+        return reconnectServerCrash;
     }
 
     public UUID getMatchID() {

@@ -47,7 +47,7 @@ public class ClientHandler extends Thread implements Runnable {
                     ServerConnectionManager.sendBroadCastMessage((new EndMatchMessage(null, null, newTurnStatus.getSender(), null, null, null)));
                     //match ended with no issues --> save data can be reset
                     Server.getServerSaver().resetSave();
-                    endOfTheGame((EndMatchMessage) newTurnStatus);
+                    endOfTheGame();
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Error while sending winning message");
@@ -118,7 +118,7 @@ public void reset(){
             ServerConnectionManager.sendBroadCastMessage(newStatus);
             //match ended with no issues --> save data can be reset
             Server.getServerSaver().resetSave();
-            endOfTheGame((EndMatchMessage) newStatus);
+            endOfTheGame();
             return;
         }
         ArrayList<ResourceGoldCard> coveredCards = Server.match.getCoveredCards();
@@ -132,7 +132,7 @@ public void reset(){
         ServerConnectionManager.sendMessage(newStatus.getNextPlayerId(), newTurn);
     }
 
-    public void endOfTheGame(EndMatchMessage message) {
+    public void endOfTheGame() {
         Server.gameStarted = false;
         Server.match = null;
         System.out.println("Winner:" + Server.match.getFinalWinners()+"\nRestart server to play a new game");

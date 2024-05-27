@@ -79,7 +79,7 @@ public class ServerStateSaver {
         saveData.setGameStarted(Server.gameStarted);
         saveData.setHandlersSize(Server.serverConMan.getHandlers().size());
         saveData.setHashClient(Server.serverConMan.getHashClient());
-        //saveData.setHashPlayer(ServerConnectionManager.hashPlayer);
+        //saveData.setKicked(Server.serverConMan.getKickedIDs());
         saveData.setFirstPlayer(ServerConnectionManager.firstPlayer);
         saveData.setNumPlayers(ServerConnectionManager.numPlayers);
         saveData.setEmpty(false);
@@ -137,10 +137,10 @@ public class ServerStateSaver {
         ServerConnectionManager.numPlayers = saveData.getNumPlayers();
         Server.gameStarted = saveData.isGameStarted();
         Server.match = saveData.getMatchSave();
+        //Server.serverConMan.setKickedIDs(saveData.getKicked());
     }
 
-    public void resetSave() {
-        saveData = new ServerSaveData();
-        save();
+    public void resetSave() throws IOException {
+        Files.delete(Paths.get(fileName));
     }
 }

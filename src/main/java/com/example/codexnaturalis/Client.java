@@ -125,27 +125,8 @@ public class Client extends Application{
                     //todo:ENTRYPOINT JAVAFXGUI
                     launch();
                     System.exit(0);
-                    /*try{
-                        //todo: REMOVE IN FINAL BUILD AND CHANGE PATH
-                        //ProcessBuilder processBuilderCompile = new ProcessBuilder("javac","-d","out/dev/HelloApp","src/main/java/com/example/codexnaturalis/HelloApplication.java");
-                        //processBuilderCompile.start().waitFor();
-                        //todo: REMOVE IN FINAL BUILD AND CHANGE PATH
-                        ProcessBuilder processBuilder = new ProcessBuilder("java","-cp",System.getProperty("java.class.path"),"com.example.codexnaturalis.HelloApplication");
-                        processBuilder.inheritIO();
-                        //processBuilder.redirectErrorStream(true);
-                        Process process = processBuilder.start();
-                        int exitCode = process.waitFor();
-                        System.out.println(exitCode);
-                        if(exitCode==0) System.exit(exitCode);
-                        else throw new IOException("An error was encountered starting the GUI: fallback to TUI");
-                    } catch(IOException e){
-                        System.err.println(e.getMessage());
-                        e.printStackTrace();
-                        guiSelector=false;
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }*/
-                } else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
+                }
+                else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
                 else {
                     System.out.println("Invalid argument " + args[2] + ": Accepted values are 'gui' or 'tui' " + "\nFallback using TUI");
                     guiSelector = false;

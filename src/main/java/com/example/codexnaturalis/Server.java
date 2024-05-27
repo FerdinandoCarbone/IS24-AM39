@@ -83,6 +83,7 @@ public class Server {
     }
 
     private static void reWelcomePlayer() throws IOException {
+        isCrashed = false;
         BroadCastStandardMessage bds = new BroadCastStandardMessage(null, null, null);
         HashMap<String, Boolean> currPlaying = new HashMap<>();
         for (int i = 0; i < ServerConnectionManager.hashClient.size(); i++){

@@ -259,6 +259,10 @@ class ServerSocketHandler extends ServerHandler {
             System.out.println("Waiting to see if server crashed");
             boolean isServerCrashed=false;
             try{
+               Message retryConnection = new Message(getClientName(),getClientID());
+               retryConnection.setReconnectServerCrash(true);
+                outServer.writeObject(retryConnection);
+                outServer.flush();
                 Message mex = (Message) inServer.readObject();
                 if(mex instanceof ResetMatchMessage){
                     isServerCrashed=true;
@@ -269,7 +273,8 @@ class ServerSocketHandler extends ServerHandler {
                 System.err.println("Server is not crashed:" +e.getMessage());
             }
             if(isServerCrashed) {
-                System.out.println("Server crashed: restarting client...");
+                //System.out.println("Server crashed: to restart client please press select an option and press Enter");
+                System.out.println("Server crashed: please try restarting client with same username to try and rejoin match");
                 restartClient();
                 /*getConnMan().setIoStream(new Pair<>(inServer,outServer));
                 getConnMan().reHandShake(getClientName(),getClientID());*/
@@ -283,12 +288,13 @@ class ServerSocketHandler extends ServerHandler {
     }
 
     private void restartClient() throws IOException, URISyntaxException {
-        final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        this.interrupt();
+        socket.close();
+        System.exit(0);
+        /*final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
         final File currentJar = new File(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        /* is it a jar file? */
         if(!currentJar.getName().endsWith(".jar"))
             return;
-        /* Build command: java -jar application.jar */
         final ArrayList<String> command = new ArrayList<>();
         command.add(javaBin);
         command.add("-jar");
@@ -298,13 +304,14 @@ class ServerSocketHandler extends ServerHandler {
         command.add(args);
         final ProcessBuilder builder = new ProcessBuilder(command);
         builder.start();
-        System.exit(0);
+        System.exit(0);*/
     }
 
     private void messageReceiver(Message inputmex) throws IOException, ClassNotFoundException, WrongMessageConversionException, InterruptedException {
         Message message;
         if(inputmex==null)message = (Message) inServer.readObject();
         else message = inputmex;
+        if(message==null) return;
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.","");
         System.out.println(messageType);

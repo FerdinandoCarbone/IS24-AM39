@@ -25,6 +25,7 @@ public class ServerConnectionManager implements Serializable {
     static int numPlayers;
     static ServerSocket serverSocket;
     public static UUID reconnectingID;
+    private ArrayList<UUID> kickedIDs;
 
     public ServerConnectionManager(Pair<String, Integer> connectionInfo, int rmiPort, boolean isCrashed) throws IOException {
         if(!isCrashed) {
@@ -41,6 +42,7 @@ public class ServerConnectionManager implements Serializable {
         reconnectingID = null;
         rmiListener = new RMIConnectionListener(this);
         socketListener = new SocketConnectionListener(this);
+        kickedIDs = new ArrayList<>();
     }
 
     /**
@@ -71,6 +73,14 @@ public class ServerConnectionManager implements Serializable {
         //socketListener.setHasToRun(false);
     }
 
+    public ArrayList<UUID> getKickedIDs() {
+        return kickedIDs;
+    }
+
+    public void setKickedIDs(ArrayList<UUID> kickedIDs) {
+        this.kickedIDs = kickedIDs;
+    }
+
     public Pair<ObjectInputStream, ObjectOutputStream> acceptSocketRMIConnections(Socket socket, boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
         //if (isReconnection) socketListener.setHasToRun(true);
         ObjectOutputStream out;
@@ -96,11 +106,13 @@ public class ServerConnectionManager implements Serializable {
         out = new ObjectOutputStream(clientSocket.getOutputStream());
         in = new ObjectInputStream(clientSocket.getInputStream());
         //clientSocket.setSoTimeout(10000);
-        if(Server.isCrashed()&&isReconnection) {
-            out.writeObject(new ResetMatchMessage("Server",null,"I crashed",null));
-            return null;
-        }
+        System.out.println("Streams generated");
         clientJoinRequest = (Message) in.readObject();//prendo l'handshake Message
+        if(clientJoinRequest.isReconnectServerCrash()) {
+                System.out.println("Entered here");
+                out.writeObject(new ResetMatchMessage("Server", null, "I crashed", null));
+                return null;
+        }
         if (!firstPlayer && !isReconnection) {
             firstPlayer = true;
             handshakeACK = new LobbyCreationMessage(serverName, null, numPlayers);
@@ -201,7 +213,7 @@ public class ServerConnectionManager implements Serializable {
             }
             else {
                 if(!Server.isCrashed() || Server.restartMatchCondition()) currPlayerID = Server.match.getCurrentPlayerID();
-                else {
+                else if(Server.isCrashed()) {
                     if(!checkIfAllNull(Server.match.getPlayerIds())) {
                         Server.match.getPlayerIds().set(Server.match.getPlayers().indexOf(hashClient.get(clientID)),clientID);
                         int index = Server.match.selectIndexNextPlayer(hashClient.size()-1);
@@ -264,7 +276,7 @@ public class ServerConnectionManager implements Serializable {
      * @param message - message object to be sent
      * @throws IOException -
      */
-    public static void sendBroadCastMessage(Message message) throws IOException {
+    public synchronized static void sendBroadCastMessage(Message message) throws IOException {
         for (int i=0;i<Server.match.getPlayerIds().size();i++) {
             UUID id=Server.match.getPlayerIds().get(i);
             if (id!=null) handlers.get(id).sendMessage(message);
