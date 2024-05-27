@@ -165,7 +165,7 @@ public class Match {
         UUID nextPlayerId = nextPlayer.getPlayerID();
         indexCurrentPlayer = nextPlayerIndex;
         System.out.println(Colors.GREEN + "--Next player selected, it's" + playerName + "'s turn--" + Colors.RESET);
-        /** Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
+        /* Chiamare checkWinner. Se il flag è true arrivare all'ultimo giocatore e terminare il match.
          * Infine chiamare lastRoundRoutine*/
         StandardMatchMessage mex = new StandardMatchMessage(publicCards, currentPlayerId, playerName, nextPlayerId, msg.getCardOnHand().getFirst(), msg.getCoordinates());
         mex.setCurrPlayerPoints(playingPlayer.getScore());
@@ -346,7 +346,7 @@ public class Match {
         int pts = playedCard.getPoints();
         int points=0;
 
-        /** if it is Resource Deck: check card points and id for criteria and add*/
+        /* if it is Resource Deck: check card points and id for criteria and add*/
         if (0 < id && id < 41) {
             if(playedCard.isPlacedFront()){
                 points = pts;
@@ -356,27 +356,27 @@ public class Match {
                 return 0;
 
         }
-        /** if it is Gold Deck: check card points and id for criteria:*/
+        /* if it is Gold Deck: check card points and id for criteria:*/
         else if (40 < id && id < 81) {
             if(playedCard.isPlacedFront()) {
                 switch (id) {
-                    /** if idCard==41||51||63||71 Feather*/
+                    /* if idCard==41||51||63||71 Feather*/
                     case 41, 51, 63, 71:
                         points = previousElementMana[2] * pts;
                         return points;
-                    /** if idCard==42||53||61||73  Ink*/
+                    /* if idCard==42||53||61||73  Ink*/
                     case 42, 53, 61, 73:
                         points = previousElementMana[0] * pts;
                         return points;
-                    /** if idCard==43||52||62||72 Papyrus*/
+                    /* if idCard==43||52||62||72 Papyrus*/
                     case 43, 52, 62, 72:
                         points = previousElementMana[1] * pts;
                         return points;
-                    /** if idCard==44||45||46||54||55||56||64||65||66||74||75||76 count covered corners*/
+                    /* if idCard==44||45||46||54||55||56||64||65||66||74||75||76 count covered corners*/
                     case 44, 45, 46, 54, 55, 56, 64, 65, 66, 74, 75, 76:
                         points = playedCard.getCoveredCornersWhenPlaced() * pts;
                         return points;
-                    /** else set points*/
+                    /* else set points*/
                     default:
                         points = pts;
                         return points;
@@ -414,7 +414,7 @@ public class Match {
         int points = 0;
         if (86 < id && id < 103) {
             switch (id) {
-                /** if idCard is seed repetition*/
+                /* if idCard is seed repetition*/
                 case 95, 96, 97, 98:
                     //95 3 funghi, 96 3 foglie, 97 3 lupo, 98 3 farfalle. tutto x2 punti
                     switch (id) {
@@ -433,7 +433,7 @@ public class Match {
                         default:
                             break;
                     }
-                    /** if idCard is element repetition*/
+                    /* if idCard is element repetition*/
                 case 99, 100, 101, 102:
                     switch (id) {
                         //piuma, ink, pergamena
@@ -962,16 +962,16 @@ public class Match {
      */
     private int checkExtraPoints(Player p) {
         int extraPoints = 0;
-        /** calculates extraPoints from the secret Objective Card in case it has a simple condition */
+        /* calculates extraPoints from the secret Objective Card in case it has a simple condition */
         extraPoints += calculateSimpleObjPoints(p,p.getPlayerDeck().getSecretObjectiveCard().getIdCard());
-        /** calculates extraPoints from the common Objective Cards in case they have a simple condition */
+        /* calculates extraPoints from the common Objective Cards in case they have a simple condition */
         for(ObjectiveCard o: commonObjectives){
             extraPoints += calculateSimpleObjPoints(p,o.getIdCard());
         }
-        /** calculates extraPoints from all (secret and common) of the Objective Cards in case they have an arrangement condition */
+        /* calculates extraPoints from all (secret and common) of the Objective Cards in case they have an arrangement condition */
         extraPoints += calculateArrObjPoints(p);
 
-        /** update  the hashmap hashObjectivePoints */
+        /* update  the hashmap hashObjectivePoints */
         hashObjectivePoints.put(p, extraPoints);
 
         return extraPoints;
@@ -986,7 +986,7 @@ public class Match {
         int draw = 0;
         Player playerWin = null;
 
-        /** find max points */
+        /* find max points */
         for (Player p : players) {
             if (p.getScore() > maxScore) {
                 maxScore = p.getScore();
@@ -995,7 +995,7 @@ public class Match {
         }
         winners.add(playerWin);
 
-        /** check if a draw exists */
+        /* check if a draw exists */
         for (Player pDraw : players) {
             if (pDraw.getScore() == maxScore && pDraw != playerWin) {
                 draw++;
@@ -1017,7 +1017,7 @@ public class Match {
         int objPoint = 0;
         Player playerObjWin = null;
 
-        /** find max objective points in winners[] */
+        /* find max objective points in winners[] */
         for (Player p : winners) {
             objPoint = hashObjectivePoints.get(p);
             if (objPoint > MaxObjPoint) {
@@ -1027,13 +1027,13 @@ public class Match {
         }
         finalWinners.add(playerObjWin);
 
-        /** check if a draw exists */
+        /* check if a draw exists */
         for (Player p : winners) {
             if (hashObjectivePoints.get(p) == MaxObjPoint && p != playerObjWin) {
                 finalWinners.add(p);
             }
         }
-        /** print draw winners */
+        /* print draw winners */
         System.out.println("DRAW BETWEEN: ");
         int s = finalWinners.size();
         for (int i = 0; i < s; i++) {
