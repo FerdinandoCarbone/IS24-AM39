@@ -11,56 +11,56 @@ class DrawingDeckTest {
 
     @Test
     void checkDeckEmptiness() throws IOException {
-        DrawingDeck.generateDecks();
-        assertFalse( DrawingDeck.checkDeckEmptiness(1) );
-        assertFalse( DrawingDeck.checkDeckEmptiness(2) );
+        DrawingDeck deck = new DrawingDeck();
+        assertFalse( deck.checkDeckEmptiness(1) );
+        assertFalse( deck.checkDeckEmptiness(2) );
 
-        while (DrawingDeck.getTotalResourceCard().size() > 0) {
-            ResourceGoldCard card = DrawingDeck.drawCard(true);
+        while (deck.getTotalResourceCard().size() > 0) {
+            ResourceGoldCard card = deck.drawCard(true);
         }
-        while (DrawingDeck.getTotalGoldCard().size() > 0) {
-            ResourceGoldCard card = DrawingDeck.drawCard(false);
+        while (deck.getTotalGoldCard().size() > 0) {
+            ResourceGoldCard card = deck.drawCard(false);
         }
 
-        assertTrue( DrawingDeck.checkDeckEmptiness(1) );
-        assertTrue( DrawingDeck.checkDeckEmptiness(2) );
+        assertTrue( deck.checkDeckEmptiness(1) );
+        assertTrue( deck.checkDeckEmptiness(2) );
     }
 
     @Test
     void drawTwoObjectiveCardsTest() throws IOException {
-        DrawingDeck.generateDecks();
-        int previousDeckSize = DrawingDeck.getTotalObjectiveCards().size();
-        DrawingDeck.drawTwoObjectiveCards();
-        assertEquals(previousDeckSize-2, DrawingDeck.getTotalObjectiveCards().size());
+        DrawingDeck deck = new DrawingDeck();
+        int previousDeckSize = deck.getTotalObjectiveCards().size();
+        deck.drawTwoObjectiveCards();
+        assertEquals(previousDeckSize-2, deck.getTotalObjectiveCards().size());
     }
 
     @Test
     void drawCommonObjectiveTest() throws IOException {
-        DrawingDeck.generateDecks();
-        int previousDeckSize = DrawingDeck.getTotalObjectiveCards().size();
-        DrawingDeck.drawCommonObjective();
-        assertEquals(previousDeckSize-2, DrawingDeck.getTotalObjectiveCards().size());
+        DrawingDeck deck = new DrawingDeck();
+        int previousDeckSize = deck.getTotalObjectiveCards().size();
+        deck.drawCommonObjective();
+        assertEquals(previousDeckSize-2, deck.getTotalObjectiveCards().size());
     }
 
     @Test
     void reAddSecretObjectiveCardTest() throws IOException {
-        DrawingDeck.generateDecks();
-        int previousDeckSize = DrawingDeck.getTotalObjectiveCards().size();
-        ArrayList<ObjectiveCard> list = DrawingDeck.drawTwoObjectiveCards();
-        assertEquals(DrawingDeck.getTotalObjectiveCards().size(), previousDeckSize - 2 );
-        DrawingDeck.reAddSecretObjectiveCard(list.getFirst());
-        assertEquals(DrawingDeck.getTotalObjectiveCards().size(), previousDeckSize - 1);
+        DrawingDeck deck = new DrawingDeck();
+        int previousDeckSize = deck.getTotalObjectiveCards().size();
+        ArrayList<ObjectiveCard> list = deck.drawTwoObjectiveCards();
+        assertEquals(deck.getTotalObjectiveCards().size(), previousDeckSize - 2 );
+        deck.reAddSecretObjectiveCard(list.getFirst());
+        assertEquals(deck.getTotalObjectiveCards().size(), previousDeckSize - 1);
     }
 
     @Test
     void drawCardTest() throws IOException {
-        DrawingDeck.generateDecks();
-        int previousResourceDeckSize = DrawingDeck.getTotalResourceCard().size();
-        int previousGoldDeckSize = DrawingDeck.getTotalGoldCard().size();
-        DrawingDeck.drawCard(true);
-        DrawingDeck.drawCard(false);
-        assertEquals(previousResourceDeckSize-1, DrawingDeck.getTotalResourceCard().size());
-        assertEquals(previousGoldDeckSize-1, DrawingDeck.getTotalGoldCard().size());
+        DrawingDeck deck = new DrawingDeck();
+        int previousResourceDeckSize = deck.getTotalResourceCard().size();
+        int previousGoldDeckSize = deck.getTotalGoldCard().size();
+        deck.drawCard(true);
+        deck.drawCard(false);
+        assertEquals(previousResourceDeckSize-1, deck.getTotalResourceCard().size());
+        assertEquals(previousGoldDeckSize-1, deck.getTotalGoldCard().size());
 
     }
 }

@@ -240,13 +240,14 @@ public class Match implements Serializable {
         for (Player p : players) {
             ArrayList<ObjectiveCard> cards = deck.drawTwoObjectiveCards();
             selectedSecrets.put(p.getPlayerID(), cards);
+            System.out.println(p.getPlayerName()+" drew:"+ cards.get(0).getIdCard() +" and "+cards.get(1).getIdCard() );
         }
         return selectedSecrets;
     }
 
     /**
      * Called when the player chooses which Objective card from the 2 drawn wants to keep
-     * @param clientID: Id of the client that is choosing
+     * @param clientID: ID of the client that is choosing
      * @param cardToKeep
      */
     public void putBackOtherSecretObjectiveCard(UUID clientID, ObjectiveCard cardToKeep) {

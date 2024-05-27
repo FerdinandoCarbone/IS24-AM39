@@ -11,7 +11,6 @@ class DrawingDeck implements Serializable{
     private  ArrayList<ObjectiveCardCombo> totalObjectiveComboCards = new ArrayList<>();
     private  ArrayList<ObjectiveCardResourceSet> totalObjectiveResourceSetCards = new ArrayList<>();
     private  ArrayList<StarterCard> totalStartingCards = new ArrayList<>();
-    private  boolean decksAreGenerated = false;
 
     public DrawingDeck() throws IOException {
         generateDecks();
@@ -25,17 +24,17 @@ class DrawingDeck implements Serializable{
         this.totalObjectiveCards.addAll(totalObjectiveComboCards);
         this.totalObjectiveCards.addAll(totalObjectiveResourceSetCards);
 
-        Collections.shuffle(this.totalGoldCard, new Random(1000));
-        Collections.shuffle(this.totalResourceCard, new Random(1000));
-        Collections.shuffle(this.totalStartingCards, new Random(1000));
-        Collections.shuffle(this.totalObjectiveCards, new Random(1000));
+        Collections.shuffle(this.totalGoldCard, new Random());
+        Collections.shuffle(this.totalResourceCard, new Random());
+        Collections.shuffle(this.totalStartingCards, new Random());
+        Collections.shuffle(this.totalObjectiveCards, new Random());
     }
 
     /**
      * Given a card, it adds it back to its deck
      * @param cardToReAdd: card to add
      */
-    public static void reAddCards(Card cardToReAdd) {
+    public void reAddCards(Card cardToReAdd) {
         if (cardToReAdd instanceof ResourceCard) {
             totalResourceCard.add((ResourceCard)cardToReAdd);
         } else if (cardToReAdd instanceof GoldCard) {
@@ -51,13 +50,13 @@ class DrawingDeck implements Serializable{
      * When called, returns an ArrayList containing 2 Objective Cards
      * @return 2 Objective Cards, from which the player will choose his secret one to keep
      */
-    public static ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
+    public ArrayList<ObjectiveCard> drawTwoObjectiveCards() {
 
         ArrayList<ObjectiveCard> cards = new ArrayList<>();
-        cards.add(totalObjectiveCards.get(0));
-        totalObjectiveCards.remove(0);
-        cards.add(totalObjectiveCards.get(1));
-        totalObjectiveCards.remove(1);
+        cards.add(totalObjectiveCards.getFirst());
+        totalObjectiveCards.removeFirst();
+        cards.add(totalObjectiveCards.getFirst());
+        totalObjectiveCards.removeFirst();
         return cards;
     }
 
@@ -65,11 +64,11 @@ class DrawingDeck implements Serializable{
      * When called, returns an ArrayList of ObjectiveCards
      * @return List of ObjectiveCards, which will be used as the common objectives during the match
      */
-    public static ArrayList<ObjectiveCard> drawCommonObjective() {
+    public ArrayList<ObjectiveCard> drawCommonObjective() {
         ArrayList<ObjectiveCard> commonObj = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
-            commonObj.add(totalObjectiveCards.getFirst());
-            totalObjectiveCards.removeFirst();
+            commonObj.add(totalObjectiveCards.getLast());
+            totalObjectiveCards.removeLast();
         }
         return commonObj;
     }
@@ -78,7 +77,7 @@ class DrawingDeck implements Serializable{
      * Called when the player chooses his secret objective card, the other one is reAdded to the total objective cards
      * @param objectiveCard which has to be added to the Objective Cards Deck
      */
-    public static void reAddSecretObjectiveCard(ObjectiveCard objectiveCard){
+    public void reAddSecretObjectiveCard(ObjectiveCard objectiveCard){
         totalObjectiveCards.addLast(objectiveCard);
     }
 
@@ -104,10 +103,6 @@ class DrawingDeck implements Serializable{
      * @return PlayerDeck used in the constructor of Player
      */
     public PlayerDeck generatePlayerDeck() throws IOException {
-        if (!decksAreGenerated) {
-            generateDecks();
-            decksAreGenerated = true;
-        }
         ArrayList<ResourceGoldCard> deckGen = new ArrayList<>();
         StarterCard starterGen;
         for (int i = 0; i < 2; i++) {
