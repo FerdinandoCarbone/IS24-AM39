@@ -463,9 +463,5 @@ public class MainController extends TabPane implements Initializable {
     public static HashMap<String, Pair<Tab, FieldController>> getTabMan() {
         return tabMan;
     }
-   /* public static TokenController getTokenController() {
-        return tokenController;
-    }*/
-
 
 }

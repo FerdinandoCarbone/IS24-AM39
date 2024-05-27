@@ -205,9 +205,10 @@ public class ServerHandler extends Thread implements Runnable {
     public void setMessageTurn(GenericTurnMessage messageTurn) {
         this.messageTurn = messageTurn;
     }
-    public void restartClient() throws IOException, URISyntaxException {
-        System.out.println("Server crashed: please try restarting client with same username to try and rejoin match");
-        this.interrupt();
+    public void restartClient() {
+        String kickString = "Server crashed: please try restarting client with same username to try and rejoin match";
+        System.out.println();
+        if(Client.isGuiSelector()) Platform.runLater(()->MainController.alert(kickString,true));
         System.exit(0);
         /*final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
         final File currentJar = new File(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -392,9 +393,8 @@ class ServerRMIHandler extends ServerHandler{
         } catch (HandShakeException e){
             result = false;
         }
-        catch(URISyntaxException |IOException e){
-            System.out.println("Unable to restart client: please restart it manually");
-            System.exit(0);
+        catch(IOException e){
+            restartClient();
         }
         return result;
     }
