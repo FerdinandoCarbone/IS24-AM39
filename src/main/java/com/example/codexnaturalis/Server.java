@@ -21,11 +21,12 @@ public class Server {
         int port = 8081;
         checkForSaveData();
         if(isCrashed) serverSaver.retrieveNecessaryStartingInfo();
-        else if (!args[0].isBlank()) {
+        else if (!args[1].isBlank()) {
             try {
-                port = Integer.parseInt(args[0]);
+                port = Integer.parseInt(args[1]);
             } catch (Exception e) {
                 System.out.println("An invalid port number was input\nFallback to 8081");
+                port = 8081;
             }
 
             connectionInfo = new Pair<>("Server", port);

@@ -105,28 +105,23 @@ public class Client extends Application{
         System.out.println("numOfPar:" + numOfPar + " port:" + portStandard);
         guiSelector = false;
         switch (numOfPar) {
-            case 0:
-                System.err.println("Missing arguments\nMake sure to start the client with Server Address and Port as parameters\ni.e. java Client localhost 8081");
-                System.exit(0);
-                break;
-            case 1:
-                System.out.println("No port number was input\nFallback to 8081");
-                connectionInfo = setArgValues(args[0], portStandard);
-                System.out.println("Missing interface argument - Using TUI:");
-                break;
             case 2:
-                connectionInfo = setArgValues(args[0], args[1]);
+                System.out.println("No port number was input\nFallback to 8081");
+                connectionInfo = setArgValues(args[1], portStandard);
                 System.out.println("Missing interface argument - Using TUI:");
                 break;
             case 3:
-                connectionInfo = setArgValues(args[0], args[1]);
-                if (args[2].equalsIgnoreCase("gui")) {
+                connectionInfo = setArgValues(args[1], args[2]);
+                System.out.println("Missing interface argument - Using TUI:");
+                break;
+            case 4:
+                connectionInfo = setArgValues(args[1], args[2]);
+                if (args[3].equalsIgnoreCase("gui")) {
                     guiSelector = true;
-                    //todo:ENTRYPOINT JAVAFXGUI
                     launch();
                     System.exit(0);
                 }
-                else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
+                else if (args[3].equalsIgnoreCase("tui")) guiSelector = false;
                 else {
                     System.out.println("Invalid argument " + args[2] + ": Accepted values are 'gui' or 'tui' " + "\nFallback using TUI");
                     guiSelector = false;
