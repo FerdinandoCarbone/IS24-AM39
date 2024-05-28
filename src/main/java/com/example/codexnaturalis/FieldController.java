@@ -76,6 +76,7 @@ public class FieldController extends Pane {
         SlotController correspondingSlot = fieldMap.get(new Pair<>(row, column));
         correspondingSlot.setSlotCardView(img);
         correspondingSlot.toFront();
+        correspondingSlot.disableEmptyStuff();
     }
     public int getFieldSize() {
         return fieldSize;

@@ -1,5 +1,6 @@
 package com.example.codexnaturalis;
 
+import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,6 +10,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import java.io.IOException;
 import java.net.URL;
@@ -175,20 +177,20 @@ public class MainController extends TabPane implements Initializable {
     private void setupRGCEvents() {
         playerDeck.getCard1().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
-                playerDeck.getCard1().flipCard();
                 selectRGCFromDeck(playerDeck.getCard1());
+                playerDeck.getCard1().flipCard();
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard1());
         });
         playerDeck.getCard2().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
-                playerDeck.getCard2().flipCard();
                 selectRGCFromDeck(playerDeck.getCard2());
+                playerDeck.getCard2().flipCard();
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard2());
         });
         playerDeck.getCard3().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
-                playerDeck.getCard3().flipCard();
                 selectRGCFromDeck(playerDeck.getCard3());
+                playerDeck.getCard3().flipCard();
             } else if (event.getButton() == MouseButton.PRIMARY) selectRGCFromDeck(playerDeck.getCard3());
         });
     }
@@ -201,6 +203,12 @@ public class MainController extends TabPane implements Initializable {
                 cardToRemove = card;
                 deckChildIndex = playerDeck.getChildren().indexOf(card);
                 readyToPlace = true;
+                FadeTransition transition = new FadeTransition(Duration.millis(100), card);
+                transition.setFromValue(1.0);
+                transition.setToValue(0.0);
+                transition.setCycleCount(2);
+                transition.setAutoReverse(true);
+                transition.play();
             } else {
                 System.out.println("CARD ALREADY PLACED IN THIS TURN");
             }
