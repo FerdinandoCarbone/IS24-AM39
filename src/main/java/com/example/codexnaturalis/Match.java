@@ -129,12 +129,12 @@ public class Match implements Serializable {
         //These 2 Ifs check if we are at the end of the cycle and if the playing player is the last on the cycle
         if (!isLastCycle) {
             if (playerIsWinner(playingPlayer)) {
-                System.out.println(Colors.GREEN + "Last cycle initiated" + Colors.RESET);
+                System.out.println(Colors.YELLOW + "Therefore this is the last cycle of the game!" + Colors.RESET);
                 isLastCycle = true;
             }
         }
         if (isLastCycle && indexCurrentPlayer == playerIds.size() - 1) {
-            System.out.println(Colors.GREEN + "Last player has played his turn, last routine routine initiated" + Colors.RESET);
+            System.out.println(Colors.GREEN + "Since the last player has played his turn, the last round's routine has begun." + Colors.RESET);
             lastRoundRoutine();
             EndMatchMessage endGame = new EndMatchMessage(null, msg.getClientID(), msg.getSender(), null, msg.getCardOnHand().getFirst(), msg.getCoordinates());
             endGame.setFinalWinners(finalWinners);
@@ -284,7 +284,7 @@ public class Match implements Serializable {
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID null di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
                 UUID winnerID=null;
-                System.out.println("ONYL ONE PLAYER REMAINING");
+                System.out.println("ONLY ONE PLAYER REMAINING");
                 for(UUID id : playerIds) if(id!=null) winnerID = id;
                 return new CurrentPlayerDisconnectedMessage(publicCards, null,  getPlayerFromId(winnerID).getPlayerName(), winnerID);
             }
@@ -296,7 +296,7 @@ public class Match implements Serializable {
             //Se rimane solo un giocatore allora invio un messaggio con uno UUID univoco di convenzione indicante la presenza di un solo giocatore
             if (onlyOnePlayerRemaining()) {
                 UUID winnerID=null;
-                System.out.println("ONYL ONE PLAYER REMAINING");
+                System.out.println("ONLY ONE PLAYER REMAINING");
                 for(UUID id : playerIds) if(id!=null) winnerID = id;
                 return new CurrentPlayerDisconnectedMessage(publicCards, null,  getPlayerFromId(winnerID).getPlayerName(), winnerID);
             }
@@ -344,7 +344,7 @@ public class Match implements Serializable {
         boolean winnerFlag = false;
         if (playingPlayer.getScore() >= 20) {
             winnerFlag = true;
-            System.out.println(playingPlayer.getPlayerName() + " ha raggiunto " + playingPlayer.getScore() + " punti!");
+            System.out.println(Colors.RED + playingPlayer.getPlayerName() + " reached " + playingPlayer.getScore() + " points!" + Colors.RESET);
         }
         return winnerFlag;
     }
@@ -424,8 +424,11 @@ public class Match implements Serializable {
     private void addObjectiveTotalPoints() {
         int obj = 0;
         for (Player p : players) {
+            System.out.println(Colors.BLUE + "The player " + p.getPlayerName() + " finished the game with " + p.getScore() + " points;" + Colors.RESET);
             obj = checkExtraPoints(p);
             p.addScore(obj);
+            System.out.println(Colors.YELLOW + "after checking for the extraPoints given by the ObjectiveCards, " + Colors.RESET);
+            System.out.println(Colors.BLUE + "the player " + p.getPlayerName() + " has a total of " + p.getScore() + " points." + Colors.RESET);
         }
     }
 
@@ -1041,8 +1044,18 @@ public class Match implements Serializable {
             }
         }
 
-        if (draw != 0) drawWinners();
-        else declareWinners();
+        if (draw != 0){
+            System.out.println(Colors.GREEN + "There is a draw between: " + Colors.RESET);
+            for (Player p:winners){
+                System.out.println(Colors.RED + "\t" + p.getPlayerName() + Colors.RESET);
+            }
+            System.out.println(Colors.YELLOW + "Comparing the extraPoints... " + Colors.RESET);
+            drawWinners();
+        }
+        else {
+            System.out.println(Colors.GREEN + "THE WINNER OF THE GAME IS: " + Colors.RESET);
+            System.out.println(Colors.RED + "\t" + winners.getFirst().getPlayerName());
+        }
     }
 
     private void drawWinners() {
@@ -1054,6 +1067,7 @@ public class Match implements Serializable {
         /** find max objective points in winners[] */
         for (Player p : winners) {
             objPoint = hashObjectivePoints.get(p);
+            System.out.println(Colors.BLUE + "The player " + p.getPlayerName() + " has " + objPoint + " extraPoints." + Colors.RESET);
             if (objPoint > MaxObjPoint) {
                 MaxObjPoint = objPoint;
                 playerObjWin = p;
@@ -1068,25 +1082,31 @@ public class Match implements Serializable {
             }
         }
         /** print draw winners */
-        System.out.println("DRAW BETWEEN: ");
-        int s = finalWinners.size();
-        for (int i = 0; i < s; i++) {
-            Player p = finalWinners.get(i);
-            System.out.println(p.getPlayerName());
-        }
+        System.out.println(Colors.PURPLE + "THEREFORE" + Colors.RESET);
+        if(finalWinners.size()!=1) {
+            System.out.println(Colors.GREEN + "THE GAME ENDED IN A DRAW BETWEEN: " + Colors.RESET);
+            int s = finalWinners.size();
+            for (int i = 0; i < s; i++) {
+                Player p = finalWinners.get(i);
+                System.out.println(Colors.RED + "\t" + p.getPlayerName() + Colors.RESET);
+            }
+        } else
+            for (Player p : finalWinners) {
+                System.out.println(Colors.GREEN + "THE WINNER OF THE GAME IS: " + Colors.RESET);
+                System.out.println(Colors.RED + "\t" + p.getPlayerName() + Colors.RESET);
+            }
     }
 
-    /**
+    /*/**
      * print winner
      */
-    private void declareWinners() {
+    /*private void declareWinners() {
         finalWinners.removeAll(finalWinners.stream().toList());
         finalWinners.addAll(winners);
-        int s = winners.size();
         for (Player p : winners) {
             System.out.println("WINNER: " + p.getPlayerName());
         }
-    }
+    }*/
 
     public ArrayList<ResourceGoldCard> getCoveredCards() {
         return coveredCards;
