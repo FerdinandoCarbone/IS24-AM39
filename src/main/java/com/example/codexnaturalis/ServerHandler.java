@@ -7,11 +7,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URISyntaxException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,6 +34,7 @@ public class ServerHandler extends Thread implements Runnable {
     private final ConnectionManger connMan;
     private volatile boolean firstBroadCastWasReceived;
     private String welcomeText;
+
     public ServerHandler(String clientName, UUID clientID,ConnectionManger connMan){
         this.clientName = clientName;
         this.clientID = clientID;
@@ -35,6 +43,7 @@ public class ServerHandler extends Thread implements Runnable {
         this.firstBroadCastWasReceived=false;
         this.messageTurn=null;
         this.samvise = new Semaphore(0);
+
     }
 
     public Semaphore getSemaphore() {
@@ -205,23 +214,56 @@ public class ServerHandler extends Thread implements Runnable {
         this.messageTurn = messageTurn;
     }
     public void restartClient() {
-        String kickString = "Server crashed: please try restarting client with same username to try and rejoin match";
+        String kickString = "Server crashed: Press Enter and input same username to rejoin match";
         System.out.println(kickString);
-        if(Client.isGuiSelector()) Platform.runLater(()->MainController.alert(kickString,true));
-        System.exit(0);
-        /*final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-        final File currentJar = new File(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        if(!currentJar.getName().endsWith(".jar"))
+        if(Client.isGuiSelector()) {
+            String finalKickString = kickString;
+            Platform.runLater(()->MainController.alert(finalKickString,true));
+        }
+        try{
+            Client.commandQueue.put(()->Client.main(Client.clientArgs));
+        }catch(InterruptedException e){
+            System.err.println("Error while trying to restart client");
+            System.out.println("Please try manually restart client with same nickname to rejoin match");
+            System.exit(0);
+        }
+        Thread.currentThread().interrupt();
+        /*String finalKick;
+        File currentJar=null;
+        final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        final String classPath = System.getProperty("java.class.path");
+        //final String mainClass = ManagementFactory.getRuntimeMXBean().getClassPath().split(File.pathSeparator)[0];
+        try {
+            currentJar = new File(Client.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+
+        }catch(URISyntaxException e){
+            finalKick = "Please try restarting client manually with same username to try and rejoin match";
+            System.out.println("Server crashed: Encountered issue while restarting\n" +e.getMessage());
+            System.out.println(finalKick);
+            System.exit(0);
+        }
+        /*if(!currentJar.getName().endsWith(".jar"))
             return;
-        final ArrayList<String> command = new ArrayList<>();
+        List<String> command = new ArrayList<>();
         command.add(javaBin);
-        command.add("-jar");
-        command.add(currentJar.getPath());
-        String args="";
-        for(String s: Arrays.stream(Client.clientArgs).toList()) args = args.concat(s);
-        command.add(args);
+        command.add("-cp");
+        command.add(classPath);
+        command.add(Launcher.class.getName());
+        command.addAll(List.of(Client.clientArgs));
+        System.out.println(command);
         final ProcessBuilder builder = new ProcessBuilder(command);
-        builder.start();
+        try{
+            builder.inheritIO();
+            Process process = builder.start();
+            process.waitFor();
+        } catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+        catch(Exception e){
+            finalKick = "Please try restarting client manually with same username to try and rejoin match";
+            System.out.println("Server crashed: Encountered issue while restarting\n" +e.getMessage());
+            System.out.println(finalKick);
+        }
         System.exit(0);*/
     }
 }
@@ -242,7 +284,7 @@ class ServerSocketHandler extends ServerHandler {
     }
     @Override
     public void run() {
-        while(true){
+        while(!Thread.currentThread().isInterrupted()){
             try {
                 if(hasToRun) messageReceiver(null);
             } catch (ClassNotFoundException e) {
@@ -365,7 +407,7 @@ class ServerRMIHandler extends ServerHandler{
 
     @Override
     public void run(){
-        while(true){
+        while(!Thread.currentThread().isInterrupted()){
             try {
                 if(remoteProxy.callFor(getClientID())) messageReceiver(remoteProxy.whatToCall(getClientID()));
                 remoteProxy.keepAlive(getClientID());

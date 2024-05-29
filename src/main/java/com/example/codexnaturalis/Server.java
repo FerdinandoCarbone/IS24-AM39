@@ -19,9 +19,12 @@ public class Server {
     //static int playerCounter = 1;
     public static void main(String[] args) throws RemoteException, MalformedURLException {
         int port = 8081;
+
         checkForSaveData();
         if(isCrashed) serverSaver.retrieveNecessaryStartingInfo();
-        else if (!args[1].isBlank()) {
+        else if (args.length==1) {
+            connectionInfo = new Pair<>("Server", port);
+        } else if (args.length== 2) {
             try {
                 port = Integer.parseInt(args[1]);
             } catch (Exception e) {

@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,6 +38,7 @@ public class Client extends Application{
     private static Semaphore sem;
     private static HashMap<String,Boolean> currentlyPlaying;
     public static String[] clientArgs;
+    public static BlockingQueue<Runnable> commandQueue = new LinkedBlockingQueue<>();
 
     public static void main(String[] args) {
         sem=new Semaphore(0);
@@ -237,15 +240,24 @@ public class Client extends Application{
      * Returns 1 if a new save file is created and a new random UUID was correctly generated
      */
     public static int uuidGen() {
+        //todo: ask if player wants to load previous save data - if no => delete save file
         String fileName = "savedata/" + playerNick + "-matchInfo.cdxn";
         ArrayList<String> content = new ArrayList<>();
         UUID newID = null;
+        int choice;
         try {
             File newDir = new File("savedata");
             if (!newDir.exists()) {
                 throw new FileNotFoundException("Unable to find the save data dir");
             }
             FileReader fileReader = new FileReader(fileName);
+            System.out.println("A save file was found with this player nick\nDo you want to load it?");
+            System.out.println("\n0-No, start as a new player\n1-Yes, load it and try a reconnection");
+            do{
+            choice = getIntInput(1,false);
+            if(choice==1) break;
+            else if (choice==0) throw new NewPlayerException("Starting as a new Player");
+            }while (true);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -269,6 +281,8 @@ public class Client extends Application{
             return 1;
         } catch (IOException e) {
             System.out.println("No savefile found - Start as new Player");
+        } catch(NewPlayerException e){
+            //System.out.println(e.getMessage());
         }
         try {
             Path directory = Paths.get("savedata");
@@ -693,6 +707,14 @@ public class Client extends Application{
     private static void selectPossibleActions() throws IOException, ClassNotFoundException {
         printPossibleChoices();
         System.out.print("What would you like to do: ");
+        if(!commandQueue.isEmpty()) {
+            try {
+                Runnable command = commandQueue.take();
+                command.run();
+            } catch (InterruptedException e) {
+                System.err.println("Unable to restart client, please do it manually");
+            }
+        }
         int action;
         try {
             action = Integer.parseInt(receiveInput());
