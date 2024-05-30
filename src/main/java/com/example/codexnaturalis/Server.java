@@ -15,11 +15,12 @@ public class Server {
     static ServerConnectionManager serverConMan;
     static Pair<String, Integer> connectionInfo;
     private static ServerStateSaver serverSaver;
+    private static String[] serverArgs;
 
     //static int playerCounter = 1;
     public static void main(String[] args) throws RemoteException, MalformedURLException {
+        serverArgs = args;
         int port = 8081;
-
         checkForSaveData();
         if(isCrashed) serverSaver.retrieveNecessaryStartingInfo();
         else if (args.length==1) {
@@ -273,20 +274,13 @@ public class Server {
                 kick(players.get(i-1).getPlayerID());*/
                 break;
             case "restart":
-                //todo: cose inutili
-                /*for(ClientHandler p: ServerConnectionManager.handlers.values()){
-                    p.setHasToRun(false);
+                /*try {
+                    resetServer();
                 }
-                ServerConnectionManager.handlers.clear();
-                for(Socket s:ServerConnectionManager.hashPlayer.values()) s.close();
-                ServerConnectionManager.hashPlayer.clear();
-                ServerConnectionManager.serverSocket.close();
-                ServerConnectionManager.rmiListener.shutRMIConnection();
-                ServerConnectionManager.rmiListener.setHasToRun(false);
-                match = null;
-                serverConMan = null;
-                gameStarted = false;
-                serverSetupProcedure();*/
+                catch(Exception e){
+                    System.err.println("An error occurred while resetting: "+ e.getMessage()+"\nForcing restart...");
+                    System.exit(0);
+                }*/
                 break;
             default:
                 System.out.println("Unknown command");
@@ -341,6 +335,19 @@ public class Server {
     }
     public static void setIsCrashed(boolean isCrashed) {
         Server.isCrashed = isCrashed;
+    }
+    private static void resetServer() throws IOException, NotBoundException {
+        isCrashed = false;
+        ServerConnectionManager.socketListener.interrupt();
+        ServerConnectionManager.rmiListener.interrupt();
+        for(ClientHandler h : ServerConnectionManager.handlers.values()) {
+            if(h instanceof SocketClientHandler) ((SocketClientHandler) h).getSocket().close();
+            h.interrupt();
+        }
+        ServerConnectionManager.serverSocket.close();
+        Server.getServerSaver().resetSave();
+        main(serverArgs);
+
     }
 
 }

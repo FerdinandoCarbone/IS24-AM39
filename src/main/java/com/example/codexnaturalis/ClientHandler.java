@@ -50,7 +50,7 @@ public class ClientHandler extends Thread implements Runnable {
                     endOfTheGame();
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Error while sending winning message");
+                System.err.println("Error while sending winning message");
             }
             try {
                 if (nextPlayer != null)
@@ -182,7 +182,7 @@ class RMIClientHandler extends ClientHandler {
     }
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             while(!hasToRun) Thread.onSpinWait();
             try {
                 if (getSecretWasChosen()) {
@@ -300,7 +300,7 @@ class SocketClientHandler extends ClientHandler {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 messageReceiver();
             } catch (IOException | ClassNotFoundException | WrongMessageConversionException e) {
@@ -334,7 +334,10 @@ class SocketClientHandler extends ClientHandler {
                 break;
             }
         }
-        clientDisconnected();
+        try{clientDisconnected();}
+        catch (NullPointerException e){
+            System.out.println(Colors.YELLOW+"MATCH IS NULL CANNOT SEND BROADCASTS"+Colors.RESET);
+        }
     }
 
     private boolean tryReconnectClient() {
