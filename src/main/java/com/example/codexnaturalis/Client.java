@@ -255,6 +255,7 @@ public class Client extends Application {
             }
             else {
                 while(true) {
+                    System.out.println("0 - Overwrite\n1 - Load");
                     choice = getIntInput(1, false) != 0;
                     if (choice) break;
                     else if(!choice) throw new NewPlayerException("Starting as a new Player");
