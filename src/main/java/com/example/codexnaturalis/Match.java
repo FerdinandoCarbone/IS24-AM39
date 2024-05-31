@@ -344,7 +344,7 @@ public class Match implements Serializable {
         boolean winnerFlag = false;
         if (playingPlayer.getScore() >= 20) {
             winnerFlag = true;
-            System.out.println(playingPlayer.getPlayerName() + " ha raggiunto " + playingPlayer.getScore() + " punti!");
+            System.out.println(playingPlayer.getPlayerName() + " reached " + playingPlayer.getScore() + " points!");
         }
         return winnerFlag;
     }
@@ -368,7 +368,7 @@ public class Match implements Serializable {
         int pts = playedCard.getPoints();
         int points=0;
 
-        /** se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
+        /* se il mazzo è risorsa: controllare numero punti carta ed eventualmente assegnarli*/
         if (0 < id && id < 41) {
             if(playedCard.isPlacedFront()){
                 points = pts;
@@ -378,27 +378,27 @@ public class Match implements Serializable {
                 return 0;
 
         }
-        /** se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
+        /* se il mazzo è oro: controllo numero di punti carta e id per criterio:*/
         else if (40 < id && id < 81) {
             if(playedCard.isPlacedFront()) {
                 switch (id) {
-                    /** se idCard==41||51||63||71 Feather*/
+                    /* se idCard==41||51||63||71 Feather*/
                     case 41, 51, 63, 71:
                         points = previousElementMana[2] * pts;
                         return points;
-                    /** se idCard==42||53||61||73  Ink*/
+                    /* se idCard==42||53||61||73  Ink*/
                     case 42, 53, 61, 73:
                         points = previousElementMana[0] * pts;
                         return points;
-                    /** se idCard==43||52||62||72 Papyrus*/
+                    /* se idCard==43||52||62||72 Papyrus*/
                     case 43, 52, 62, 72:
                         points = previousElementMana[1] * pts;
                         return points;
-                    /** se idCard==44||45||46||54||55||56||64||65||66||74||75||76 conta angoli coperti*/
+                    /* se idCard==44||45||46||54||55||56||64||65||66||74||75||76 conta angoli coperti*/
                     case 44, 45, 46, 54, 55, 56, 64, 65, 66, 74, 75, 76:
                         points = playedCard.getCoveredCornersWhenPlaced() * pts;
                         return points;
-                    /** altrimenti assegna punti*/
+                    /* altrimenti assegna punti*/
                     default:
                         points = pts;
                         return points;
@@ -411,7 +411,7 @@ public class Match implements Serializable {
     }
 
     /**
-     * Last Round Routine
+     * Last Round Routine: call the function which calculate objective point, and the one to declare the winner
      */
     private void lastRoundRoutine() {
         addObjectiveTotalPoints();
@@ -419,7 +419,7 @@ public class Match implements Serializable {
     }
 
     /**
-     * Somma il punteggio ottenuto dalle care risorsa e oro a quello ottenuto dalle carte obiettivo
+     * calculate objective points for each player and add it to the score
      */
     private void addObjectiveTotalPoints() {
         int obj = 0;
@@ -444,7 +444,7 @@ public class Match implements Serializable {
         int points = 0;
         if (86 < id && id < 103) {
             switch (id) {
-                /** se idCard is ripetizioni semi*/
+                /* se idCard is ripetizioni semi*/
                 case 95, 96, 97, 98:
                     //95 3 funghi, 96 3 foglie, 97 3 lupo, 98 3 farfalle. tutto x2 punti
                     switch (id) {
@@ -463,7 +463,7 @@ public class Match implements Serializable {
                         default:
                             break;
                     }
-                    /** se idCard is ripetizioni elementi*/
+                    /* se idCard is ripetizioni elementi*/
                 case 99, 100, 101, 102:
                     switch (id) {
                         //piuma, ink, pergamena
@@ -998,7 +998,7 @@ public class Match implements Serializable {
 
 
     /**
-     * calculate objective points and add into the array
+     * calculate objective points and add into the hashObjectivePoints
      */
     private int checkExtraPoints(Player p) {
         int extraPoints = 0;
@@ -1017,14 +1017,16 @@ public class Match implements Serializable {
         return extraPoints;
     }
 
-
+    /**
+     * check if there is a winner or if more players have the same points
+     */
     private void declareWinnerOrDraw() {
 
         int maxScore = 0;
         int draw = 0;
         Player playerWin = null;
 
-        /** find max points */
+        /* find max points */
         for (Player p : players) {
             if (p.getScore() > maxScore) {
                 maxScore = p.getScore();
@@ -1033,7 +1035,7 @@ public class Match implements Serializable {
         }
         winners.add(playerWin);
 
-        /** check if a draw exists */
+        /* check if a draw exists */
         for (Player pDraw : players) {
             if (pDraw.getScore() == maxScore && pDraw != playerWin) {
                 draw++;
@@ -1045,13 +1047,16 @@ public class Match implements Serializable {
         else declareWinners();
     }
 
+    /**
+     * there is a draw, now check the real winner comparing just the objective points
+     */
     private void drawWinners() {
 
         int MaxObjPoint = 0;
         int objPoint = 0;
         Player playerObjWin = null;
 
-        /** find max objective points in winners[] */
+        /* find max objective points in winners[] */
         for (Player p : winners) {
             objPoint = hashObjectivePoints.get(p);
             if (objPoint > MaxObjPoint) {
@@ -1061,13 +1066,13 @@ public class Match implements Serializable {
         }
         finalWinners.add(playerObjWin);
 
-        /** check if a draw exists */
+        /* check if a draw exists */
         for (Player p : winners) {
             if (hashObjectivePoints.get(p) == MaxObjPoint && p != playerObjWin) {
                 finalWinners.add(p);
             }
         }
-        /** print draw winners */
+        /* print draw winners */
         System.out.println("DRAW BETWEEN: ");
         int s = finalWinners.size();
         for (int i = 0; i < s; i++) {
