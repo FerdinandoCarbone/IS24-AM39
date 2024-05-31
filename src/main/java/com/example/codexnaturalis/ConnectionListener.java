@@ -35,7 +35,7 @@ class SocketConnectionListener extends ConnectionListener {
     }
 @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 startListening();
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
@@ -90,7 +90,6 @@ class RMIConnectionListener extends ConnectionListener {
 
     RemoteServerMethodInterface remoteServerSkeleton;
     public String bindingName;
-    private static final long serialVersionUID = 1L;
     public ExecutorService executorService = Executors.newCachedThreadPool();
     public RMIConnectionListener(ServerConnectionManager serverComMan) throws RemoteException, MalformedURLException, UnknownHostException {
         super(serverComMan);
@@ -102,11 +101,13 @@ class RMIConnectionListener extends ConnectionListener {
     }
     @Override
     public void run(){
-        while(hasToRun){
+        while (!Thread.currentThread().isInterrupted()) {
+            Thread.onSpinWait();
         }
     }
     public void shutRMIConnection() throws RemoteException, MalformedURLException, NotBoundException {
         UnicastRemoteObject.unexportObject(remoteServerSkeleton,true);
-        Naming.unbind("rmi://localhost:"+serverComMan.getRmiPort()+"/Server");
+        Naming.unbind(ServerConnectionManager.serverName);
+        System.out.println("RMI released");
     }
 }

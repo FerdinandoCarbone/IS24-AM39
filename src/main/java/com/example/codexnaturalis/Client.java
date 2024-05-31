@@ -15,10 +15,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Client extends Application{
+public class Client extends Application {
 
     private static boolean crashed;
     private static Pair<String, Integer> connectionInfo;
@@ -34,11 +36,12 @@ public class Client extends Application{
     private static boolean guiSelector;
     private static Stage stage;
     private static Semaphore sem;
-    private static HashMap<String,Boolean> currentlyPlaying;
+    private static HashMap<String, Boolean> currentlyPlaying;
     public static String[] clientArgs;
+    public static BlockingQueue<Runnable> commandQueue = new LinkedBlockingQueue<>();
 
     public static void main(String[] args) {
-        sem=new Semaphore(0);
+        sem = new Semaphore(0);
         clientStart(args);
         initialClientSetup();
         start();
@@ -51,12 +54,11 @@ public class Client extends Application{
     public static void start() {
         try {
             instanceConManAndHandshake();
-        }
-        catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
+        } catch (IOException | ClassNotFoundException | StupidUserException | HandShakeException e) {
             System.err.println("Client Setup error: " + e.getMessage());
             if (guiSelector) {
                 Platform.runLater(() -> {
-                    LauncherController.alert(e.getMessage(),true);
+                    LauncherController.alert(e.getMessage(), true);
                     stage.close();
                 });
             } else throw new RuntimeException("Please restart the client and try again");
@@ -68,7 +70,7 @@ public class Client extends Application{
             System.err.println("Game Start error " + e.getLocalizedMessage() + ": " + e.getMessage());
             if (guiSelector) {
                 Platform.runLater(() -> {
-                    LauncherController.alert(e.getMessage(),true);
+                    LauncherController.alert(e.getMessage(), true);
                     stage.close();
                 });
             } else throw new RuntimeException("Please restart the client and try again");
@@ -105,28 +107,22 @@ public class Client extends Application{
         System.out.println("numOfPar:" + numOfPar + " port:" + portStandard);
         guiSelector = false;
         switch (numOfPar) {
-            case 0:
-                System.err.println("Missing arguments\nMake sure to start the client with Server Address and Port as parameters\ni.e. java Client localhost 8081");
-                System.exit(0);
-                break;
-            case 1:
-                System.out.println("No port number was input\nFallback to 8081");
-                connectionInfo = setArgValues(args[0], portStandard);
-                System.out.println("Missing interface argument - Using TUI:");
-                break;
             case 2:
-                connectionInfo = setArgValues(args[0], args[1]);
+                System.out.println("No port number was input\nFallback to 8081");
+                connectionInfo = setArgValues(args[1], portStandard);
                 System.out.println("Missing interface argument - Using TUI:");
                 break;
             case 3:
-                connectionInfo = setArgValues(args[0], args[1]);
-                if (args[2].equalsIgnoreCase("gui")) {
+                connectionInfo = setArgValues(args[1], args[2]);
+                System.out.println("Missing interface argument - Using TUI:");
+                break;
+            case 4:
+                connectionInfo = setArgValues(args[1], args[2]);
+                if (args[3].equalsIgnoreCase("gui")) {
                     guiSelector = true;
-                    //todo:ENTRYPOINT JAVAFXGUI
                     launch();
                     System.exit(0);
-                }
-                else if (args[2].equalsIgnoreCase("tui")) guiSelector = false;
+                } else if (args[3].equalsIgnoreCase("tui")) guiSelector = false;
                 else {
                     System.out.println("Invalid argument " + args[2] + ": Accepted values are 'gui' or 'tui' " + "\nFallback using TUI");
                     guiSelector = false;
@@ -245,12 +241,26 @@ public class Client extends Application{
         String fileName = "savedata/" + playerNick + "-matchInfo.cdxn";
         ArrayList<String> content = new ArrayList<>();
         UUID newID = null;
+        boolean choice;
         try {
             File newDir = new File("savedata");
             if (!newDir.exists()) {
                 throw new FileNotFoundException("Unable to find the save data dir");
             }
             FileReader fileReader = new FileReader(fileName);
+            String doILoadSave = "A save file was found with this player nick\nDo you want to load it or start as a new player?";
+            System.out.println(doILoadSave);
+            if (guiSelector){
+                if(!LauncherController.nameSaveTaken("A save file was found", doILoadSave)) throw new NewPlayerException("Starting as a new Player");
+            }
+            else {
+                while(true) {
+                    System.out.println("0 - Overwrite\n1 - Load");
+                    choice = getIntInput(1, false) != 0;
+                    if (choice) break;
+                    else if(!choice) throw new NewPlayerException("Starting as a new Player");
+                }
+            }
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -274,15 +284,17 @@ public class Client extends Application{
             return 1;
         } catch (IOException e) {
             System.out.println("No savefile found - Start as new Player");
+        } catch (NewPlayerException e) {
+            //System.out.println(e.getMessage());
         }
         try {
             Path directory = Paths.get("savedata");
             if (Files.notExists(directory)) {
-                ProcessBuilder createDir = new ProcessBuilder("mkdir",directory.toString());
+                ProcessBuilder createDir = new ProcessBuilder("mkdir", directory.toString());
                 Process createDirProc = createDir.start();
                 int status = createDirProc.waitFor();
                 System.out.println(status);
-                switch (status==0 ? 1 : 2) {
+                switch (status == 0 ? 1 : 2) {
                     case 1:
                         System.out.println("Save data folder successfully created");
                         break;
@@ -291,7 +303,7 @@ public class Client extends Application{
                             throw new FileNotFoundException("Cannot create directory");
                         break;
                 }
-            } else{
+            } else {
                 FileOutputStream outputStream = new FileOutputStream(fileName);
                 newID = UUID.randomUUID();
                 String myIDString = "ClientID:" + newID;
@@ -317,6 +329,7 @@ public class Client extends Application{
 
     /**
      * Asks user if he wants to play without saving/ability to reconnect
+     *
      * @return true if yes, false if no
      * @throws InterruptedException if semaphore is unable to acquire thread
      */
@@ -326,7 +339,7 @@ public class Client extends Application{
         response.set("no");
         while (true) {
             if (isGuiSelector()) {
-                Platform.runLater(()->{
+                Platform.runLater(() -> {
                     response.set(LauncherController.askStringInputToUser("Unable to create the savefile dir:", "Do you want to play anyway without the possibility of reconnection? (yes or no)").toLowerCase());
                     sem.release();
                 });
@@ -335,11 +348,11 @@ public class Client extends Application{
                 System.out.println("Unable to create the savefile dir:\nDo you want to play anyway without the possibility of reconnection?");
                 response.set(receiveInput().toLowerCase());
             }
-            if(!(response.get().equals("no")||response.get().equals("yes"))){
-                if(isGuiSelector()) Platform.runLater(()->LauncherController.alert("Invalid Input",false));
+            if (!(response.get().equals("no") || response.get().equals("yes"))) {
+                if (isGuiSelector()) Platform.runLater(() -> LauncherController.alert("Invalid Input", false));
                 else System.out.println("Invalid Input");
-            }
-            else break;;
+            } else break;
+            ;
         }
         return response.get().equals("yes");
     }
@@ -370,24 +383,26 @@ public class Client extends Application{
 
                 """);
         String tmp;
-                do{
-                    System.out.println("Please enter your nickname:");
-                    tmp=receiveInput();
-                } while(isValidNick(tmp));
+        do {
+            System.out.println("Please enter your nickname:");
+            tmp = receiveInput();
+        } while (isValidNick(tmp));
         return tmp;
     }
 
     /**
      * Checks whether an input nick is valid or not
+     *
      * @param s string to check
      * @return true if Nick is INVALID, false if Nick is VALID
      */
-    public static boolean isValidNick(String s){
+    public static boolean isValidNick(String s) {
         CharSequence notValidChar = "\\/:*?\"<>|";
         for (int i = 0; i < notValidChar.length(); i++) {
             char ch = notValidChar.charAt(i);
             if (s.contains(String.valueOf(ch))) {
-                if(isGuiSelector()) LauncherController.alert("An invalid char was input in the nickname: Try again",true);
+                if (isGuiSelector())
+                    LauncherController.alert("An invalid char was input in the nickname: Try again", true);
                 else System.out.println("An invalid char was input in the nickname: Try again");
                 return true;
             }
@@ -408,18 +423,18 @@ public class Client extends Application{
             matchID = initialMatchSetupMessage.getMatchID();
             appendStringOnFile("MatchID:" + matchID.toString());
             player = initialMatchSetupMessage.getPlayers().get(clientID);
-            if(isGuiSelector())sem.release();
+            if (isGuiSelector()) sem.release();
             if (player == null)
                 throw new WrongPlayerUUIDException("There was an error retrieving the info about the match");
             initialMatchSetupMessage.getPlayers().remove(clientID);
             players = initialMatchSetupMessage.getPlayers().values();
             otherPlayers.addAll(players);
-            for(Player p: otherPlayers) currentlyPlaying.put(p.getPlayerName(),true);
+            for (Player p : otherPlayers) currentlyPlaying.put(p.getPlayerName(), true);
             initialMatchSetupMessage = ConnectionManger.secretSelector(initialMatchSetupMessage);
-            if(isGuiSelector()) sem.release();
+            if (isGuiSelector()) sem.release();
             serverHandler.sendMessage(initialMatchSetupMessage);
             player.placeStarterCard(initialMatchSetupMessage.getStarterCardFace());
-            if(isGuiSelector()) sem.release();
+            if (isGuiSelector()) sem.release();
         } catch (WrongPlayerUUIDException e) {
             System.out.println(e.getMessage());
         } catch (StupidUserException | InterruptedException e) {
@@ -522,7 +537,7 @@ public class Client extends Application{
                 continue;
             }
             face = i == 1;
-            if (choice > 40 && !((GoldCard)placedCard).requirementsAreFulfilled(player)) {
+            if (choice > 40 && !((GoldCard) placedCard).requirementsAreFulfilled(player)) {
                 System.out.println("You do not possess enough materials or resources to place this card: choose another one");
                 continue;
             }
@@ -664,7 +679,7 @@ public class Client extends Application{
         System.out.println("Who do you want to send the message to?");
         System.out.println(0 + " - Cancel");
         for (String p : currentlyPlaying.keySet()) {
-            if(!currentlyPlaying.get(p) || p.equals(playerNick)) continue;
+            if (!currentlyPlaying.get(p) || p.equals(playerNick)) continue;
             recipientChooser.put(i, p);
             System.out.println(i + " - " + p);
             ++i;
@@ -698,6 +713,14 @@ public class Client extends Application{
     private static void selectPossibleActions() throws IOException, ClassNotFoundException {
         printPossibleChoices();
         System.out.print("What would you like to do: ");
+        if (!commandQueue.isEmpty()) {
+            try {
+                Runnable command = commandQueue.take();
+                command.run();
+            } catch (InterruptedException e) {
+                System.err.println("Unable to restart client, please do it manually");
+            }
+        }
         int action;
         try {
             action = Integer.parseInt(receiveInput());
@@ -806,7 +829,7 @@ public class Client extends Application{
             });
         }
         System.out.println("\nIt's your turn:");
-        if(isGuiSelector()) Platform.runLater(()->MainController.alert("It's your turn",false));
+        if (isGuiSelector()) Platform.runLater(() -> MainController.alert("It's your turn", false));
         System.out.print("What do you want to do? ");
 
     }
@@ -959,13 +982,13 @@ public class Client extends Application{
         return currentlyPlaying;
     }
 
-    public static void setCurrentlyPlayingPlayers(HashMap<String,Boolean> reconnectionList) {
-        currentlyPlaying=reconnectionList;
+    public static void setCurrentlyPlayingPlayers(HashMap<String, Boolean> reconnectionList) {
+        currentlyPlaying = reconnectionList;
     }
 
     @Override
     public void start(Stage stageStart) throws Exception {
-        stage=stageStart;
+        stage = stageStart;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("fxml/launcher.fxml"));
         Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("Assets/RoundedLogo.png")));
         stage.getIcons().add(icon);
@@ -976,7 +999,15 @@ public class Client extends Application{
         stage.setScene(scene);
         stage.show();
     }
-    public static Stage getStage(){
+    public static void restartScene() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource("fxml/launcher.fxml"));
+        stage.setTitle("Codex Naturalis by IS-AM39 - Launcher");
+        stage.setResizable(false);
+        final Parent root = fxmlLoader.load();
+        final Scene scene = new Scene(root, Color.BLACK);
+        stage.setScene(scene);
+    }
+    public static Stage getStage() {
         return stage;
     }
 

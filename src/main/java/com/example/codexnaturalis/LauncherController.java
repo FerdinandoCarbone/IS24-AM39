@@ -242,4 +242,33 @@ public class LauncherController extends StackPane implements Initializable {
             return 0; // Restituisci il valore selezionato
         }
     }
+    public static Boolean nameSaveTaken(String message,String whatToSelect) throws IOException {
+        Dialog<Boolean> dialog = new Dialog<>();
+        AtomicReference<Boolean> returnValue = new AtomicReference<>();
+        ButtonType okButtonType = new ButtonType("Load", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Overwrite", ButtonBar.ButtonData.OK_DONE);
+        dialog.setTitle(message);
+        dialog.setContentText(whatToSelect);
+
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType,cancelButtonType);
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                return true;
+            }
+            else if (dialogButton == cancelButtonType) {
+                return false;
+            }
+            return null;
+        });
+        Optional<Boolean> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            Boolean selectedOption = result.get();
+            System.out.println("Selected Option: " + selectedOption);
+            return selectedOption;
+        } else {
+            System.out.println("Error occurred: fallback to new user");
+            return false;
+        }
+    }
+
 }
