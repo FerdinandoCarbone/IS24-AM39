@@ -59,7 +59,7 @@ public class FieldController extends Pane {
         centerSlot.toFront();
     }
 
-    public static FieldController rebuildField(FieldController field,Player player) {
+    public static void rebuildField(FieldController field,Player player) {
         Field.Slot slot;
         for(int i=0;i< matrixSize; i++){
             for (int j = 0; j < matrixSize; j++) {
@@ -68,7 +68,6 @@ public class FieldController extends Pane {
                field.fillField(i,j,slot.getCardSlot());
             }
         }
-        return field;
     }
 
     public void fillField(int row, int column, NonObjectiveCard cardToPlace) {

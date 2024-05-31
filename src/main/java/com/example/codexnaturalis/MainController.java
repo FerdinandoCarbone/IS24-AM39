@@ -52,6 +52,8 @@ public class MainController extends TabPane implements Initializable {
     @FXML
     public VBox vbox;
     @FXML
+    private FieldController field;
+    @FXML
     public FieldController field2;
     @FXML
     public FieldController field3;
@@ -65,8 +67,6 @@ public class MainController extends TabPane implements Initializable {
     private Tab tab3;
     @FXML
     private PlayerDeckController playerDeck;
-    @FXML
-    private FieldController field;
     @FXML
     private HBox rightTopPart;
     private boolean readyToPlace;
@@ -129,7 +129,7 @@ public class MainController extends TabPane implements Initializable {
         FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
         tabMan = new HashMap<>();
         int middleSlot = CardDim.matrixSize/2;
-        if(Client.isCrashed()) field = FieldController.rebuildField(field,player);
+        if(Client.isCrashed()) FieldController.rebuildField(field,player);
         else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
         for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
@@ -138,7 +138,7 @@ public class MainController extends TabPane implements Initializable {
             tabs[i].setDisable(false);
             tabs[i].setClosable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
-            if(Client.isCrashed()) field = FieldController.rebuildField(fieldControllers[i],others.get(i));
+            if(Client.isCrashed()) FieldController.rebuildField(fieldControllers[i],others.get(i));
             else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
             System.out.println("Carta starter di " + others.get(i).getPlayerName() + " piazzata di " + (others.get(i).getPlayerDeck().getStarterCard().isPlacedFront() ? "Fronte" : "Retro"));
         }
