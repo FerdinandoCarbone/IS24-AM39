@@ -41,7 +41,7 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
             for (Player p : ServerConnectionManager.hashClient.values())
                 if (p.getPlayerName().equals(sender)) return false;
         Player player;
-        player = new Player(sender, new Token(), new Field(CardDim.matrixSize, CardDim.matrixSize), clientID);
+        player = new Player(sender, new Field(CardDim.matrixSize, CardDim.matrixSize), clientID);
         ServerConnectionManager.hashClient.put(clientID, player);
         ClientHandler handler = new RMIClientHandler(sender, clientID, Server.serverConMan);
         new Thread(handler).start();

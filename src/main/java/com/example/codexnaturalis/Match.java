@@ -19,6 +19,7 @@ public class Match implements Serializable {
     public HashMap<UUID, ArrayList<ObjectiveCard>> selectedSecrets = new HashMap<>();
     private ArrayList<UUID> playerIds = new ArrayList<>();
     private DrawingDeck deck;
+    private ArrayList<Token> tokens = new ArrayList<Token>();
 
 
 
@@ -28,6 +29,10 @@ public class Match implements Serializable {
      * @param scoreTracker: score tracker
      */
     public Match(ArrayList<Player> players, ScoreTracker scoreTracker) {
+        for (int i = 0; i < 5; i++) {
+            tokens.add(new Token(Token.Color.values()[i]));
+        }
+        tokens.remove(4);
         this.players = players;
         System.out.println("Players currently playing: ");
         printPLayers();
@@ -38,10 +43,13 @@ public class Match implements Serializable {
             this.deck = new DrawingDeck();
         }
         catch(Exception e){
-            throw new RuntimeException("Cannot instanciate cards");
+            throw new RuntimeException("Cannot instantiate cards");
         }
         try {
-            for (Player p : players) p.setPlayerDeck(deck.generatePlayerDeck());
+            for (Player p : players) {
+                p.setPlayerDeck(deck.generatePlayerDeck());
+                p.setToken(tokens.remove(new Random().nextInt(tokens.size())));
+            }
         } catch(Exception e){
             throw new RuntimeException("Unable to generate Decks");
         }

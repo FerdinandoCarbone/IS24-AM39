@@ -61,21 +61,18 @@ public class Player implements Serializable {
      * Constructor of the Player class
      *
      * @param playerName:  Defines the player's name
-     * @param token:       Defines the player's token
      * @param playerField: Defines the player's own field
      */
-    public Player(String playerName, Token token, Field playerField, UUID playerID) throws IOException {
+    public Player(String playerName, Field playerField, UUID playerID) throws IOException {
         this.playerName = playerName;
-        this.token = token;
         this.playerField = playerField;
         this.resourceMana = new int[]{0, 0, 0, 0};
         this.elementsMana = new int[]{0, 0, 0};
         this.playerID = playerID;
     }
 
-    public Player(Token token, Field playerField) throws IOException {
+    public Player(Field playerField) throws IOException {
         this.playerName = null;
-        this.token = token;
         this.playerField = playerField;
         this.resourceMana = new int[]{0, 0, 0, 0};
         this.elementsMana = new int[]{0, 0, 0};
@@ -635,6 +632,10 @@ public class Player implements Serializable {
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
     }
 
     public void setCommonObjCards(ArrayList<ObjectiveCard> cards) {

@@ -15,7 +15,7 @@ class PlayerTest {
     @Test
     void placeStarterCardFront() throws IOException {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player("pippo", new Token(Token.Color.Red), new Field(3, 3), UUID.randomUUID());
+        Player player = new Player("pippo", new Field(3, 3), UUID.randomUUID());
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -63,7 +63,7 @@ class PlayerTest {
     @Test
     void placeStarterCardBack() throws IOException {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player("pluto", new Token(Token.Color.Red), new Field(3, 3), UUID.randomUUID());
+        Player player = new Player("pluto", new Field(3, 3), UUID.randomUUID());
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -117,7 +117,7 @@ class PlayerTest {
     @Test
     void placeCardSwitchOffset1() throws Exception {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        Player player = new Player(new Field(5, 5));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -137,7 +137,7 @@ class PlayerTest {
     @Test
     void placeCardOffset2() throws Exception {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        Player player = new Player(new Field(3, 3));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -156,7 +156,7 @@ class PlayerTest {
     @Test
     void placeCardCornerToPlace2AndRemoveFromDeck() throws Exception {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        Player player = new Player(new Field(3, 3));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -175,7 +175,7 @@ class PlayerTest {
     @Test
     void placeCardCornerToPlace4AndRemoveFromDeck() throws Exception {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        Player player = new Player(new Field(3, 3));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -194,7 +194,7 @@ class PlayerTest {
     @Test
     void addScoreResourceElementTest() throws IOException {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(3, 3));
+        Player player = new Player(new Field(3, 3));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -217,7 +217,7 @@ class PlayerTest {
     @Test
     void isCardAttachableToSlotTest() throws IOException {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        Player player = new Player(new Field(5, 5));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -245,7 +245,7 @@ class PlayerTest {
     @Test
     void decreaseResourceElementsManaTest() throws IOException {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        Player player = new Player(new Field(5, 5));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());
@@ -269,7 +269,7 @@ class PlayerTest {
     @Test
     void undoMoveTest() throws IOException {
         DrawingDeck drawingDeck = new DrawingDeck();
-        Player player = new Player(new Token(Token.Color.Red), new Field(5, 5));
+        Player player = new Player(new Field(5, 5));
         player.setPlayerDeck(drawingDeck.generatePlayerDeck());
         ArrayList<Card> cards = new ArrayList<>();
         cards.add(player.getPlayerDeck().getStarterCard());

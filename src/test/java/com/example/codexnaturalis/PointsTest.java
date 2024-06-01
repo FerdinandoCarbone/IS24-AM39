@@ -17,7 +17,7 @@ class PointsTest{
     @RepeatedTest(1000)
     void testCalculateObjPoints() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(8, 8), UUID.randomUUID());
+        Player player = new Player("totti", new Field(8, 8), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -78,7 +78,7 @@ class PointsTest{
     @RepeatedTest(10)
     void testCheckPoints() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(5, 5), UUID.randomUUID());
+        Player player = new Player("totti", new Field(5, 5), UUID.randomUUID());
         Field f = player.getPlayerField();
         Field.Slot[][] s = f.getSlots();
         int i, j;
@@ -117,7 +117,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints87() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -172,7 +172,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints88() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -227,7 +227,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints89() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -282,7 +282,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints90() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -337,7 +337,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints91() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -392,7 +392,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints92() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -447,7 +447,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints93() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -502,7 +502,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints94() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -557,7 +557,7 @@ class PointsTest{
     /*@Test
     void testCalculateObjPoints95() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -601,7 +601,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints96() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -645,7 +645,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints97() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -689,7 +689,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints98() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -733,7 +733,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints99() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -777,7 +777,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints100() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -821,7 +821,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints101() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -865,7 +865,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints102() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -909,7 +909,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints88bis() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -968,7 +968,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints88ter() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -1029,7 +1029,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints94bis() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -1088,7 +1088,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints94ter() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -1149,7 +1149,7 @@ class PointsTest{
     @RepeatedTest(200)
     void testCalculateObjPoints94quat() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(10, 10), UUID.randomUUID());
+        Player player = new Player("totti", new Field(10, 10), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);
@@ -1210,7 +1210,7 @@ class PointsTest{
     @Test
     void testCalculateObjPoints94quin() throws IOException {
         DrawingDeck deck = new DrawingDeck();
-        Player player = new Player("totti", new Token(Token.Color.Yellow), new Field(15, 15), UUID.randomUUID());
+        Player player = new Player("totti", new Field(15, 15), UUID.randomUUID());
         ArrayList<Player> players = new ArrayList<>();
         players.add(player);
         Match match1 = new Match(players, null);

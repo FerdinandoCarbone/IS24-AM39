@@ -214,7 +214,7 @@ public class ServerConnectionManager implements Serializable {
         if (hashClient.size() <= numPlayers && !isReconnection && Thread.currentThread().getName().compareToIgnoreCase("main") == 0) {
             String sender = clientJoinRequest.getSender();
             UUID clientID = clientJoinRequest.getClientID();
-            player = new Player(sender, new Token(), new Field(CardDim.matrixSize, CardDim.matrixSize), clientID);
+            player = new Player(sender, new Field(CardDim.matrixSize, CardDim.matrixSize), clientID);
             //hashPlayer.put(player, clientSocket);
             hashClient.put(clientID, player);
             System.out.println(sender + " joined the server");
