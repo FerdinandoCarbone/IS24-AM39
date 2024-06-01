@@ -55,7 +55,7 @@ public class Match implements Serializable {
         }
         coveredCards.add(0, deck.drawCard(true));
         coveredCards.add(1, deck.drawCard(false));
-        Collections.shuffle(players, new Random(100));
+        Collections.shuffle(players, new Random());
         System.out.println("Players have been shuffled, here's the current playing order");
         printPLayers();
         for (Player player : players) playerIds.add(player.getPlayerID());
