@@ -1,15 +1,18 @@
 package com.example.codexnaturalis;
 
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -169,17 +172,15 @@ public class LauncherController extends StackPane implements Initializable {
 
     }
     public static int selectAStarterCardDialog(Card card,String whatToSelect) throws IOException {
-        SelectableCardController selectableFront = new SelectableCardController(card,true);
-        SelectableCardController selectableRear = new SelectableCardController(card,false);
+        AtomicInteger selectedCardID = new AtomicInteger();
+        selectedCardID.set(0);
+        SelectableCardController selectableFront = getSelectableCardController(card,selectedCardID,1);
+        SelectableCardController selectableRear = getSelectableCardController(card,selectedCardID,2);
         ArrayList<SelectableCardController> selectables = new ArrayList<>();
         selectables.add(selectableFront);
         selectables.add(selectableRear);
-        Dialog<String> dialog = new Dialog<>();
-        ToggleGroup buttonGroup = new ToggleGroup();
+        Dialog<Integer> dialog = new Dialog<>();
         HBox content = new HBox();
-        for(SelectableCardController s: selectables){
-            s.selectButton.setToggleGroup(buttonGroup);
-        }
         ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.setTitle(whatToSelect);
         content.getChildren().addAll(selectables);
@@ -187,18 +188,17 @@ public class LauncherController extends StackPane implements Initializable {
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType);
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
-                RadioButton selectedRadioButton = (RadioButton) buttonGroup.getSelectedToggle();
-                if (selectedRadioButton != null) {
-                    return selectedRadioButton.getUserData().toString();
+                if (!(selectedCardID.get()==0)) {
+                    return selectedCardID.get();
                 }
             }
             return null;
         });
-        Optional<String> result = dialog.showAndWait();
+        Optional<Integer> result = dialog.showAndWait();
         if (result.isPresent()) {
-            String selectedOption = result.get();
+            Integer selectedOption = result.get();
             System.out.println("Selected Option: " + selectedOption);
-            return Integer.parseInt(selectedOption);
+            return selectedOption;
         } else {
             return -1;
         }
@@ -206,17 +206,15 @@ public class LauncherController extends StackPane implements Initializable {
 
     public static Integer selectACardDialog(ArrayList<Card> cards,String whatToSelect) throws IOException {
         ArrayList<SelectableCardController> selectables= new ArrayList<>();
+        AtomicInteger selectedCardID = new AtomicInteger();
         for(Card card: cards){
             System.out.println(card.getArtRef()[0]);
             System.out.println(card.getArtRef()[1]);
-            selectables.add(new SelectableCardController(card));
+            SelectableCardController tmpCard = getSelectableCardController(card, selectedCardID,0);
+            selectables.add(tmpCard);
         }
         Dialog<Integer> dialog = new Dialog<>();
-        ToggleGroup buttonGroup = new ToggleGroup();
         HBox content = new HBox();
-        for(SelectableCardController s: selectables){
-            s.selectButton.setToggleGroup(buttonGroup);
-        }
         ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.setTitle(whatToSelect);
         content.getChildren().addAll(selectables);
@@ -224,10 +222,7 @@ public class LauncherController extends StackPane implements Initializable {
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType);
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
-                RadioButton selectedRadioButton = (RadioButton) buttonGroup.getSelectedToggle();
-                if (selectedRadioButton != null) {
-                    return (Integer) selectedRadioButton.getUserData();
-                }
+                return selectedCardID.get();
             }
             return null;
         });
@@ -242,6 +237,34 @@ public class LauncherController extends StackPane implements Initializable {
             return 0; // Restituisci il valore selezionato
         }
     }
+
+    public static SelectableCardController getSelectableCardController(Card card, AtomicInteger selectedCardID, int mode) throws IOException {
+        SelectableCardController tmpCard;
+        boolean retrieveID;
+        if(mode==1||mode==2){
+            tmpCard= new SelectableCardController(card,mode==1);
+            retrieveID=false;
+        }
+        else {
+            retrieveID = true;
+            tmpCard = new SelectableCardController(card);
+        }
+        tmpCard.setOnMouseClicked((MouseEvent event)->{
+            if(retrieveID) selectedCardID.set(tmpCard.getCard().getIdCard());
+            else{
+                if (tmpCard.backImage==null) selectedCardID.set(1);
+                else selectedCardID.set(2);
+            }
+            FadeTransition transition = new FadeTransition(Duration.millis(100), tmpCard);
+            transition.setFromValue(1.0);
+            transition.setToValue(0.0);
+            transition.setCycleCount(2);
+            transition.setAutoReverse(true);
+            transition.play();
+        });
+        return tmpCard;
+    }
+
     public static Boolean nameSaveTaken(String message,String whatToSelect) throws IOException {
         Dialog<Boolean> dialog = new Dialog<>();
         AtomicReference<Boolean> returnValue = new AtomicReference<>();

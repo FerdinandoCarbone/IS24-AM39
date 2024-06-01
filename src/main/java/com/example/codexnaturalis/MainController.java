@@ -15,6 +15,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class MainController extends TabPane implements Initializable {
@@ -321,6 +322,7 @@ public class MainController extends TabPane implements Initializable {
 
     public ResourceGoldCard pickCard(GenericTurnMessage message) throws IOException {
         AtomicReference<ResourceGoldCard> card = new AtomicReference<>();
+        AtomicInteger selectedID = new AtomicInteger(0);
         ArrayList<ResourceGoldCard> selectables = new ArrayList<>();
         HashMap<Integer, ResourceGoldCard> cardPicker = new HashMap<>();
         ArrayList<SelectableCardController> drawingCards = new ArrayList<>();
@@ -328,16 +330,23 @@ public class MainController extends TabPane implements Initializable {
         selectables.addAll(message.getCardOnHand());
         for (ResourceGoldCard selectableCard : selectables) {
             cardPicker.put(selectableCard.getIdCard(), selectableCard);
-            drawingCards.add(new SelectableCardController(selectableCard, message.getCardOnHand().contains(selectableCard)));
+            SelectableCardController tmpCard = new SelectableCardController(selectableCard, message.getCardOnHand().contains(selectableCard));
+            drawingCards.add(tmpCard);
+            tmpCard.setOnMouseClicked((MouseEvent event)->{
+                selectedID.set(tmpCard.getCard().getIdCard());
+                FadeTransition transition = new FadeTransition(Duration.millis(100), tmpCard);
+                transition.setFromValue(1.0);
+                transition.setToValue(0.0);
+                transition.setCycleCount(2);
+                transition.setAutoReverse(true);
+                transition.play();
+            });
         }
         Dialog<ResourceGoldCard> dialog = new Dialog<>();
-        ToggleGroup buttonGroup = new ToggleGroup();
         HBox cardsHidden = new HBox();
         HBox cardsPublic = new HBox();
         VBox verticalContent = new VBox();
-        for (SelectableCardController s : drawingCards) {
-            s.selectButton.setToggleGroup(buttonGroup);
-        }
+
         ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.setTitle("Please draw a card from deck:");
         cardsHidden.getChildren().addAll(drawingCards.subList(0, 2));
@@ -347,9 +356,9 @@ public class MainController extends TabPane implements Initializable {
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType);
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
-                RadioButton selectedRadioButton = (RadioButton) buttonGroup.getSelectedToggle();
-                if (selectedRadioButton != null) {
-                    Integer cardId = (Integer) selectedRadioButton.getUserData();
+
+                if (!(selectedID.get()==0)) {
+                    Integer cardId = selectedID.get();
                     return cardPicker.get(cardId);
                 }
             }
