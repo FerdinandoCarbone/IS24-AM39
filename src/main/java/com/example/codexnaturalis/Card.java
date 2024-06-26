@@ -109,10 +109,11 @@ abstract class NonObjectiveCard extends Card {
     public void printFrontCorners() {
         System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
-        System.out.print(YELLOW + "[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]" + RESET);
+        GenericTurnMessage.printCardInBox(this,false);
+        /*System.out.print(YELLOW + "[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]" + RESET);
         System.out.print(YELLOW + "[" + (frontCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(2).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]" + RESET);*/
     }
 
     /**
@@ -121,17 +122,18 @@ abstract class NonObjectiveCard extends Card {
     public void printBackCorners() {
         System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
-        System.out.print(YELLOW + "[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]" + RESET);
+        GenericTurnMessage.printCardInBox(this,true);
+        /*System.out.print(YELLOW + "[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]" + RESET);
         System.out.print(YELLOW + "[" + (backCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(2).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]" + RESET);*/
     }
 
     public void printCardFrontAndBack() {
         if (this instanceof ResourceGoldCard) {
-            System.out.println("Analisi carta " + (this instanceof GoldCard? "Oro " : "Risorsa ") + "#" + getIdCard());
+            System.out.println((this instanceof GoldCard? "Gold " : "Resource ") +"Card " + "#" + getIdCard());
         } else if (this instanceof StarterCard) {
-            System.out.println("Analisi carta Starter " + "#" + getIdCard());
+            System.out.println("Starter Card " + "#" + getIdCard());
         }
         printFrontCorners();
         printBackCorners();
@@ -426,7 +428,6 @@ class GoldCard extends ResourceGoldCard {
         System.out.println("Objective Card #" + getIdCard());
         System.out.println("Points: " + getPoints());
         printCardAscii();
-        System.out.println("Choose a secret objective card: ");
     }
     private void printCardAscii(){
         String s = colorCorrector(asciiArt);

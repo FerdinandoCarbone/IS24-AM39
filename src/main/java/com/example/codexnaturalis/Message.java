@@ -108,36 +108,56 @@ class GenericTurnMessage extends Message{
     }
     public void printCoveredCards() throws ClassNotFoundException {
         System.out.println("HIDDEN CARDS");
-        for(ResourceGoldCard drawn: drawnCard) printCardInBox(drawn,true);
+        int i = 1;
+        for(ResourceGoldCard drawn: drawnCard) {
+            System.out.print("["+i+"] - ");
+            printCardInBox(drawn,true);
+            ++i;
+        }
         /*System.out.println("HiddenCard no box");
         printCardsSideBySideBack(drawnCard, 0, 1);*/
     }
     public void printPublicCards() throws ClassNotFoundException {
         System.out.println("PUBLIC CARDS");
-        for(ResourceGoldCard onHand: cardOnHand) printCardInBox(onHand,false);
+        int i=3;
+        for(ResourceGoldCard onHand: cardOnHand){
+            System.out.print("["+i+"] - ");
+            printCardInBox(onHand,false);
+            ++i;
+        }
         /*printCardsSideBySideFront(cardOnHand, 0, 1);
         printCardsSideBySideFront(cardOnHand, 2, 3);*/
     }
-    public static void printCardInBox(ResourceGoldCard card,boolean isHidden) {
+    public static void printCardInBox(NonObjectiveCard card,boolean isHidden) {
         int width = 29; // Width of the box -- use an odd number greater than 27
         int height = 6; // Height of the box -- use an even number bigger than 3
+        String z = "";
         String whiteSpacer;
         String leftCorner,rightCorner;
+        String seed="";
+        String seedColor="";
         whiteSpacer= " ".repeat((width/2)-1);
-        String cardType = (card instanceof GoldCard)? (YELLOW+"GoldCard:"+RESET):(RED+"ResourceCard:"+RESET);
-        String seed = (card.getSeed()).toString();
-        String seedColor = switch (seed) {
-            case "Red" -> RED;
-            case "Purple" -> PURPLE;
-            case "Blue" -> BLUE;
-            case "Green" -> GREEN;
-            default -> RESET;
-        };
-        System.out.println(cardType+GREEN+ "#"+card.getIdCard()+" "+seedColor+seed+RESET);
+        String cardType;
+        if(card instanceof ResourceGoldCard) {
+            cardType = (card instanceof GoldCard)? (YELLOW+"GoldCard:"+RESET):(RED+"ResourceCard:"+RESET);
+            seed = (((ResourceGoldCard)card).getSeed()).toString();
+            seedColor = switch (seed) {
+                case "Red" -> RED;
+                case "Purple" -> PURPLE;
+                case "Blue" -> BLUE;
+                case "Green" -> GREEN;
+                default -> RESET;
+            };
+        } else{
+            cardType = BLUE+"StarterCard:"+RESET;
+        }
+
+        if(!isHidden) System.out.println(cardType+GREEN+ "#"+card.getIdCard()+" "+seedColor+seed+RESET);
+        else System.out.println(cardType+seedColor+seed+RESET);
         // Print top border
         System.out.print("+");
         for (int i = 0; i < width - 2; i++) {
-            System.out.print("-");
+            System.out.print(seedColor+"-"+RESET);
         }
         System.out.println("+");
         //Print TopCorners
@@ -156,17 +176,52 @@ class GenericTurnMessage extends Message{
         System.out.println(YELLOW+rightCorner+RESET+"|");
         // Print sides with CardID
         for (int i = 1; i < height; i++) {
-            System.out.print("|");
+            System.out.print(seedColor+"|"+RESET);
             System.out.print(whiteSpacer);
             if(i==height/2&&!isHidden){
                 String tmpWhiteSpacer = " ";
-                Integer z = (Integer)card.getPoints();
+                if(card instanceof ResourceGoldCard){
+                   z = Integer.toString(((ResourceGoldCard) card).getPoints());
+                }
                 tmpWhiteSpacer=tmpWhiteSpacer.concat(whiteSpacer);
                 System.out.print(YELLOW +z+RESET);
-                System.out.print(tmpWhiteSpacer.substring(z.toString().length()));
+                System.out.print(tmpWhiteSpacer.substring(z.length()));
+            }
+            else if(i==height/2 && isHidden && card instanceof StarterCard){
+                ArrayList<ResourceGoldCard.ResourceElement> backCenter = ((StarterCard)card).getBackCentreResources();
+                int counter = 0;
+                char nice;
+                String tmp;
+                String tmpWhiteSpacer = " ";
+                for(ResourceGoldCard.ResourceElement re: backCenter){
+                    nice = re.toString().charAt(0);
+                    switch(nice){
+                        case 'M':
+                            tmp = RED+"M"+RESET;
+                            break;
+                        case 'W':
+                            tmp = BLUE+"W"+RESET;
+                            break;
+                        case 'L':
+                            tmp = GREEN+"L"+RESET;
+                            break;
+                        case 'B':
+                            tmp = PURPLE+"B"+RESET;
+                            break;
+                        default:
+                            tmp = RESET;
+                            break;
+                    }
+                    z=z.concat(tmp);
+                    ++counter;
+                }
+                tmpWhiteSpacer=whiteSpacer.concat(" ");
+                System.out.print(z);
+                System.out.print(tmpWhiteSpacer.substring(counter));
             }
             else System.out.print(whiteSpacer+" ");
-            System.out.println("|");
+            System.out.println(seedColor+"|"+RESET);
+            z="";
         }
         //Print bottom Corners
         if(isHidden){
@@ -185,7 +240,7 @@ class GenericTurnMessage extends Message{
         // Print bottom border
         System.out.print("+");
         for (int i = 0; i < width - 2; i++) {
-            System.out.print("-");
+            System.out.print(seedColor+"-"+RESET);
         }
         System.out.println("+");
         if (card instanceof GoldCard &&!isHidden) {

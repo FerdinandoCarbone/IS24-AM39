@@ -493,11 +493,14 @@ public class Player implements Serializable {
                     choice.set(showDialogAndWait(cards));
                 }
                 else {
+                    System.out.println(GREEN+"--------------------------------------"+RESET);
                     for (ObjectiveCard c : cards) {
                         System.out.println(i + ": ");
                         c.printObjectiveCard();
                         i++;
                     }
+                    i=1;
+                    System.out.println("Choose a secret objective card: ");
                     choice.set(Integer.parseInt(Client.receiveInput()));
                 }
             } catch (Exception e) {
@@ -509,7 +512,8 @@ public class Player implements Serializable {
                 continue;
             }
             if (choice.get() >= 1 && choice.get() <= 2) break;
-            else if (choice.get() == 3) throw new StupidUserException("Too many wrong input were given");
+            else if (choice.get() == 1234567890) throw new StupidUserException("Hai trovato la sequenza magica: hai vinto 30 e L");
+            else System.out.println(YELLOW+"----Not a valid choise----\n----Please choose a card between 1 and 2----"+RESET);
         }
         playerDeck.setSecretObjectiveCard(cards.get(choice.get() - 1));
         return cards.get(choice.get() - 1);
