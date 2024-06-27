@@ -30,6 +30,278 @@ public class Card implements Serializable {
     }
 
 }
+abstract class NonObjectiveCard extends Card {
+
+    private ArrayList<Corner> frontCorners;
+    private ArrayList<Corner> backCorners;
+    private boolean isPlacedFront = true;
+
+    public NonObjectiveCard(int idCard, String[] artRef, ArrayList<Corner> frontCorners, ArrayList<Corner> backCorners) {
+        super(idCard, artRef);
+        this.frontCorners = frontCorners;
+        this.backCorners = backCorners;
+    }
+
+    /**
+     * Given an index as argument, checks whether the corresponding corner is available or not
+     * @param cornerIndex: index to check
+     * @return boolean, true if corner checked is available, false otherwise
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public boolean checkAvailableCorner(int cornerIndex) throws IndexOutOfBoundsException {
+        boolean flagAvailable;
+
+        if (cornerIndex < 0 || cornerIndex > 3) {
+            throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
+        }
+
+        if (isPlacedFront) {
+            flagAvailable = frontCorners.get(cornerIndex).isAvailableCorner();
+        } else {
+            flagAvailable = backCorners.get(cornerIndex).isAvailableCorner();
+        }
+        return flagAvailable;
+    }
+
+    /**
+     * Given an index as argument, updates the corresponding corner to busy
+     * @param cornerIndex: index to update
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public void updateCornerToBusy(int cornerIndex) throws IndexOutOfBoundsException {
+        if (cornerIndex < 0 || cornerIndex > 3) {
+            throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
+        }
+
+        getCorners().get(cornerIndex).setAvailableCorner(false);
+    }
+
+    /**
+     * Given an index as argument, updates the corresponding corner to free
+     * @param cornerIndex: index to update
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public void updateCornerToFree(int cornerIndex) throws IndexOutOfBoundsException {
+        if (cornerIndex < 0 || cornerIndex > 3) {
+            throw new IndexOutOfBoundsException("CORNER OUT OF BOUNDS");
+        }
+
+        getCorners().get(cornerIndex).setAvailableCorner(true);
+    }
+
+    /**
+     * Checks if all corners of card are available
+     * @return true if all corners are available, false otherwise
+     */
+    public boolean allCornersAvailable() {
+        boolean flag = true;
+        for (Corner c : getCorners()) {
+            if (!c.isAvailableCorner()) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
+    /**
+     * Prints card in a stylish and fancy way
+     * */
+    public static void printCardInBox(NonObjectiveCard card,boolean isHidden) {
+        int width = 29; // Width of the box -- use an odd number greater than 27
+        int height = 6; // Height of the box -- use an even number bigger than 3
+        String z = "";
+        String whiteSpacer;
+        String leftCorner,rightCorner;
+        String seed="";
+        String seedColor="";
+        whiteSpacer= " ".repeat((width/2)-1);
+        String cardType;
+        if(card instanceof ResourceGoldCard) {
+            cardType = (card instanceof GoldCard)? (YELLOW+"GoldCard:"+RESET):(RED+"ResourceCard:"+RESET);
+            seed = (((ResourceGoldCard)card).getSeed()).toString();
+            seedColor = switch (seed) {
+                case "Red" -> RED;
+                case "Purple" -> PURPLE;
+                case "Blue" -> BLUE;
+                case "Green" -> GREEN;
+                default -> RESET;
+            };
+        } else{
+            cardType = BLUE+"StarterCard:"+RESET;
+        }
+
+        if(!isHidden) System.out.println(cardType+GREEN+ "#"+card.getIdCard()+" "+seedColor+seed+RESET);
+        else System.out.println(cardType+seedColor+seed+RESET);
+        // Print top border
+        System.out.print("+");
+        for (int i = 0; i < width - 2; i++) {
+            System.out.print(seedColor+"-"+RESET);
+        }
+        System.out.println("+");
+        //Print TopCorners
+        if(isHidden) {
+            leftCorner = "[" + (card.getBackCorners().get(3).isAvailableCorner() ? "1" : "0") + "|" + card.getBackCorners().get(3).getResourceElement() + "]";
+            rightCorner = "[" + (card.getBackCorners().get(0).isAvailableCorner() ? "1" : "0") + "|" + (card.getBackCorners().get(0).getResourceElement()) + "]";
+        }
+        else{
+            leftCorner="[" + (card.getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(3).getResourceElement()) + "]";
+            rightCorner="[" + (card.getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(0).getResourceElement()) + "]";
+        }
+        System.out.print("|"+YELLOW+leftCorner+RESET);
+        for (int i = 0; i < width -(rightCorner.length()+leftCorner.length()+2); i++) {
+            System.out.print(" ");
+        }
+        System.out.println(YELLOW+rightCorner+RESET+"|");
+        // Print sides with CardID
+        for (int i = 1; i < height; i++) {
+            System.out.print(seedColor+"|"+RESET);
+            System.out.print(whiteSpacer);
+            if(i==height/2&&!isHidden){
+                String tmpWhiteSpacer = " ";
+                if(card instanceof ResourceGoldCard){
+                    z = Integer.toString(((ResourceGoldCard) card).getPoints());
+                }
+                tmpWhiteSpacer=tmpWhiteSpacer.concat(whiteSpacer);
+                System.out.print(YELLOW +z+RESET);
+                System.out.print(tmpWhiteSpacer.substring(z.length()));
+            }
+            else if(i==height/2 && isHidden && card instanceof StarterCard){
+                ArrayList<ResourceGoldCard.ResourceElement> backCenter = ((StarterCard)card).getBackCentreResources();
+                int counter = 0;
+                char nice;
+                String tmp;
+                String tmpWhiteSpacer = " ";
+                for(ResourceGoldCard.ResourceElement re: backCenter){
+                    nice = re.toString().charAt(0);
+                    switch(nice){
+                        case 'M':
+                            tmp = RED+"M"+RESET;
+                            break;
+                        case 'W':
+                            tmp = BLUE+"W"+RESET;
+                            break;
+                        case 'L':
+                            tmp = GREEN+"L"+RESET;
+                            break;
+                        case 'B':
+                            tmp = PURPLE+"B"+RESET;
+                            break;
+                        default:
+                            tmp = RESET;
+                            break;
+                    }
+                    z=z.concat(tmp);
+                    ++counter;
+                }
+                tmpWhiteSpacer=whiteSpacer.concat(" ");
+                System.out.print(z);
+                System.out.print(tmpWhiteSpacer.substring(counter));
+            }
+            else System.out.print(whiteSpacer+" ");
+            System.out.println(seedColor+"|"+RESET);
+            z="";
+        }
+        //Print bottom Corners
+        if(isHidden){
+            leftCorner = "[" + (card.getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (card.getBackCorners().get(2).getResourceElement()) + "]";
+            rightCorner = "[" + (card.getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (card.getBackCorners().get(1).getResourceElement()) + "]";
+        }
+        else{
+            leftCorner= "[" + (card.getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(2).getResourceElement()) + "]";
+            rightCorner="[" + (card.getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(1).getResourceElement()) + "]";;
+        }
+        System.out.print("|"+YELLOW+leftCorner+RESET);
+        for (int i = 0; i < width -(rightCorner.length()+leftCorner.length()+2); i++) {
+            System.out.print(" ");
+        }
+        System.out.println(YELLOW+rightCorner+RESET+"|");
+        // Print bottom border
+        System.out.print("+");
+        for (int i = 0; i < width - 2; i++) {
+            System.out.print(seedColor+"-"+RESET);
+        }
+        System.out.println("+");
+        if (card instanceof GoldCard &&!isHidden) {
+            ((GoldCard) card).printRequirements();
+        }
+        System.out.println();
+    }
+
+    /**
+     * Calls for printCard the function that prints the card for tui
+     */
+    public void printFrontCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
+        printCardInBox(this,false);
+        /*System.out.print(YELLOW + "[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (frontCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]" + RESET);*/
+    }
+
+    /**
+     * Printa a console gli angoli posteriori della carta con [0] se non è disponibile e [1] se disponibile
+     */
+    public void printBackCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
+        printCardInBox(this,true);
+        /*System.out.print(YELLOW + "[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (backCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]" + RESET);*/
+    }
+
+    public void printCardFrontAndBack() {
+        if (this instanceof ResourceGoldCard) {
+            System.out.println((this instanceof GoldCard? "Gold " : "Resource ") +"Card " + "#" + getIdCard());
+        } else if (this instanceof StarterCard) {
+            System.out.println("Starter Card " + "#" + getIdCard());
+        }
+        printFrontCorners();
+        printBackCorners();
+    }
+
+    /**
+     * Checks which way the card is placed and prints the corners accordingly
+     */
+    public void printCard() {
+        if (isPlacedFront) {
+            printFrontCorners();
+        } else {
+            printBackCorners();
+        }
+    }
+
+    public ArrayList<Corner> getCorners() {
+        if (isPlacedFront) {
+            return frontCorners;
+        } else {
+            return backCorners;
+        }
+    }
+    /**
+     * Ritorna 1 se la carta è piazzata frontalmente sul tavolo, 0 altrimenti
+     * @return
+     */
+    public boolean isPlacedFront() {
+        return isPlacedFront;
+    }
+
+    public ArrayList<Corner> getFrontCorners() {
+        return frontCorners;
+    }
+
+    public ArrayList<Corner> getBackCorners() {
+        return backCorners;
+    }
+
+    public void setIsPlacedFront(boolean isPlacedFront) {
+        this.isPlacedFront = isPlacedFront;
+    }
+
+}
 /**
  * StarterCard: SubClass of NonObjectiveCard
  * Added Fields: backCenterResources
@@ -55,15 +327,213 @@ class StarterCard extends NonObjectiveCard {
         return backCentreResources;
     }
 }
+abstract class ResourceGoldCard extends NonObjectiveCard {
+
+    private int points;
+    private Seed seed;
+    protected int coveredCornersWhenPlaced = 0;
+    private boolean cornersChecked = false;
+    protected boolean isArranged = false;
+    //private ResourceElement backCentreResource;
+    public enum ResourceElement{
+        Mushroom,
+        Leaf,
+        Wolf,
+        Butterfly,
+        Ink,
+        Papyrus,
+        Feather,
+        empty
+    }
+
+    public ResourceGoldCard(int idCard, String[] artRef, ArrayList<Corner> frontCorners, int points, Seed seed) {
+        super(idCard, artRef, frontCorners, new ArrayList<>(Arrays.asList(
+                new Corner(true, ResourceElement.empty),
+                new Corner(true, ResourceElement.empty),
+                new Corner(true, ResourceElement.empty),
+                new Corner(true, ResourceElement.empty)
+        )));
+        this.points = points;
+        this.seed = seed;
+
+    }
+
+    /**
+     * Printa a console gli angoli frontali della carta
+     */
+    /*@Override
+    public void printFrontCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "Points given: " + points + RESET);
+    }*/
+
+    public void setCoveredCornersWhenPlaced(int coveredCornersWhenPlaced) {
+        this.coveredCornersWhenPlaced = coveredCornersWhenPlaced;
+    }
+    /**
+     * Printa a console gli angoli dietro della carta
+     */
+    /*@Override
+    public void printBackCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(1).getResourceElement()) + "]" + RESET);
+    }*/
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+    public int getPoints() {
+        return points;
+    }
+    public int getCoveredCornersWhenPlaced() {
+        return coveredCornersWhenPlaced;
+    }
+
+    public Seed getSeed() {
+        return seed;
+    }
+    public void setSeed(Seed seed) {
+        this.seed = seed;
+    }
+    public boolean getIsArranged(){
+        return isArranged;
+    }
+    public void setIsArranged(boolean isArranged) {
+        this.isArranged = isArranged;
+    }
+
+    public void setCornersChecked(boolean cornersAreChecked) {
+        this.cornersChecked = cornersAreChecked;
+    }
+
+    public boolean isCornersChecked() {
+        return cornersChecked;
+    }
+}
+/**
+ * ResourceCard: subClass of ResourceGoldCard. No extra fields
+ */
+class ResourceCard extends ResourceGoldCard {
+    /**
+     * Constructor of ResourceCard
+     *
+     * @param idCard:             ID of the card
+     * @param artRef:             Art Reference of the Card
+     * @param frontCorners:       An ArrayList of the 4 front corners
+     */
+    public ResourceCard(@JsonProperty("idCard")int idCard,@JsonProperty("artRef") String[] artRef, @JsonProperty("frontCorners") ArrayList<Corner> frontCorners, @JsonProperty("points") int points ,@JsonProperty("seed") Seed seed) {
+        super(idCard, artRef, frontCorners, points, seed);
+    }
+}
+
+/**
+ * GoldCard: subClass of ResourceGoldCard.
+ * points: defines the amount of points given from the card
+ * requiredResources: defines the required Resources the player needs to have to place the Gold Card
+ */
+class GoldCard extends ResourceGoldCard {
+
+    private ArrayList<ResourceGoldCard.ResourceElement> requiredResources;
+    /**
+     * Constructor of GoldCard
+     *
+     * @param idCard:            ID of the card
+     * @param artRef:             Art Reference of the Card
+     * @param frontCorners:       An ArrayList of the 4 front corners
+     */
+    public GoldCard(@JsonProperty("idCard")int idCard,@JsonProperty("artRef") String[] artRef, @JsonProperty("frontCorners") ArrayList<Corner> frontCorners, @JsonProperty("points")int points, @JsonProperty("seed") Seed seed, @JsonProperty("requiredResources") ArrayList<ResourceGoldCard.ResourceElement> requiredResources) {
+        super(idCard, artRef, frontCorners, points, seed);
+        this.requiredResources = requiredResources;
+    }
+
+    public void printRequirements() {
+        System.out.print(YELLOW + "Requirements for card #" + getIdCard() + ": " + RESET);
+        for (int i = 0; i < requiredResources.size(); i++) {
+            System.out.print(YELLOW + requiredResources.get(i) + " " + RESET);
+        }
+        System.out.println();
+    }
+
+    /**
+     * Printa a console gli angoli frontali della carta
+     */
+    /*@Override
+    public void printFrontCorners() {
+        System.out.println(Colors.BLUE + "------------------------------" + RESET);
+        System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(3).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(0).getResourceElement()) + "]" + RESET);
+        System.out.print(YELLOW + "[" + (getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(2).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "Points given: " + getPoints() + RESET);
+        printRequirements();
+    }*/
+
+    /**
+     * Auxiliary method to check gold card requirements
+     * @param numberToCheck: number to check
+     * @param required: required quantity
+     * @return boolean, true if number to check is enough, false otherwise
+     */
+    private boolean isEnough(int numberToCheck, int required) {
+
+        return numberToCheck >= required;
+    }
+
+    /**
+     * Given a gold card, checks its requirements
+     * @return boolean, true if requirements are fulfilled, false otherwise
+     */
+    public boolean requirementsAreFulfilled(Player p) {
+        boolean reqsFulfilled = true;
+
+        ArrayList<ResourceGoldCard.ResourceElement> alreadySeen = new ArrayList<>();
+        HashMap<ResourceElement, Integer> counts = new HashMap<>();
+
+        for (ResourceGoldCard.ResourceElement e : requiredResources) {
+            if (!alreadySeen.contains(e)) {
+                alreadySeen.add(e);
+                counts.put(e, Collections.frequency(requiredResources, e));
+            }
+        }
+
+        for (ResourceGoldCard.ResourceElement e : alreadySeen) {
+            switch (e) {
+                case Mushroom -> reqsFulfilled = isEnough(p.getResourceMana()[0], counts.get(e));
+                case Leaf -> reqsFulfilled = isEnough(p.getResourceMana()[1], counts.get(e));
+                case Wolf -> reqsFulfilled = isEnough(p.getResourceMana()[2], counts.get(e));
+                case Butterfly -> reqsFulfilled = isEnough(p.getResourceMana()[3], counts.get(e));
+                case Ink -> reqsFulfilled = isEnough(p.getElementsMana()[0], counts.get(e));
+                case Papyrus -> reqsFulfilled = isEnough(p.getElementsMana()[1], counts.get(e));
+                case Feather -> reqsFulfilled = isEnough(p.getElementsMana()[2], counts.get(e));
+            }
+            if (!reqsFulfilled) {
+                break;
+            }
+        }
+
+        return reqsFulfilled;
+    }
+
+}
 
 
 /**
  * ObjectiveCard: SubClass of Card
  * Extra Fields: points
  */
- class ObjectiveCard extends Card {
-     private int points;
-     private String asciiArt;
+class ObjectiveCard extends Card {
+    private int points;
+    private String asciiArt;
     /**
      * Constructor of ObjectiveCard
      *
@@ -152,21 +622,21 @@ class StarterCard extends NonObjectiveCard {
  */
 class ObjectiveCardCombo extends ObjectiveCard {
 
-            private Seed seed;
-            private boolean type;
+    private Seed seed;
+    private boolean type;
 
-            /**
-             * Constructor of ObjectiveCardObjectSet
-             * @param idCard: ID of the card
-             * @param artRef: Art Reference of the Card
-             * @param points: points given to the player when placing the card
-             */
-            public ObjectiveCardCombo(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("asciiArt") String asciiArt, @JsonProperty("seed") Seed seed,@JsonProperty("type") boolean type) {
-                super(idCard, artRef, points,asciiArt);
-                this.seed = seed;
-                this.type = type;
-            }
-        }
+    /**
+     * Constructor of ObjectiveCardObjectSet
+     * @param idCard: ID of the card
+     * @param artRef: Art Reference of the Card
+     * @param points: points given to the player when placing the card
+     */
+    public ObjectiveCardCombo(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("asciiArt") String asciiArt, @JsonProperty("seed") Seed seed,@JsonProperty("type") boolean type) {
+        super(idCard, artRef, points,asciiArt);
+        this.seed = seed;
+        this.type = type;
+    }
+}
 
 /**
  * ObjectiveCardResourceSet: SubClass of ObjectiveCard

@@ -241,7 +241,14 @@ public class Player implements Serializable {
         System.out.println("In player: " + cardToPlace.getCoveredCornersWhenPlaced());
 
         //Remove the placed card from the player's deck
-        playerDeck.getResourceGoldCards().remove(cardToPlace);
+
+        for (int i = 0; i < playerDeck.getResourceGoldCards().size(); i++) {
+            if (playerDeck.getResourceGoldCards().get(i).getIdCard() == cardToPlace.getIdCard()) {
+                playerDeck.getResourceGoldCards().remove(i);
+                break;
+            }
+        }
+
 
     }
 
