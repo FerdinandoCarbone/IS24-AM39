@@ -208,7 +208,7 @@ public class Client extends Application {
     }
 
     /**
-     * Save file writer
+     * Client Save file writer: saves player's uuid, matchID and connection type
      *
      * @param contentToAppend - String to append inside the save file
      * @throws IOException - thrown if an error is encountered while writing the save file
@@ -254,12 +254,9 @@ public class Client extends Application {
                 if(!LauncherController.nameSaveTaken("A save file was found", doILoadSave)) throw new NewPlayerException("Starting as a new Player");
             }
             else {
-                while(true) {
-                    System.out.println("0 - Overwrite\n1 - Load");
-                    choice = getIntInput(1, false) != 0;
-                    if (choice) break;
-                    else if(!choice) throw new NewPlayerException("Starting as a new Player");
-                }
+                System.out.println("0 - Overwrite\n1 - Load");
+                choice = getIntInput(1, false) != 0;
+                if (!choice) throw new NewPlayerException("Starting as a new Player");
             }
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
@@ -453,8 +450,8 @@ public class Client extends Application {
      * via the BroadCastMessage.
      * As soon as the game is started, the user will be able to interact with his own field and other players'
      *
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException, idr
+     * @throws ClassNotFoundException, idr
      * @throws WrongMessageConversionException, will be thrown if there was an issue casting the messages
      */
     public static void gameStart() throws IOException, ClassNotFoundException, WrongMessageConversionException {
@@ -466,30 +463,105 @@ public class Client extends Application {
             while (currentGameStatus) selectPossibleActions();
         }
     }
+    /**
+     * This method represents the first phase inside the GenericMessageAssembler:
+     * lets user choose card to place from personal deck.
+     * @return the chosen Card from deck still to be flipped as user wants(done in phase 2)
+     */
+    private static ResourceGoldCard phase1Assembler(ArrayList<ResourceGoldCard> playerDeck){
+        int choice;
+        while (true) {
+            player.getPlayerDeck().printResourceGoldCards();
+            System.out.println("[0] - Go back");
+            player.printManas();
+            System.out.println("What card would you like to place?");
+            choice = getIntInput(-2, true);//choice is the index which the card is at in the player deck
 
+            if (choice == -1) {
+                return null;
+            }
+            else if (choice<0 || choice > 2) {
+                System.out.println("Invalid Input, retry again. Select a number between 1 and 6");
+            }  else {
+                ResourceGoldCard placedCard = playerDeck.get(choice);
+                choice = placedCard.getIdCard();
+                placedCard=phase2Assembler(choice,placedCard);
+                if(placedCard == null) continue;
+                return placedCard;
+            }
+        }
+    }
+    /**
+     * This method represents the second phase inside the GenericMessageAssembler:
+     * lets user choose whether the card needs to be face up or down.
+     * @return the chosen Card from deck already flipped as user wants
+     */
+    private static ResourceGoldCard phase2Assembler(int choice,ResourceGoldCard placedCard){
+        boolean face;
+        while (true) {
+            System.out.println("What face would you like to play?");
+            System.out.println("[1] - Front");
+            System.out.println("[2] - Back");
+            System.out.println("[3] - Go back");
+            int i = getIntInput(3, false);
+            if (i != 1 && i != 2 && i!=3) {
+                System.out.println("Not a valid input");
+                continue;
+            }
+            if(i==3){
+                return null;
+            }
+            face = i == 1;
+            if (choice > 40 && !((GoldCard) placedCard).requirementsAreFulfilled(player)) {
+                System.out.println("You do not possess enough materials or resources to place this card: choose another one");
+                continue;
+            }
+            placedCard.setIsPlacedFront(face);
+            return placedCard;
+        }
+    }
+    /**
+     * This method represents the third and last phase inside the GenericMessageAssembler:
+     * lets user choose the coordinates in the field the user wants to place the card in.
+     * @return the chosen coordinates user wants to place the card in
+     */
+    private static Pair<Integer, Integer> phase3Assembler(ResourceGoldCard placedCard){
+        Pair<Integer, Integer> coordinates;
+        int row, column;
+        while (true) {
+            coordinates = getCoordinates(true,null);
+            row = coordinates.getKey();
+            column = coordinates.getValue();
+            if (!player.isCardAttachableToSlot(row, column)) {
+                System.out.println("This slot is not available. Select another one");
+                continue;
+            }
+            player.placeCardAndRemoveFromDeck(row, column, placedCard);
+            return coordinates;
+        }
+    }
     /**
      * Allows player to play his turn. The user will be interacting with the TUI in order to create a
      * message that will be sent to the server via his ServerComHandler. Player is able to place cards, analyze Field and draw cards
      * from DrawingDeck from here
      *
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException, idr
+     * @throws ClassNotFoundException, idr
      */
     private static void genericMessageAssembler() throws IOException, ClassNotFoundException {
         clearConsole();
-        ResourceGoldCard placedCard;
+        ResourceGoldCard placedCard = null;
         GenericTurnMessage message = serverHandler.getMessageTurn();
         Pair<Integer, Integer> coordinates;
-        int row, column;
-        boolean face;
+
         int choice;
-        ResourceGoldCard selectedCard = null;
-        ArrayList<Integer> allIds = new ArrayList<>();
+        ResourceGoldCard selectedCard;
+        ArrayList<ResourceGoldCard> playerDeck;
+        //ArrayList<Integer> allIds;
         if (player.getPlayerDeck().getStarterCard().allCornersAvailable()) {
             System.out.println("StarterCard:");
             player.getPlayerDeck().getStarterCard().printCard();
         }
-        ArrayList<ResourceGoldCard> playerDeck = player.getPlayerDeck().getResourceGoldCards();
         while (true) {
             player.printFieldWithName();
             System.out.println("What would you like to do?");
@@ -502,73 +574,36 @@ public class Client extends Application {
                 continue;
             }
             if (j == 1) {
-                coordinates = getCoordinates(false);
+                coordinates = getCoordinates(false,null);
                 player.fieldAnalysis(coordinates.getKey(), coordinates.getValue());
             } else if (j == 0) return;
-            else break;
+            else{
+                playerDeck = player.getPlayerDeck().getResourceGoldCards();
+                //for (ResourceGoldCard card : playerDeck) allIds.add(card.getIdCard());
+                placedCard= phase1Assembler(playerDeck);
+                if(placedCard==null) continue;
+                coordinates = phase3Assembler(placedCard);
+                break;
+            }
         }
-        while (true) {
-            player.getPlayerDeck().printResourceGoldCards();
-            player.printManas();
-            System.out.println("What card would you like to place? ");
-            choice = getIntInput(-2, false);
+        //allIds = new ArrayList<>();
 
-            for (ResourceGoldCard card : playerDeck) allIds.add(card.getIdCard());
-
-            if (!allIds.contains(choice)) {
-                System.out.println("Invalid Input, retry again. Select a valid card Id");
-                continue;
-            } else {
-                placedCard = playerDeck.get(getCardIndexFromId(choice, allIds));
-            }
-            break;
-        }
-        allIds = new ArrayList<>();
-        if (!allIds.isEmpty()) {
-            System.out.println(Colors.RED + "ERROR, ALLIDS LIST HAS NOT BEEN EMPTIED CORRECTLY" + Colors.RESET);
-        }
-        while (true) {
-            System.out.println("What face would you like to play?");
-            System.out.println("1 - Front");
-            System.out.println("2 - Back");
-            int i = getIntInput(2, false);
-            if (i != 1 && i != 2) {
-                System.out.println("Not a valid input");
-                continue;
-            }
-            face = i == 1;
-            if (choice > 40 && !((GoldCard) placedCard).requirementsAreFulfilled(player)) {
-                System.out.println("You do not possess enough materials or resources to place this card: choose another one");
-                continue;
-            }
-            placedCard.setIsPlacedFront(face);
-            break;
-        }
-        while (true) {
-            coordinates = getCoordinates(true);
-            row = coordinates.getKey();
-            column = coordinates.getValue();
-            if (!player.isCardAttachableToSlot(row, column)) {
-                System.out.println("This slot is not available. Select another one");
-                continue;
-            }
-            break;
-        }
-        player.placeCardAndRemoveFromDeck(row, column, placedCard);
         message.printCoveredCards();
         message.printPublicCards();
         ArrayList<ResourceGoldCard> selectable = new ArrayList<>();
         selectable.addAll(message.getDrawnCard());
         selectable.addAll(message.getCardOnHand());
 
-        for (ResourceGoldCard card : selectable) allIds.add(card.getIdCard());
-        int idSelected = selectCardIdToDrawn(allIds);
-        for (ResourceGoldCard card : selectable)
+        //for (ResourceGoldCard card : selectable) allIds.add(card.getIdCard());
+        /*int idSelected = selectCardIdToDrawn(allIds);*/
+        choice=pickCardToDrawByIndex();
+        /*for (ResourceGoldCard card : selectable)
             if (card.getIdCard() == idSelected) {
                 selectedCard = card;
                 break;
-            }
-        //selectedCard=selectable.get(getCardIndexFromId(idSelected, allIds));
+            }*/
+        //selectedCard=selectable.get(getCardIndexFromId(choice, allIds));
+        selectedCard = selectable.get(choice);
         player.getPlayerDeck().getResourceGoldCards().add(selectedCard);
         message = new GenericTurnMessage(null, null, new ArrayList<>(Collections.singletonList(selectedCard)), new ArrayList<>(Collections.singletonList(placedCard)), coordinates);
         //todo: update points
@@ -583,13 +618,13 @@ public class Client extends Application {
         clearConsole();
     }
 
-    /**
+    /*
      * Given an array of card ids, gets input from the player. Input has to be within the values of array
-     *
+     * checks whether a card ID input by a player is in the public deck and whether it's drawable
      * @param ids: arrays from which the player can choose
      * @return int, input of the player
      */
-    public static int selectCardIdToDrawn(ArrayList<Integer> ids) {
+    /*public static int selectCardIdToDrawn(ArrayList<Integer> ids) {
         Integer choice = null;
         while (true) {
             System.out.print("Select a card to draw from public deck: ");
@@ -603,15 +638,29 @@ public class Client extends Application {
             System.out.println("Invalid input: try again");
         }
         return choice;
+    }*/
+    public static int pickCardToDrawByIndex(){
+        int choice;
+        while (true) {
+            System.out.print("Select a card to draw from public deck: (Input a number between 1 and 6): ");
+            try {
+                choice = Integer.parseInt(receiveInput());
+            } catch (Exception e) {
+                System.out.println("Invalid input: try again");
+                continue;
+            }
+            if (choice<7 && choice>0) break;
+            System.out.println("Not a valid index: try again");
+        }
+        return choice-1;
     }
-
-    /**
+    /*
      * Given an id and an array of ids, returns the position of the id in the array
      *
      * @param id:  id chosen
      * @param ids: arrays of all ids
      * @return int, position of id in ids
-     */
+     //
     public static int getCardIndexFromId(int id, ArrayList<Integer> ids) {
         int pos = -1;
         for (int i : ids) {
@@ -621,15 +670,16 @@ public class Client extends Application {
             }
         }
         return pos;
-    }
+    }*/
 
     /**
      * @param mode set false when analyzing field, set true when placing a card
      * @return Pair of coordinates of a field slot
      */
-    private static Pair<Integer, Integer> getCoordinates(boolean mode) {
+    private static Pair<Integer, Integer> getCoordinates(boolean mode,Integer otherPlayer) {
         int fieldSize = CardDim.matrixSize - 1;
         Pair<Integer, Integer> coordinates;
+        System.out.println(Colors.YELLOW+"Input the desired coordinates"+Colors.RESET);
         while (true) {
             int row, column;
             System.out.println("Select a row:");
@@ -646,7 +696,11 @@ public class Client extends Application {
                     continue;
                 }
             } else {
-                if (!player.getPlayerField().getSlots()[row][column].isBusySlot()) {
+                if (otherPlayer!=null && !getOtherPlayers().get(otherPlayer).getPlayerField().getSlots()[row][column].isBusySlot()){
+                    System.out.println("This slot is empty, you cannot analyze it. Select another one");
+                    continue;
+                }
+                else if (!player.getPlayerField().getSlots()[row][column].isBusySlot()) {
                     System.out.println("This slot is empty, you cannot analyze it. Select another one");
                     continue;
                 }
@@ -660,8 +714,37 @@ public class Client extends Application {
      * Will access the other players' fields and current points and will print them
      */
     private static void printPlayerField() {
-        for (Player p : otherPlayers) {
-            p.printFieldWithName();
+        int i = otherPlayers.size();
+        int j;
+        Pair<Integer,Integer> coordinates;
+        for (j=0;j<i;j++){
+            otherPlayers.get(j).printFieldWithName();
+        }
+        while(true){
+            System.out.println("What would you like to do?");
+            System.out.println("[0] - Go Back");
+            System.out.println("[1] - Analyze");
+            j= getIntInput(-2,false);
+            if(j==0) return;
+            else if (j != 1){
+                System.out.println("Invalid input");
+            }
+            else{
+                System.out.println("Whose field do you want to analyze?");
+                System.out.println("[0] - Go Back");
+                for (j=1;j<=i;j++){
+                    System.out.println("["+j +"] - "+otherPlayers.get(j-1).getPlayerName());
+                }
+                j = getIntInput(-2,false);
+                if(j==0) return;
+                else if (j>=1 && j<=i) {
+                    coordinates = getCoordinates(false,j-1);
+                    otherPlayers.get(j-1).fieldAnalysis(coordinates.getKey(), coordinates.getValue());
+                }
+                else{
+                    System.out.println("Wrong input. Try again");
+                }
+            }
         }
     }
 
@@ -707,8 +790,8 @@ public class Client extends Application {
      * show his own deck.
      * If myTurn is true will allow the player to play his turn.
      *
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException, thrown idr
+     * @throws ClassNotFoundException, thrown idr
      */
     private static void selectPossibleActions() throws IOException, ClassNotFoundException {
         printPossibleChoices();
@@ -741,7 +824,7 @@ public class Client extends Application {
                 player.getPlayerDeck().printResourceGoldCards();
                 break;
             case 4:
-                player.printFieldWithName();
+                analyzeOwn();
                 break;
             case 5:
                 writeTextMessage();
@@ -752,6 +835,26 @@ public class Client extends Application {
                 break;
             default:
                 System.out.println("Wrong input: Input the number associated to the desired action");
+        }
+    }
+
+    private static void analyzeOwn() {
+        int j;
+        Pair<Integer,Integer> coordinates;
+        player.printFieldWithName();
+        while(true){
+            System.out.println("What would you like to do?");
+            System.out.println("[0] - Go Back");
+            System.out.println("[1] - Analyze");
+            j= getIntInput(-2,false);
+            if(j==0) return;
+            else if (j != 1){
+                System.out.println("Invalid input");
+            }
+            else{
+                    coordinates = getCoordinates(false,null);
+                    player.fieldAnalysis(coordinates.getKey(), coordinates.getValue());
+            }
         }
     }
 
@@ -820,8 +923,6 @@ public class Client extends Application {
      */
     public static void genericTurnMessageHandler() {
         myTurn = true;
-        //System.lineSeparator();
-        //clearConsole();
         if (isGuiSelector()) {
 
             Platform.runLater(() -> {
@@ -839,12 +940,8 @@ public class Client extends Application {
      */
     public static void clearConsole() {
         try {
-            final String os = System.getProperty("os.name");
             System.out.print("\033[H\033[2J");
             System.out.flush();
-            /*if (os.contains("Windows")) Runtime.getRuntime().exec("cls");
-            else Runtime.getRuntime().exec("clear");*/
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
