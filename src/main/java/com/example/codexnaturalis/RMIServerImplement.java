@@ -17,7 +17,8 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
 
     @Override
     public int getNumOfPlayers() throws RemoteException {
-        return Server.getNumOfPlayers();
+        if(ServerConnectionManager.numPlayers==0) return 0;
+        return Server.getNumOfPlayers()-1;
     }
 
     @Override
