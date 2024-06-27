@@ -60,18 +60,22 @@ public class FieldController extends Pane {
     }
 
     public static void rebuildField(FieldController field,Player player) {
+        System.out.println("SO ENTRATO!");
         Field.Slot slot;
         for(int i=0;i< matrixSize; i++){
             for (int j = 0; j < matrixSize; j++) {
                slot = player.getPlayerField().getSlots()[i][j];
-               if(!slot.isBusySlot()) continue;
-               field.fillField(i,j,slot.getCardSlot());
+                if (slot.isBusySlot()) {
+                    System.out.println("FOUND CARD... GOING TO FILL FIELD");
+                    field.fillField(i,j,slot.getCardSlot());
+                }
             }
         }
     }
 
     public void fillField(int row, int column, NonObjectiveCard cardToPlace) {
         Image img = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream(cardToPlace.getArtRef()[cardToPlace.isPlacedFront() ? 0 : 1])));
+        System.out.println("URL: " + img.getUrl() + "|" + cardToPlace.getArtRef()[cardToPlace.isPlacedFront() ? 0 : 1]);
         SlotController correspondingSlot = fieldMap.get(new Pair<>(row, column));
         correspondingSlot.setSlotCardView(img);
         correspondingSlot.toFront();

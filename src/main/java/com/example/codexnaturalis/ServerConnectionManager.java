@@ -17,6 +17,7 @@ public class ServerConnectionManager implements Serializable {
     //protected static HashMap<Player, Socket> hashPlayer;
     static HashMap<UUID, Player> hashClient;
     public static HashMap<UUID, ClientHandler> handlers;
+    public static final Object lock = new Object();
     static boolean firstPlayer;
     static String serverName;
     static int port;
@@ -316,6 +317,9 @@ public class ServerConnectionManager implements Serializable {
      * @throws IOException -
      */
     public static void sendMessage(UUID clientID, Message message) throws IOException {
+        for (UUID u : handlers.keySet()) {
+            System.out.println(u);
+        }
         handlers.get(clientID).sendMessage(message);
     }
 
@@ -352,7 +356,7 @@ public class ServerConnectionManager implements Serializable {
     }
 
     private boolean connectionCondition() {
-        synchronized (handlers) {
+        synchronized (lock) {
             for (ClientHandler h : handlers.values()) {
                 if (h instanceof SocketClientHandler && h.getReconnect()) return false;
             }

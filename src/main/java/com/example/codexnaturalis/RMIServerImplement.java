@@ -46,7 +46,9 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         ServerConnectionManager.hashClient.put(clientID, player);
         ClientHandler handler = new RMIClientHandler(sender, clientID, Server.serverConMan);
         new Thread(handler).start();
-        ServerConnectionManager.handlers.put(clientID, handler);
+        synchronized (ServerConnectionManager.lock) {
+            ServerConnectionManager.handlers.put(clientID, handler);
+        }
         System.out.println(sender + " joined the server");
         return true;
     }

@@ -130,7 +130,10 @@ public class MainController extends TabPane implements Initializable {
         FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
         tabMan = new HashMap<>();
         int middleSlot = CardDim.matrixSize/2;
-        if(Client.isCrashed()) FieldController.rebuildField(field,player);
+        System.out.println("Stato client: " + Client.isCrashed());
+        if(Client.isCrashed()) {
+            FieldController.rebuildField(field,player);
+        }
         else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
         for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
