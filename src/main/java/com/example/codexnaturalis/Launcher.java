@@ -18,7 +18,10 @@ public class Launcher {
         printError(null);
     }
     private static void printError(Exception e){
-        if(e!= null) System.out.println("Wrong format: " + e.getMessage());
+        if(e!= null){
+            System.out.println("Wrong format: " + e.getMessage());
+            e.printStackTrace();
+        }
         else System.out.println("Wrong format:");
         System.out.println("To start a server instance pass parameters like this: \"java -jar CodexNaturalis.jar --server <Server Port>\"");
         System.out.println("To start a client instance pass parameters like this: \"java -jar CodexNaturalis.jar --client <Server Address> <Server Port>\"");

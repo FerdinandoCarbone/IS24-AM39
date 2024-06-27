@@ -696,11 +696,12 @@ public class Client extends Application {
                     continue;
                 }
             } else {
-                if (otherPlayer!=null && !getOtherPlayers().get(otherPlayer).getPlayerField().getSlots()[row][column].isBusySlot()){
+                if (otherPlayer!=null && !otherPlayers.get(otherPlayer).getPlayerField().getSlots()[row][column].isBusySlot()){
                     System.out.println("This slot is empty, you cannot analyze it. Select another one");
+                    System.out.println(otherPlayers.get(otherPlayer).getPlayerName());
                     continue;
                 }
-                else if (!player.getPlayerField().getSlots()[row][column].isBusySlot()) {
+                else if (otherPlayer==null&&!player.getPlayerField().getSlots()[row][column].isBusySlot()) {
                     System.out.println("This slot is empty, you cannot analyze it. Select another one");
                     continue;
                 }
