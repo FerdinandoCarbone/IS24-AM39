@@ -436,6 +436,7 @@ public class ConnectionManger {
                 handshakeACKInfo = secretSelector(handshakeACKInfo);
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
+                getPlayer().placeStarterCard(handshakeACKInfo.getStarterCardFace());
             }
             if (Client.isGuiSelector()) Client.getSem().release();
             if(handshakeACKInfo.getClientID()!=null) Client.getServerHandler().setFirstBroadCastWasReceived(true);
@@ -466,6 +467,7 @@ public class ConnectionManger {
             }
         } catch (Exception e) {
             System.out.println("Error while reconnecting after crash: " + e.getMessage());
+            e.printStackTrace();
             if (e.getClass().equals(NotSameMatchException.class)) {
                 System.out.println("Save data can be deleted: deleting it now...");
                 String filePath = "savedata/" + playerNick + "-matchInfo.cdxn";

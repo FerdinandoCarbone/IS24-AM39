@@ -71,13 +71,16 @@ class SocketConnectionListener extends ConnectionListener {
                 try{
                     ServerConnectionManager.sendBroadCastMessage(text);
                 } catch (Exception e){
-                    System.out.println("Sending broadcast issue:"+e.getMessage());
+                    System.out.println("Sending broadcast issue in listener:"+e.getMessage());
                 }
                 ServerConnectionManager.handlers.replace(clientID,tmpHand);
             }
             else{
                 System.out.println("Reconnecting a client after a client crash...");
-                SocketClientHandler tmpSCH = (SocketClientHandler) Server.serverConMan.getHandlers().get(clientID);
+                SocketClientHandler tmpSCH;
+                do{
+                   tmpSCH = (SocketClientHandler) Server.serverConMan.getHandlers().get(clientID);
+                } while(tmpSCH==null);
                 tmpSCH.reset(oIOStream,clientSocket);
                 tmpSCH.setHasToRun(true);
                 tmpHand = tmpSCH;

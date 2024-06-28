@@ -1,6 +1,7 @@
 package com.example.codexnaturalis;
 
 import javafx.application.Platform;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -56,6 +57,7 @@ public class Player implements Serializable {
      * 2: Feather
      */
     private int[] elementsMana;
+    private ArrayList<Pair<Integer, Integer>> moves =  new ArrayList<Pair<Integer, Integer>>();
 
     /**
      * Constructor of the Player class
@@ -69,6 +71,7 @@ public class Player implements Serializable {
         this.resourceMana = new int[]{0, 0, 0, 0};
         this.elementsMana = new int[]{0, 0, 0};
         this.playerID = playerID;
+        moves.add(new Pair<>(CardDim.matrixSize/2, CardDim.matrixSize/2));
     }
 
     public Player(Field playerField) throws IOException {
@@ -238,10 +241,23 @@ public class Player implements Serializable {
         }
         //Place the card on the field
         placeCard(row, column, cardToPlace);
+        moves.add(new Pair<>(row, column));
+        System.out.println("Moves di " + playerName + ": ");
+        for (Pair<Integer, Integer> p : getMoves()) {
+            System.out.println(p.getKey() + ", " + p.getValue());
+        }
+
         System.out.println("In player: " + cardToPlace.getCoveredCornersWhenPlaced());
 
         //Remove the placed card from the player's deck
-        playerDeck.getResourceGoldCards().remove(cardToPlace);
+
+        for (int i = 0; i < playerDeck.getResourceGoldCards().size(); i++) {
+            if (playerDeck.getResourceGoldCards().get(i).getIdCard() == cardToPlace.getIdCard()) {
+                playerDeck.getResourceGoldCards().remove(i);
+                break;
+            }
+        }
+
 
     }
 
@@ -253,7 +269,6 @@ public class Player implements Serializable {
      * @param selectedRow:    Row of the placed card
      * @param selectedColumn: Column of the placed card
      * @param corner:         corner of the placed card to check
-     * @throws Exception
      */
     private void updateAdjacentSlots(ResourceGoldCard cardToPlace, int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
         int rowToCheck = selectedRow + calculateOffSetR(corner);
@@ -289,13 +304,6 @@ public class Player implements Serializable {
             case Feather -> elementsMana[2]++;
         }
     }
-
-    /**
-     * Given an element or resource, updates the player's manas
-     *
-     * @param e: resource or element to add
-     */
-
     /**
      * Given a Resource or Element updates the player's manas
      * @param e: element or resource to check
@@ -493,11 +501,14 @@ public class Player implements Serializable {
                     choice.set(showDialogAndWait(cards));
                 }
                 else {
+                    System.out.println(GREEN+"--------------------------------------"+RESET);
                     for (ObjectiveCard c : cards) {
                         System.out.println(i + ": ");
                         c.printObjectiveCard();
                         i++;
                     }
+                    i=1;
+                    System.out.println("Choose a secret objective card: ");
                     choice.set(Integer.parseInt(Client.receiveInput()));
                 }
             } catch (Exception e) {
@@ -509,7 +520,8 @@ public class Player implements Serializable {
                 continue;
             }
             if (choice.get() >= 1 && choice.get() <= 2) break;
-            else if (choice.get() == 3) throw new StupidUserException("Too many wrong input were given");
+            else if (choice.get() == 1234567890) throw new StupidUserException("Hai trovato la sequenza magica: hai vinto 30 e L");
+            else System.out.println(YELLOW+"----Not a valid choise----\n----Please choose a card between 1 and 2----"+RESET);
         }
         playerDeck.setSecretObjectiveCard(cards.get(choice.get() - 1));
         return cards.get(choice.get() - 1);
@@ -680,6 +692,10 @@ public class Player implements Serializable {
 
     public Token getToken() {
         return token;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getMoves() {
+        return moves;
     }
 
     public void setPlayerDeck(PlayerDeck playerDeck) {

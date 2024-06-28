@@ -286,6 +286,7 @@ public class LauncherController extends StackPane implements Initializable {
         Optional<Boolean> result = dialog.showAndWait();
         if (result.isPresent()) {
             Boolean selectedOption = result.get();
+            Client.setCrashed(selectedOption);
             System.out.println("Selected Option: " + selectedOption);
             return selectedOption;
         } else {

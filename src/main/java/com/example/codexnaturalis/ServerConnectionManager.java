@@ -17,6 +17,7 @@ public class ServerConnectionManager implements Serializable {
     //protected static HashMap<Player, Socket> hashPlayer;
     static HashMap<UUID, Player> hashClient;
     public static HashMap<UUID, ClientHandler> handlers;
+    public static final Object lock = new Object();
     static boolean firstPlayer;
     static String serverName;
     static int port;
@@ -97,6 +98,12 @@ public class ServerConnectionManager implements Serializable {
         this.kickedIDs = kickedIDs;
     }
 
+    /**
+     * Method accepting incoming client connections to server, either Socket or RMI
+     * @param socket: client socket
+     * @param isReconnection: boolean indicating whether it's a reconnection after crash or initial connection
+     * @return Pair containing ObjectInputStream and ObjectOutputStream used for communication between client and server
+     */
     public Pair<ObjectInputStream, ObjectOutputStream> acceptSocketRMIConnections(Socket socket, boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
         //if (isReconnection) socketListener.setHasToRun(true);
         ObjectOutputStream out;
@@ -282,7 +289,7 @@ public class ServerConnectionManager implements Serializable {
             try{
             if(!Server.isCrashed())sendBroadCastMessage(text);
             } catch (Exception e){
-                System.out.println("Sending broadcast issue:"+e.getMessage());
+                System.out.println("Sending broadcast issue in ServerConnectionManager:"+e.getMessage());
             }
             System.out.println("in:"+ in +"out:"+ out);
             return new Pair<>(in, out);
@@ -301,10 +308,14 @@ public class ServerConnectionManager implements Serializable {
      * @param message - message object to be sent
      * @throws IOException -
      */
-    public synchronized static void sendBroadCastMessage(Message message) throws IOException {
+    public static void sendBroadCastMessage(Message message) throws IOException {
         for (int i=0;i<Server.match.getPlayerIds().size();i++) {
             UUID id=Server.match.getPlayerIds().get(i);
-            if (id!=null) handlers.get(id).sendMessage(message);
+            if (id!=null) {
+                synchronized (lock) {
+                    handlers.get(id).sendMessage(message);
+                }
+            }
         }
     }
 
@@ -316,6 +327,9 @@ public class ServerConnectionManager implements Serializable {
      * @throws IOException -
      */
     public static void sendMessage(UUID clientID, Message message) throws IOException {
+        for (UUID u : handlers.keySet()) {
+            System.out.println(u);
+        }
         handlers.get(clientID).sendMessage(message);
     }
 
@@ -352,7 +366,7 @@ public class ServerConnectionManager implements Serializable {
     }
 
     private boolean connectionCondition() {
-        synchronized (handlers) {
+        synchronized (lock) {
             for (ClientHandler h : handlers.values()) {
                 if (h instanceof SocketClientHandler && h.getReconnect()) return false;
             }

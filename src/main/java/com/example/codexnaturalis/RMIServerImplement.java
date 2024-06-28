@@ -17,9 +17,14 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
 
     @Override
     public int getNumOfPlayers() throws RemoteException {
-        return Server.getNumOfPlayers();
+        if(ServerConnectionManager.numPlayers==0) return 0;
+        return Server.getNumOfPlayers()-1;
     }
 
+    /**
+     * Lobby creation method with RMI connection
+     * @param msg: message received containing match setup information
+     */
     @Override
     public void createLobby(LobbyCreationMessage msg) {
         int desiredPlayerCount = msg.getNumPlayer();
@@ -45,7 +50,9 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         ServerConnectionManager.hashClient.put(clientID, player);
         ClientHandler handler = new RMIClientHandler(sender, clientID, Server.serverConMan);
         new Thread(handler).start();
-        ServerConnectionManager.handlers.put(clientID, handler);
+        synchronized (ServerConnectionManager.lock) {
+            ServerConnectionManager.handlers.put(clientID, handler);
+        }
         System.out.println(sender + " joined the server");
         return true;
     }
@@ -71,7 +78,20 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     @Override
     public void send(Message message) {
         UUID clientID = message.getClientID();
-        RMIClientHandler handler = (RMIClientHandler) Server.serverConMan.getHandlers().get(clientID);
+        RMIClientHandler handler = null;
+        ClientHandler tmpHand;
+        do{
+            synchronized (ServerConnectionManager.lock) {
+                tmpHand = Server.serverConMan.getHandlers().get(clientID);
+            }
+            try{
+                handler = (RMIClientHandler) tmpHand;
+            } catch(Exception e ){
+                System.out.println("REQUIRED: "+ clientID + " " + tmpHand.getClientName());
+                System.out.println(e.getMessage());
+            }
+
+        }while(handler == null);
         try {
             handler.retrieveMessage(message);
         } catch (Exception e) {
@@ -127,6 +147,11 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         return new GenericTurnMessage("Server", null, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
     }
 
+    /**
+     * Given UUID of disconnected player, it gets readded to the match
+     * @param clientID: UUID of client that's reconnecting to match
+     * @throws IOException
+     */
     @Override
     public void addDisconnectedPlayer(UUID clientID) throws IOException {
         if(Server.isCrashed()){

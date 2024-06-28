@@ -8,9 +8,11 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static com.example.codexnaturalis.Colors.*;
+
 public class Card implements Serializable {
-    String YELLOW = "\u001B[33m";
-    String RESET = "\u001B[0m";
+    /*String YELLOW = "\u001B[33m";
+    String RESET = "\u001B[0m";*/
     private int idCard;
     private String[] artRef;
 
@@ -26,6 +28,7 @@ public class Card implements Serializable {
     public String[] getArtRef() {
         return artRef;
     }
+
 }
 abstract class NonObjectiveCard extends Card {
 
@@ -100,19 +103,141 @@ abstract class NonObjectiveCard extends Card {
         }
         return flag;
     }
+    /**
+     * Prints card in a stylish and fancy way
+     * */
+    public static void printCardInBox(NonObjectiveCard card,boolean isHidden) {
+        int width = 29; // Width of the box -- use an odd number greater than 27
+        int height = 6; // Height of the box -- use an even number bigger than 3
+        String z = "";
+        String whiteSpacer;
+        String leftCorner,rightCorner;
+        String seed="";
+        String seedColor="";
+        whiteSpacer= " ".repeat((width/2)-1);
+        String cardType;
+        if(card instanceof ResourceGoldCard) {
+            cardType = (card instanceof GoldCard)? (YELLOW+"GoldCard:"+RESET):(RED+"ResourceCard:"+RESET);
+            seed = (((ResourceGoldCard)card).getSeed()).toString();
+            seedColor = switch (seed) {
+                case "Red" -> RED;
+                case "Purple" -> PURPLE;
+                case "Blue" -> BLUE;
+                case "Green" -> GREEN;
+                default -> RESET;
+            };
+        } else{
+            cardType = BLUE+"StarterCard:"+RESET;
+        }
 
-
+        if(!isHidden) System.out.println(cardType+GREEN+ "#"+card.getIdCard()+" "+seedColor+seed+RESET);
+        else System.out.println(cardType+seedColor+seed+RESET);
+        // Print top border
+        System.out.print("+");
+        for (int i = 0; i < width - 2; i++) {
+            System.out.print(seedColor+"-"+RESET);
+        }
+        System.out.println("+");
+        //Print TopCorners
+        if(isHidden) {
+            leftCorner = "[" + (card.getBackCorners().get(3).isAvailableCorner() ? "1" : "0") + "|" + card.getBackCorners().get(3).getResourceElement() + "]";
+            rightCorner = "[" + (card.getBackCorners().get(0).isAvailableCorner() ? "1" : "0") + "|" + (card.getBackCorners().get(0).getResourceElement()) + "]";
+        }
+        else{
+            leftCorner="[" + (card.getFrontCorners().get(3).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(3).getResourceElement()) + "]";
+            rightCorner="[" + (card.getFrontCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(0).getResourceElement()) + "]";
+        }
+        System.out.print("|"+YELLOW+leftCorner+RESET);
+        for (int i = 0; i < width -(rightCorner.length()+leftCorner.length()+2); i++) {
+            System.out.print(" ");
+        }
+        System.out.println(YELLOW+rightCorner+RESET+"|");
+        // Print sides with CardID
+        for (int i = 1; i < height; i++) {
+            System.out.print(seedColor+"|"+RESET);
+            System.out.print(whiteSpacer);
+            if(i==height/2&&!isHidden){
+                String tmpWhiteSpacer = " ";
+                if(card instanceof ResourceGoldCard){
+                    z = Integer.toString(((ResourceGoldCard) card).getPoints());
+                }
+                tmpWhiteSpacer=tmpWhiteSpacer.concat(whiteSpacer);
+                System.out.print(YELLOW +z+RESET);
+                System.out.print(tmpWhiteSpacer.substring(z.length()));
+            }
+            else if(i==height/2 && isHidden && card instanceof StarterCard){
+                ArrayList<ResourceGoldCard.ResourceElement> backCenter = ((StarterCard)card).getBackCentreResources();
+                int counter = 0;
+                char nice;
+                String tmp;
+                String tmpWhiteSpacer = " ";
+                for(ResourceGoldCard.ResourceElement re: backCenter){
+                    nice = re.toString().charAt(0);
+                    switch(nice){
+                        case 'M':
+                            tmp = RED+"M"+RESET;
+                            break;
+                        case 'W':
+                            tmp = BLUE+"W"+RESET;
+                            break;
+                        case 'L':
+                            tmp = GREEN+"L"+RESET;
+                            break;
+                        case 'B':
+                            tmp = PURPLE+"B"+RESET;
+                            break;
+                        default:
+                            tmp = RESET;
+                            break;
+                    }
+                    z=z.concat(tmp);
+                    ++counter;
+                }
+                tmpWhiteSpacer=whiteSpacer.concat(" ");
+                System.out.print(z);
+                System.out.print(tmpWhiteSpacer.substring(counter));
+            }
+            else System.out.print(whiteSpacer+" ");
+            System.out.println(seedColor+"|"+RESET);
+            z="";
+        }
+        //Print bottom Corners
+        if(isHidden){
+            leftCorner = "[" + (card.getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (card.getBackCorners().get(2).getResourceElement()) + "]";
+            rightCorner = "[" + (card.getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (card.getBackCorners().get(1).getResourceElement()) + "]";
+        }
+        else{
+            leftCorner= "[" + (card.getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(2).getResourceElement()) + "]";
+            rightCorner="[" + (card.getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (card.getFrontCorners().get(1).getResourceElement()) + "]";;
+        }
+        System.out.print("|"+YELLOW+leftCorner+RESET);
+        for (int i = 0; i < width -(rightCorner.length()+leftCorner.length()+2); i++) {
+            System.out.print(" ");
+        }
+        System.out.println(YELLOW+rightCorner+RESET+"|");
+        // Print bottom border
+        System.out.print("+");
+        for (int i = 0; i < width - 2; i++) {
+            System.out.print(seedColor+"-"+RESET);
+        }
+        System.out.println("+");
+        if (card instanceof GoldCard &&!isHidden) {
+            ((GoldCard) card).printRequirements();
+        }
+        System.out.println();
+    }
 
     /**
-     * Printa a console gli angoli frontali della carta
+     * Calls for printCard the function that prints the card for tui
      */
     public void printFrontCorners() {
         System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
-        System.out.print(YELLOW + "[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]" + RESET);
+        printCardInBox(this,false);
+        /*System.out.print(YELLOW + "[" + (frontCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(3).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (frontCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(0).getResourceElement()) + "]" + RESET);
         System.out.print(YELLOW + "[" + (frontCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(2).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (frontCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (frontCorners.get(1).getResourceElement()) + "]" + RESET);*/
     }
 
     /**
@@ -121,17 +246,18 @@ abstract class NonObjectiveCard extends Card {
     public void printBackCorners() {
         System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
-        System.out.print(YELLOW + "[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]" + RESET);
+        printCardInBox(this,true);
+        /*System.out.print(YELLOW + "[" + (backCorners.get(3).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(3).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (backCorners.get(0).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(0).getResourceElement()) + "]" + RESET);
         System.out.print(YELLOW + "[" + (backCorners.get(2).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(2).getResourceElement()) + "]" + RESET);
-        System.out.println(YELLOW + "[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]" + RESET);
+        System.out.println(YELLOW + "[" + (backCorners.get(1).isAvailableCorner()? "1" : "0") + "|" + (backCorners.get(1).getResourceElement()) + "]" + RESET);*/
     }
 
     public void printCardFrontAndBack() {
         if (this instanceof ResourceGoldCard) {
-            System.out.println("Analisi carta " + (this instanceof GoldCard? "Oro " : "Risorsa ") + "#" + getIdCard());
+            System.out.println((this instanceof GoldCard? "Gold " : "Resource ") +"Card " + "#" + getIdCard());
         } else if (this instanceof StarterCard) {
-            System.out.println("Analisi carta Starter " + "#" + getIdCard());
+            System.out.println("Starter Card " + "#" + getIdCard());
         }
         printFrontCorners();
         printBackCorners();
@@ -150,7 +276,7 @@ abstract class NonObjectiveCard extends Card {
 
     public ArrayList<Corner> getCorners() {
         if (isPlacedFront) {
-           return frontCorners;
+            return frontCorners;
         } else {
             return backCorners;
         }
@@ -235,7 +361,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     /**
      * Printa a console gli angoli frontali della carta
      */
-    @Override
+    /*@Override
     public void printFrontCorners() {
         System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
@@ -244,7 +370,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         System.out.print(YELLOW + "[" + (getFrontCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(2).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "Points given: " + points + RESET);
-    }
+    }*/
 
     public void setCoveredCornersWhenPlaced(int coveredCornersWhenPlaced) {
         this.coveredCornersWhenPlaced = coveredCornersWhenPlaced;
@@ -252,7 +378,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
     /**
      * Printa a console gli angoli dietro della carta
      */
-    @Override
+    /*@Override
     public void printBackCorners() {
         System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Back Corners of card #" + getIdCard() + RESET);
@@ -260,7 +386,7 @@ abstract class ResourceGoldCard extends NonObjectiveCard {
         System.out.println(YELLOW + "[" + (getBackCorners().get(0).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(0).getResourceElement()) + "]" + RESET);
         System.out.print(YELLOW + "[" + (getBackCorners().get(2).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(2).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "[" + (getBackCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getBackCorners().get(1).getResourceElement()) + "]" + RESET);
-    }
+    }*/
 
     public void setPoints(int points) {
         this.points = points;
@@ -340,7 +466,7 @@ class GoldCard extends ResourceGoldCard {
     /**
      * Printa a console gli angoli frontali della carta
      */
-    @Override
+    /*@Override
     public void printFrontCorners() {
         System.out.println(Colors.BLUE + "------------------------------" + RESET);
         System.out.println(YELLOW + "Front Corners of card #" + getIdCard() + RESET);
@@ -350,7 +476,7 @@ class GoldCard extends ResourceGoldCard {
         System.out.println(YELLOW + "[" + (getFrontCorners().get(1).isAvailableCorner()? "1" : "0") + "|" + (getFrontCorners().get(1).getResourceElement()) + "]" + RESET);
         System.out.println(YELLOW + "Points given: " + getPoints() + RESET);
         printRequirements();
-    }
+    }*/
 
     /**
      * Auxiliary method to check gold card requirements
@@ -405,9 +531,9 @@ class GoldCard extends ResourceGoldCard {
  * ObjectiveCard: SubClass of Card
  * Extra Fields: points
  */
- class ObjectiveCard extends Card {
-     private int points;
-     private String asciiArt;
+class ObjectiveCard extends Card {
+    private int points;
+    private String asciiArt;
     /**
      * Constructor of ObjectiveCard
      *
@@ -426,7 +552,6 @@ class GoldCard extends ResourceGoldCard {
         System.out.println("Objective Card #" + getIdCard());
         System.out.println("Points: " + getPoints());
         printCardAscii();
-        System.out.println("Choose a secret objective card: ");
     }
     private void printCardAscii(){
         String s = colorCorrector(asciiArt);
@@ -497,21 +622,21 @@ class GoldCard extends ResourceGoldCard {
  */
 class ObjectiveCardCombo extends ObjectiveCard {
 
-            private Seed seed;
-            private boolean type;
+    private Seed seed;
+    private boolean type;
 
-            /**
-             * Constructor of ObjectiveCardObjectSet
-             * @param idCard: ID of the card
-             * @param artRef: Art Reference of the Card
-             * @param points: points given to the player when placing the card
-             */
-            public ObjectiveCardCombo(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("asciiArt") String asciiArt, @JsonProperty("seed") Seed seed,@JsonProperty("type") boolean type) {
-                super(idCard, artRef, points,asciiArt);
-                this.seed = seed;
-                this.type = type;
-            }
-        }
+    /**
+     * Constructor of ObjectiveCardObjectSet
+     * @param idCard: ID of the card
+     * @param artRef: Art Reference of the Card
+     * @param points: points given to the player when placing the card
+     */
+    public ObjectiveCardCombo(@JsonProperty("idCard") int idCard, @JsonProperty("artRef") String[] artRef, @JsonProperty("points") int points,@JsonProperty("asciiArt") String asciiArt, @JsonProperty("seed") Seed seed,@JsonProperty("type") boolean type) {
+        super(idCard, artRef, points,asciiArt);
+        this.seed = seed;
+        this.type = type;
+    }
+}
 
 /**
  * ObjectiveCardResourceSet: SubClass of ObjectiveCard

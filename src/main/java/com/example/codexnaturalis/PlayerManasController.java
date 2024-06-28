@@ -25,6 +25,9 @@ public class PlayerManasController extends Pane {
         contents.setStyle("-fx-background-color: #d0d0d0; -fx-background-radius: 15");
     }
 
+    /**
+     * Setup of mana and points GUI
+     */
     private void setupManaView() {
         controllers = new ArrayList<>();
         for (int i = 0; i < 7; i++) {

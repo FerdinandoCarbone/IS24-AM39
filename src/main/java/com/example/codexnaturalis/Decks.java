@@ -175,7 +175,8 @@ class PlayerDeck implements Serializable {
     }
 
     public void printResourceGoldCards() {
-        for (int i = 1; i <= getResourceGoldCards().size(); i++) {
+        int size = getResourceGoldCards().size();
+        for (int i = 1; i <= size; i++) {
             System.out.println("[" + i + "]- " + getResourceGoldCards().get(i - 1).getIdCard());
             getResourceGoldCards().get(i - 1).printCardFrontAndBack();
         }
@@ -191,7 +192,7 @@ class PlayerDeck implements Serializable {
         this.starterCard = starterCard;
     }
 
-        /**
+        /*
          * Setter of secretObjectiveCard
          * @param secretObjectiveCard: secret Objective Card of the player
          */

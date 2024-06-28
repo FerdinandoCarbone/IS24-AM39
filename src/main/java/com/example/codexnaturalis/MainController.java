@@ -130,8 +130,12 @@ public class MainController extends TabPane implements Initializable {
         FieldController[] fieldControllers = new FieldController[]{field2, field3, field4};
         tabMan = new HashMap<>();
         int middleSlot = CardDim.matrixSize/2;
-        if(Client.isCrashed()) FieldController.rebuildField(field,player);
-        else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
+        System.out.println("Stato client: " + Client.isCrashed());
+        FieldController.rebuildField(field,player);
+//        if(Client.isCrashed()) {
+//            FieldController.rebuildField(field,player);
+//        }
+//        else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
         for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
             comboBox.getItems().add(playerName);
@@ -139,8 +143,9 @@ public class MainController extends TabPane implements Initializable {
             tabs[i].setDisable(false);
             tabs[i].setClosable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
-            if(Client.isCrashed()) FieldController.rebuildField(fieldControllers[i],others.get(i));
-            else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
+            FieldController.rebuildField(fieldControllers[i],others.get(i));
+//            if(Client.isCrashed()) FieldController.rebuildField(fieldControllers[i],others.get(i));
+//            else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
             System.out.println("Carta starter di " + others.get(i).getPlayerName() + " piazzata di " + (others.get(i).getPlayerDeck().getStarterCard().isPlacedFront() ? "Fronte" : "Retro"));
         }
         for (Tab tab : tabs) {
@@ -175,6 +180,9 @@ public class MainController extends TabPane implements Initializable {
 
     }
 
+    /**
+     * Setup of events of deck cards
+     */
     private void setupRGCEvents() {
         playerDeck.getCard1().setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY) {
@@ -196,6 +204,10 @@ public class MainController extends TabPane implements Initializable {
         });
     }
 
+    /**
+     * Setup of actions when selecting a card from deck
+     * @param card
+     */
     private void selectRGCFromDeck(ResourceGoldCardController card) {
         if (card.getCard() == null) {
             System.out.println("EMPTY CARD, CAN'T DO MUCH WITH IT");
@@ -216,6 +228,10 @@ public class MainController extends TabPane implements Initializable {
         }
     }
 
+    /**
+     * Action to undo a previously done move
+     * @param event
+     */
     public void resetMove(ActionEvent event) {
         if (cardPlaced) {
             lastUsedSlot.toBack();
@@ -256,21 +272,16 @@ public class MainController extends TabPane implements Initializable {
 
     }
 
-    /*private void middlePosition() {
-        double totalHeight = field.getHeight();
-        double visibleHeight = fieldScrollPane.getViewportBounds().getHeight();
-        double middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
-        fieldScrollPane.setVvalue(middlePosition);
-        totalHeight = field.getWidth();
-        visibleHeight = fieldScrollPane.getViewportBounds().getWidth();
-        middlePosition = (totalHeight - visibleHeight) / 2 / totalHeight * 1.7;
-        fieldScrollPane.setHvalue(middlePosition);
-    }*/
 
     public static void printMessage(String message) {
         textArea.appendText(message);
     }
 
+    /**
+     * Method that manages chat in GUI
+     * @param actionEvent
+     * @throws IOException
+     */
     public void chatWrite(ActionEvent actionEvent) throws IOException {
         //send to clientHandler
         String s = textField.getText();
@@ -385,6 +396,9 @@ public class MainController extends TabPane implements Initializable {
         comboBox.getItems().add("Everyone");
     }
 
+    /**
+     * Setup method of field slots logic
+     */
     private void setupFieldSlots() {
         for (int i = 0; i < field.getChildren().size(); i++) {
             SlotController tmpSlot = (SlotController) field.getChildren().get(i);
@@ -410,12 +424,15 @@ public class MainController extends TabPane implements Initializable {
         Image starter = new Image(Objects.requireNonNull(getClass().getResourceAsStream(player.getPlayerDeck().getStarterCard().getArtRef()[starterFace])));
         field.centerSlot.setSlotCardView(starter);
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
-        field.centerSlot.toFront();
+//        field.centerSlot.toFront();
         field.centerSlot.setEmpty(false);
         updateManaPointsAndStatus();
         player.printManas();
     }
 
+    /**
+     * Update of mana and points
+     */
     public void updateManaPointsAndStatus() {
         manaBar.getActualPoints().setText(String.valueOf(player.getScore()));
         ArrayList<SingleManaController> smc = manaBar.getControllers();
@@ -430,6 +447,10 @@ public class MainController extends TabPane implements Initializable {
         }
     }
 
+    /**
+     * Main logic of card placement on GUI
+     * @param slotToPlace
+     */
     private void placeCardAndRemoveFromDeck(SlotController slotToPlace) {
         if (readyToPlace) {
             if (cardToRemove.getCard() != null) {
