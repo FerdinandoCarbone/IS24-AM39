@@ -30,6 +30,6 @@ public class Launcher {
         }
         else System.out.println("Wrong format:");
         System.out.println("To start a server instance pass parameters like this: \"java -jar CodexNaturalis.jar --server <Server Port>\"");
-        System.out.println("To start a client instance pass parameters like this: \"java -jar CodexNaturalis.jar --client <Server Address> <Server Port>\"");
+        System.out.println("To start a client instance pass parameters like this: \"java -jar CodexNaturalis.jar --client <Server Address> <Server Port> <Interface>\"");
     }
 }
