@@ -78,7 +78,20 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
     @Override
     public void send(Message message) {
         UUID clientID = message.getClientID();
-        RMIClientHandler handler = (RMIClientHandler) Server.serverConMan.getHandlers().get(clientID);
+        RMIClientHandler handler = null;
+        ClientHandler tmpHand;
+        do{
+            synchronized (ServerConnectionManager.lock) {
+                tmpHand = Server.serverConMan.getHandlers().get(clientID);
+            }
+            try{
+                handler = (RMIClientHandler) tmpHand;
+            } catch(Exception e ){
+                System.out.println("REQUIRED: "+ clientID + " " + tmpHand.getClientName());
+                System.out.println(e.getMessage());
+            }
+
+        }while(handler == null);
         try {
             handler.retrieveMessage(message);
         } catch (Exception e) {

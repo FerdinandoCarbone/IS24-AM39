@@ -308,10 +308,14 @@ public class ServerConnectionManager implements Serializable {
      * @param message - message object to be sent
      * @throws IOException -
      */
-    public synchronized static void sendBroadCastMessage(Message message) throws IOException {
+    public static void sendBroadCastMessage(Message message) throws IOException {
         for (int i=0;i<Server.match.getPlayerIds().size();i++) {
             UUID id=Server.match.getPlayerIds().get(i);
-            if (id!=null) handlers.get(id).sendMessage(message);
+            if (id!=null) {
+                synchronized (lock) {
+                    handlers.get(id).sendMessage(message);
+                }
+            }
         }
     }
 
