@@ -242,10 +242,6 @@ public class Player implements Serializable {
         //Place the card on the field
         placeCard(row, column, cardToPlace);
         moves.add(new Pair<>(row, column));
-        System.out.println("Moves di " + playerName + ": ");
-        for (Pair<Integer, Integer> p : getMoves()) {
-            System.out.println(p.getKey() + ", " + p.getValue());
-        }
 
         System.out.println("In player: " + cardToPlace.getCoveredCornersWhenPlaced());
 

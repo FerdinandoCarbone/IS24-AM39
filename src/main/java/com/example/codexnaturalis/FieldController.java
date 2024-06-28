@@ -74,10 +74,6 @@ public class FieldController extends Pane {
                 }
             }
         }
-        System.out.println("Moves di " + player.getPlayerName() + ": ");
-        for (Pair<Integer, Integer> p : player.getMoves()) {
-            System.out.println(p.getKey() + ", " + p.getValue());
-        }
 
         fixZCards(field, player);
 
