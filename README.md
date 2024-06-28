@@ -1,4 +1,5 @@
 ## Codex Naturalis developed by Team AM39
+###### Please pull from master 
 ### How to Launch program:
 #### To start a server instance proceed by executing via cli:
 ##### java -jar CodexNaturalis.jar --server \<Server Port>
