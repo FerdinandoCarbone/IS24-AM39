@@ -183,7 +183,7 @@ public class ServerHandler extends Thread implements Runnable {
                     p.setScore(newStatus.getCurrPlayerPoints());
                     if (Client.isGuiSelector()) {
                         Platform.runLater(() -> {
-                            MainController.getTabMan().get(p.getPlayerName()).getValue().fillField(coords.getKey(), coords.getValue(), placedCard);
+                            MainController.getTabMan().get(p.getPlayerName()).getValue().fillField(coords.getKey(), coords.getValue(), placedCard, false);
                         });
                     }
                     break;

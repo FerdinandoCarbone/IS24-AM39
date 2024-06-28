@@ -131,10 +131,11 @@ public class MainController extends TabPane implements Initializable {
         tabMan = new HashMap<>();
         int middleSlot = CardDim.matrixSize/2;
         System.out.println("Stato client: " + Client.isCrashed());
-        if(Client.isCrashed()) {
-            FieldController.rebuildField(field,player);
-        }
-        else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
+        FieldController.rebuildField(field,player);
+//        if(Client.isCrashed()) {
+//            FieldController.rebuildField(field,player);
+//        }
+//        else field.fillField(middleSlot, middleSlot, player.getPlayerDeck().getStarterCard());
         for (int i = 0; i < others.size(); i++) {
             String playerName = others.get(i).getPlayerName();
             comboBox.getItems().add(playerName);
@@ -142,8 +143,9 @@ public class MainController extends TabPane implements Initializable {
             tabs[i].setDisable(false);
             tabs[i].setClosable(false);
             tabMan.put(playerName, new Pair<>(tabs[i], fieldControllers[i]));
-            if(Client.isCrashed()) FieldController.rebuildField(fieldControllers[i],others.get(i));
-            else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
+            FieldController.rebuildField(fieldControllers[i],others.get(i));
+//            if(Client.isCrashed()) FieldController.rebuildField(fieldControllers[i],others.get(i));
+//            else fieldControllers[i].fillField(middleSlot, middleSlot, others.get(i).getPlayerDeck().getStarterCard());
             System.out.println("Carta starter di " + others.get(i).getPlayerName() + " piazzata di " + (others.get(i).getPlayerDeck().getStarterCard().isPlacedFront() ? "Fronte" : "Retro"));
         }
         for (Tab tab : tabs) {
@@ -413,7 +415,7 @@ public class MainController extends TabPane implements Initializable {
         Image starter = new Image(Objects.requireNonNull(getClass().getResourceAsStream(player.getPlayerDeck().getStarterCard().getArtRef()[starterFace])));
         field.centerSlot.setSlotCardView(starter);
         playerDeck.getChildren().remove(playerDeck.getStarterCard());
-        field.centerSlot.toFront();
+//        field.centerSlot.toFront();
         field.centerSlot.setEmpty(false);
         updateManaPointsAndStatus();
         player.printManas();

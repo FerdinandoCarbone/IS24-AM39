@@ -1,6 +1,7 @@
 package com.example.codexnaturalis;
 
 import javafx.application.Platform;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -56,6 +57,7 @@ public class Player implements Serializable {
      * 2: Feather
      */
     private int[] elementsMana;
+    private ArrayList<Pair<Integer, Integer>> moves =  new ArrayList<Pair<Integer, Integer>>();
 
     /**
      * Constructor of the Player class
@@ -69,6 +71,7 @@ public class Player implements Serializable {
         this.resourceMana = new int[]{0, 0, 0, 0};
         this.elementsMana = new int[]{0, 0, 0};
         this.playerID = playerID;
+        moves.add(new Pair<>(CardDim.matrixSize/2, CardDim.matrixSize/2));
     }
 
     public Player(Field playerField) throws IOException {
@@ -238,6 +241,12 @@ public class Player implements Serializable {
         }
         //Place the card on the field
         placeCard(row, column, cardToPlace);
+        moves.add(new Pair<>(row, column));
+        System.out.println("Moves di " + playerName + ": ");
+        for (Pair<Integer, Integer> p : getMoves()) {
+            System.out.println(p.getKey() + ", " + p.getValue());
+        }
+
         System.out.println("In player: " + cardToPlace.getCoveredCornersWhenPlaced());
 
         //Remove the placed card from the player's deck
@@ -691,6 +700,10 @@ public class Player implements Serializable {
 
     public Token getToken() {
         return token;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getMoves() {
+        return moves;
     }
 
     public void setPlayerDeck(PlayerDeck playerDeck) {

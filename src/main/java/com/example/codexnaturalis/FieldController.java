@@ -67,20 +67,35 @@ public class FieldController extends Pane {
                slot = player.getPlayerField().getSlots()[i][j];
                 if (slot.isBusySlot()) {
                     System.out.println("FOUND CARD... GOING TO FILL FIELD");
-                    field.fillField(i,j,slot.getCardSlot());
+                    field.fillField(i,j,slot.getCardSlot(), true);
                 }
             }
         }
+        System.out.println("Moves di " + player.getPlayerName() + ": ");
+        for (Pair<Integer, Integer> p : player.getMoves()) {
+            System.out.println(p.getKey() + ", " + p.getValue());
+        }
+
+        fixZCards(field, player);
+
     }
 
-    public void fillField(int row, int column, NonObjectiveCard cardToPlace) {
+    public void fillField(int row, int column, NonObjectiveCard cardToPlace, boolean isRebuilding) {
         Image img = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream(cardToPlace.getArtRef()[cardToPlace.isPlacedFront() ? 0 : 1])));
         System.out.println("URL: " + img.getUrl() + "|" + cardToPlace.getArtRef()[cardToPlace.isPlacedFront() ? 0 : 1]);
         SlotController correspondingSlot = fieldMap.get(new Pair<>(row, column));
         correspondingSlot.setSlotCardView(img);
-        correspondingSlot.toFront();
+        if (!isRebuilding) correspondingSlot.toFront();
         correspondingSlot.disableEmptyStuff();
     }
+
+    public static void fixZCards(FieldController field, Player player) {
+        for (Pair<Integer, Integer> p : player.getMoves()) {
+            field.fieldMap.get(new Pair<>(p.getKey(), p.getValue())).toFront();
+            System.out.println("To front");
+        }
+    }
+
     public int getFieldSize() {
         return fieldSize;
     }
