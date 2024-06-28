@@ -98,6 +98,12 @@ public class ServerConnectionManager implements Serializable {
         this.kickedIDs = kickedIDs;
     }
 
+    /**
+     * Method accepting incoming client connections to server, either Socket or RMI
+     * @param socket: client socket
+     * @param isReconnection: boolean indicating whether it's a reconnection after crash or initial connection
+     * @return Pair containing ObjectInputStream and ObjectOutputStream used for communication between client and server
+     */
     public Pair<ObjectInputStream, ObjectOutputStream> acceptSocketRMIConnections(Socket socket, boolean isReconnection) throws IOException, ClassNotFoundException, InterruptedException {
         //if (isReconnection) socketListener.setHasToRun(true);
         ObjectOutputStream out;

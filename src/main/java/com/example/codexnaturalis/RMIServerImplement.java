@@ -21,6 +21,10 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         return Server.getNumOfPlayers()-1;
     }
 
+    /**
+     * Lobby creation method with RMI connection
+     * @param msg: message received containing match setup information
+     */
     @Override
     public void createLobby(LobbyCreationMessage msg) {
         int desiredPlayerCount = msg.getNumPlayer();
@@ -130,6 +134,11 @@ public class RMIServerImplement extends UnicastRemoteObject implements RemoteSer
         return new GenericTurnMessage("Server", null, Server.match.getCoveredCards(), Server.match.getPublicCards(), null);
     }
 
+    /**
+     * Given UUID of disconnected player, it gets readded to the match
+     * @param clientID: UUID of client that's reconnecting to match
+     * @throws IOException
+     */
     @Override
     public void addDisconnectedPlayer(UUID clientID) throws IOException {
         if(Server.isCrashed()){

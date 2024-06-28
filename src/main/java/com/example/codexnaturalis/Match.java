@@ -268,6 +268,10 @@ public class Match implements Serializable {
         deck.reAddSecretObjectiveCard(cardToDiscard);
     }
 
+    /**
+     * Allows a previously disconnected player to return to the match
+     * @param playerToAddId: UUID of player to reAdd to the match
+     */
     public void addDisconnectedPlayerId(UUID playerToAddId) {
         Player playerToAdd = getPlayerFromId(playerToAddId);
         int playerToAddIndex = players.indexOf(playerToAdd);
@@ -275,6 +279,11 @@ public class Match implements Serializable {
         printPlayerIds();
     }
 
+    /**
+     * Main logic of disconnected players removal
+     * @param disconnectedPlayerId: UUID of player that disconnected from the match
+     * @return StandardMatchMessage, notifies the server of the disconnected player and status of the model
+     */
     public StandardMatchMessage removeDisconnectedPlayer(UUID disconnectedPlayerId) {
         Player playerToRemove = getPlayerFromId(disconnectedPlayerId);
         int playerToRemoveIndex = players.indexOf(playerToRemove);
@@ -316,6 +325,10 @@ public class Match implements Serializable {
 
     }
 
+    /**
+     * Checks whether one player is remaining
+     * @return true if one player is left in the match, false otherwise
+     */
     private boolean onlyOnePlayerRemaining() {
         int counterPlayers = 0;
         for (int i = 0; i < playerIds.size(); i++) {
@@ -1113,16 +1126,6 @@ public class Match implements Serializable {
             }
     }
 
-    /*/**
-     * print winner
-     */
-    /*private void declareWinners() {
-        finalWinners.removeAll(finalWinners.stream().toList());
-        finalWinners.addAll(winners);
-        for (Player p : winners) {
-            System.out.println("WINNER: " + p.getPlayerName());
-        }
-    }*/
 
     public ArrayList<ResourceGoldCard> getCoveredCards() {
         return coveredCards;

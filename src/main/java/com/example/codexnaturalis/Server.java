@@ -69,12 +69,20 @@ public class Server {
         }
     }
 
+    /**
+     * Method managing server actions when match is restarting
+     * @throws IOException
+     */
     private static void matchRestart() throws IOException {
         while (!restartMatchCondition()) Thread.onSpinWait();
         reWelcomePlayer();
         serverIdle();
     }
 
+    /**
+     * Checks if condition of match restart are met
+     * @return true if match can restart, false otherwise
+     */
     public static boolean restartMatchCondition() {
         int counterIDs = 0;
         int counterHandlers = 0;
@@ -87,6 +95,10 @@ public class Server {
         return counterIDs >= 2 && counterHandlers>=2;
     }
 
+    /**
+     * If disconnected player is re added to the match, displays welcome message again
+     * @throws IOException
+     */
     private static void reWelcomePlayer() throws IOException {
         isCrashed = false;
         BroadCastStandardMessage bds = new BroadCastStandardMessage(null, null, null);
@@ -234,6 +246,10 @@ public class Server {
         }
     }
 
+    /**
+     * Gets input from user
+     * @return
+     */
     private static String getInput() {
         Scanner scanner = new Scanner(System.in);
         String input = null;

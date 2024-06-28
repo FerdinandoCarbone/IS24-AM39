@@ -5,6 +5,12 @@ import java.rmi.RemoteException;
 import java.util.Arrays;
 
 public class Launcher {
+    /**
+     * Given inputs, decides whether to launch server or client
+     * @param args
+     * @throws MalformedURLException
+     * @throws RemoteException
+     */
     public static void main(String[] args) throws MalformedURLException, RemoteException {
         int argNum = Arrays.stream(args).toList().size();
         try {
