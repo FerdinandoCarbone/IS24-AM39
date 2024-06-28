@@ -304,13 +304,6 @@ public class Player implements Serializable {
             case Feather -> elementsMana[2]++;
         }
     }
-
-    /**
-     * Given an element or resource, updates the player's manas
-     *
-     * @param e: resource or element to add
-     */
-
     /**
      * Given a Resource or Element updates the player's manas
      * @param e: element or resource to check

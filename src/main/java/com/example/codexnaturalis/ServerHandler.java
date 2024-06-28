@@ -346,7 +346,10 @@ class ServerSocketHandler extends ServerHandler {
         }
     }
 
-
+    /**
+     * Method called when there is a reconnection attempt after crash
+     * @return boolean, true if reconnection is done, false otherwise
+     */
     private boolean tryReconnectToServer() {
         boolean result = true;
         try {
@@ -382,6 +385,13 @@ class ServerSocketHandler extends ServerHandler {
         return result;
     }
 
+    /**
+     * Given a message, deserializes it and takes action accordingly to what the message says
+     * @param inputmex: message received
+     * @throws WrongMessageConversionException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private void messageReceiver(Message inputmex) throws IOException, ClassNotFoundException, WrongMessageConversionException, InterruptedException {
         Message message;
         if (inputmex == null) message = (Message) inServer.readObject();
@@ -463,6 +473,10 @@ class ServerRMIHandler extends ServerHandler {
         }
     }
 
+    /**
+     * Method called when there is a reconnection attempt after crash
+     * @return boolean, true if reconnection is done, false otherwise
+     */
     private boolean tryReconnectToServer() {
         boolean result = true;
         try {
@@ -476,6 +490,13 @@ class ServerRMIHandler extends ServerHandler {
         return result;
     }
 
+    /**
+     * Given a message, deserializes it and takes action accordingly to what the message says
+     * @param message: message received
+     * @throws WrongMessageConversionException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private void messageReceiver(Message message) throws WrongMessageConversionException, IOException, InterruptedException {
         Class<? extends Message> a = message.getClass();
         String messageType = a.getName().replaceFirst("com.example.codexnaturalis.", "");
