@@ -234,8 +234,8 @@ public class Client extends Application {
      * Method responsible for initializing the UUID. 'crashed' and 'clientID' in Client are also initialized here, according to what save file reports.
      *
      * @return - Returns -1 if no save file was found and was unable to write create a new one, a random new UUID is generated.
-     * Returns 0 if a save file was read correctly and matchID was initialized.
-     * Returns 1 if a new save file is created and a new random UUID was correctly generated
+     * Returns 1 if a save file was read correctly and matchID was initialized.
+     * Returns 0 if a new save file is created and a new random UUID was correctly generated
      */
     public static int uuidGen() {
         String fileName = "savedata/" + playerNick + "-matchInfo.cdxn";
@@ -536,7 +536,6 @@ public class Client extends Application {
                 System.out.println("This slot is not available. Select another one");
                 continue;
             }
-            player.placeCardAndRemoveFromDeck(row, column, placedCard);
             return coordinates;
         }
     }
@@ -550,7 +549,7 @@ public class Client extends Application {
      */
     private static void genericMessageAssembler() throws IOException, ClassNotFoundException {
         clearConsole();
-        ResourceGoldCard placedCard = null;
+        ResourceGoldCard placedCard;
         GenericTurnMessage message = serverHandler.getMessageTurn();
         Pair<Integer, Integer> coordinates;
 
@@ -583,6 +582,7 @@ public class Client extends Application {
                 placedCard= phase1Assembler(playerDeck);
                 if(placedCard==null) continue;
                 coordinates = phase3Assembler(placedCard);
+                player.placeCardAndRemoveFromDeck(coordinates.getKey(), coordinates.getValue(), placedCard);
                 break;
             }
         }

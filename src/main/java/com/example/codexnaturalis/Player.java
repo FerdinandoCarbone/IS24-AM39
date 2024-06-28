@@ -269,7 +269,6 @@ public class Player implements Serializable {
      * @param selectedRow:    Row of the placed card
      * @param selectedColumn: Column of the placed card
      * @param corner:         corner of the placed card to check
-     * @throws Exception
      */
     private void updateAdjacentSlots(ResourceGoldCard cardToPlace, int selectedRow, int selectedColumn, int corner) throws IndexOutOfBoundsException {
         int rowToCheck = selectedRow + calculateOffSetR(corner);

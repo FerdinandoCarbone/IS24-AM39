@@ -436,6 +436,7 @@ public class ConnectionManger {
                 handshakeACKInfo = secretSelector(handshakeACKInfo);
                 if (!typeOfConnection) ioStream.getValue().writeObject(handshakeACKInfo);
                 else remoteServerProxy.send(handshakeACKInfo);
+                getPlayer().placeStarterCard(handshakeACKInfo.getStarterCardFace());
             }
             if (Client.isGuiSelector()) Client.getSem().release();
             if(handshakeACKInfo.getClientID()!=null) Client.getServerHandler().setFirstBroadCastWasReceived(true);

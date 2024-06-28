@@ -283,7 +283,7 @@ public class ServerConnectionManager implements Serializable {
             try{
             if(!Server.isCrashed())sendBroadCastMessage(text);
             } catch (Exception e){
-                System.out.println("Sending broadcast issue:"+e.getMessage());
+                System.out.println("Sending broadcast issue in ServerConnectionManager:"+e.getMessage());
             }
             System.out.println("in:"+ in +"out:"+ out);
             return new Pair<>(in, out);

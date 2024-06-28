@@ -58,6 +58,7 @@ public class Server {
             serverStart();
         } catch (Exception e) {
             System.err.println("Server Failure: " + e.getMessage());
+            e.printStackTrace();
         }
         if(isCrashed)Collections.fill(match.getPlayerIds(), null);
         serverConMan.acceptConnection(isCrashed);
@@ -66,6 +67,7 @@ public class Server {
             else matchRestart();
         } catch (Exception e) {
             System.err.println("Server Failure: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -97,6 +99,8 @@ public class Server {
             else currPlaying.put(Server.match.getPlayers().get(i).getPlayerName(), false);}
         bds.setCurrPlaying(currPlaying);
         ServerConnectionManager.sendBroadCastMessage(bds);
+        System.out.println("CURRENT PLAYER: "+match.getCurrentPlayerID());
+        while(match.getCurrentPlayerID()==null) Thread.onSpinWait();
         ServerConnectionManager.sendMessage(match.getCurrentPlayerID(),new GenericTurnMessage(connectionInfo.getKey(), match.getCurrentPlayerID(), match.getCoveredCards(), match.getPublicCards(), null)); //match loop starts here
     }
 
