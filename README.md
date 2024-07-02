@@ -9,3 +9,12 @@ Server instances are hosted by default on 8081 but port can be specified. For RM
 \<Interface> must be either "tui" or "gui", default is tui. Default \<Server Port> is 8081, but can be adjusted. \<Server Address> is required
 ### Before launching:
 Please make a folder named "savedata" where your jar file is stored else Client will crash ONLY at first boot
+
+##### Implemented features:
+###### - Complete game ruleset 
+###### - RMI + SOCKET
+###### - GUI + TUI
+##### Advanced functionalities:
+###### - CHAT
+###### - RESILIENCE
+###### - Persistence
