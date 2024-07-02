@@ -15,6 +15,6 @@ Please make a folder named "savedata" where your jar file is stored else Client 
 ###### - RMI + SOCKET
 ###### - GUI + TUI
 ##### Advanced functionalities:
-###### - CHAT
-###### - RESILIENCE
+###### - Chat
+###### - Connections' resilience
 ###### - Persistence
